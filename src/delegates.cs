@@ -596,5 +596,95 @@ public static unsafe class delegates {
         float scale,
         float _);
     public static int __addr_TOMkpCrossExtMesFontLClutTypeRGBA = 0x501700;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void ToMakeBtlEasyFont(byte* text, float x, float y, byte alpha, float scale);
+    public static int __addr_ToMakeBtlEasyFont = 0x505AB0;
+
+    // Customization-related
+    public enum MenuListEnum : uint {
+        OVERDRIVES         = 0,
+        OVERDRIVE_MODES    = 1,
+        AEON_ABILITIES     = 3,
+        GEAR_CUSTOMIZATION = 5,
+        EQUIPMENT          = 21
+    }
+    public enum CustomizationStatusEnum : byte {
+        NONE             = 0x0,
+        AVAILABLE        = 0xb,
+        ALREADY_APPLIED  = 0xc,
+        NOT_ENOUGH_ITEMS = 0xe,
+        CONFLICTING      = 0xf, // (same group but lower level) or (same group, same level, different international bonus) or (international bonus is 0xfe AND gear has any ability with 0xff international bonus)
+        NO_SLOTS         = 0x10,
+        //NONE             = 0x11
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct CustomizationMenuList {
+        public ushort                  a_ability_id;
+        public CustomizationStatusEnum status;
+        public byte                    customization_id;
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void PrepareMenuList(MenuListEnum menu_list_id, Equipment* gear);
+    public static int __addr_PrepareMenuList = 0x004c2370;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UpdateCustomizationMenuState(int param_1);
+    public static int __addr_UpdateCustomizationMenuState = 0x004d5800;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate CustomizationRecipe* MsGetRomKaizou(int *size);
+    public static int __addr_MsGetRomKaizou = 0x390A60;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate AutoAbility* MsGetRomAbility(uint a_ability_id, int* ref_data_end);
+    public static int __addr_MsGetRomAbility = 0x3909C0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void DrawCustomizationMenu(uint param_1);
+    public static int __addr_DrawCustomizationMenu = 0x004d5f30;
+
+    // Draw customization menu
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008c1c70(int param_1, int param_2, uint param_3, int param_4);
+    public static int __addr_FUN_008c1c70 = 0x004c1c70;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void TODrawMenuPlateXYWHType(float x, float y, float w, float h, int type);
+    public static int __addr_TODrawMenuPlateXYWHType = 0x004f5f70;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008f8bb0(int param_1, float param_2, float param_3, float param_4, float param_5);
+    public static int __addr_FUN_008f8bb0 = 0x004f8bb0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void TODrawScissorXYWH(int x, int y, int w, int h);
+    public static int __addr_TODrawScissorXYWH = 0x004f9230;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008d5d20(int param_1, int param_2, int param_3, int param_4, int param_5);
+    public static int __addr_FUN_008d5d20 = 0x004d5d20;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008c0f40(int param_1, int param_2, int param_3, int param_4);
+    public static int __addr_FUN_008c0f40 = 0x004c0f40;
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public delegate void FUN_008c1350_DrawScissor512x416();
+    public static int __addr_FUN_008c1350_DrawScissor512x416 = 0x004c1350;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008d5dc0(int param_1, int param_2, int param_3);
+    public static int __addr_FUN_008d5dc0 = 0x004d5dc0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008e6cc0(float param_1, float param_2, float param_3, float param_4, int param_5, int param_6, int param_7);
+    public static int __addr_FUN_008e6cc0 = 0x004e6cc0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008d6630(int param_1, int param_2, int param_3);
+    public static int __addr_FUN_008d6630 = 0x004d6630;
 }
 

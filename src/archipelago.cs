@@ -40,7 +40,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static RegionEnum current_region = RegionEnum.None;
     public static Dictionary<RegionEnum, bool> region_is_unlocked = [];
     public static Dictionary<RegionEnum, ArchipelagoRegion> region_states = [];
-    public static Dictionary<uint, int> excess_inventory = [];
+    public static SortedDictionary<uint, int> excess_inventory = [];
+    public static SortedDictionary<uint, int> other_inventory = [];
 
     public const int NUM_CHARACTERS = 0x12;
     public static Dictionary<int, bool> unlocked_characters = [];
@@ -85,7 +86,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public Dictionary<RegionEnum, ArchipelagoRegion> region_states           { get; set; }
         public Dictionary<RegionEnum, bool>              region_is_unlocked      { get; set; }
         public Dictionary<int,        bool>              unlocked_characters     { get; set; }
-        public Dictionary<uint,       int >              excess_inventory        { get; set; }
+        public SortedDictionary<uint, int >              excess_inventory        { get; set; }
+        public SortedDictionary<uint, int >              other_inventory         { get; set; }
         public int[]                                     celestial_level         { get; set; }
         public HashSet<long>                             local_checked_locations { get; set; }
         public int                                       received_items          { get; set; }
@@ -98,6 +100,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             this.region_is_unlocked      = ArchipelagoFFXModule.region_is_unlocked;
             this.unlocked_characters     = ArchipelagoFFXModule.unlocked_characters;
             this.excess_inventory        = ArchipelagoFFXModule.excess_inventory;
+            this.other_inventory         = ArchipelagoFFXModule.other_inventory;
             this.celestial_level         = ArchipelagoFFXModule.celestial_level;
             this.skip_state_updates      = ArchipelagoFFXModule.skip_state_updates;
             this.local_checked_locations = FFXArchipelagoClient.local_checked_locations;
@@ -285,6 +288,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         unlocked_characters.Clear();
         locked_characters.Clear();
         excess_inventory.Clear();
+        other_inventory.Clear();
         celestial_level.Initialize();
         for (int i = 0; i < NUM_CHARACTERS; i++) {
             unlocked_characters.Add(i, false);
@@ -449,6 +453,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 }
                 foreach ((uint item_id, int amount) in loaded_state.excess_inventory) {
                     excess_inventory[item_id] = amount;
+                }
+                foreach ((uint item_id, int amount) in loaded_state.other_inventory) {
+                    other_inventory[item_id] = amount;
                 }
 
                 for (int i = 0; i <= 103; i++) {

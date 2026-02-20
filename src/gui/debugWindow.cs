@@ -1084,12 +1084,25 @@ public unsafe static class ArchipelagoGUI {
                     render_console();
                     ImGui.EndTabItem();
                 }
-                if (ImGui.BeginTabItem("Excess Inventory###Archipelago.GUI.TabBar.Inventory")) {
+                if (ImGui.BeginTabItem("Inventory###Archipelago.GUI.TabBar.Inventory")) {
+                    ImGui.SeparatorText("Excess");
                     if (excess_inventory.Count == 0) {
                         ImGui.Text("Empty");
                     } else { 
                         foreach ((uint item_id, int amount) in excess_inventory) {
+                            if (amount == 0) continue;
                             string item_name = get_item_name(item_id);
+                            ImGui.Text($"{item_name}: {amount}");
+                        }
+                    }
+                    ImGui.SeparatorText("Other");
+                    if (other_inventory.Count == 0) {
+                        ImGui.Text("Empty");
+                    }
+                    else {
+                        foreach ((uint item_id, int amount) in other_inventory) {
+                            if (amount == 0) continue;
+                            string item_name = get_other_item_name(item_id);
                             ImGui.Text($"{item_name}: {amount}");
                         }
                     }

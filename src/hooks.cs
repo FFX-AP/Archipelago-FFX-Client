@@ -195,10 +195,12 @@ public unsafe partial class ArchipelagoFFXModule {
     // Airship menu related
     public static FUN_00867370 _FUN_00867370;
     public static FUN_008671d0 _FUN_008671d0;
-    public static TOMkpCrossExtMesFontLClutTypeRGBA _TOMkpCrossExtMesFontLClutTypeRGBA;
     public static Map_show2DLayerResultInt _Map_show2DLayerResultInt;
     public static Map_hide2DLayerResultInt _Map_hide2DLayerResultInt;
 
+    // Drawing
+    public static TOMkpCrossExtMesFontLClutTypeRGBA _TOMkpCrossExtMesFontLClutTypeRGBA;
+    public static ToMakeBtlEasyFont _ToMakeBtlEasyFont;
 
     public void init_hooks() {
         const string game = "FFX.exe";
@@ -398,11 +400,32 @@ public unsafe partial class ArchipelagoFFXModule {
         // Custom namespace
         _AtelInitTotal = new FhMethodHandle<AtelInitTotal>(this, game, __addr_AtelInitTotal, h_AtelInitTotal);
 
+        // Airship
         _FUN_00867370 = FhUtil.get_fptr<FUN_00867370>(__addr_FUN_00867370);
         _FUN_008671d0 = FhUtil.get_fptr<FUN_008671d0>(__addr_FUN_008671d0);
-        _TOMkpCrossExtMesFontLClutTypeRGBA = FhUtil.get_fptr<TOMkpCrossExtMesFontLClutTypeRGBA>(__addr_TOMkpCrossExtMesFontLClutTypeRGBA);
         _Map_show2DLayerResultInt = FhUtil.get_fptr<Map_show2DLayerResultInt>(__addr_Map_show2DLayerResultInt);
         _Map_hide2DLayerResultInt = FhUtil.get_fptr<Map_hide2DLayerResultInt>(__addr_Map_hide2DLayerResultInt);
+
+        // Drawing
+        _TOMkpCrossExtMesFontLClutTypeRGBA = FhUtil.get_fptr<TOMkpCrossExtMesFontLClutTypeRGBA>(__addr_TOMkpCrossExtMesFontLClutTypeRGBA);
+        _ToMakeBtlEasyFont = FhUtil.get_fptr<ToMakeBtlEasyFont>(__addr_ToMakeBtlEasyFont);
+
+        _PrepareMenuList = new FhMethodHandle<PrepareMenuList>(this, game, __addr_PrepareMenuList, h_PrepareMenuList);
+        _UpdateCustomizationMenuState = new FhMethodHandle<UpdateCustomizationMenuState>(this, game, __addr_UpdateCustomizationMenuState, h_UpdateCustomizationMenuState);
+        _DrawCustomizationMenu = new FhMethodHandle<DrawCustomizationMenu>(this, game, __addr_DrawCustomizationMenu, h_DrawCustomizationMenu);
+        _MsGetRomKaizou = FhUtil.get_fptr<MsGetRomKaizou>(__addr_MsGetRomKaizou);
+        _MsGetRomAbility = FhUtil.get_fptr<MsGetRomAbility>(__addr_MsGetRomAbility);
+
+        _FUN_008c1c70                    = FhUtil.get_fptr<FUN_008c1c70>(__addr_FUN_008c1c70);
+        _TODrawMenuPlateXYWHType         = FhUtil.get_fptr<TODrawMenuPlateXYWHType>(__addr_TODrawMenuPlateXYWHType);
+        _FUN_008f8bb0                    = FhUtil.get_fptr<FUN_008f8bb0>(__addr_FUN_008f8bb0);
+        _TODrawScissorXYWH               = FhUtil.get_fptr<TODrawScissorXYWH>(__addr_TODrawScissorXYWH);
+        _FUN_008d5d20                    = FhUtil.get_fptr<FUN_008d5d20>(__addr_FUN_008d5d20);
+        _FUN_008c0f40                    = FhUtil.get_fptr<FUN_008c0f40>(__addr_FUN_008c0f40);
+        _FUN_008c1350_DrawScissor512x416 = FhUtil.get_fptr<FUN_008c1350_DrawScissor512x416>(__addr_FUN_008c1350_DrawScissor512x416);
+        _FUN_008d5dc0                    = FhUtil.get_fptr<FUN_008d5dc0>(__addr_FUN_008d5dc0);
+        _FUN_008e6cc0                    = FhUtil.get_fptr<FUN_008e6cc0>(__addr_FUN_008e6cc0);
+        _FUN_008d6630                    = FhUtil.get_fptr<FUN_008d6630>(__addr_FUN_008d6630);
     }
 
     public static int ignore_this = 11;
@@ -429,7 +452,6 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     public bool hook() {
-
         return _Common_obtainTreasureInit.hook() && _Common_obtainTreasureSilentlyInit.hook() && _Common_obtainBrotherhoodRetInt.hook()
             && _TkSetLegendAbility.hook() && _Common_setPrimerCollected.hook()
             && _AtelEventSetUp.hook() && _Common_transitionToMap.hook() && _Common_warpToMap.hook()
@@ -442,7 +464,8 @@ public unsafe partial class ArchipelagoFFXModule {
             && _graphicInitFMVPlayer.hook() && _FmodVoice_dataChange.hook()
             && _AtelInitTotal.hook()
             && _LocalizationManager_Initialize.hook()
-            && _TkMenuAppearMainCmdWindow.hook();
+            && _TkMenuAppearMainCmdWindow.hook()
+            && _PrepareMenuList.hook() && _UpdateCustomizationMenuState.hook() && _DrawCustomizationMenu.hook();
         //&& _FUN_00656c90.hook() && _FUN_0065ee30.hook();
         //&& _openFile.hook() && _FUN_0070aec0.hook();
         //&& _MsCheckLeftWindow.hook() && _MsCheckUseCommand.hook() && _TOBtlDrawStatusLimitGauge.hook();
@@ -2889,6 +2912,7 @@ public unsafe partial class ArchipelagoFFXModule {
         var item_type = (item_id & 0xF000) >> 12;
         if (amount == -1) amount = (int)((item_id & 0xFF0000) >> 16);
         item_id &= 0xFFFF;
+        int count;
         switch (item_type) {
             case 0xA:
                 // Key Item
@@ -2953,7 +2977,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 new_weapon.dmg_formula = weapon_data->dmg_formula;
                 new_weapon.power = weapon_data->power;
                 new_weapon.crit_bonus = weapon_data->crit_bonus;
-                int count = 0;
+                count = 0;
                 for (int i = 0; i < 4; i++) {
                     if (weapon_data->abilities[i] == 0) {
                         new_weapon.abilities[i] = 0xff;
@@ -3019,6 +3043,12 @@ public unsafe partial class ArchipelagoFFXModule {
                 if (item_id == 0) {
                     queued_voice_lines.Enqueue(voicelines[rng.Next(voicelines.Length)]);
                 }
+                break;
+            case 0xC:
+                // Other
+                logger.Debug($"Other: {item_id}");
+                other_inventory.TryGetValue(item_id, out count);
+                other_inventory[item_id] = count+1;
                 break;
         }
     }
@@ -3395,6 +3425,13 @@ public unsafe partial class ArchipelagoFFXModule {
         return decoded_string;
     }
 
+    public static string get_other_item_name(uint item_id) {
+        var item_type = (item_id & 0xF000) >> 12;
+        var id = item_id & 0xFF;
+
+        if (item_type != 0xC || !(id < other_item_names.Length)) return $"Unnamed item ({item_id})";
+        return other_item_names[id];
+    }
 
     private static Dictionary<int, CT_Exec>     cached_CT_Execs     = new();
     private static Dictionary<int, CT_RetInt>   cached_CT_RetInts   = new();
