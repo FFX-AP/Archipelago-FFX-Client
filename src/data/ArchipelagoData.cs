@@ -1291,7 +1291,7 @@ public static class ArchipelagoData {
         "Customization: One MP Cost",
         "Customization: Double AP",
         "Customization: Triple AP",
-        "Customization: Overdrive -> AP",
+        "Customization: Overdrive to AP",
         "Customization: SOS Overdrive",
         "Customization: Double Overdrive",
         "Customization: Triple Overdrive",
