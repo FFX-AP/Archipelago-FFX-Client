@@ -390,10 +390,10 @@ public static class ArchipelagoData {
             290,
             308,
             279,
-            266,
             372,
             ] },
         { RegionEnum.CavernOfTheStolenFayth, [
+            266,
             56,
             283,
             ] },
@@ -788,7 +788,7 @@ public static class ArchipelagoData {
                 { 2440, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 223, next_entrance = 4, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Calm Lands complete"); } } }, // Normally ends at 2440, but CSR skips from 2420 to 2510
                 { 2510, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 223, next_entrance = 4, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Calm Lands complete"); } } }, // Normally ends at 2440, but CSR skips from 2420 to 2510
             } } },
-        {RegionEnum.CavernOfTheStolenFayth, new(){ story_progress = 2385, room_id = 56, entrance = 0, airship_destination_index = 16 } },
+        {RegionEnum.CavernOfTheStolenFayth, new(){ story_progress = 2420, room_id = 266, entrance = 0, airship_destination_index = 16 } },
         {RegionEnum.MtGagazet, new(){ story_progress = 2440, room_id = 259, entrance = 0, airship_destination_index = 18,
             story_checks = {
                 { 2680, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 259, next_entrance = 2, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Mt. Gagazet complete"); } } },
