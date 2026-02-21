@@ -422,10 +422,14 @@ public unsafe partial class ArchipelagoFFXModule {
         _ToMakeBtlEasyFont = FhUtil.get_fptr<ToMakeBtlEasyFont>(__addr_ToMakeBtlEasyFont);
 
         _PrepareMenuList = new FhMethodHandle<PrepareMenuList>(this, game, __addr_PrepareMenuList, h_PrepareMenuList);
-        _UpdateCustomizationMenuState = new FhMethodHandle<UpdateCustomizationMenuState>(this, game, __addr_UpdateCustomizationMenuState, h_UpdateCustomizationMenuState);
-        _DrawCustomizationMenu = new FhMethodHandle<DrawCustomizationMenu>(this, game, __addr_DrawCustomizationMenu, h_DrawCustomizationMenu);
+        _UpdateGearCustomizationMenuState = new FhMethodHandle<UpdateGearCustomizationMenuState>(this, game, __addr_UpdateCustomizationMenuState, h_UpdateGearCustomizationMenuState);
+        _DrawGearCustomizationMenu = new FhMethodHandle<DrawGearCustomizationMenu>(this, game, __addr_DrawCustomizationMenu, h_DrawGearCustomizationMenu);
         _MsGetRomKaizou = FhUtil.get_fptr<MsGetRomKaizou>(__addr_MsGetRomKaizou);
         _MsGetRomAbility = FhUtil.get_fptr<MsGetRomAbility>(__addr_MsGetRomAbility);
+        _MsGetRomSummonGrow = FhUtil.get_fptr<MsGetRomSummonGrow>(__addr_MsGetRomSummonGrow);
+        _TkMn2GetSummonGrowMax = FhUtil.get_fptr<TkMn2GetSummonGrowMax>(__addr_TkMn2GetSummonGrowMax);
+        _TkMenuGetCurrentSummon = FhUtil.get_fptr<TkMenuGetCurrentSummon>(__addr_TkMenuGetCurrentSummon);
+        _MsGetSaveCommand = FhUtil.get_fptr<MsGetSaveCommand>(__addr_MsGetSaveCommand);
 
         _FUN_008c1c70                    = FhUtil.get_fptr<FUN_008c1c70>(__addr_FUN_008c1c70);
         _TODrawMenuPlateXYWHType         = FhUtil.get_fptr<TODrawMenuPlateXYWHType>(__addr_TODrawMenuPlateXYWHType);
@@ -476,7 +480,7 @@ public unsafe partial class ArchipelagoFFXModule {
             && _AtelInitTotal.hook()
             && _LocalizationManager_Initialize.hook()
             && _TkMenuAppearMainCmdWindow.hook()
-            && _PrepareMenuList.hook() && _UpdateCustomizationMenuState.hook() && _DrawCustomizationMenu.hook();
+            && _PrepareMenuList.hook() && _UpdateGearCustomizationMenuState.hook() && _DrawGearCustomizationMenu.hook();
         //&& _FUN_00656c90.hook() && _FUN_0065ee30.hook();
         //&& _openFile.hook() && _FUN_0070aec0.hook();
         //&& _MsCheckLeftWindow.hook() && _MsCheckUseCommand.hook() && _TOBtlDrawStatusLimitGauge.hook();

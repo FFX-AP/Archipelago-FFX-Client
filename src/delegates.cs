@@ -583,12 +583,17 @@ public static unsafe class delegates {
         EQUIPMENT          = 21
     }
     public enum CustomizationStatusEnum : byte {
-        NONE             = 0x0,
-        AVAILABLE        = 0xb,
-        ALREADY_APPLIED  = 0xc,
-        NOT_ENOUGH_ITEMS = 0xe,
-        CONFLICTING      = 0xf, // (same group but lower level) or (same group, same level, different international bonus) or (international bonus is 0xfe AND gear has any ability with 0xff international bonus)
-        NO_SLOTS         = 0x10,
+        NONE                          = 0x0,
+        AEON_AVAILABLE                = 0x4,
+        AEON_ALREADY_LEARNED          = 0x5,
+        AEON_CANNOT_LEARN_WITHOUT_KEY = 0x6,
+        AEON_NOT_ENOUGH_ITEMS         = 0x7,
+
+        GEAR_AVAILABLE        = 0xb,
+        GEAR_ALREADY_APPLIED  = 0xc,
+        GEAR_NOT_ENOUGH_ITEMS = 0xe,
+        GEAR_CONFLICTING      = 0xf, // (same group but lower level) or (same group, same level, different international bonus) or (international bonus is 0xfe AND gear has any ability with 0xff international bonus)
+        GEAR_NO_SLOTS         = 0x10,
         //NONE             = 0x11
     }
 
@@ -604,7 +609,7 @@ public static unsafe class delegates {
     public static int __addr_PrepareMenuList = 0x004c2370;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void UpdateCustomizationMenuState(int param_1);
+    public delegate void UpdateGearCustomizationMenuState(int param_1);
     public static int __addr_UpdateCustomizationMenuState = 0x004d5800;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -616,10 +621,32 @@ public static unsafe class delegates {
     public static int __addr_MsGetRomAbility = 0x3909C0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void DrawCustomizationMenu(uint param_1);
-    public static int __addr_DrawCustomizationMenu = 0x004d5f30;
+    public delegate CustomizationRecipe* MsGetRomSummonGrow(int* size);
+    public static int __addr_MsGetRomSummonGrow = 0x390B00;
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public delegate int TkMn2GetSummonGrowMax();
+    public static int __addr_TkMn2GetSummonGrowMax = 0x4C1C20;
+
+    
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate byte TkMenuGetCurrentSummon();
+    public static int __addr_TkMenuGetCurrentSummon = 0x4A9830;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate bool MsGetSaveCommand(int char_id, uint com_id);
+    public static int __addr_MsGetSaveCommand = 0x3850E0;
+
+    
+
+
 
     // Draw customization menu
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void DrawGearCustomizationMenu(uint param_1);
+    public static int __addr_DrawCustomizationMenu = 0x004d5f30;
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void FUN_008c1c70(int param_1, int param_2, uint param_3, int param_4);
     public static int __addr_FUN_008c1c70 = 0x004c1c70;
