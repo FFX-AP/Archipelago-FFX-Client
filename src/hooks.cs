@@ -1209,6 +1209,19 @@ public unsafe partial class ArchipelagoFFXModule {
         {"kami0300", [(0x685F, 1)] },
     };
 
+    private static readonly Dictionary<string, (uint offset, ushort other_id)> event_to_jecht_sphere_offsets = new() {
+     // {"        ", (0x0000, 177) }, // Jecht Sphere 1  - Macalania Woods Post-Spherimorph | Handled from story_check 1470
+        {"mcfr0000", (0x5FFA,  27) }, // Jecht Sphere 2  - Macalania Woods Entrance
+        {"bsvr0000", (0x12F21, 28) }, // Jecht Sphere 3  - Besaid Village Beside Temple
+        {"slik0300", (0x103C,  29) }, // Jecht Sphere 4  - S.S. Liki Bridge
+        {"lchb1300", (0x013B,  30) }, // Jecht Sphere 5  - Luca Stadium Basement A
+        {"mihn0400", (0x4EC5,  31) }, // Jecht Sphere 6  - Miihen Highroad Old-Road
+        {"kino0500", (0x7BEF,  32) }, // Auron Sphere    - Mushroom Rock Road Ridge
+        {"genk0600", (0x013B,  33) }, // Jecht Sphere 7  - Moonflow South Warf
+        {"kami0000", (0x7128,  34) }, // Jecht Sphere 8  - Thunder Plains South
+        {"mtgz0100", (0x5098,  35) }, // Braska Sphere   - Mt. Gagazet Mountain Trail
+    };
+
     private static Dictionary<(int, int), uint> originalEntryPoints = new();
     private static string current_event_name = "";
     private static void h_AtelEventSetUp(int event_id) {
@@ -1664,6 +1677,16 @@ public unsafe partial class ArchipelagoFFXModule {
                     AtelOp.NOP          .build(),
                     ]);
             }
+        }
+
+        // Jecht Sphere locations
+        if (event_to_jecht_sphere_offsets.TryGetValue(event_name, out var jecht_sphere)) {
+            set(code_ptr, jecht_sphere.offset, [
+                AtelOp.PUSHII   .build(jecht_sphere.other_id),
+                AtelOp.CALLPOPA .build((ushort)CustomCallTarget.SEND_OTHER_LOCATION),
+                AtelOp.JMP      .build(0x0005),
+                .. atelNOPArray(7),
+                ]);
         }
 
         // Celestial weapon locations
@@ -2916,8 +2939,14 @@ public unsafe partial class ArchipelagoFFXModule {
         switch (item_type) {
             case 0xA:
                 // Key Item
+
+                //Progressive Jecht's Sphere
+                if (item_id == 0xA020 && Globals.save_data->key_items.get(item_id)) {
+                    save_data->jecht_spheres_collected_count++;
+                }
+
                 h_TkMsImportantSet(item_id);
-                // TODO: Handle Jecht Spheres and Al Bhed Primers
+                // TODO: Handle Al Bhed Primers
                 break;
             case 0x2:
                 // Item
@@ -3487,6 +3516,7 @@ public unsafe partial class ArchipelagoFFXModule {
         IS_OTHER_LOCATION_CHECKED,
         IS_TREASURE_LOCATION_CHECKED,
         COLLECTED_PRIMERS,
+        SEND_OTHER_LOCATION,
         SEND_PARTY_MEMBER_LOCATION,
         SEND_RECRUIT_LOCATION,
         BLOCK_WARP,
@@ -3519,6 +3549,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_IsOtherLocationChecked)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_IsTreasureLocationChecked)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_CollectedPrimers)},
+        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SendOtherLocation)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SendPartyMemberLocation)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SendRecruitLocation)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_BlockWarp)},
@@ -3611,6 +3642,19 @@ public unsafe partial class ArchipelagoFFXModule {
         logger.Debug($"CollectedPrimers: {collected_primers}");
 
         return collected_primers;
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int CT_RetInt_SendOtherLocation(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
+        int other_id =  atelStack->pop_int();
+        if (!FFXArchipelagoClient.local_checked_locations.Contains(other_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Other)) {
+            if (ArchipelagoFFXModule.item_locations.other.TryGetValue(other_id, out var item)) {
+                if (FFXArchipelagoClient.sendLocation(other_id, FFXArchipelagoClient.ArchipelagoLocationType.Other)) {
+                    ArchipelagoFFXModule.obtain_item(item.id);
+                }
+            }
+        }
+        return 1;
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
