@@ -500,6 +500,28 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
+    private static void move(byte* code_ptr, uint sourceOffset, int moveBy, int size) {
+        Span<Byte> source      = new(code_ptr + sourceOffset         , size);
+        Span<Byte> destination = new(code_ptr + sourceOffset + moveBy, size);
+
+        Span<Byte> destinationSource;
+        Span<Byte> destinationDestination;
+        int destinationSize = Math.Abs(moveBy);
+        if (moveBy < 0) {
+            destinationSource      = new(code_ptr + sourceOffset + moveBy       , destinationSize);
+            destinationDestination = new(code_ptr + sourceOffset + moveBy + size, destinationSize);
+        } else {
+            destinationSource      = new(code_ptr + sourceOffset + size, destinationSize);
+            destinationDestination = new(code_ptr + sourceOffset       , destinationSize);
+        }
+
+        byte[] temp = new byte[destinationSize];
+        destinationSource.CopyTo(temp);
+
+        source.CopyTo(destination);
+        temp.CopyTo(destinationDestination);
+    }
+
 
 
     private static byte* h_FUN_0086bec0(int param_1) {
@@ -1407,6 +1429,59 @@ public unsafe partial class ArchipelagoFFXModule {
                 //    AtelOp.RET.build(),
                 //    ]);
                 break;
+            case "genk0000":
+                // Remove GameMoment check for Belgemine
+                set(code_ptr, 0x2180 + 8, atelNOPArray(8));
+
+                // Remove loss reward
+                set(code_ptr, 0x28AB, atelNOPArray(9));
+
+                // Remove Common.halt()
+                set(code_ptr, 0x7678, atelNOPArray(3));
+
+                // Move section forward by 24 bytes
+                Globals.Atel.current_controller->worker(0x10)->table_jump[0x06] = 0x7594 + 24 + 16; // vanilla+24+16
+                Globals.Atel.current_controller->worker(0x10)->table_jump[0x07] = 0x75E6 + 16; // vanilla+16
+                move(code_ptr, 0x7594, 24, 0x75B6 - 0x7594);
+                move(code_ptr, 0x7594 + 24, 16, 0x75F4 - (0x7594 + 24));
+
+                // Don't always set flag 
+                //set(code_ptr, 0x75F4, atelNOPArray(10));
+
+                // Don't always hide Belgemine 
+                set(code_ptr, 0x763B, atelNOPArray(11));
+
+                // Set flag and hide Belgemine on win (15 + 24 + 16 bytes available)
+                set(code_ptr, 0x758B, [
+                    // AE3C00 D80000                   call Common.wait [0000h](frames=90);
+                    AtelOp.PUSHII  .build(90),
+                    AtelOp.CALLPOPA.build(0x0000),
+
+                    // 9F0500 AE0200 03 A00500         Set MoonflowFlags3 = MoonflowFlags3 | 2 [02h];
+                    AtelOp.PUSHV   .build(0x0005),
+                    AtelOp.PUSHII  .build(0x0002),
+                    AtelOp.OR      .build(),
+                    AtelOp.POPV    .build(0x0005),
+
+                    // AE0B00 D83600                   call Common.stopMotion [0036h](worker=w0B [0Bh]);
+                    AtelOp.PUSHII  .build(0x000B),
+                    AtelOp.CALLPOPA.build(0x0036),
+
+                    // AE0300 AE0B00 AE0700 38 25      runAndAwaitEnd w0Be07 (Level 3);
+                    AtelOp.PUSHII  .build(0x0003),
+                    AtelOp.PUSHII  .build(0x000B),
+                    AtelOp.PUSHII  .build(0x0007),
+                    AtelOp.REQEW   .build(),
+                    AtelOp.POPA    .build(),
+
+                    // AE0B00 D8A700                   call Common.deactivate [00A7h](worker=w0B [0Bh]);
+                    AtelOp.PUSHII  .build(0x000B),
+                    AtelOp.CALLPOPA.build(0x00A7),
+
+                    AtelOp.JMP     .build(0x0007),
+                    //.. atelNOPArray(3),
+                    ]);
+                break;
             case "mcfr0100":
                 // Check Saturn Sigil location instead of inventory (butterfly minigame)
                 set(code_ptr, [0x5792, 0x5985, 0x5AD5], [
@@ -1602,6 +1677,62 @@ public unsafe partial class ArchipelagoFFXModule {
                 set(code_ptr, 0xCCDB, atelNOPArray(10));
                 set(code_ptr, 0xE686, atelNOPArray(10));
                 break;
+            case "mihn0000":
+                // Ignore GameMoment for Belgemine
+                set(code_ptr, 0x8346, [
+                    // AE0000 A21100 AE0200 05 19 19 19    !!!(BelgemineFightProgressionFlags[0] & 2 [02h])
+                    AtelOp.PUSHII  .build(0x0000),
+                    AtelOp.PUSHAR  .build(0x0011),
+                    AtelOp.PUSHII  .build(0x0002),
+                    AtelOp.AND     .build(),
+                    AtelOp.NOT     .build(),
+                    AtelOp.NOT     .build(),
+                    AtelOp.NOT     .build(),
+                    ..atelNOPArray(8),
+                    ]);
+
+                // Remove loss reward
+                set(code_ptr, [0x8934, 0x8E7C], atelNOPArray(9));
+
+                // Move back by 6
+                move(code_ptr, 0x8895, -6, 0x88D8 - 0x8895);
+                move(code_ptr, 0x8DDD, -6, 0x8E20 - 0x8DDD);
+                // Move back by 14
+                move(code_ptr, 0x86D8, -14, 0x88D8 - 0x86D8);
+                move(code_ptr, 0x8C20, -14, 0x8E20 - 0x8C20);
+
+                foreach ((uint offset, ushort elseJump) in ((uint, ushort)[])[(0x88D8, 0x0D), (0x8E20, 0x1B)]) {
+                    set(code_ptr, offset - 14 - 6, [
+
+                        // Check (Battle.BattleEndType() == 2) else jump to elseJump
+                        AtelOp.CALL     .build(0x7035),
+                        AtelOp.PUSHII   .build(0x0002),
+                        AtelOp.EQ       .build(),
+                        AtelOp.POPXNCJMP.build(elseJump),
+
+                        // AE0000 2B A21100 AE0200 03 A31100    Set BelgemineFightProgressionFlags[0] = BelgemineFightProgressionFlags[0] | 2 [02h];
+                        AtelOp.PUSHII   .build(0x0000),
+                        AtelOp.REPUSH   .build(),
+                        AtelOp.PUSHAR   .build(0x0011),
+                        AtelOp.PUSHII   .build(0x0002),
+                        AtelOp.OR       .build(),
+                        AtelOp.POPAR    .build(0x0011),
+
+                        ..atelNOPArray(3),
+                        ]);
+                }
+
+                // Don't unload Belgemine
+                move(code_ptr, 0x8AF0, 0x8ADF - 0x8AF0, 3);
+                Globals.Atel.current_controller->worker(0x18)->table_jump[0x0C] = 0x8ADF + 3;
+                set(code_ptr, 0x893D, AtelOp.JMP.build(0x0C));
+
+                move(code_ptr, 0x9038, 0x9027 - 0x9038, 3);
+                Globals.Atel.current_controller->worker(0x18)->table_jump[0x1A] = 0x9027 + 3;
+                set(code_ptr, 0x8E85, AtelOp.JMP.build(0x1A));
+
+
+                break;
             case "mcfr0200":
                 // Check Saturn Sigil location instead of inventory
                 set(code_ptr, [0x2647, 0x283A, 0x298A], [
@@ -1621,6 +1752,70 @@ public unsafe partial class ArchipelagoFFXModule {
                 //    AtelOp.CALLPOPA     .build((ushort)CustomCallTarget.BLOCK_WARP),
                 //    ]);
                 //set(code_ptr, 0x346A1, atelNOPArray(17));
+
+
+                // Belgemine
+                // Ignore GameMoment and Familiarity
+                set(code_ptr, 0x5819, [
+                    // AE0000 A21700 AE0800 05 19 19 19    !!!(BelgemineFightProgressionFlags[0] & 8 [08h])
+                        AtelOp.PUSHII   .build(0x0000),
+                        AtelOp.PUSHAR   .build(0x0017),
+                        AtelOp.PUSHII   .build(0x0008),
+                        AtelOp.AND      .build(),
+                        AtelOp.NOT      .build(),
+                        AtelOp.NOT      .build(),
+                        AtelOp.NOT      .build(),
+                        .. atelNOPArray(17),
+                    ]);
+
+                // Remove loss reward
+                set(code_ptr, [0x5FC7, 0x674B, 0x6CC1], atelNOPArray(9));
+
+                // Move code blocks back by 14
+                //swap(code_ptr, 0x5D19, 0x5D0B, 0x5E96 - 0x5D19);
+                //swap(code_ptr, 0x649D, 0x648F, 0x661A - 0x649D);
+                //swap(code_ptr, 0x6A13, 0x6A05, 0x6B90 - 0x6A13);
+                move(code_ptr, 0x5D19, -14, 0x5E96 - 0x5D19);
+                move(code_ptr, 0x649D, -14, 0x661A - 0x649D);
+                move(code_ptr, 0x6A13, -14, 0x6B90 - 0x6A13);
+
+                foreach ((uint offset, ushort elseJump) in ((uint, ushort)[])[(0x5E96, 0x10), (0x661A, 0x1F), (0x6B90, 0x2D)]) {
+                    set(code_ptr, offset - 14, [
+                        // AE3C00 AE3000 D88001    call Common.changeCurrentBgmVol? [0180h](oldVol?=60 [3Ch], newVol?=48 [30h]);
+                        AtelOp.PUSHII   .build(0x003C),
+                        AtelOp.PUSHII   .build(0x0030),
+                        AtelOp.CALLPOPA .build(0x0180),
+
+                        // Check (Battle.BattleEndType() == 2) else jump to elseJump
+                        AtelOp.CALL     .build(0x7035),
+                        AtelOp.PUSHII   .build(0x0002),
+                        AtelOp.EQ       .build(),
+                        AtelOp.POPXNCJMP.build(elseJump),
+
+                        // AE0000 2B A21700 AE0800 03 A31700    Set BelgemineFightProgressionFlags[0] = BelgemineFightProgressionFlags[0] | 8 [08h];
+                        AtelOp.PUSHII   .build(0x0000),
+                        AtelOp.REPUSH   .build(),
+                        AtelOp.PUSHAR   .build(0x0017),
+                        AtelOp.PUSHII   .build(0x0008),
+                        AtelOp.OR       .build(),
+                        AtelOp.POPAR    .build(0x0017),
+
+                        ..atelNOPArray(3),
+                        ]);
+                }
+
+                // Don't unload Belgemine
+                set(code_ptr, [0x611E, 0x68A2, 0x6E18], atelNOPArray(3));
+
+                Globals.Atel.current_controller->worker(0x0A)->table_jump[0x0F] = 0x60E4;
+                set(code_ptr, 0x6029, AtelOp.JMP.build(0x0F));
+
+                Globals.Atel.current_controller->worker(0x0A)->table_jump[0x1E] = 0x6868;
+                set(code_ptr, 0x67AD, AtelOp.JMP.build(0x1E));
+
+                Globals.Atel.current_controller->worker(0x0A)->table_jump[0x2C] = 0x6DDE;
+                set(code_ptr, 0x6D23, AtelOp.JMP.build(0x2C));
+
 
                 break;
             case "nagi0600":
@@ -2235,7 +2430,7 @@ public unsafe partial class ArchipelagoFFXModule {
             current_state = region_states[current_region];
 
             for (int i = 0; i < current_state.savedata.Length; i++) {
-                ref var data = ref current_state.savedata[i];
+                ref ArchipelagoRegionSaveData data = ref current_state.savedata[i];
                 new Span<byte>((byte*)((int)save_data + data.offset), data.size).CopyTo(data.bytes);
             }
 
