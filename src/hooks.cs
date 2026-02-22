@@ -1209,17 +1209,17 @@ public unsafe partial class ArchipelagoFFXModule {
         {"kami0300", [(0x685F, 1)] },
     };
 
-    private static readonly Dictionary<string, (uint offset, ushort other_id)> event_to_jecht_sphere_offsets = new() {
-     // {"        ", (0x0000, 177) }, // Jecht Sphere 1  - Macalania Woods Post-Spherimorph | Handled from story_check 1470
-        {"mcfr0000", (0x5FFA,  27) }, // Jecht Sphere 2  - Macalania Woods Entrance
-        {"bsvr0000", (0x12F21, 28) }, // Jecht Sphere 3  - Besaid Village Beside Temple
-        {"slik0300", (0x103C,  29) }, // Jecht Sphere 4  - S.S. Liki Bridge
-        {"lchb1300", (0x013B,  30) }, // Jecht Sphere 5  - Luca Stadium Basement A
-        {"mihn0400", (0x4EC5,  31) }, // Jecht Sphere 6  - Miihen Highroad Old-Road
-        {"kino0500", (0x7BEF,  32) }, // Auron Sphere    - Mushroom Rock Road Ridge
-        {"genk0600", (0x013B,  33) }, // Jecht Sphere 7  - Moonflow South Warf
-        {"kami0000", (0x7128,  34) }, // Jecht Sphere 8  - Thunder Plains South
-        {"mtgz0100", (0x5098,  35) }, // Braska Sphere   - Mt. Gagazet Mountain Trail
+    private static readonly Dictionary<string, (uint offset, ushort other_id, ushort sphere_bit)> event_to_jecht_sphere_offsets = new() {
+     // {"        ", (0x0000, 177, 0) }, // Jecht Sphere 1  - Macalania Woods Post-Spherimorph | Handled from story_check 1470
+        {"bsvr0000", (0x12F21, 28, 0) }, // Jecht Sphere 2  - Besaid Village Beside Temple
+        {"kami0000", (0x7128,  34, 1) }, // Jecht Sphere 3  - Thunder Plains South
+        {"genk0600", (0x013B,  33, 2) }, // Jecht Sphere 4  - Moonflow South Warf
+        {"mihn0400", (0x4EC5,  31, 3) }, // Jecht Sphere 5  - Miihen Highroad Old-Road
+        {"lchb1300", (0x013B,  30, 4) }, // Jecht Sphere 6  - Luca Stadium Basement A
+        {"slik0300", (0x103C,  29, 5) }, // Jecht Sphere 7  - S.S. Liki Bridge
+        {"mtgz0100", (0x5098,  35, 6) }, // Braska Sphere   - Mt. Gagazet Mountain Trail
+        {"mcfr0000", (0x5FFA,  27, 7) }, // Jecht Sphere 8  - Macalania Woods Entrance
+        {"kino0500", (0x7BEF,  32, 8) }, // Auron Sphere    - Mushroom Rock Road Ridge
     };
 
     private static Dictionary<(int, int), uint> originalEntryPoints = new();
@@ -1683,9 +1683,10 @@ public unsafe partial class ArchipelagoFFXModule {
         if (event_to_jecht_sphere_offsets.TryGetValue(event_name, out var jecht_sphere)) {
             set(code_ptr, jecht_sphere.offset, [
                 AtelOp.PUSHII   .build(jecht_sphere.other_id),
-                AtelOp.CALLPOPA .build((ushort)CustomCallTarget.SEND_OTHER_LOCATION),
+                AtelOp.PUSHII   .build(jecht_sphere.sphere_bit),
+                AtelOp.CALLPOPA .build((ushort)CustomCallTarget.JECHT_SPHERE),
                 AtelOp.JMP      .build(0x0005),
-                .. atelNOPArray(7),
+                .. atelNOPArray(4),
                 ]);
         }
 
@@ -2942,7 +2943,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
                 //Progressive Jecht's Sphere
                 if (item_id == 40992) {
-                    save_data->jecht_spheres_collected_count++;
+                    save_data->jecht_spheres.collected_amount++;
                 }
 
                 h_TkMsImportantSet(item_id);
@@ -3539,6 +3540,7 @@ public unsafe partial class ArchipelagoFFXModule {
         REPLACE_ENTRY_POINT,
         RESTORE_ENTRY_POINT,
         LIGHTNING_DODGING,
+        JECHT_SPHERE,
     }
 
     static AtelCallTarget[] customNameSpace = {
@@ -3572,6 +3574,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_ReplaceEntryPoint)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_RestoreEntryPoint)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_LightningDodging)},
+        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_JechtSphere)},
     };
     static GCHandle customNameSpaceHandle = GCHandle.Alloc(customNameSpace, GCHandleType.Pinned);
 
@@ -4117,5 +4120,22 @@ public unsafe partial class ArchipelagoFFXModule {
         logger.Info($"Highest Consecutive Dodged: {highestDodged}");
 
         return *dodged == 1 ? 1 : 0;
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int CT_RetInt_JechtSphere(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
+        int jecht_sphere = atelStack->pop_int();
+        int other_id =  atelStack->pop_int();
+        
+        if (!FFXArchipelagoClient.local_checked_locations.Contains(other_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Other)) {
+            if (ArchipelagoFFXModule.item_locations.other.TryGetValue(other_id, out var item)) {
+                if (FFXArchipelagoClient.sendLocation(other_id, FFXArchipelagoClient.ArchipelagoLocationType.Other)) {
+                    ArchipelagoFFXModule.obtain_item(item.id);
+                }
+            }
+        }
+        save_data->jecht_spheres.flags_spheres_seen.set_bit(jecht_sphere, true);
+
+        return 1;
     }
 }
