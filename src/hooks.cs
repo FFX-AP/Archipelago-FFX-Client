@@ -4178,7 +4178,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     .Select((entrance, index) => new {Index=index, Entrance=entrance, Distance=(playerPos - entrance.pos).Length()})
                     .MinBy(tuple => tuple.Distance);
         if (closestEntrance?.Distance < 100) {
-            last_entrance_id = (ushort)closestEntrance.Index;
+            save_data->current_spawnpoint = (byte)closestEntrance.Index;
             logger.Debug($"Entrance within 100: pos:({closestEntrance.Entrance.x}, {closestEntrance.Entrance.y}, {closestEntrance.Entrance.z}) distance:{closestEntrance.Distance}");
         }
 
