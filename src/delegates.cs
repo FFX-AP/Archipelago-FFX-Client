@@ -486,6 +486,26 @@ public static unsafe class delegates {
     public const nint __addr_MsMonsterCapture = 0x390B80;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate void MsCalcCommand(AttackCue* param_1, int param_2);
+    public const nint __addr_MsCalcCommand = 0x3893A0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate int MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4);
+    public const nint __addr_MsDamageCheckDeath = 0x38C800;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate Command* MsGetCommand(int chr_id, int unused, int quit_on_idx, AttackCommandInfo* param_4, uint* param_5);
+    public const nint __addr_MsGetCommand = 0x38CF10;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate uint FUN_0078d100(Chr* chr);
+    public const nint __addr_FUN_0078d100 = 0x38D100;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate uint FUN_0078bb30(int param_1, byte* param_2, byte* param_3, Command* param_4, uint param_5, uint* param_6, int* param_7);
+    public const nint __addr_FUN_0078bb30 = 0x38bb30;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void TkMsGetRomItem(uint param_1, int* param_2);
     public const nint __addr_TkMsGetRomItem = 0x4AB230;
 

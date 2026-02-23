@@ -83,10 +83,16 @@ public unsafe partial class ArchipelagoFFXModule {
     private static MsBtlListGroup _MsBtlListGroup;
     private static FhMethodHandle<MsBattleExe> _MsBattleExe;
     private static FhMethodHandle<MsMonsterCapture> _MsMonsterCapture;
+    private static FhMethodHandle<MsCalcCommand> _MsCalcCommand;
+    private static FhMethodHandle<MsDamageCheckDeath> _MsDamageCheckDeath;
     public static MsBattleLabelExe _MsBattleLabelExe;
     private static FhMethodHandle<FUN_00791820> _FUN_00791820;
     public static FhMethodHandle<FUN_00783bb0> _FUN_00783bb0;
     public static MsGetMon _MsGetMon;
+
+    private static MsGetCommand _MsGetCommand;
+    private static FUN_0078d100 _FUN_0078d100;
+    private static FUN_0078bb30 _FUN_0078bb30;
 
     private static FhMethodHandle<MsBtlGetPos> _MsBtlGetPos;
 
@@ -276,6 +282,11 @@ public unsafe partial class ArchipelagoFFXModule {
         _MsBtlReadSetScene = new FhMethodHandle<MsBtlReadSetScene>(this, game, 0x00383ed0, h_MsBtlReadSetScene);
 
         _MsMonsterCapture = new FhMethodHandle<MsMonsterCapture>(this, game, __addr_MsMonsterCapture, h_MsMonsterCapture);
+        _MsCalcCommand = new FhMethodHandle<MsCalcCommand>(this, game, __addr_MsCalcCommand, h_MsCalcCommand);
+        _MsDamageCheckDeath = new FhMethodHandle<MsDamageCheckDeath>(this, game, __addr_MsDamageCheckDeath, h_MsDamageCheckDeath);
+        _MsGetCommand = FhUtil.get_fptr<MsGetCommand>(__addr_MsGetCommand);
+        _FUN_0078d100 = FhUtil.get_fptr<FUN_0078d100>(__addr_FUN_0078d100);
+        _FUN_0078bb30 = FhUtil.get_fptr<FUN_0078bb30>(__addr_FUN_0078bb30);
 
         _FUN_00783bb0 = new FhMethodHandle<FUN_00783bb0>(this, game, __addr_FUN_00783bb0, h_FUN_00783bb0);
         _MsGetMon = FhUtil.get_fptr<MsGetMon>(__addr_MsGetMon);
@@ -458,7 +469,7 @@ public unsafe partial class ArchipelagoFFXModule {
             && _SgEvent_showModularMenuInit.hook()
             && _Common_addPartyMember.hook() && _Common_removePartyMember.hook() && _Common_removePartyMemberLongTerm.hook() && _Common_setWeaponVisibilty.hook()
             && _Common_putPartyMemberInSlot.hook() && _Common_pushParty.hook() && _Common_popParty.hook() && _MsBattleExe.hook() && _FUN_00791820.hook()
-            && _MsApUp.hook() && _MsBtlReadSetScene.hook() && _MsMonsterCapture.hook() && _FUN_00783bb0.hook() //&&  // && _Map_800F.hook() //_MsBtlGetPos.hook()
+            && _MsApUp.hook() && _MsBtlReadSetScene.hook() && _MsMonsterCapture.hook() && _FUN_00783bb0.hook() && _MsCalcCommand.hook() && _MsDamageCheckDeath.hook() // && _Map_800F.hook() //_MsBtlGetPos.hook()
             && _eiAbmParaGet.hook() && _MsSetSaveParam.hook() && _MsSetRamChrParam.hook() // && _FUN_00a48910.hook()
             && _FUN_0086bec0.hook() && _FUN_0086bea0.hook() // Custom strings
             && _graphicInitFMVPlayer.hook() && _FmodVoice_dataChange.hook()
@@ -2757,6 +2768,66 @@ public unsafe partial class ArchipelagoFFXModule {
             reset_party();
         }
         _MsBattleExe.orig_fptr(param_1, field_idx, group_idx, formation_idx);
+    }
+
+    public static void h_MsCalcCommand(AttackCue* param_1, int param_2) {
+        _MsCalcCommand.orig_fptr(param_1, param_2);
+        if (param_1 == null) return;
+
+        uint local_6c;
+        Command* command = _MsGetCommand(param_1->attacker_id, 0, -1, &param_1->command_list[param_2], &local_6c);
+        
+        if (param_1->command_count <= param_2 || command == null) return;
+
+        Chr* attacker = _MsGetChr(param_1->attacker_id);
+
+        int[] local_7c = [0, 0, 0, param_2];
+        if (command->absorbs_dmg) {
+            local_7c[2] = (int)_FUN_0078d100(attacker);
+        }
+
+
+        byte[] targets = new byte[32];
+        byte[] local_48 = new byte[32];
+        fixed (byte* p_targets = targets) {
+            fixed (byte* p_local_48 = local_48) {
+                fixed (int* p_local_7c = local_7c) {
+                    _FUN_0078bb30(param_1->attacker_id, p_targets, p_local_48, command, local_6c, &param_1->command_list[param_2].targets, p_local_7c+1);
+                }
+
+            }
+        }
+
+        for (uint target_id = 0; target_id < 32; target_id++) {
+            if (targets[target_id] != 0) {
+                if (local_7c[2] == 0 || target_id != param_1->attacker_id) {
+                    Chr* target = _MsGetChr(target_id);
+                    uint iVar6 = _FUN_0078d100(target);
+                    if (iVar6 != 0) {
+                        if (attacker->ram.auto_ability_effects.has_capture && Globals.Battle.btl->battle_type == 0 && (seed.CaptureDamage > 0 || command->uses_weapon_properties) ) {
+                            target->capture = true;
+                        }
+                        else {
+                            target->capture = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
+        Chr* target = _MsGetChr((uint)target_id);
+
+        if (seed.AlwaysCapture == 1 && seed.CaptureDamage == 2) {
+            target->capture = true;
+        }
+
+        int result = _MsDamageCheckDeath.orig_fptr(attacker_id, target_id, param_3, param_4);
+
+        //if (target->captured == false && target->capture == true) target->capture = false; // Unnecessary?
+
+        return result;
     }
 
     public static bool h_MsMonsterCapture(int target_id, int arena_idx) {
