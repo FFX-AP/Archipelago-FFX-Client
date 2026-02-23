@@ -2805,10 +2805,10 @@ public unsafe partial class ArchipelagoFFXModule {
                     uint iVar6 = _FUN_0078d100(target);
                     if (iVar6 != 0) {
                         if (attacker->ram.auto_ability_effects.has_capture && Globals.Battle.btl->battle_type == 0 && (seed.CaptureDamage > 0 || command->uses_weapon_properties) ) {
-                            target->capture = true;
+                            target->should_try_capture = true;
                         }
                         else {
-                            target->capture = false;
+                            target->should_try_capture = false;
                         }
                     }
                 }
@@ -2820,7 +2820,7 @@ public unsafe partial class ArchipelagoFFXModule {
         Chr* target = _MsGetChr((uint)target_id);
 
         if (seed.AlwaysCapture == 1 && seed.CaptureDamage == 2) {
-            target->capture = true;
+            target->should_try_capture = true;
         }
 
         int result = _MsDamageCheckDeath.orig_fptr(attacker_id, target_id, param_3, param_4);

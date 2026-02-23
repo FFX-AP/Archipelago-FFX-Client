@@ -1,29 +1,30 @@
-﻿using Fahrenheit.Core;
-using Fahrenheit.Core.FFX;
+﻿using Archipelago.MultiClient.Net.Enums;
+using Fahrenheit.Core;
 using Fahrenheit.Core.Atel;
+using Fahrenheit.Core.FFX;
 using Fahrenheit.Core.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 //using Fahrenheit.Core.ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Numerics;
+using System.Reflection;
 using System.Runtime.InteropServices;
-
-
-//using Fahrenheit.Modules.ArchipelagoFFX.GUI;
-using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
-using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
-using Archipelago.MultiClient.Net.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Reflection;
+using TerraFX.Interop.Windows;
+using static Fahrenheit.Core.FFX.FhCall;
 using static Fahrenheit.Core.FFX.Globals;
-using System.Numerics;
+//using Fahrenheit.Modules.ArchipelagoFFX.GUI;
+using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
+using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
 using Color = Archipelago.MultiClient.Net.Models.Color;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
@@ -126,26 +127,6 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int            AlwaysCapture;
         [JsonInclude]
         public int            CaptureDamage;
-        [JsonInclude]          
-        public List<uint>      StartingItems;
-        [JsonInclude]          
-        public List<Location>  Treasure;
-        [JsonInclude]          
-        public List<Location>  Boss;
-        [JsonInclude]          
-        public List<Location>  PartyMember;
-        [JsonInclude]          
-        public List<Location>  Overdrive;
-        [JsonInclude]          
-        public List<Location>  OverdriveMode;
-        [JsonInclude]          
-        public List<Location>  Other;
-        [JsonInclude]
-        public List<Location>  Recruit;
-        [JsonInclude]          
-        public List<Location>  SphereGrid;
-        [JsonInclude]
-        public List<Location>  Capture;
 
         public ArchipelagoSeed() {
             SeedId = "";
@@ -156,6 +137,32 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             AlwaysSensor = 0;
             AlwaysCapture = 0;
             CaptureDamage = 0;
+        }
+    }
+
+    public struct ArchipelagoSeedLocations {
+        [JsonInclude]
+        public List<uint>      StartingItems;
+        [JsonInclude]
+        public List<Location>  Treasure;
+        [JsonInclude]
+        public List<Location>  Boss;
+        [JsonInclude]
+        public List<Location>  PartyMember;
+        [JsonInclude]
+        public List<Location>  Overdrive;
+        [JsonInclude]
+        public List<Location>  OverdriveMode;
+        [JsonInclude]
+        public List<Location>  Other;
+        [JsonInclude]
+        public List<Location>  Recruit;
+        [JsonInclude]
+        public List<Location>  SphereGrid;
+        [JsonInclude]
+        public List<Location>  Capture;
+
+        public ArchipelagoSeedLocations() {
             StartingItems = [];
             Treasure = [];
             Boss = [];
@@ -173,7 +180,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     }
 
     public static List<NativeCustomString> cached_strings = [];
-    public record ArchipelagoLocations(ArchipelagoSeed seed) {
+    public record ArchipelagoLocations(ArchipelagoSeedLocations seed) {
         public Dictionary<int, ArchipelagoItem> treasure  =      seed.Treasure.ToDictionary(     x => x.location_id, x => new ArchipelagoItem(x.item_id, x.item_name, x.player_name));
         public Dictionary<int, ArchipelagoItem> boss =           seed.Boss.ToDictionary(         x => x.location_id, x => new ArchipelagoItem(x.item_id, x.item_name, x.player_name));
         public Dictionary<int, ArchipelagoItem> party_member =   seed.PartyMember.ToDictionary(  x => x.location_id, x => new ArchipelagoItem(x.item_id, x.item_name, x.player_name));
@@ -208,17 +215,33 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static List<ArchipelagoSeed> loaded_seeds = [];
 
     public static void loadSeedList() {
-        var seeds = mod_context.Paths.ResourcesDir.GetDirectories("seeds").FirstOrDefault()?.GetFiles("*.json");
+        var seeds = mod_context.Paths.ResourcesDir.GetDirectories("seeds").FirstOrDefault()?.GetFiles("*.apffx");
         if (seeds is null || seeds.Length == 0) {
             logger.Warning("No seeds found");
             return;
         }
 
-        foreach (var file in seeds) {
+        foreach (FileInfo file in seeds) {
             try {
-                using (FileStream stream = File.Open(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                    var loaded_seed = JsonSerializer.Deserialize<ArchipelagoSeed>(stream);
-                    loaded_seeds.Add(loaded_seed);
+                //using (FileStream stream = File.Open(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                //    var loaded_seed = JsonSerializer.Deserialize<ArchipelagoSeed>(stream);
+                //    loaded_seeds.Add(loaded_seed);
+                //}
+
+                using (ZipArchive apffx = ZipFile.OpenRead(file.Name)) {
+                    ZipArchiveEntry zippedSeed = apffx.GetEntry("seed.json")!;
+
+                    if (zippedSeed != null) {
+                        using (Stream entryStream = zippedSeed.Open()) {
+                            using (StreamReader reader = new StreamReader(entryStream)) {
+                                string fileContents = reader.ReadToEnd();
+                                var loaded_seed = JsonSerializer.Deserialize<ArchipelagoSeed>(fileContents);
+                                loaded_seeds.Add(loaded_seed);
+                            }
+                        }
+                    } else {
+                        throw new ArgumentNullException("apffx file is null");
+                    }
                 }
             }   
             catch {
