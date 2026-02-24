@@ -139,7 +139,6 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             CaptureDamage = 0;
         }
     }
-
     public struct ArchipelagoSeedLocations {
         [JsonInclude]
         public List<uint>      StartingItems;
@@ -228,20 +227,20 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 //    loaded_seeds.Add(loaded_seed);
                 //}
 
-                using (ZipArchive apffx = ZipFile.OpenRead(file.Name)) {
-                    ZipArchiveEntry zippedSeed = apffx.GetEntry("seed.json")!;
+                using ZipArchive apffx = ZipFile.OpenRead(file.Name);
+                ZipArchiveEntry zippedSeed = apffx.GetEntry("seed.json")!;
 
-                    if (zippedSeed != null) {
-                        using (Stream entryStream = zippedSeed.Open()) {
-                            using (StreamReader reader = new StreamReader(entryStream)) {
-                                string fileContents = reader.ReadToEnd();
-                                var loaded_seed = JsonSerializer.Deserialize<ArchipelagoSeed>(fileContents);
-                                loaded_seeds.Add(loaded_seed);
-                            }
+                if (zippedSeed != null) {
+                    using (Stream entryStream = zippedSeed.Open()) {
+                        using (StreamReader reader = new StreamReader(entryStream)) {
+                            string fileContents = reader.ReadToEnd();
+                            ArchipelagoSeed loaded_seed = JsonSerializer.Deserialize<ArchipelagoSeed>(fileContents);
+                            loaded_seeds.Add(loaded_seed);
                         }
-                    } else {
-                        throw new ArgumentNullException("apffx file is null");
                     }
+                }
+                else {
+                    throw new ArgumentNullException("apffx file is null");
                 }
             }   
             catch {
