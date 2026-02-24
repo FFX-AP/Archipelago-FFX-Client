@@ -1402,6 +1402,15 @@ public unsafe partial class ArchipelagoFFXModule {
                 break;
             case "sins0700":
                 logger.Debug($"atel_event_setup: Handle removing Aeons");
+
+                // Lock all Aeons and skip Contest of Aeons
+                if (seed.Options.SkipContestOfAeons == 1) {
+                    set(code_ptr, 0x58FA, [
+                        AtelOp.CALLPOPA.build((ushort)CustomCallTarget.LOCK_ALL_AEONS),
+                        AtelOp.JMP.build(0x0003),
+                        ]);
+                }
+
                 set(code_ptr, 0x5972, [
                     AtelOp.PUSHII  .build(0x0002),
                     AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(2) = jump to customScripts[2]
@@ -3802,6 +3811,7 @@ public unsafe partial class ArchipelagoFFXModule {
         OFFSET_IF_TRUE,
         UPDATE_REGION_STATE,
         LOCK_PARTY_MEMBER,
+        LOCK_ALL_AEONS,
         IS_GOAL_UNLOCKED,
         REPLACE_ENTRY_POINT,
         RESTORE_ENTRY_POINT,
@@ -3836,6 +3846,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_OffsetIfTrue)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_UpdateRegionState)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_LockPartyMember)},
+        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_LockAllAeons)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_IsGoalUnlocked)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_ReplaceEntryPoint)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_RestoreEntryPoint)},
@@ -4264,6 +4275,13 @@ public unsafe partial class ArchipelagoFFXModule {
         if (party_member == PlySaveId.PC_MAGUS1) {
             locked_characters[PlySaveId.PC_MAGUS2] = true;
             locked_characters[PlySaveId.PC_MAGUS3] = true;
+        }
+        return 1;
+    }
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int CT_RetInt_LockAllAeons(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
+        for (int chr_id = PlySaveId.PC_VALEFOR; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
+            locked_characters[chr_id] = true;
         }
         return 1;
     }
