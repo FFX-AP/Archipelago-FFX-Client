@@ -18,8 +18,6 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using TerraFX.Interop.Windows;
-using static Fahrenheit.Core.FFX.FhCall;
 using static Fahrenheit.Core.FFX.Globals;
 //using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
@@ -175,16 +173,13 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
     }
     public struct ArchipelagoSeed {
+        public string Name { get; set; }
         public ArchipelagoSeedOptions Options { get; set; }
         public ArchipelagoSeedLocations Locations { get; set; }
 
-        //public ArchipelagoSeed(ArchipelagoSeedOptions options, ArchipelagoSeedLocations locations) {
-        //    this.Options = options;
-        //    this.Locations = locations;
-        //}
-
         public ArchipelagoSeed() {
-            this.Options = ArchipelagoFFXModule.seed.Options;
+            this.Name      = ArchipelagoFFXModule.seed.Name;
+            this.Options   = ArchipelagoFFXModule.seed.Options;
             this.Locations = ArchipelagoFFXModule.seed.Locations;
         }
     }
@@ -236,29 +231,24 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         foreach (FileInfo file in seeds) {
             try {
-                //using (FileStream stream = File.Open(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                //    var loaded_seed = JsonSerializer.Deserialize<ArchipelagoSeed>(stream);
-                //    loaded_seeds.Add(loaded_seed);
-                //}
-
                 using ZipArchive apffx = ZipFile.OpenRead(file.FullName);
-                ZipArchiveEntry zippedOptions      = apffx.GetEntry("options.json")!;
+                ZipArchiveEntry zippedOptions   = apffx.GetEntry("options.json")!;
                 ZipArchiveEntry zippedLocations = apffx.GetEntry("locations.json")!;
 
                 if (zippedOptions != null && zippedLocations != null) {
-                    using Stream optionsStream = zippedOptions.Open();
-                    using StreamReader optionsReader = new StreamReader(optionsStream);
-                    string optionsContents = optionsReader.ReadToEnd();
+                    using Stream optionsStream         = zippedOptions.Open();
+                    using StreamReader optionsReader   = new StreamReader(optionsStream);
+                    string optionsContents             = optionsReader.ReadToEnd();
 
-                    using Stream locationsStream = zippedLocations.Open();
+                    using Stream locationsStream       = zippedLocations.Open();
                     using StreamReader locationsReader = new StreamReader(locationsStream);
-                    string locationsContents = locationsReader.ReadToEnd();
+                    string locationsContents           = locationsReader.ReadToEnd();
 
-
-                    ArchipelagoSeedOptions   loaded_options      = JsonSerializer.Deserialize<ArchipelagoSeedOptions>(optionsContents)!;
+                    ArchipelagoSeedOptions   loaded_options   = JsonSerializer.Deserialize<ArchipelagoSeedOptions>(optionsContents)!;
                     ArchipelagoSeedLocations loaded_locations = JsonSerializer.Deserialize<ArchipelagoSeedLocations>(locationsContents)!;
                     loaded_seeds.Add(new ArchipelagoSeed {
-                        Options = loaded_options,
+                        Name      = file.Name.Replace(".apffx", ""),
+                        Options   = loaded_options,
                         Locations = loaded_locations
                     });
                 }
