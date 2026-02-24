@@ -120,21 +120,24 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude]
         public int             APMultiplier;
         [JsonInclude]
-        public int            AlwaysSensor;
+        public int             AlwaysSensor;
+        [JsonInclude]          
+        public int             AlwaysCapture;
+        [JsonInclude]          
+        public int             CaptureDamage;
         [JsonInclude]
-        public int            AlwaysCapture;
-        [JsonInclude]
-        public int            CaptureDamage;
+        public int             SkipContestOfAeons;
 
         public ArchipelagoSeedOptions() {
-            SeedId = "";
-            GoalRequirement = GoalRequirement.None;
+            SeedId               = "";
+            GoalRequirement      = GoalRequirement.None;
             RequiredPartyMembers = 1;
-            RequiredPrimers = 0;
-            APMultiplier = 1;
-            AlwaysSensor = 0;
-            AlwaysCapture = 0;
-            CaptureDamage = 0;
+            RequiredPrimers      = 0;
+            APMultiplier         = 1;
+            AlwaysSensor         = 0;
+            AlwaysCapture        = 0;
+            CaptureDamage        = 0;
+            SkipContestOfAeons   = 0;
         }
     }
     public struct ArchipelagoSeedLocations {
