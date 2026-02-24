@@ -1026,7 +1026,11 @@ public unsafe static class ArchipelagoGUI {
                 ImGui.EndDisabled();
 #endif
                 ImGui.SameLine();
+                Vector2 text_start = ImGui.GetCursorScreenPos();
                 ImGui.Text($"{id_to_character[character.Key]}");
+                // Strikethrough if locked
+                Vector2 text_size = ImGui.CalcTextSize($"{id_to_character[character.Key]}");
+                if (locked_characters[character.Key]) ImGui.AddLine(ImGui.GetWindowDrawList(), text_start + new Vector2(0, text_size.Y*0.75f), text_start + new Vector2(text_size.X, text_size.Y*0.75f), ImGui.GetColorU32(ImGuiCol.Text));
                 ImGui.PopStyleColor();
             }
             ImGui.EndTable();
