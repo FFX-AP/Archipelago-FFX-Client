@@ -221,13 +221,13 @@ public unsafe static class ArchipelagoGUI {
 
             ImGui.InputFloat4("Tidus ambient(?) color", &Vector4f_ARRAY_00c86010->X);
 
-            var goalRequirements = Enum.GetNames<GoalRequirement>();
-            int currentRequirement = (int)seed.GoalRequirement;
-            if (ImGui.Combo("Goal Requirement", ref currentRequirement, goalRequirements, goalRequirements.Length)) {
-                seed.GoalRequirement = (GoalRequirement)currentRequirement;
-            }
+            //var goalRequirements = Enum.GetNames<GoalRequirement>();
+            //int currentRequirement = (int)seed.Options.GoalRequirement;
+            //if (ImGui.Combo("Goal Requirement", ref currentRequirement, goalRequirements, goalRequirements.Length)) {
+            //    seed.Options.GoalRequirement = (GoalRequirement)currentRequirement;
+            //}
 
-            ImGui.InputInt("Required Party Members", ref seed.RequiredPartyMembers);
+            //ImGui.InputInt("Required Party Members", ref seed.Options.RequiredPartyMembers);
 
             //if (ImGui.BeginCombo("Text", text_lang == 0xFF ? "Default" : ((FhLangId)text_lang).ToString())) {
             //    if (ImGui.Selectable("Default", text_lang == 0xFF)) {
@@ -628,11 +628,11 @@ public unsafe static class ArchipelagoGUI {
     }
 
     private static void render_connection() {
-        if (seed.SeedId is null && !FFXArchipelagoClient.is_connected) {
-            string[] seedNames = [.. ArchipelagoFFXModule.loaded_seeds.Select(x => x.SeedId)];
+        if (seed.Options.SeedId is null && !FFXArchipelagoClient.is_connected) {
+            string[] seedNames = [.. ArchipelagoFFXModule.loaded_seeds.Select(x => x.Name)];
             ImGui.Combo("Selected seed", ref selected_seed, seedNames, seedNames.Length);
         } else {
-            ImGui.Text($"Loaded seed: {seed.SeedId}");
+            ImGui.Text($"Loaded seed: {seed.Name}");
         }
         if (!FFXArchipelagoClient.is_connected) {
             ImGui.InputText("Address", ref client_input_address, 50);

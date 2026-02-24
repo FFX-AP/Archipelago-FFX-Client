@@ -64,8 +64,8 @@ public static class FFXArchipelagoClient {
         }
         var loginSuccess = (LoginSuccessful)login_result;
 
-        if (ArchipelagoFFXModule.seed.SeedId is not null) {
-            if (ArchipelagoFFXModule.seed.SeedId != (string)loginSuccess.SlotData["SeedId"]) {
+        if (ArchipelagoFFXModule.seed.Options.SeedId is not null) {
+            if (ArchipelagoFFXModule.seed.Options.SeedId != (string)loginSuccess.SlotData["SeedId"]) {
                 string message = "Loaded seed doesn't match connected slot";
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 ArchipelagoFFXModule.logger.Error(message);
@@ -135,7 +135,7 @@ public static class FFXArchipelagoClient {
         }
 
         // TODO: Check for post-battle/other menu?
-        if (ArchipelagoFFXModule.seed.SeedId   == null ||
+        if (ArchipelagoFFXModule.seed.Options.SeedId   == null ||
             Globals.save_data->current_room_id ==  23  || // Main Menu
             Globals.save_data->current_room_id ==   0  || // Tutorial room
             Globals.save_data->current_room_id == 348  || // Intro
