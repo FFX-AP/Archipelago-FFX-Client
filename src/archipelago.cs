@@ -30,6 +30,7 @@ namespace Fahrenheit.Modules.ArchipelagoFFX;
 public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public static FhModContext mod_context;
+    private static FileStream global_state_file;
 
     public  static bool   skip_state_updates = false;
     private static ushort last_story_progress = 0;
@@ -303,6 +304,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         ArchipelagoFFXModule.mod_context = mod_context;
+        ArchipelagoFFXModule.global_state_file = global_state_file;
 
         load_settings();
 
@@ -517,21 +519,17 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             }
         }
     }
-
     public static bool load_settings() {
-        string settings_file_path = Path.Combine(mod_context.Paths.ResourcesDir.FullName, "settings.json");
-
         try {
-            using (FileStream? settings_file = File.Open(settings_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite)) {
-                var loaded_state = JsonSerializer.Deserialize<ArchipelagoGlobalState>(settings_file);
-                if (loaded_state == null) return false;
+            global_state_file.Position = 0;
+            var loaded_state = JsonSerializer.Deserialize<ArchipelagoGlobalState>(global_state_file);
+            if (loaded_state == null) return false;
 
-                VoiceLanguage = loaded_state.VoiceLanguage;
-                TextLanguage = loaded_state.TextLanguage;
-                ArchipelagoGUI.voice_lang = VoiceLanguage.HasValue ? (byte)VoiceLanguage.Value : (byte)0xFF;
-                ArchipelagoGUI.text_lang  = TextLanguage.HasValue  ? (byte)TextLanguage.Value  : (byte)0xFF;
-                ArchipelagoGUI.font_size = loaded_state.FontSize;
-            }
+            VoiceLanguage = loaded_state.VoiceLanguage;
+            TextLanguage = loaded_state.TextLanguage;
+            ArchipelagoGUI.voice_lang = VoiceLanguage.HasValue ? (byte)VoiceLanguage.Value : (byte)0xFF;
+            ArchipelagoGUI.text_lang  = TextLanguage.HasValue  ? (byte)TextLanguage.Value  : (byte)0xFF;
+            ArchipelagoGUI.font_size = loaded_state.FontSize;
             return true;
         }
         catch (Exception) {
@@ -539,12 +537,10 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
     }
     public static bool save_settings() {
-        string settings_file_path = Path.Combine(mod_context.Paths.ResourcesDir.FullName, "settings.json");
-
-        using (FileStream settings_file = File.Open(settings_file_path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite)) {
-            ArchipelagoGlobalState state = new();
-            JsonSerializer.Serialize(settings_file, state);
-        }
+        ArchipelagoGlobalState state = new();
+        global_state_file.Position = 0;
+        JsonSerializer.Serialize(global_state_file, state);
+        global_state_file.SetLength(global_state_file.Position);
 
         return true;
     }
