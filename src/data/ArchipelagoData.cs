@@ -684,7 +684,7 @@ public static class ArchipelagoData {
                         }
                     }
                 } } },
-                { 1210, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 243, next_entrance = 1, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Guadosalam visit complete"); } } },
+                { 1210, new() {visit_complete = true, next_story_progress = 1310, next_room_id = 243, next_entrance = 1, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Guadosalam visit complete"); } } },
             } } },
         {RegionEnum.ThunderPlains, new(){ story_progress = 1210, room_id = 140, entrance = 0, airship_destination_index = 10,
             story_checks = {
