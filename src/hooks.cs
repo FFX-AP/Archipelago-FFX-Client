@@ -2506,9 +2506,9 @@ public unsafe partial class ArchipelagoFFXModule {
                     return handle_warp_transition(current_map, current_entrance, ref next_map, ref next_entrance);
                     //return true;
                 }
-                foreach (uint item in seed.StartingItems) obtain_item(item);
+                foreach (uint item in seed.Locations.StartingItems) obtain_item(item);
             }
-            if (seed.SeedId is null) {
+            if (seed.Options.SeedId is null) {
                 // In-game with no seed
                 next_map = 23;
                 next_entrance = 0;
@@ -2804,7 +2804,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     Chr* target = _MsGetChr(target_id);
                     uint iVar6 = _FUN_0078d100(target);
                     if (iVar6 != 0) {
-                        if (attacker->ram.auto_ability_effects.has_capture && Globals.Battle.btl->battle_type == 0 && (seed.CaptureDamage > 0 || command->uses_weapon_properties) ) {
+                        if (attacker->ram.auto_ability_effects.has_capture && Globals.Battle.btl->battle_type == 0 && (seed.Options.CaptureDamage > 0 || command->uses_weapon_properties) ) {
                             target->should_try_capture = true;
                         }
                         else {
@@ -2819,7 +2819,7 @@ public unsafe partial class ArchipelagoFFXModule {
     public static int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
         Chr* target = _MsGetChr((uint)target_id);
 
-        if (seed.AlwaysCapture == 1 && seed.CaptureDamage == 2) {
+        if (seed.Options.AlwaysCapture == 1 && seed.Options.CaptureDamage == 2) {
             target->should_try_capture = true;
         }
 
@@ -3314,19 +3314,19 @@ public unsafe partial class ArchipelagoFFXModule {
                 }
                 save_party();
                 reset_party();
-                if (seed.GoalRequirement == GoalRequirement.PartyMembers || seed.GoalRequirement == GoalRequirement.PartyMembersAndAeons) {
+                if (seed.Options.GoalRequirement == GoalRequirement.PartyMembers || seed.Options.GoalRequirement == GoalRequirement.PartyMembersAndAeons) {
                     int num_unlocked;
                     int num_required;
-                    if (seed.GoalRequirement == GoalRequirement.PartyMembers) {
+                    if (seed.Options.GoalRequirement == GoalRequirement.PartyMembers) {
                         num_unlocked = unlocked_characters.Where(x => x.Key < 8 && x.Value).Count();
-                        num_required = Math.Min(seed.RequiredPartyMembers, 8);
+                        num_required = Math.Min(seed.Options.RequiredPartyMembers, 8);
                     } else {
                         num_unlocked = unlocked_characters.Where(x => x.Key < 16 && x.Value).Count();
-                        num_required = seed.RequiredPartyMembers;
+                        num_required = seed.Options.RequiredPartyMembers;
                     }
                     string message = $"{num_unlocked}/{num_required} party members unlocked";
                     Color color = Color.White;
-                    if (unlocked_characters.Count(x => x.Value) >= seed.RequiredPartyMembers) {
+                    if (unlocked_characters.Count(x => x.Value) >= seed.Options.RequiredPartyMembers) {
                         color = Color.Green;
                     }
                     ArchipelagoGUI.add_log_message([(message, color)]);
@@ -3416,10 +3416,10 @@ public unsafe partial class ArchipelagoFFXModule {
 
         Chr* chr = _MsGetChr(chr_id);
 
-        if (seed.AlwaysSensor == 1) {
+        if (seed.Options.AlwaysSensor == 1) {
             chr->ram.auto_ability_effects.has_sensor = true;
         }
-        if (seed.AlwaysCapture == 1) {
+        if (seed.Options.AlwaysCapture == 1) {
             chr->ram.auto_ability_effects.has_capture = true;
         }
     }
@@ -3429,10 +3429,10 @@ public unsafe partial class ArchipelagoFFXModule {
         _MsSetSaveParam.orig_fptr(chr_id);
 
         // Does nothing??
-        if (seed.AlwaysSensor == 1) {
+        if (seed.Options.AlwaysSensor == 1) {
             save_data->ply_saves[(int)chr_id].auto_ability_effects.has_sensor = true;
         }
-        if (seed.AlwaysCapture == 1) {
+        if (seed.Options.AlwaysCapture == 1) {
             save_data->ply_saves[(int)chr_id].auto_ability_effects.has_capture = true;
         }
 
@@ -4272,19 +4272,19 @@ public unsafe partial class ArchipelagoFFXModule {
         bool goal_requirement = false;
         bool primer_requirement = false;
 
-        switch (seed.GoalRequirement) {
+        switch (seed.Options.GoalRequirement) {
             case GoalRequirement.None:
                 goal_requirement = true;
                 break;
             case GoalRequirement.PartyMembers:
-                if (unlocked_characters.Where(x => x.Key < 8 && x.Value).Count() >= Math.Min(seed.RequiredPartyMembers, 8))
+                if (unlocked_characters.Where(x => x.Key < 8 && x.Value).Count() >= Math.Min(seed.Options.RequiredPartyMembers, 8))
                     goal_requirement = true;
                 //if (unlocked_characters.All(c => c.Value)) {
                 //    return 1;
                 //}
                 break;
             case GoalRequirement.PartyMembersAndAeons:
-                if (unlocked_characters.Where(x => x.Key < 16 && x.Value).Count() >= seed.RequiredPartyMembers)
+                if (unlocked_characters.Where(x => x.Key < 16 && x.Value).Count() >= seed.Options.RequiredPartyMembers)
                     goal_requirement = true;
                 break;
             case GoalRequirement.Pilgrimage:
@@ -4304,13 +4304,13 @@ public unsafe partial class ArchipelagoFFXModule {
                 break;
         }
 
-        if (seed.RequiredPrimers > 0) {
+        if (seed.Options.RequiredPrimers > 0) {
             int collected_primers = 0;
             for (int i = 0; i < 26; i++) {
                 collected_primers += Globals.save_data->unlocked_primers.get_bit(i) ? 1 : 0;
             }
 
-            if (collected_primers >= seed.RequiredPrimers)
+            if (collected_primers >= seed.Options.RequiredPrimers)
                 primer_requirement = true;
         }
         else

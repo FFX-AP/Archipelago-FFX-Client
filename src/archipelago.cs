@@ -96,7 +96,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public bool skip_state_updates { get; set; }
 
         public ArchipelagoState() {
-            this.SeedId                  = ArchipelagoFFXModule.seed.SeedId;
+            this.SeedId                  = ArchipelagoFFXModule.seed.Options.SeedId;
             this.region_states           = ArchipelagoFFXModule.region_states;
             this.region_is_unlocked      = ArchipelagoFFXModule.region_is_unlocked;
             this.unlocked_characters     = ArchipelagoFFXModule.unlocked_characters;
@@ -110,7 +110,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     }
 
     public record Location(string location_name, int location_id, uint item_id, string item_name, string player_name);
-    public struct ArchipelagoSeed {
+    public struct ArchipelagoSeedOptions {
         [JsonInclude]
         public string          SeedId;
         [JsonInclude]
@@ -128,7 +128,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude]
         public int            CaptureDamage;
 
-        public ArchipelagoSeed() {
+        public ArchipelagoSeedOptions() {
             SeedId = "";
             GoalRequirement = GoalRequirement.None;
             RequiredPartyMembers = 1;
@@ -172,6 +172,20 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             Recruit = [];
             SphereGrid = [];
             Capture = [];
+        }
+    }
+    public struct ArchipelagoSeed {
+        public ArchipelagoSeedOptions Options { get; set; }
+        public ArchipelagoSeedLocations Locations { get; set; }
+
+        //public ArchipelagoSeed(ArchipelagoSeedOptions options, ArchipelagoSeedLocations locations) {
+        //    this.Options = options;
+        //    this.Locations = locations;
+        //}
+
+        public ArchipelagoSeed() {
+            this.Options = ArchipelagoFFXModule.seed.Options;
+            this.Locations = ArchipelagoFFXModule.seed.Locations;
         }
     }
     public record ArchipelagoItem(uint id, string name, string player) {
@@ -227,17 +241,26 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 //    loaded_seeds.Add(loaded_seed);
                 //}
 
-                using ZipArchive apffx = ZipFile.OpenRead(file.Name);
-                ZipArchiveEntry zippedSeed = apffx.GetEntry("seed.json")!;
+                using ZipArchive apffx = ZipFile.OpenRead(file.FullName);
+                ZipArchiveEntry zippedOptions      = apffx.GetEntry("options.json")!;
+                ZipArchiveEntry zippedLocations = apffx.GetEntry("locations.json")!;
 
-                if (zippedSeed != null) {
-                    using (Stream entryStream = zippedSeed.Open()) {
-                        using (StreamReader reader = new StreamReader(entryStream)) {
-                            string fileContents = reader.ReadToEnd();
-                            ArchipelagoSeed loaded_seed = JsonSerializer.Deserialize<ArchipelagoSeed>(fileContents);
-                            loaded_seeds.Add(loaded_seed);
-                        }
-                    }
+                if (zippedOptions != null && zippedLocations != null) {
+                    using Stream optionsStream = zippedOptions.Open();
+                    using StreamReader optionsReader = new StreamReader(optionsStream);
+                    string optionsContents = optionsReader.ReadToEnd();
+
+                    using Stream locationsStream = zippedLocations.Open();
+                    using StreamReader locationsReader = new StreamReader(locationsStream);
+                    string locationsContents = locationsReader.ReadToEnd();
+
+
+                    ArchipelagoSeedOptions   loaded_options      = JsonSerializer.Deserialize<ArchipelagoSeedOptions>(optionsContents)!;
+                    ArchipelagoSeedLocations loaded_locations = JsonSerializer.Deserialize<ArchipelagoSeedLocations>(locationsContents)!;
+                    loaded_seeds.Add(new ArchipelagoSeed {
+                        Options = loaded_options,
+                        Locations = loaded_locations
+                    });
                 }
                 else {
                     throw new ArgumentNullException("apffx file is null");
@@ -252,9 +275,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static bool loadSeed() {
         string message;
         if (FFXArchipelagoClient.SeedId is not null) {
-            var seed = loaded_seeds.FirstOrDefault(seed => seed.SeedId == FFXArchipelagoClient.SeedId);
+            ArchipelagoSeed seed = loaded_seeds.FirstOrDefault(seed => seed.Options.SeedId == FFXArchipelagoClient.SeedId)!;
 
-            if (seed.SeedId is not null) return loadSeed(seed);
+            if (seed.Options.SeedId is not null) return loadSeed(seed);
 
             message = "Seed for connected slot not found";
             ArchipelagoGUI.add_log_message([(message, Color.Red)]);
@@ -271,7 +294,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public static bool loadSeed(ArchipelagoSeed loaded_seed) {
         if (FFXArchipelagoClient.is_connected) {
-            if (FFXArchipelagoClient.SeedId != loaded_seed.SeedId) {
+            if (FFXArchipelagoClient.SeedId != loaded_seed.Options.SeedId) {
                 string message = "Seed doesn't match connected slot";
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Error(message);
@@ -280,8 +303,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
         initalize_states();
         seed = loaded_seed;
-        ap_multiplier = loaded_seed.APMultiplier;
-        item_locations = new ArchipelagoLocations(loaded_seed);
+        ap_multiplier = loaded_seed.Options.APMultiplier;
+        item_locations = new ArchipelagoLocations(loaded_seed.Locations);
         return true;
     }
 
@@ -447,8 +470,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         if (loaded_state != null) {
             // Don't let client sync remote locations until seed is fully loaded
             lock (FFXArchipelagoClient.client_lock) {
-                var seed = loaded_seeds.FirstOrDefault(s => s.SeedId == loaded_state.SeedId);
-                if (seed.SeedId is not null) {
+                ArchipelagoSeed seed = loaded_seeds.FirstOrDefault(s => s.Options.SeedId == loaded_state.SeedId)!;
+                if (seed.Options.SeedId is not null) {
                     if (!loadSeed(seed)) {
                         FFXArchipelagoClient.disconnect();
                         return;
