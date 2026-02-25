@@ -77,6 +77,12 @@ public static class FFXArchipelagoClient {
             ArchipelagoFFXModule.save_global_state();
         } else {
             SeedId = (string)loginSuccess.SlotData["SeedId"];
+            int selected_seed = ArchipelagoFFXModule.loaded_seeds.FindIndex(x => x.Options.SeedId == SeedId);
+            if (selected_seed != -1) {
+                ArchipelagoGUI.selected_seed = selected_seed;
+                ArchipelagoFFXModule.SeedToServer[SeedId] = server;
+                ArchipelagoFFXModule.save_global_state();
+            }
         }
         current_server = server;
         current_session = session;
