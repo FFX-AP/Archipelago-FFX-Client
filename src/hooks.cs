@@ -1453,8 +1453,8 @@ public unsafe partial class ArchipelagoFFXModule {
                 // Remove GameMoment check for Belgemine
                 set(code_ptr, 0x2180 + 8, atelNOPArray(8));
 
-                // Remove loss reward
-                set(code_ptr, 0x28AB, atelNOPArray(9));
+                // Remove loss and soul rewards
+                set(code_ptr, 0x28AB, atelNOPArray(18));
 
                 // Remove Common.halt()
                 set(code_ptr, 0x7678, atelNOPArray(3));
@@ -1788,8 +1788,8 @@ public unsafe partial class ArchipelagoFFXModule {
                         .. atelNOPArray(17),
                     ]);
 
-                // Remove loss reward
-                set(code_ptr, [0x5FC7, 0x674B, 0x6CC1], atelNOPArray(9));
+                // Remove loss and soul rewards
+                set(code_ptr, [0x5FC7, 0x674B, 0x6CC1], atelNOPArray(18));
 
                 // Move code blocks back by 14
                 //swap(code_ptr, 0x5D19, 0x5D0B, 0x5E96 - 0x5D19);
