@@ -1244,15 +1244,15 @@ public unsafe partial class ArchipelagoFFXModule {
 
     private static readonly Dictionary<string, (uint offset, ushort other_id, ushort sphere_bit)> event_to_jecht_sphere_offsets = new() {
      // {"        ", (0x0000, 177, 0) }, // Jecht Sphere 1  - Macalania Woods Post-Spherimorph | Handled from story_check 1470
-        {"bsvr0000", (0x12F21, 28, 0) }, // Jecht Sphere 2  - Besaid Village Beside Temple
-        {"kami0000", (0x7128,  34, 1) }, // Jecht Sphere 3  - Thunder Plains South
-        {"genk0600", (0x013B,  33, 2) }, // Jecht Sphere 4  - Moonflow South Warf
-        {"mihn0400", (0x4EC5,  31, 3) }, // Jecht Sphere 5  - Miihen Highroad Old-Road
-        {"lchb1300", (0x013B,  30, 4) }, // Jecht Sphere 6  - Luca Stadium Basement A
-        {"slik0300", (0x103C,  29, 5) }, // Jecht Sphere 7  - S.S. Liki Bridge
-        {"mtgz0100", (0x5098,  35, 6) }, // Braska Sphere   - Mt. Gagazet Mountain Trail
-        {"mcfr0000", (0x5FFA,  27, 7) }, // Jecht Sphere 8  - Macalania Woods Entrance
-        {"kino0500", (0x7BEF,  32, 8) }, // Auron Sphere    - Mushroom Rock Road Ridge
+        {"bsvr0000", (0x12F21, 27, 0) }, // Jecht Sphere 2  - Besaid Village Beside Temple
+        {"kami0000", (0x7128,  28, 1) }, // Jecht Sphere 3  - Thunder Plains South
+        {"genk0600", (0x013B,  29, 2) }, // Jecht Sphere 4  - Moonflow South Warf
+        {"mihn0400", (0x4EC5,  30, 3) }, // Jecht Sphere 5  - Miihen Highroad Old-Road
+        {"lchb1300", (0x013B,  31, 4) }, // Jecht Sphere 6  - Luca Stadium Basement A
+        {"slik0300", (0x103C,  32, 5) }, // Jecht Sphere 7  - S.S. Liki Bridge
+        {"mtgz0100", (0x5098,  33, 6) }, // Braska Sphere   - Mt. Gagazet Mountain Trail
+        {"mcfr0000", (0x5FFA,  34, 7) }, // Jecht Sphere 8  - Macalania Woods Entrance
+        {"kino0500", (0x7BEF,  35, 8) }, // Auron Sphere    - Mushroom Rock Road Ridge
     };
 
     private static Dictionary<(int, int), uint> originalEntryPoints = new();
