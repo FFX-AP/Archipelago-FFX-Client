@@ -1839,7 +1839,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
                 break;
             case "nagi0400":
-                set(code_ptr, 0x597D, [
+                set(code_ptr, [0x4402, 0x597D], [
                     AtelOp.JMP.build(0x0000),
                     .. atelNOPArray(13),
                     ]);
