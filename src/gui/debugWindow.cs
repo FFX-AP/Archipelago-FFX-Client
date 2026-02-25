@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
 using TerraFX.Interop.DirectX;
 using static Fahrenheit.Core.FFX.Globals;
 using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;

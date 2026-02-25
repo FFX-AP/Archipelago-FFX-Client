@@ -610,7 +610,11 @@ public static unsafe class delegates {
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UpdateGearCustomizationMenuState(int param_1);
-    public static int __addr_UpdateCustomizationMenuState = 0x004d5800;
+    public static int __addr_UpdateGearCustomizationMenuState = 0x004d5800;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UpdateAeonCustomizationMenuState(int param_1);
+    public static int __addr_UpdateAeonCustomizationMenuState = 0x004cc300;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate CustomizationRecipe* MsGetRomKaizou(int *size);
@@ -645,7 +649,11 @@ public static unsafe class delegates {
     // Draw customization menu
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void DrawGearCustomizationMenu(uint param_1);
-    public static int __addr_DrawCustomizationMenu = 0x004d5f30;
+    public static int __addr_DrawGearCustomizationMenu = 0x004d5f30;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void DrawAeonCustomizationMenu(uint param_1);
+    public static int __addr_DrawAeonCustomizationMenu = 0x004cdb70;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void FUN_008c1c70(int param_1, int param_2, uint param_3, int param_4);
@@ -680,11 +688,59 @@ public static unsafe class delegates {
     public static int __addr_FUN_008d5dc0 = 0x004d5dc0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FUN_008e6cc0(float param_1, float param_2, float param_3, float param_4, int param_5, int param_6, int param_7);
-    public static int __addr_FUN_008e6cc0 = 0x004e6cc0;
+    public delegate void DrawCrossMenuScrollParts(float param_1, float param_2, float param_3, float param_4, int param_5, int param_6, int param_7);
+    public static int __addr_DrawCrossMenuScrollParts = 0x004e6cc0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void FUN_008d6630(int param_1, int param_2, int param_3);
     public static int __addr_FUN_008d6630 = 0x004d6630;
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public delegate void TkVU1SyncPath();
+    public static int __addr_TkVU1SyncPath = 0x0048ebd0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008e71d0(int param_1);
+    public static int __addr_FUN_008e71d0 = 0x004e71d0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008ff490(uint param_1, float param_2, float param_3);
+    public static int __addr_FUN_008ff490 = 0x004ff490;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008cd960(uint param_1, int param_2, int param_3, float param_4, float param_5);
+    public static int __addr_FUN_008cd960 = 0x004cd960;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008cd9f0(uint param_1, int param_2, int param_3);
+    public static int __addr_FUN_008cd9f0 = 0x004cd9f0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void ToGetCrossExtMesFontWidth(int param_1, byte* param_2, float* param_3, float param_4, float param_5);
+    public static int __addr_ToGetCrossExtMesFontWidth = 0x00505320;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate byte* FUN_008bee80(uint param_1);
+    public static int __addr_FUN_008bee80 = 0x004bee80;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void TOMkpShapeXYWHUV(int param_1, float x, float y, float w, float h, float uv_x1, float uv_y1, float uv_x2, float uv_y2);
+    public static int __addr_TOMkpShapeXYWHUV = 0x00503bb0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void TOMkpCrossExtMesFontLClut(int param_1, byte* text, float x, float y, byte color, float scale, float p7_unused);
+    public static int __addr_TOMkpCrossExtMesFontLClut = 0x005016b0;
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public delegate uint FUN_008d48e0();
+    public static int __addr_FUN_008d48e0 = 0x004d48e0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008d4140(uint param_1, int param_2);
+    public static int __addr_FUN_008d4140 = 0x004d4140;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void TkMn2DrawKickSyncPacket();
+    public static int __addr_TkMn2DrawKickSyncPacket = 0x004c0c90;
 }
 
