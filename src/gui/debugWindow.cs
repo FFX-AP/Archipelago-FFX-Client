@@ -29,9 +29,10 @@ public unsafe static class ArchipelagoGUI {
     public static bool experiments_enabled = false;
     private static bool show = true;
 
-    private static string client_input_address = "archipelago.gg:";
-    private static string client_input_name = "";
-    private static string client_input_password = "";
+    public  const  string DEFAULT_CLIENT_ADDRESS = "archipelago.gg:";
+    public  static string client_input_address   = DEFAULT_CLIENT_ADDRESS;
+    public  static string client_input_name      = "";
+    private static string client_input_password  = "";
 
     private static string client_input_command = "";
 
@@ -630,7 +631,15 @@ public unsafe static class ArchipelagoGUI {
     private static void render_connection() {
         if (seed.Options.SeedId is null && !FFXArchipelagoClient.is_connected) {
             string[] seedNames = [.. ArchipelagoFFXModule.loaded_seeds.Select(x => x.Name)];
-            ImGui.Combo("Selected seed", ref selected_seed, seedNames, seedNames.Length);
+            if (ImGui.Combo("Selected seed", ref selected_seed, seedNames, seedNames.Length)) {
+                ArchipelagoSeed seed = ArchipelagoFFXModule.loaded_seeds[selected_seed];
+                client_input_name = seed.Options.PlayerName;
+                if (ArchipelagoFFXModule.SeedToServer.TryGetValue(seed.Options.SeedId, out string? server)) {
+                    client_input_address = server;
+                } else {
+                    ArchipelagoGUI.client_input_address = ArchipelagoGUI.DEFAULT_CLIENT_ADDRESS;
+                }
+            }
         } else {
             ImGui.Text($"Loaded seed: {seed.Name}");
         }
@@ -1068,7 +1077,7 @@ public unsafe static class ArchipelagoGUI {
         if (ImGui.Button("Save settings")) {
             ArchipelagoFFXModule.VoiceLanguage = voice_lang != 0xFF ? (FhLangId)voice_lang : null;
             ArchipelagoFFXModule.TextLanguage = text_lang != 0xFF ? (FhLangId)text_lang : null;
-            ArchipelagoFFXModule.save_settings();
+            ArchipelagoFFXModule.save_global_state();
         }
     }
 

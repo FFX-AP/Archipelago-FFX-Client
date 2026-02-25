@@ -67,17 +67,23 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public static FhLangId? VoiceLanguage;
     public static FhLangId? TextLanguage;
+    public static string LastSeed = "";
+    public static Dictionary<string, string> SeedToServer = new();
     private class ArchipelagoGlobalState { 
-        public string    LastVersion   { get; set; }
-        public FhLangId? VoiceLanguage { get; set; }
-        public FhLangId? TextLanguage  { get; set; }
-        public int       FontSize     { get; set; }
+        public string                     LastVersion   { get; set; }
+        public FhLangId?                  VoiceLanguage { get; set; }
+        public FhLangId?                  TextLanguage  { get; set; }
+        public int                        FontSize      { get; set; }
+        public string                     LastSeed      { get; set; }
+        public Dictionary<string, string> SeedToServer  { get; set; }
 
         public ArchipelagoGlobalState() {
             this.LastVersion   = ArchipelagoFFXModule.Version.ToString();
             this.VoiceLanguage = ArchipelagoFFXModule.VoiceLanguage;
             this.TextLanguage  = ArchipelagoFFXModule.TextLanguage;
             this.FontSize      = ArchipelagoGUI.font_size;
+            this.LastSeed      = ArchipelagoFFXModule.LastSeed;
+            this.SeedToServer  = ArchipelagoFFXModule.SeedToServer;
         }
     }
 
@@ -111,6 +117,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public record Location(string location_name, int location_id, uint item_id, string item_name, string player_name);
     public struct ArchipelagoSeedOptions {
         [JsonInclude]
+        public string          PlayerName;
+        [JsonInclude]
         public string          SeedId;
         [JsonInclude]
         public GoalRequirement GoalRequirement;
@@ -130,6 +138,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int             SkipContestOfAeons;
 
         public ArchipelagoSeedOptions() {
+            PlayerName           = "";
             SeedId               = "";
             GoalRequirement      = GoalRequirement.None;
             RequiredPartyMembers = 1;
@@ -293,12 +302,19 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Error(message);
                 return false;
+            } else {
+                if (FFXArchipelagoClient.current_server != null) {
+                    SeedToServer[SeedId] = FFXArchipelagoClient.current_server;
+                }
             }
         }
         initalize_states();
         seed = loaded_seed;
-        ap_multiplier = loaded_seed.Options.APMultiplier;
-        item_locations = new ArchipelagoLocations(loaded_seed.Locations);
+        ap_multiplier = seed.Options.APMultiplier;
+        item_locations = new ArchipelagoLocations(seed.Locations);
+        ArchipelagoGUI.selected_seed = loaded_seeds.FindIndex(x => x.Options.SeedId == seed.Options.SeedId);
+        LastSeed = seed.Options.SeedId;
+        save_global_state();
         return true;
     }
 
@@ -306,7 +322,6 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         ArchipelagoFFXModule.mod_context = mod_context;
         ArchipelagoFFXModule.global_state_file = global_state_file;
 
-        load_settings();
 
 
         // Initialize Archipelago Client
@@ -316,6 +331,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         initalize_states();
         //loadSeed();
         loadSeedList();
+        load_global_state();
         return hook();
     }
 
@@ -519,24 +535,42 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             }
         }
     }
-    public static bool load_settings() {
+    public static bool load_global_state() {
         try {
             global_state_file.Position = 0;
             var loaded_state = JsonSerializer.Deserialize<ArchipelagoGlobalState>(global_state_file);
             if (loaded_state == null) return false;
 
-            VoiceLanguage = loaded_state.VoiceLanguage;
-            TextLanguage = loaded_state.TextLanguage;
-            ArchipelagoGUI.voice_lang = VoiceLanguage.HasValue ? (byte)VoiceLanguage.Value : (byte)0xFF;
-            ArchipelagoGUI.text_lang  = TextLanguage.HasValue  ? (byte)TextLanguage.Value  : (byte)0xFF;
-            ArchipelagoGUI.font_size = loaded_state.FontSize;
+            VoiceLanguage                       = loaded_state.VoiceLanguage;
+            TextLanguage                        = loaded_state.TextLanguage;
+            ArchipelagoGUI.voice_lang           = VoiceLanguage.HasValue ? (byte)VoiceLanguage.Value : (byte)0xFF;
+            ArchipelagoGUI.text_lang            = TextLanguage.HasValue  ? (byte)TextLanguage.Value  : (byte)0xFF;
+            ArchipelagoGUI.font_size            = loaded_state.FontSize;
+            LastSeed                            = loaded_state.LastSeed;
+
+            var loaded_seed_ids = loaded_seeds.Select(seed => seed.Options.SeedId);
+            foreach ((string id, string lastServer) in loaded_state.SeedToServer) {
+                if (loaded_seed_ids.Contains(id)) SeedToServer[id] = lastServer;
+            }
+            if (loaded_seeds.Count > 0) {
+                int selected_seed = loaded_seeds.FindIndex(x => x.Options.SeedId == LastSeed);
+                if (selected_seed == -1) selected_seed = 0;
+                ArchipelagoGUI.selected_seed = selected_seed;
+                ArchipelagoGUI.client_input_name = loaded_seeds[selected_seed].Options.PlayerName;
+                if (SeedToServer.TryGetValue(LastSeed, out string? server)) {
+                    ArchipelagoGUI.client_input_address = server;
+                } else {
+                    ArchipelagoGUI.client_input_address = ArchipelagoGUI.DEFAULT_CLIENT_ADDRESS;
+                }
+            }
+
             return true;
         }
         catch (Exception) {
             return false;
         }
     }
-    public static bool save_settings() {
+    public static bool save_global_state() {
         ArchipelagoGlobalState state = new();
         global_state_file.Position = 0;
         JsonSerializer.Serialize(global_state_file, state);
