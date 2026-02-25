@@ -98,6 +98,10 @@ public static class ArchipelagoData {
             367,
             384,
             385,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.BaajTemple, [
             48,
@@ -114,6 +118,10 @@ public static class ArchipelagoData {
             288,
             64,
             380,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Besaid, [
             70,
@@ -154,6 +162,9 @@ public static class ArchipelagoData {
             191, // 
             336, // Jecht Sphere
             337, // Jecht Sphere
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Kilika, [
             43,
@@ -185,6 +196,10 @@ public static class ArchipelagoData {
             185,
             294, // Maybe
             302, // Maybe
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Luca, [
             267,
@@ -231,6 +246,10 @@ public static class ArchipelagoData {
             116,
             59,
             334, // Jecht Sphere
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.MushroomRockRoad, [
             79,
@@ -245,6 +264,10 @@ public static class ArchipelagoData {
             131,
             253, // Jecht Sphere?
             289, // Maybe
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Djose, [
             93,
@@ -258,6 +281,10 @@ public static class ArchipelagoData {
             90,
             91,
             245,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Moonflow, [
             75,
@@ -274,6 +301,10 @@ public static class ArchipelagoData {
             97,
             234, // Maybe
             333, // Jecht Sphere
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Guadosalam, [
             135,
@@ -291,6 +322,10 @@ public static class ArchipelagoData {
             364,
             134,
             213, // Maybe?
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.ThunderPlains, [
             140,
@@ -300,6 +335,10 @@ public static class ArchipelagoData {
             262,
             162,
             332, // Jecht Sphere
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Macalania, [
             110,
@@ -327,6 +366,10 @@ public static class ArchipelagoData {
             365, // Maybe
             391, // Luca flashback
             338, // Jecht Sphere
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Bikanel, [
             129,
@@ -342,6 +385,10 @@ public static class ArchipelagoData {
             303,
             261,
             391, // Luca flashback
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Airship, [
             194,
@@ -358,6 +405,10 @@ public static class ArchipelagoData {
             374, // Unsure
             375, // Unsure
             202, // Unsure
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Bevelle, [
             205,
@@ -384,6 +435,10 @@ public static class ArchipelagoData {
             339, // Jecht Sphere
             195,
             207,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.CalmLands, [
             223,
@@ -391,11 +446,19 @@ public static class ArchipelagoData {
             308,
             279,
             372,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.CavernOfTheStolenFayth, [
             266,
             56,
             283,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.MtGagazet, [
             259,
@@ -413,6 +476,10 @@ public static class ArchipelagoData {
             381,
             383, // Braska Sphere
             362,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.ZanarkandRuins, [
             132,
@@ -429,6 +496,10 @@ public static class ArchipelagoData {
             319,
             315,
             313,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.Sin, [
             322,
@@ -443,13 +514,25 @@ public static class ArchipelagoData {
             387, // Ending
             388, // Ending
             390, // Ending
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.OmegaRuins, [
             258,
             271,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
         { RegionEnum.MonsterArena, [
             307,
+            355, //Blitzball Tutorial
+            347, //Blitzball Menu
+            62,  //Blitzball Arena
+            212, //Results Screen
             ] },
     };
 
