@@ -1838,6 +1838,12 @@ public unsafe partial class ArchipelagoFFXModule {
 
 
                 break;
+            case "nagi0400":
+                set(code_ptr, [0x4402, 0x597D], [
+                    AtelOp.JMP.build(0x0000),
+                    .. atelNOPArray(13),
+                    ]);
+                break;
             case "nagi0600":
                 // Send Yojimbo
                 set(code_ptr, [0x261A, 0x2686, 0x28FB, 0x2B20, 0x2D45, 0x2F39], [
