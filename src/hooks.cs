@@ -5,7 +5,6 @@ using Fahrenheit.Core.FFX.Battle;
 using Fahrenheit.Core.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -422,10 +421,16 @@ public unsafe partial class ArchipelagoFFXModule {
         _ToMakeBtlEasyFont = FhUtil.get_fptr<ToMakeBtlEasyFont>(__addr_ToMakeBtlEasyFont);
 
         _PrepareMenuList = new FhMethodHandle<PrepareMenuList>(this, game, __addr_PrepareMenuList, h_PrepareMenuList);
-        _UpdateCustomizationMenuState = new FhMethodHandle<UpdateCustomizationMenuState>(this, game, __addr_UpdateCustomizationMenuState, h_UpdateCustomizationMenuState);
-        _DrawCustomizationMenu = new FhMethodHandle<DrawCustomizationMenu>(this, game, __addr_DrawCustomizationMenu, h_DrawCustomizationMenu);
+        _UpdateGearCustomizationMenuState = new FhMethodHandle<UpdateGearCustomizationMenuState>(this, game, __addr_UpdateGearCustomizationMenuState, h_UpdateGearCustomizationMenuState);
+        _UpdateAeonCustomizationMenuState = new FhMethodHandle<UpdateAeonCustomizationMenuState>(this, game, __addr_UpdateAeonCustomizationMenuState, h_UpdateAeonCustomizationMenuState);
+        _DrawGearCustomizationMenu = new FhMethodHandle<DrawGearCustomizationMenu>(this, game, __addr_DrawGearCustomizationMenu, h_DrawGearCustomizationMenu);
+        _DrawAeonCustomizationMenu = new FhMethodHandle<DrawAeonCustomizationMenu>(this, game, __addr_DrawAeonCustomizationMenu, h_DrawAeonCustomizationMenu);
         _MsGetRomKaizou = FhUtil.get_fptr<MsGetRomKaizou>(__addr_MsGetRomKaizou);
         _MsGetRomAbility = FhUtil.get_fptr<MsGetRomAbility>(__addr_MsGetRomAbility);
+        _MsGetRomSummonGrow = FhUtil.get_fptr<MsGetRomSummonGrow>(__addr_MsGetRomSummonGrow);
+        _TkMn2GetSummonGrowMax = FhUtil.get_fptr<TkMn2GetSummonGrowMax>(__addr_TkMn2GetSummonGrowMax);
+        _TkMenuGetCurrentSummon = FhUtil.get_fptr<TkMenuGetCurrentSummon>(__addr_TkMenuGetCurrentSummon);
+        _MsGetSaveCommand = FhUtil.get_fptr<MsGetSaveCommand>(__addr_MsGetSaveCommand);
 
         _FUN_008c1c70                    = FhUtil.get_fptr<FUN_008c1c70>(__addr_FUN_008c1c70);
         _TODrawMenuPlateXYWHType         = FhUtil.get_fptr<TODrawMenuPlateXYWHType>(__addr_TODrawMenuPlateXYWHType);
@@ -435,8 +440,21 @@ public unsafe partial class ArchipelagoFFXModule {
         _FUN_008c0f40                    = FhUtil.get_fptr<FUN_008c0f40>(__addr_FUN_008c0f40);
         _FUN_008c1350_DrawScissor512x416 = FhUtil.get_fptr<FUN_008c1350_DrawScissor512x416>(__addr_FUN_008c1350_DrawScissor512x416);
         _FUN_008d5dc0                    = FhUtil.get_fptr<FUN_008d5dc0>(__addr_FUN_008d5dc0);
-        _FUN_008e6cc0                    = FhUtil.get_fptr<FUN_008e6cc0>(__addr_FUN_008e6cc0);
+        _DrawCrossMenuScrollParts                    = FhUtil.get_fptr<DrawCrossMenuScrollParts>(__addr_DrawCrossMenuScrollParts);
         _FUN_008d6630                    = FhUtil.get_fptr<FUN_008d6630>(__addr_FUN_008d6630);
+
+        _TkVU1SyncPath = FhUtil.get_fptr<TkVU1SyncPath>(__addr_TkVU1SyncPath);
+        _FUN_008e71d0 = FhUtil.get_fptr<FUN_008e71d0>(__addr_FUN_008e71d0);
+        _FUN_008ff490 = FhUtil.get_fptr<FUN_008ff490>(__addr_FUN_008ff490);
+        _FUN_008cd960 = FhUtil.get_fptr<FUN_008cd960>(__addr_FUN_008cd960);
+        _FUN_008cd9f0 = FhUtil.get_fptr<FUN_008cd9f0>(__addr_FUN_008cd9f0);
+        _ToGetCrossExtMesFontWidth = FhUtil.get_fptr<ToGetCrossExtMesFontWidth>(__addr_ToGetCrossExtMesFontWidth);
+        _FUN_008bee80 = FhUtil.get_fptr<FUN_008bee80>(__addr_FUN_008bee80);
+        _TOMkpShapeXYWHUV = FhUtil.get_fptr<TOMkpShapeXYWHUV>(__addr_TOMkpShapeXYWHUV);
+        _TOMkpCrossExtMesFontLClut = FhUtil.get_fptr<TOMkpCrossExtMesFontLClut>(__addr_TOMkpCrossExtMesFontLClut);
+        _FUN_008d48e0 = FhUtil.get_fptr<FUN_008d48e0>(__addr_FUN_008d48e0);
+        _FUN_008d4140 = FhUtil.get_fptr<FUN_008d4140>(__addr_FUN_008d4140);
+        _TkMn2DrawKickSyncPacket = FhUtil.get_fptr<TkMn2DrawKickSyncPacket>(__addr_TkMn2DrawKickSyncPacket);
     }
 
     public static int ignore_this = 11;
@@ -476,7 +494,8 @@ public unsafe partial class ArchipelagoFFXModule {
             && _AtelInitTotal.hook()
             && _LocalizationManager_Initialize.hook()
             && _TkMenuAppearMainCmdWindow.hook()
-            && _PrepareMenuList.hook() && _UpdateCustomizationMenuState.hook() && _DrawCustomizationMenu.hook();
+            && _PrepareMenuList.hook() && _UpdateGearCustomizationMenuState.hook() && _DrawGearCustomizationMenu.hook()
+            && _UpdateAeonCustomizationMenuState.hook() && _DrawAeonCustomizationMenu.hook();
         //&& _FUN_00656c90.hook() && _FUN_0065ee30.hook();
         //&& _openFile.hook() && _FUN_0070aec0.hook();
         //&& _MsCheckLeftWindow.hook() && _MsCheckUseCommand.hook() && _TOBtlDrawStatusLimitGauge.hook();
