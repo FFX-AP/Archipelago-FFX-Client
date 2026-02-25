@@ -2579,7 +2579,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         refill_spheres();
 
-        foreach ((var item_id, var amount) in new SortedDictionary<uint, int>(excess_inventory.ToDictionary())) {
+        foreach ((var item_id, var amount) in excess_inventory.ToList()) {
             if (amount > 0 && save_data->get_item_count((int)item_id) < 99) {
                 excess_inventory[item_id] = 0;
                 h_give_item(item_id, amount);
