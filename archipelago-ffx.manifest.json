@@ -2,9 +2,9 @@
   "Id": "archipelago-ffx",
   "Name": "Archipelago FFX",
   "Desc": "Archipelago client for FFX",
-  "Authors": "Rurusachi",
+  "Authors": "Rurusachi, Andrewki",
   "Version": "{Version}",
-  "Link": "https://github.com/Rurusachi/archipelago-ffx",
+  "Link": "https://github.com/FFX-AP/Archipelago-FFX-Client",
   "Dependencies": [],
   "LoadAfter": [],
   "Flags": "SEPARATE_SAVES"
