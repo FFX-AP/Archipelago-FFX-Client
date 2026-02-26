@@ -469,7 +469,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Error(message);
                 return;
-            } else if (save_version < new SemVer(0, 4, 0, "alpha")) {
+            } else if (save_version < new SemVer(0, 5, 0, "alpha")) {
                 string message = "Incompatible version. Returning to main menu";
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Info(message);
