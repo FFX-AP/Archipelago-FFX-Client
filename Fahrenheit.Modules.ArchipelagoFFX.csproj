@@ -8,7 +8,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<RuntimeIdentifier>win-x86</RuntimeIdentifier>
         <EnableDynamicLoading>true</EnableDynamicLoading>
-	    <Version>0.5.0-alpha</Version>
+	    <Version>0.5.1-alpha</Version>
     </PropertyGroup>
 
 	<!-- ASSEMBLY ADDITIONAL PROPERTIES -->
