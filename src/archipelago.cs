@@ -225,7 +225,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 (int)ArchipelagoLocationType.Capture       => capture,
                 _ => null,
             };
-            item = dict?.GetValueOrDefault(location & 0xFF);
+            item = dict?.GetValueOrDefault(location & 0xFFF);
             return item is not null;
         }
     }
