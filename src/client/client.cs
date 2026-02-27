@@ -162,7 +162,7 @@ public static class FFXArchipelagoClient {
             if (local_locations_updated) {
                 var local_only = local_checked_locations.Except(current_session.Locations.AllLocationsChecked);
                 if (local_only.Any()) {
-                    current_session.Locations.CompleteLocationChecks(local_only.ToArray());
+                    current_session.Locations.CompleteLocationChecksAsync(local_only.ToArray());
                     ArchipelagoFFXModule.logger.Debug($"Sent: {string.Join(",", local_only)}");
                 }
                 local_locations_updated = false;
