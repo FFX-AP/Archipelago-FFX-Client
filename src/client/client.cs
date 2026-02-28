@@ -4,8 +4,8 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.MessageLog.Parts;
 using Archipelago.MultiClient.Net.Models;
-using Fahrenheit.Core;
-using Fahrenheit.Core.FFX;
+using Fahrenheit;
+using Fahrenheit.FFX;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 using System;
 using System.Collections.Generic;
@@ -265,4 +265,3 @@ public unsafe static void connectHandlers() {
     }
 
 }
-

@@ -1,11 +1,11 @@
 ﻿using Archipelago.MultiClient.Net.Enums;
-using Fahrenheit.Core;
-using Fahrenheit.Core.Atel;
-using Fahrenheit.Core.FFX;
-using Fahrenheit.Core.FFX.Ids;
+using Fahrenheit;
+using Fahrenheit.Atel;
+using Fahrenheit.FFX;
+using Fahrenheit.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
-//using Fahrenheit.Core.ImGuiNET;
+//using Fahrenheit.ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using static Fahrenheit.Core.FFX.Globals;
+using static Fahrenheit.FFX.Globals;
 //using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
 using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
@@ -69,7 +69,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static FhLangId? TextLanguage;
     public static string LastSeed = "";
     public static Dictionary<string, string> SeedToServer = new();
-    private class ArchipelagoGlobalState { 
+    private class ArchipelagoGlobalState {
         public string                     LastVersion   { get; set; }
         public FhLangId?                  VoiceLanguage { get; set; }
         public FhLangId?                  TextLanguage  { get; set; }
@@ -130,9 +130,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int             APMultiplier;
         [JsonInclude]
         public int             AlwaysSensor;
-        [JsonInclude]          
+        [JsonInclude]
         public int             AlwaysCapture;
-        [JsonInclude]          
+        [JsonInclude]
         public int             CaptureDamage;
         [JsonInclude]
         public int             SkipContestOfAeons;
@@ -268,7 +268,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 else {
                     throw new ArgumentNullException("apffx file is null");
                 }
-            }   
+            }
             catch {
                 logger.Warning($"Failed to load {file.Name}");
             }
@@ -616,7 +616,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
         if (last_room_id != Globals.save_data->current_room_id && Globals.save_data->current_room_id != 0xFFFF) {
             _logger.Info($"Room changed: Entered {Globals.save_data->current_room_id} at entrance {Globals.save_data->current_spawnpoint}");
-            
+
             on_map_change();
             last_room_id = Globals.save_data->current_room_id;
             last_entrance_id = Globals.save_data->current_spawnpoint;
@@ -649,9 +649,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             }
 
         }
-        if (Globals.Input.select.held && Globals.Input.l1.just_pressed) {
+        if (Input.select.held && Input.l1.just_pressed) {
 #if DEBUG
-            AtelBasicWorker* worker0 = Atel.controllers[0].worker(0);
+            AtelBasicWorker* worker0 = Globals.Atel.controllers[0].worker(0);
 
             float minDistance = -1;
             int closestEntranceIndex = -1;
@@ -719,7 +719,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
             int work = 0;
             int[] storage_array = [0,0,0,0];
-            
+
             fixed (int* storage = storage_array) {
                 _Common_playFieldVoiceLineInit((AtelBasicWorker*)&work, storage, &stack);
                 _Common_playFieldVoiceLineExec((AtelBasicWorker*)&work, &stack);

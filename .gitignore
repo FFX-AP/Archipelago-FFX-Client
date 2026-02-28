@@ -1,0 +1,7 @@
+# IDE personal folders
+.vs
+.idea
+
+# Build/Publish folders
+bin
+obj
