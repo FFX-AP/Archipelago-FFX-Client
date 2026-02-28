@@ -1,13 +1,7 @@
-﻿<Project>
+﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha08">
 
 	<!-- ASSEMBLY BASIC PROPERTIES -->
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>disable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<RuntimeIdentifier>win-x86</RuntimeIdentifier>
-        <EnableDynamicLoading>true</EnableDynamicLoading>
 	    <Version>0.5.1-alpha</Version>
     </PropertyGroup>
 
@@ -20,54 +14,19 @@
 		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
 	</PropertyGroup>
 
-	<!-- SDK REFERENCES -->
-	<Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
-	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
-
 	<!-- SHARED FILE LINKS -->
 	<ItemGroup>
 		<None Include="$(SolutionDir).editorconfig" Link=".editorconfig" />
 	</ItemGroup>
 
-
-	<!-- ASSETS: MANIFEST -->
-	<ItemGroup>
-		<None Include="$(AssemblyName).manifest.json" CopyToOutputDirectory="Always" />
-	</ItemGroup>
-	<!-- ASSETS: LOCALIZATION -->
-	<ItemGroup>
-		<None Remove="lang/**" />
-		<None Include="lang/*.json" CopyToOutputDirectory="Always" />
-	</ItemGroup>
-	<!-- ASSETS: EXTERNAL FILE LOADER -->
-	<ItemGroup>
-		<None Remove="efl/**" />
-		<None Include="efl/x/**/*;efl/x2/**/*" CopyToOutputDirectory="Always" />
-	</ItemGroup>
-	<!-- ASSETS: GENERIC -->
-	<ItemGroup>
-		<None Include="resources/**" CopyToOutputDirectory="Always" />
-	</ItemGroup>
-	
+    <!-- PACKAGE REFERENCES -->
 	<ItemGroup>
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
 	</ItemGroup>
-	
+
 	<!-- BUILD EVENTS -->
 	<Target Name="VersionAfterPublish" AfterTargets="Publish">
 		<Exec Command="powershell Set-Content 'archipelago-ffx.manifest.json' ((Get-Content 'archipelago-ffx.manifest.json').Replace('{Version}','$(Version)'))" WorkingDirectory="$(PublishDir)" />
 	</Target>
-
-	<!-- PROJECT REFERENCES -->
-	<ItemGroup>
-        <ProjectReference Include="..\..\core\framework\Fahrenheit.Core.csproj">
-            <Private>false</Private>
-            <ExcludeAssets>runtime;native</ExcludeAssets>
-        </ProjectReference>
-		<ProjectReference Include="..\..\core\ffx\Fahrenheit.Core.FFX.csproj">
-			<Private>false</Private>
-			<ExcludeAssets>runtime;native</ExcludeAssets>
-		</ProjectReference>
-	</ItemGroup>
 
 </Project>

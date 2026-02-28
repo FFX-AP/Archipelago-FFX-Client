@@ -1,7 +1,7 @@
-﻿using Fahrenheit.Core;
-using Fahrenheit.Core.Atel;
-using Fahrenheit.Core.FFX;
-using Fahrenheit.Core.FFX.Battle;
+﻿using Fahrenheit;
+using Fahrenheit.Atel;
+using Fahrenheit.FFX;
+using Fahrenheit.FFX.Battle;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -743,4 +743,3 @@ public static unsafe class delegates {
     public delegate void TkMn2DrawKickSyncPacket();
     public static int __addr_TkMn2DrawKickSyncPacket = 0x004c0c90;
 }
-

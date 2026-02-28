@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 
-using Fahrenheit.Core;
-using Fahrenheit.Core.FFX;
+using Fahrenheit;
+using Fahrenheit.FFX;
 using System.Numerics;
 using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 

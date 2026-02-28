@@ -1,6 +1,6 @@
-﻿using Fahrenheit.Core;
-using Fahrenheit.Core.FFX;
-using Fahrenheit.Core.FFX.Ids;
+﻿using Fahrenheit;
+using Fahrenheit.FFX;
+using Fahrenheit.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
 using System;
 using System.Collections.Generic;

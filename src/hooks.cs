@@ -1,8 +1,8 @@
-﻿using Fahrenheit.Core;
-using Fahrenheit.Core.Atel;
-using Fahrenheit.Core.FFX;
-using Fahrenheit.Core.FFX.Battle;
-using Fahrenheit.Core.FFX.Ids;
+﻿using Fahrenheit;
+using Fahrenheit.Atel;
+using Fahrenheit.FFX;
+using Fahrenheit.FFX.Battle;
+using Fahrenheit.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 using System;
@@ -12,7 +12,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using static Fahrenheit.Core.FFX.Globals;
+using static Fahrenheit.FFX.Globals;
 using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
 using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
 using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
@@ -798,7 +798,7 @@ public unsafe partial class ArchipelagoFFXModule {
             AtelOp.PUSHII  .build(0x0001),
             AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP_IF_FALSE),
 
-            
+
             //// Jump to j01 (return)
             AtelOp.JMP     .build(0x0001),
         ]).SelectMany(x => x.to_bytes()).ToArray(),
@@ -844,7 +844,7 @@ public unsafe partial class ArchipelagoFFXModule {
             AtelOp.PUSHA    .build(),
             AtelOp.PUSHII   .build(0x0004),
             AtelOp.CALLPOPA .build((ushort)CustomCallTarget.JUMP_IF_TRUE),
-            
+
             // call Common.disablePlayerControl? [005Eh]();
             AtelOp.CALLPOPA.build(0x005e),
             // display customStrings[2]
@@ -1143,12 +1143,12 @@ public unsafe partial class ArchipelagoFFXModule {
             AtelOp.CALLPOPA.build(0x0084),
             // call Common.enablePlayerControl? [005Dh]();
             AtelOp.CALLPOPA.build(0x005d),
-            
+
             // call Common.JumpIfFalse(choice, 11) i.e. if !choice jump to customscripts[B]
             AtelOp.PUSHII  .build(0x000B),
             AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP_IF_FALSE),
 
-            
+
             // AE0000 D8BB00        call Common.00BB(p1=0 [00h]);
             AtelOp.PUSHII  .build(0x0000),
             AtelOp.CALLPOPA.build(0x00bb),
@@ -1292,7 +1292,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         string event_name = Marshal.PtrToStringAnsi((nint)get_event_name((uint)event_id))!;
         logger.Debug($"atel_event_setup: {event_name}");
-        byte* code_ptr = Atel.controllers[0].worker(0)->code_ptr;
+        byte* code_ptr = Globals.Atel.controllers[0].worker(0)->code_ptr;
         switch (event_name) {
             case "bjyt1200":
                 // Send Anima
@@ -1484,10 +1484,10 @@ public unsafe partial class ArchipelagoFFXModule {
                 move(code_ptr, 0x7594, 24, 0x75B6 - 0x7594);
                 move(code_ptr, 0x7594 + 24, 16, 0x75F4 - (0x7594 + 24));
 
-                // Don't always set flag 
+                // Don't always set flag
                 //set(code_ptr, 0x75F4, atelNOPArray(10));
 
-                // Don't always hide Belgemine 
+                // Don't always hide Belgemine
                 set(code_ptr, 0x763B, atelNOPArray(11));
 
                 // Set flag and hide Belgemine on win (15 + 24 + 16 bytes available)
@@ -1700,7 +1700,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     //AtelOp.PUSHII   .build(PlySaveId.PC_ANIMA),
                     //AtelOp.CALL     .build((ushort)CustomCallTarget.IS_CHARACTER_UNLOCKED),
                     //AtelOp.LAND     .build(),
-                    
+
                     AtelOp.PUSHII.build(1),
                     .. atelNOPArray(22),
                     ]);
@@ -2146,7 +2146,7 @@ public unsafe partial class ArchipelagoFFXModule {
         else {
             AtelInst? previous_op = null;
             AtelInst? current_op = null;
-            uint code_length = Atel.controllers[0].worker(0)->script_chunk->code_length;
+            uint code_length = Globals.Atel.controllers[0].worker(0)->script_chunk->code_length;
             uint i = 0;
             uint save_spheres_detected = 0;
             uint sphere_level_offset = 0x48;
@@ -2810,7 +2810,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         uint local_6c;
         Command* command = _MsGetCommand(param_1->attacker_id, 0, -1, &param_1->command_list[param_2], &local_6c);
-        
+
         if (param_1->command_count <= param_2 || command == null) return;
 
         Chr* attacker = _MsGetChr(param_1->attacker_id);
@@ -2901,7 +2901,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 (mon->chr_id & 0xFFF) == 043 ||  // Sahagin
                 (mon->chr_id & 0xFFF) == 068 ||  // Piranha
                 (mon->chr_id & 0xFFF) == 069 ||  // Piranha
-                (mon->chr_id & 0xFFF) == 070 ||  // Piranha   
+                (mon->chr_id & 0xFFF) == 070 ||  // Piranha
                 (mon->chr_id & 0xFFF) == 101 ||  // Tros
                 (mon->chr_id & 0xFFF) == 155 ||  // Sahagin
                 (mon->chr_id & 0xFFF) == 156 ||  // Sahagin Chief
@@ -2957,10 +2957,10 @@ public unsafe partial class ArchipelagoFFXModule {
                 reset_party();
                 // Battle frontline gets copied after this so have to set here
                 for (int i = 0; i < 3; i++) {
-                    Battle.btl->__0x1FC5[i] = save_data->party_order[i];
+                    Battle.btl->__0x1FC5[i] = save_data->party_frontline[i];
                 }
                 for (int i = 0; i < 4; i++) {
-                    Battle.btl->__0x1FD3[i] = save_data->party_order[i + 3];
+                    Battle.btl->__0x1FD3[i] = save_data->party_backline[i];
                 }
                 party_overridden = false;
             }
@@ -3405,7 +3405,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public static void set_airship_destinations() {
         logger.Debug("set_airship_destinations");
-        AtelBasicWorker* worker = Atel.controllers[0].worker(0);
+        AtelBasicWorker* worker = Globals.Atel.controllers[0].worker(0);
         var var_table = worker->table_event_data;
         uint* airshipDestinationCount = &var_table[11];
         uint* airshipDestinationLength = &var_table[12];
@@ -4083,11 +4083,11 @@ public unsafe partial class ArchipelagoFFXModule {
 
         logger.Info($"Exit leads to other Region!");
 
-        Chr* tidus = (Chr*)((int)Atel.controllers[0].worker(0) + 0x9c);
+        Chr* tidus = (Chr*)((int)Globals.Atel.controllers[0].worker(0) + 0x9c);
         if (tidus != null && tidus->actor != null) {
             Vector3 playerPos = tidus->actor->chr_pos_vec.AsVector3();
-            var entrances = Atel.controllers[0].worker(0)->script_chunk->map_entrances.ToArray();
-            var closestEntrance = Atel.controllers[0].worker(0)->script_chunk->map_entrances.ToArray()
+            var entrances = Globals.Atel.controllers[0].worker(0)->script_chunk->map_entrances.ToArray();
+            var closestEntrance = Globals.Atel.controllers[0].worker(0)->script_chunk->map_entrances.ToArray()
                         .Select((e, i) => new {Index=i, Entrance=e, Distance=(playerPos - e.pos).Length()})
                         .MinBy(tuple => tuple.Distance);
 
@@ -4095,13 +4095,13 @@ public unsafe partial class ArchipelagoFFXModule {
                 logger.Debug($"Entrance within 200: pos:({closestEntrance.Entrance.x}, {closestEntrance.Entrance.y}, {closestEntrance.Entrance.z}) distance:{closestEntrance.Distance}");
                 Vector3 target_pos = closestEntrance.Entrance.pos;
 
-                ushort entry_point = (ushort)(Atel.controllers[0].worker(0)->script_header->entry_point_count - 1);
+                ushort entry_point = (ushort)(Globals.Atel.controllers[0].worker(0)->script_header->entry_point_count - 1);
 
                 if (turnAroundScript == null) turnAroundScript = (byte*)NativeMemory.AllocZeroed((uint)turnAroundScriptLength);
                 atelTurnAround(new Span<byte>(turnAroundScript, turnAroundScriptLength), target_pos.X, target_pos.Y, target_pos.Z, work->worker_idx, 0, entry_point, 17, 1f, 1f);
 
 
-                AtelBasicWorker* targetWorker = Atel.controllers[0].worker(0);
+                AtelBasicWorker* targetWorker = Globals.Atel.controllers[0].worker(0);
                 if (!originalEntryPoints.ContainsKey((0, entry_point))) {
                     originalEntryPoints[(0, entry_point)] = targetWorker->table_entry_points[entry_point];
                 }
@@ -4138,7 +4138,7 @@ public unsafe partial class ArchipelagoFFXModule {
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static int CT_RetInt_RestoreInteraction(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         int target_worker_index = atelStack->pop_int();
-        AtelBasicWorker* target_worker = Atel.controllers[0].worker(target_worker_index);
+        AtelBasicWorker* target_worker = Globals.Atel.controllers[0].worker(target_worker_index);
         //if (savedCrossInteractionStatus) target_worker->field_interaction_flags |= 1 << 2; // Enable cross interaction
         target_worker->field_interaction_flags = savedInteractionFlags;
         return 1;
@@ -4281,7 +4281,7 @@ public unsafe partial class ArchipelagoFFXModule {
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static int CT_RetInt_UpdateRegionState(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         Vector3 playerPos = Globals.actors->chr_pos_vec.AsVector3();
-        var closestEntrance = Atel.controllers[0].worker(0)->script_chunk->map_entrances.ToArray()
+        var closestEntrance = Globals.Atel.controllers[0].worker(0)->script_chunk->map_entrances.ToArray()
                     .Select((entrance, index) => new {Index=index, Entrance=entrance, Distance=(playerPos - entrance.pos).Length()})
                     .MinBy(tuple => tuple.Distance);
         if (closestEntrance?.Distance < 100) {
@@ -4368,7 +4368,7 @@ public unsafe partial class ArchipelagoFFXModule {
         int entryPoint   = atelStack->pop_int();
         int workerIndex  = atelStack->pop_int();
 
-        AtelBasicWorker* targetWorker = Atel.controllers[0].worker(workerIndex);
+        AtelBasicWorker* targetWorker = Globals.Atel.controllers[0].worker(workerIndex);
 
         if (!originalEntryPoints.ContainsKey((workerIndex, entryPoint))) {
             originalEntryPoints[(workerIndex, entryPoint)] = targetWorker->table_entry_points[entryPoint];
@@ -4386,7 +4386,7 @@ public unsafe partial class ArchipelagoFFXModule {
         int entryPoint = atelStack->pop_int();
         int workerIndex = atelStack->pop_int();
         if (originalEntryPoints.TryGetValue((workerIndex, entryPoint), out uint value)) {
-            Atel.controllers[0].worker(workerIndex)->table_entry_points[entryPoint] = value;
+            Globals.Atel.controllers[0].worker(workerIndex)->table_entry_points[entryPoint] = value;
         }
         return 1;
     }
@@ -4435,7 +4435,7 @@ public unsafe partial class ArchipelagoFFXModule {
     public static int CT_RetInt_JechtSphere(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         int jecht_sphere = atelStack->pop_int();
         int other_id =  atelStack->pop_int();
-        
+
         if (!FFXArchipelagoClient.local_checked_locations.Contains(other_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Other)) {
             if (ArchipelagoFFXModule.item_locations.other.TryGetValue(other_id, out var item)) {
                 if (FFXArchipelagoClient.sendLocation(other_id, FFXArchipelagoClient.ArchipelagoLocationType.Other)) {
