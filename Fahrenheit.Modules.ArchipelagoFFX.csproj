@@ -25,8 +25,17 @@
 	</ItemGroup>
 
 	<!-- BUILD EVENTS -->
-	<Target Name="VersionAfterPublish" AfterTargets="Publish">
-		<Exec Command="powershell Set-Content 'archipelago-ffx.manifest.json' ((Get-Content 'archipelago-ffx.manifest.json').Replace('{Version}','$(Version)'))" WorkingDirectory="$(PublishDir)" />
-	</Target>
+    <Target Name="ReplaceProperties" AfterTargets="Publish">
+        <PropertyGroup>
+            <WorkingDirectory>$(PublishDir)</WorkingDirectory>
+            <File>archipelago-ffx.manifest.json</File>
+        </PropertyGroup>
+
+        <WriteLinesToFile
+                File="$(WorkingDirectory)/$(File)"
+                Lines="$([System.IO.File]::ReadAllText($(WorkingDirectory)/$(File)).Replace('{Version}','$(Version)'))"
+                Overwrite="true"
+                Encoding="Unicode" />
+    </Target>
 
 </Project>
