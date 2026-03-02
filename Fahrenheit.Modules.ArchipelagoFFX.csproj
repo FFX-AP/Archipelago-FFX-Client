@@ -30,7 +30,7 @@
         <PropertyGroup>
             <File>archipelago-ffx.manifest.json</File>
         </PropertyGroup>
-        <WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="Unicode" />
+        <WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="UTF-8" />
     </Target>
 
 	<Target Name="DownloadFahrenheitRelease" AfterTargets="Publish">
