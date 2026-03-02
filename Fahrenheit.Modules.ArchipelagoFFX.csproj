@@ -74,7 +74,7 @@
 			  Command="rsync -acu --delete '$(AssetsDir)/' '$(AssetDestination)' --exclude='$(LoadOrderFile)' --exclude='$(StartGameFile)'"
 			  ContinueOnError="true" IgnoreExitCode="true" />
 		<Copy SourceFiles="@(AssetFiles)"
-			  DestinationFiles="$(PublishDir)fahrenheit\mods\loadorder; $(PublishDir)fahrenheit\start_game.bat"
+			  DestinationFiles="$(PublishDir)fahrenheit\mods\$(LoadOrderFile); $(PublishDir)fahrenheit\$(StartGameFile)"
 			  ContinueOnError="true" />
 	</Target>
 
