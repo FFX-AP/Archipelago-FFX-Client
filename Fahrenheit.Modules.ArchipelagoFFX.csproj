@@ -57,8 +57,10 @@
 	<Target Name="CopyAssets" AfterTargets="Publish">
 		<PropertyGroup>
 			<AssetsDir>$(ProjectDir)assets\</AssetsDir>
-			<LoadOrder>$(AssetsDir)loadorder</LoadOrder>
-			<StartGame>$(AssetsDir)start_game.bat</StartGame>
+            <LoadOrderFile>loadorder</LoadOrderFile>
+			<LoadOrder>$(AssetsDir)$(LoadOrderFile)</LoadOrder>
+            <StartGameFile>start_game.bat</StartGameFile>
+			<StartGame>$(AssetsDir)$(StartGameFile)</StartGame>
 			<AssetDestination>$(PublishDir)fahrenheit\mods\$(AssemblyName)</AssetDestination>
 		</PropertyGroup>
 		<ItemGroup>
@@ -69,7 +71,7 @@
 			  Command="powershell -Command &quot;robocopy '$(AssetsDir)' '$(AssetDestination)' /MIR /R:0 /W:0 /XF '$(LoadOrder)' /XF '$(StartGame)'" 
 			  ContinueOnError="true" IgnoreExitCode="true" />
 		<Exec Condition="'$(OS)' == 'Unix'"
-			  Command="rsync -acu --delete '$(AssetsDir)/' '$(AssetDestination)' --exclude='$(LoadOrder)' --exclude='$(StartGame)'"
+			  Command="rsync -acu --delete '$(AssetsDir)/' '$(AssetDestination)' --exclude='$(LoadOrderFile)' --exclude='$(StartGameFile)'"
 			  ContinueOnError="true" IgnoreExitCode="true" />
 		<Copy SourceFiles="@(AssetFiles)"
 			  DestinationFiles="$(PublishDir)fahrenheit\mods\loadorder; $(PublishDir)fahrenheit\start_game.bat"
