@@ -5,3 +5,7 @@
 # Build/Publish folders
 bin
 obj
+release
+
+# Project assets folders
+assets

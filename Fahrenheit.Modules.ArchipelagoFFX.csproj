@@ -2,7 +2,8 @@
 
 	<!-- ASSEMBLY BASIC PROPERTIES -->
     <PropertyGroup>
-	    <Version>0.5.1-alpha</Version>
+	    <Version>0.6.0-alpha</Version>
+		<FahrenheitVersion>v1.0.0-alpha07</FahrenheitVersion>
     </PropertyGroup>
 
 	<!-- ASSEMBLY ADDITIONAL PROPERTIES -->
@@ -23,19 +24,58 @@
 	<ItemGroup>
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
 	</ItemGroup>
-
+	
 	<!-- BUILD EVENTS -->
-    <Target Name="ReplaceProperties" AfterTargets="Publish">
+	<Target Name="ReplaceProperties" BeforeTargets="Publish">
         <PropertyGroup>
-            <WorkingDirectory>$(PublishDir)</WorkingDirectory>
             <File>archipelago-ffx.manifest.json</File>
         </PropertyGroup>
-
-        <WriteLinesToFile
-                File="$(WorkingDirectory)/$(File)"
-                Lines="$([System.IO.File]::ReadAllText($(WorkingDirectory)/$(File)).Replace('{Version}','$(Version)'))"
-                Overwrite="true"
-                Encoding="Unicode" />
+        <WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="Unicode" />
     </Target>
+
+	<Target Name="DownloadFahrenheitRelease" AfterTargets="Publish">
+		<PropertyGroup>
+			<ReleaseUrl>https://github.com/fahrenheit-crew/fahrenheit/releases/download/$(FahrenheitVersion)/fahrenheit_windows_x86_release_$(FahrenheitVersion).zip</ReleaseUrl>
+		</PropertyGroup>
+		<Message Text="Downloading release from $(ReleaseUrl)..." />
+		<DownloadFile SourceUrl="$(ReleaseURL)" DestinationFolder="$(PublishDir)" DestinationFileName="fh.zip" />
+	</Target>
+
+	<Target Name="ExtractFahrenheitRelease" AfterTargets="Publish">
+		<Message Text="Extracting release from fh.zip..." />
+		<Delete Files="$(PublishDir)fahrenheit" TreatErrorsAsWarnings="true" />
+		<Unzip SourceFiles="$(PublishDir)fh.zip" DestinationFolder="$(PublishDir)fahrenheit" />
+		<Delete Files="$(PublishDir)fh.zip" TreatErrorsAsWarnings="true" />
+	</Target>
+
+	<Target Name="CleanupFahrenheitRelease" AfterTargets="Publish">
+		<Message Text="Cleanup unused Fahrenheit mods..." />
+		<RemoveDir Directories="$(PublishDir)fahrenheit\mods" />
+		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(AssemblyName)" />
+	</Target>
+
+	<Target Name="CopyAssets" AfterTargets="Publish">
+		<Message Text="Copy solution assets..." />
+		<Exec Condition ="'$(OS)' == 'Windows_NT'"
+			  Command="powershell -Command &quot;robocopy '$(ProjectDir)assets' '$(PublishDir)fahrenheit\mods\$(AssemblyName)\' /MIR /R:0 /W:0" 
+			  ContinueOnError="true" IgnoreExitCode="true" />
+		<Exec Condition="'$(OS)' == 'Unix'"
+			  Command="rsync -acu --delete '$(ProjectDir)assets/' '$(PublishDir)fahrenheit/mods/$(AssemblyName)/'"
+			  ContinueOnError="true" IgnoreExitCode="true" />
+	</Target>
+
+	<Target Name="CopyLoadOrder" AfterTargets="Publish">
+		<Message Text="Copy loadorder..." />
+		<Copy SourceFiles="$(ProjectDir)loadorder"
+			  DestinationFiles="$(PublishDir)fahrenheit\mods\loadorder" />
+	</Target>
+
+	<Target Name="MoveFilesToFinalDestination" AfterTargets="Publish">
+		<Message Text="Move project files to their final destination..." />
+		<ItemGroup>
+			<ProjectFiles Include="$(PublishDir)*.*" Exclude="**\**\" />
+		</ItemGroup>
+		<Move SourceFiles="@(ProjectFiles)" DestinationFolder="$(PublishDir)fahrenheit\mods\$(AssemblyName)\" />
+	</Target>
 
 </Project>
