@@ -1,5 +1,4 @@
-﻿using Fahrenheit;
-using Fahrenheit.Atel;
+﻿using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.FFX.Ids;
@@ -3241,7 +3240,15 @@ public unsafe partial class ArchipelagoFFXModule {
             case 0xA:
                 // Key Item
 
-                //Progressive Jecht's Sphere
+                // Progressive Mirror
+                if (item_id == 0xA002) {
+                    if (Globals.save_data->key_items.get((int)item_id)) {
+                        item_id = 0xA003;
+                        Globals.save_data->key_items.set((int)0xA002, false);
+                    }
+                }
+
+                // Progressive Jecht's Sphere
                 if (item_id == 0xA020 && Globals.save_data->key_items.get((int)item_id)) {
                     save_data->jecht_spheres.collected_amount++;
                 }
