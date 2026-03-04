@@ -1,5 +1,4 @@
-﻿using Fahrenheit;
-using Fahrenheit.Atel;
+﻿using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.FFX.Ids;

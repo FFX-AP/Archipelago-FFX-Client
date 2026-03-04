@@ -1,9 +1,7 @@
-﻿using Fahrenheit;
-using Fahrenheit.Atel;
+﻿using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using TerraFX.Interop.DirectX;
 
@@ -185,6 +183,14 @@ public static unsafe class delegates {
     // obtainTreasureCleanup
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void FUN_007993f0(BtlRewardData* param_1, int param_2);
+
+    // InventorySort
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008c8fb0();
+    internal static void sort_items()
+    {
+        FhUtil.get_fptr<FUN_008c8fb0>(0x4c8fb0)();
+    }
 
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
