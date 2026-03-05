@@ -1229,33 +1229,37 @@ public unsafe partial class ArchipelagoFFXModule {
 
     // Recruit ids are the same as the blitzball player ids in-game
     private static readonly Dictionary<string, (uint offset, ushort recruit_id)[]> event_to_recruit_offsets = new() {
-        { "guad0000", [
-                (0x842E, 31), // Giera Guado
-                (0x9BD9, 34), // Auda Guado
-                (0xB877, 33), // Nav Guado
+        { "bsvr0400", [
+                (0x25EC, 52), // Vilucha
             ]
         },
 
-        { "guad0400", [
-                (0x1AD8, 32), // Zazi Guado
-                (0x31A6, 35), // Pah Guado
+        { "ptkl0200", [
+                (0x3391, 15), // Vuroja
+                (0x4E95, 13), // Larbeight
+                (0x6538, 38), // Tatts
             ]
         },
 
-        { "guad0100", [
-                (0x239A, 36), // Noy Guado
-                (0x20FA, 55), // Yuma Guado
+        { "ptkl0600", [
+                (0x14EB, 13), // Larbeight
+                (0x2AC1, 38), // Tatts
+                (0x4125, 15), // Vuroja
             ]
         },
 
-        { "nagi0400", [
-                (0x2711, 49), // Durren
+        { "ptkl0800", [
+                (0x1394, 16), // Kulukan
             ]
         },
 
-        { "nagi0000", [
-                ( 0x8872, 51), // Svanda
-                (0x33DDD, 48), // Naida
+        { "ptkl1700", [
+                (0x154C, 14), // Isken
+            ]
+        },
+
+        { "ptkl1800", [
+                (0x154C, 14), // Isken
             ]
         },
 
@@ -1270,28 +1274,19 @@ public unsafe partial class ArchipelagoFFXModule {
             ]
         },
 
-        { "mcyt0000", [
-                (0x3B7D, 45), // Linna
+        { "swin0000", [
+                (0x8981, 56), // Kiyuri
             ]
         },
 
-        { "bsvr0400", [
-                (0x25EC, 52), // Vilucha
-            ]
-        },
-
-        { "djyt0000", [
-                (0x400B, 39), // Kyou
+        { "lchb0000", [
+                (0x1C46, 42), // Biggs
+                (0x34F8, 43), // Wedge
             ]
         },
 
         { "lchb0100", [
                 (0x41A6, 41), // Nedus
-            ]
-        },
-
-        { "lchb0900", [
-                (0x1F58, 47), // Zalitz
             ]
         },
 
@@ -1305,14 +1300,23 @@ public unsafe partial class ArchipelagoFFXModule {
             ]
         },
 
+        { "lchb0400", [
+                (0x2D5F, 25), // Basik Ronso
+                (0x442E, 26), // Argai Ronso
+                (0x5AFD, 27), // Gazna Ronso
+                (0x71CC, 28), // Nuvy Ronso
+                (0x889B, 29), // Irga Ronso
+                (0x9F6A, 30), // Zamzi Ronso
+            ]
+        },
+
         { "lchb0500", [
                 (0x35EC, 54), // Zev Ronso
             ]
         },
 
-        { "lchb0000", [
-                (0x1C46, 42), // Biggs
-                (0x34F8, 43), // Wedge
+        { "lchb0900", [
+                (0x1F58, 47), // Zalitz
             ]
         },
 
@@ -1325,23 +1329,8 @@ public unsafe partial class ArchipelagoFFXModule {
             ]
         },
 
-        { "lchb0400", [
-                (0x2D5F, 25), // Basik Ronso
-                (0x442E, 26), // Argai Ronso
-                (0x5AFD, 27), // Gazna Ronso
-                (0x71CC, 28), // Nuvy Ronso
-                (0x889B, 29), // Irga Ronso
-                (0x9F6A, 30), // Zamzi Ronso
-            ]
-        },
-
         { "lchb1800", [
                 (0x4407, 53), // Shaami
-            ]
-        },
-
-        { "mihn0300", [
-                (0x8A4A, 44), // Ropp
             ]
         },
 
@@ -1355,37 +1344,13 @@ public unsafe partial class ArchipelagoFFXModule {
             ]
         },
 
-        { "ptkl1800", [
-                (0x154C, 14), // Isken
+        { "mihn0300", [
+                (0x8A4A, 44), // Ropp
             ]
         },
 
-        { "ptkl0800", [
-                (0x1394, 16), // Kulukan
-            ]
-        },
-
-        { "ptkl0200", [
-                (0x3391, 15), // Vuroja
-                (0x4E95, 13), // Larbeight
-                (0x6538, 38), // Tatts
-            ]
-        },
-
-        { "ptkl1700", [
-                (0x154C, 14), // Isken
-            ]
-        },
-
-        { "ptkl0600", [
-                (0x14EB, 13), // Larbeight
-                (0x2AC1, 38), // Tatts
-                (0x4125, 15), // Vuroja
-            ]
-        },
-
-        { "kami0100", [
-                (0x9A8F, 58), // Mifurey
+        { "djyt0000", [
+                (0x400B, 39), // Kyou
             ]
         },
 
@@ -1394,19 +1359,48 @@ public unsafe partial class ArchipelagoFFXModule {
             ]
         },
 
-        { "swin0000", [
-                (0x8981, 56), // Kiyuri
+        { "guad0000", [
+                (0x842E, 31), // Giera Guado
+                (0x9BD9, 34), // Auda Guado
+                (0xB877, 33), // Nav Guado
+            ]
+        },
+
+        { "guad0100", [
+                (0x239A, 36), // Noy Guado
+                (0x20FA, 55), // Yuma Guado
+            ]
+        },
+
+        { "guad0400", [
+                (0x1AD8, 32), // Zazi Guado
+                (0x31A6, 35), // Pah Guado
+            ]
+        },
+
+        { "kami0100", [
+                (0x9A8F, 58), // Mifurey
+            ]
+        },
+
+        { "mcyt0000", [
+                (0x3B7D, 45), // Linna
+            ]
+        },
+
+        { "nagi0000", [
+                ( 0x8872, 51), // Svanda
+                (0x33DDD, 48), // Naida
+            ]
+        },
+
+        { "nagi0400", [
+                (0x2711, 49), // Durren
             ]
         },
 
         { "hiku0000", [
                 (0x5906, 37), // Rin
-            ]
-        },
-
-        { "hiku0801", [
-                (0x34DB,  1), // Wakka
-                (0x687F, 57), // Brother
             ]
         },
 
@@ -1424,6 +1418,12 @@ public unsafe partial class ArchipelagoFFXModule {
         { "hiku0800", [
                 (0x57EC,  1), // Wakka
                 (0xCAA0, 57), // Brother
+            ]
+        },
+
+        { "hiku0801", [
+                (0x34DB,  1), // Wakka
+                (0x687F, 57), // Brother
             ]
         },
 
