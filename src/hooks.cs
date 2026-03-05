@@ -3243,8 +3243,8 @@ public unsafe partial class ArchipelagoFFXModule {
                 // Progressive Mirror
                 if (item_id == 0xA002) {
                     if (Globals.save_data->key_items.get((int)item_id)) {
+                        Globals.save_data->key_items.set((int)item_id, false);
                         item_id = 0xA003;
-                        Globals.save_data->key_items.set((int)0xA002, false);
                     }
                 }
 
