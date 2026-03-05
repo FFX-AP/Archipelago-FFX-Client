@@ -10,18 +10,6 @@ using static Fahrenheit.FFX.Globals;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
-[StructLayout(LayoutKind.Sequential)]
-public struct TkMenuStaticData {
-    public int ctrl; // code ptr
-    public int draw; // code ptr
-    public int init; // code ptr
-    public int vft4; // code ptr
-    public int exit; // code ptr
-    public int vft6; // code ptr
-    private short __0x18;
-    private int   __0x1c;
-}
-
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void eiAbmCalc();
 
@@ -37,13 +25,15 @@ public delegate void CdeclVV();
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void CdeclVI(int p1);
 
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+public delegate void CdeclVIII(int p1, int p2, int p3);
+
 public unsafe partial class ArchipelagoFFXModule {
     private FhMethodHandle<eiAbmCalc> _eiAbmCalc;
     private FhMethodHandle<CdeclVV> _sphere_grid_move_speed;
-    private FhMethodHandle<CdeclVV> _sphere_grid_confirm_move;
+    private FhMethodHandle<CdeclVIII> _sphere_grid_confirm_move;
 
     private abmap_get_panel _abmap_get_panel = FhUtil.get_fptr<abmap_get_panel>(0x6458a0);
-
 
     internal void init_abmap_hooks() {
         const string game = "FFX.exe";
@@ -52,7 +42,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         _eiAbmCalc = new(this, game, 0x653570, h_eiAbmCalc);
         _sphere_grid_move_speed = new(this, game, 0x659990, h_move_speed);
-        _sphere_grid_confirm_move = new(this, game, 0x644ef0, h_move_confirm);
+        _sphere_grid_confirm_move = new(this, game, 0x648230, h_move_confirm);
 
         // _abmap_menu_init.hook();
         _eiAbmCalc.hook();
@@ -72,6 +62,7 @@ public unsafe partial class ArchipelagoFFXModule {
     private static int sound_id;
     private static bool sphere_grid_debug_open;
     public void render_sphere_grid_debug() {
+#if DEBUG
         if (ImGui.IsKeyPressed(ImGuiKey.GraveAccent))
             sphere_grid_debug_open ^= true;
 
@@ -91,8 +82,6 @@ public unsafe partial class ArchipelagoFFXModule {
         if (ImGui.CollapsingHeader("LpAbilityMapEngine")) {
             var lpamng = SphereGrid.lpamng;
             ImGui.Text($"{lpamng->node_count} nodes are connected by {lpamng->link_count} links over {lpamng->cluster_count} clusters.");
-
-            // ImGui.InputFloat("Move Speed", ref move_speed, 0.1f);
 
             float current_move_speed = *(float*)((int)lpamng + 0x11624);
             float current_t = *(float*)((int)lpamng + 0x11620);
@@ -186,18 +175,21 @@ public unsafe partial class ArchipelagoFFXModule {
         }
 
         ImGui.End();
+#endif
     }
 
     private static float last_last_t;
     private static ushort last_next_knot_idx = 0xFFFF;
     public void h_move_speed() {
+        uint mode_ptr = *(uint*)((int)SphereGrid.lpamng + 0x115A8);
+        if (mode_ptr != (uint)FhUtil.ptr_at<byte>(0x659990)) {
+            _sphere_grid_move_speed.orig_fptr();
+            return;
+        }
+
         last_last_t = *(float*)((int)SphereGrid.lpamng + 0x11620);
 
         _sphere_grid_move_speed.orig_fptr();
-
-        if (last_next_knot_idx == 0xFFFF) {
-            last_next_knot_idx = *(ushort*)((int)SphereGrid.lpamng + 0x11632);
-        }
 
         if (freeze_move) {
             *(float*)((int)SphereGrid.lpamng + 0x11620) = last_last_t;
@@ -208,6 +200,9 @@ public unsafe partial class ArchipelagoFFXModule {
         last_speed = *(float*)((int)SphereGrid.lpamng + 0x11624);
         last_t = *(float*)((int)SphereGrid.lpamng + 0x11620);
 
+        if (last_next_knot_idx == 0xFFFF) {
+            last_next_knot_idx = *(ushort*)((int)SphereGrid.lpamng + 0x11632);
+        }
 
         if (last_t < last_last_t) {
             knots_counted += 1;
@@ -274,40 +269,33 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
-    public void h_move_confirm() {
+    public void h_move_confirm(int p1, int p2, int p3) {
         var lpamng = SphereGrid.lpamng;
 
-        if (*(byte*)((int)lpamng + 0x115cd) == 0 && *(int*)((int)lpamng + 0x115b0) == 0) {
-            short pad = *(short*)((int)lpamng + 0x1166e);
+        knots_counted = 0;
+        last_next_knot_idx = 0xFFFF;
 
-            if ((pad & 0x60) != 0) {
-                knots_counted = 0;
-                last_next_knot_idx = 0xFFFF;
+        if (p3 == 0) _logger.Info("Confirmed move!");
+        if (p3 == 1) _logger.Info("Cancelled move!");
 
-                _logger.Info("Got pad input!");
-                _logger.Info($"  Confirm: {(pad & 0x20) != 0}");
-                _logger.Info($"   Cancel: {(pad & 0x40) != 0}");
+        _sphere_grid_confirm_move.orig_fptr(p1, p2, p3);
+
+        // If we cancelled it, also deactivate all activated nodes
+        if (p3 == 1 && activated_nodes.Count > 0) {
+            int chr_id = *(int*)((int)lpamng + 0x115bc);
+
+            foreach (short node_idx in activated_nodes) {
+                lpamng->nodes[node_idx].activated_by.set_bit(chr_id, false);
             }
 
-            // If we cancelled it, also deactivate all activated nodes
-            if ((pad & 0x40) != 0 && activated_nodes.Count > 0) {
-                int chr_id = *(int*)((int)lpamng + 0x115bc);
-
-                foreach (short node_idx in activated_nodes) {
-                    lpamng->nodes[node_idx].activated_by.set_bit(chr_id, false);
-                }
-
-                if (activated_nodes.Count > 0) {
-                    _SndSepPlaySimple(0x8000006e);
-                }
-
-                lpamng->should_update = 1;
-                lpamng->should_update_node = -1;
-                _logger.Info($"Deactivated {activated_nodes.Count} nodes!");
-                activated_nodes.Clear();
+            if (activated_nodes.Count > 0) {
+                _SndSepPlaySimple(0x8000006e);
             }
+
+            lpamng->should_update = 1;
+            lpamng->should_update_node = -1;
+            _logger.Info($"Deactivated {activated_nodes.Count} nodes!");
+            activated_nodes.Clear();
         }
-
-        _sphere_grid_confirm_move.orig_fptr();
     }
 }
