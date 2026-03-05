@@ -64,8 +64,10 @@ public unsafe partial class ArchipelagoFFXModule {
     public static FhMethodHandle<FUN_008d5720> _FUN_008d5720;
 
     // Customization-related
+    private static int selected_gear_slot = 0;
     private ushort[] original_kaizou_costs;
     private ushort[] original_sum_grow_costs;
+
     public void PrepareMenuList_InitList() {
         // Init list
         ushort* _DAT_01597330 = FhUtil.ptr_at<ushort>(0x1197330);
@@ -91,6 +93,7 @@ public unsafe partial class ArchipelagoFFXModule {
             *_DAT_0186a210 = 1;
         }
     }
+
     public void h_PrepareMenuList(MenuListEnum menu_list_id, Equipment* gear)
     {
         logger.Info($"{menu_list_id}");
@@ -313,7 +316,6 @@ public unsafe partial class ArchipelagoFFXModule {
         //}
     }
 
-    private static int selected_gear_slot = 0;
     /// <summary>
     ///     Known states:
     ///         2: Get selected weapon. Goes to 3 if it doesn't exist, otherwise goes to 5
@@ -873,7 +875,6 @@ public unsafe partial class ArchipelagoFFXModule {
         return;
     }
 
-
     private void FUN_008d5d20_Extra(TkWindow* window, int param_2, int menu_offset, int x, int y) {
         _FUN_008d5d20(window, param_2, menu_offset, x, y);
 
@@ -906,11 +907,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
-
-
-
     public static TkWindow* MyWindow;
-
     public static void CreateMyWindow(Equipment* gear)
     {
         MyWindow = _TkMenuMainAllocWindow();
