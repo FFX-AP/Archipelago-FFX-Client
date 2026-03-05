@@ -1,8 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT
 
-using Fahrenheit;
 using Fahrenheit.FFX;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
@@ -48,8 +49,19 @@ public unsafe partial class ArchipelagoFFXModule {
     public static TkMn2DrawKickSyncPacket _TkMn2DrawKickSyncPacket;
 
 
+    public static TkMenuMainAllocWindow _TkMenuMainAllocWindow;
+    public static TkMenuMainRegistWindow _TkMenuMainRegistWindow;
 
 
+    public static FUN_008e33a0 _FUN_008e33a0;
+    public static FUN_008b4460 _FUN_008b4460;
+    public static FUN_008e2de0 _FUN_008e2de0;
+    public static MsSetSaveParamAll _MsSetSaveParamAll;
+    public static MsSetWeaponName _MsSetWeaponName;
+    public static FUN_008c2c40 _FUN_008c2c40;
+    public static TkMn2DrawCrossCursor _TkMn2DrawCrossCursor;
+
+    public static FhMethodHandle<FUN_008d5720> _FUN_008d5720;
 
     // Customization-related
     private ushort[] original_kaizou_costs;
@@ -79,9 +91,9 @@ public unsafe partial class ArchipelagoFFXModule {
             *_DAT_0186a210 = 1;
         }
     }
-    public void h_PrepareMenuList(MenuListEnum menu_list_id, Equipment* gear) {
-
-        // TODO: Fix Customizations being skipped if the player has 0 of the required item
+    public void h_PrepareMenuList(MenuListEnum menu_list_id, Equipment* gear)
+    {
+        logger.Info($"{menu_list_id}");
 
         uint[] ability_international_bonuses = new uint[4];
         uint[] ability_group_idxs = new uint[4];
@@ -128,6 +140,7 @@ public unsafe partial class ArchipelagoFFXModule {
             int num_abilities = 0;
 
             for (int i = 0; i < 4; i++) {
+                //if (selected_gear_slot == i) continue; // Skip selected slot
                 ushort ability_id = gear->abilities[i];
                 if (ability_id != 0 && ability_id != 0xFF) {
                     int a_ability_id;
@@ -173,8 +186,18 @@ public unsafe partial class ArchipelagoFFXModule {
                                             // Same group, lower level
                                             status = CustomizationStatusEnum.GEAR_CONFLICTING;
                                         }
-                                        if (a_ability->group_level == ability_group_levels[i]) {
-                                            status = a_ability->international_bonus_idx != ability_international_bonuses[i] ? CustomizationStatusEnum.GEAR_CONFLICTING : CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
+                                        //if (a_ability->group_level == ability_group_levels[i]) {
+                                        //    status = a_ability->international_bonus_idx != ability_international_bonuses[i] ? CustomizationStatusEnum.GEAR_CONFLICTING : CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
+                                        //}
+                                        if (a_ability->group_level == ability_group_levels[i])
+                                        {
+                                            if (a_ability->international_bonus_idx == ability_international_bonuses[i])
+                                            {
+                                                status = CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
+                                            } else if (selected_gear_slot != i)
+                                            {
+                                                status = CustomizationStatusEnum.GEAR_CONFLICTING;
+                                            }
                                         }
                                     }
                                     if (has_ribbon && a_ability->international_bonus_idx == 0xFE) {
@@ -185,9 +208,9 @@ public unsafe partial class ArchipelagoFFXModule {
                                     status = CustomizationStatusEnum.GEAR_NOT_ENOUGH_ITEMS;
                                 }
                             }
-                            if (gear->abilities[gear->slot_count - 1] != 0xff && gear->abilities[gear->slot_count - 1] != 0) {
-                                status = CustomizationStatusEnum.GEAR_NO_SLOTS;
-                            }
+                            //if (gear->abilities[gear->slot_count - 1] != 0xff && gear->abilities[gear->slot_count - 1] != 0) {
+                            //    status = CustomizationStatusEnum.GEAR_NO_SLOTS;
+                            //}
                             menu_list_iter->status = status;
                             menu_list_iter->a_ability_id = a_ability_id;
                             menu_list_iter->customization_id = customization_id;
@@ -290,20 +313,243 @@ public unsafe partial class ArchipelagoFFXModule {
         //}
     }
 
-    public void h_UpdateGearCustomizationMenuState(int param_1) {
+    private static int selected_gear_slot = 0;
+    /// <summary>
+    ///     Known states:
+    ///         2: Get selected weapon. Goes to 3 if it doesn't exist, otherwise goes to 5
+    ///         3: Goes to 4 and returns
+    ///         4: Goes to 1
+    ///         5: Calls TMn2SetStatusBGDiff, then prepares ability menu list and goes to 7
+    ///         6: Calls TkMenuRestartSelFileWindow, then ??? and goes to 7
+    /// </summary>
+    /// <param name="window"></param>
+    public void h_UpdateGearCustomizationMenuState(TkWindow* window) {
         uint* state = FhUtil.ptr_at<uint>(0x146AA28);
         uint pre_state = *state;
 
-        _UpdateGearCustomizationMenuState.orig_fptr(param_1);
+        byte* gear_name;
+        Equipment* gear;
+        byte* p_DAT_0186a9f8 = (byte*)FhUtil.get_at<uint>(0x146A9F8);
+
+        bool break_loop = false;
+        while (!break_loop)
+        {
+            switch (*state) {
+                case 2:
+                    _FUN_008b4460(window);
+                    if (window->exit_value < 1)
+                    {
+                        return;
+                    }
+                    ushort weapon_index = *(ushort*)(p_DAT_0186a9f8 + window->selected_index * 2);
+                    gear = _MsGetSaveWeapon(weapon_index, 0);
+                    bool can_customize = false;
+                    if (gear->exists && !gear->is_hidden && gear->slot_count > 0)
+                    {
+                        if (!gear->is_celestial && !gear->is_brotherhood)
+                        {
+                            //if (gear->abilities[gear->slot_count-1] == 0xff || gear->abilities[gear->slot_count - 1] == 0)
+                            can_customize = true;
+                        }
+                    }
+                    if (!can_customize)
+                    {
+                        goto default;
+                    }
+                    else
+                    {
+                        _SndSepPlaySimple(0x80000001);
+                        {
+                            int slot = 0;
+                            for (; slot < gear->slot_count; slot++)
+                            {
+                                if (gear->abilities[slot] is 0 or 0xff)
+                                {
+                                    break;
+                                }
+                            }
+                            if (slot < 4 && slot < gear->slot_count)
+                            {
+                                selected_gear_slot = slot;
+                                *state = 0x5;
+                            } else
+                            {
+                                CreateMyWindow(gear);
+                                *state = 0xe;
+                            }
+                        }
+                    }
+                    break;
+                case 6:
+                    {
+                        TkWindow* _GearSelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
+                        gear = _MsGetSaveWeapon(*(ushort*)(p_DAT_0186a9f8 + _GearSelectionWindow->selected_index * 2),
+                                                 (nint)(&gear_name));
+                        int slot = 0;
+                        for (; slot < gear->slot_count; slot++)
+                        {
+                            if (gear->abilities[slot] is 0 or 0xff)
+                            {
+                                break;
+                            }
+                        }
+                        if (slot < 4 && slot < gear->slot_count)
+                        {
+                            selected_gear_slot = slot;
+                            goto default;
+                        }
+                        else
+                        {
+                            *state = 8;
+                        }
+                    }
+                    break;
+                case 8:
+                    if (MyWindow != null)
+                    {
+                        MyWindow->should_destroy = true;
+                        MyWindow = null;
+                    }
+                    goto default;
+                case 0xc:
+                    {
+                        TkWindow* DAT_023cc120 = (TkWindow*)FhUtil.get_at<uint>(0x1FCC120);
+                        if (DAT_023cc120->exit_value < 0)
+                        {
+                            _FUN_008e2de0();
+                            *state = 6;
+                            break_loop = true;
+                            break;
+                        }
+                        if (DAT_023cc120->exit_value == 0)
+                        {
+                            break_loop = true;
+                            break;
+                        }
+                        _FUN_008e2de0();
+                        if (DAT_023cc120->selected_index != 0)
+                        {
+                            _SndSepPlaySimple(0x80000001);
+                            *state = 6;
+                            break_loop = true;
+                            break;
+                        }
+                    }
+                    *state = 0xd;
+                    break;
+                case 0xd:
+                    TkWindow* AbilitySelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F4); // PTR_0186a9f4
+                    TkWindow* GearSelectionWindow    = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
+                    CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+
+
+                    short selected_ability = AbilitySelectionWindow->selected_index;
+                    int num_customizations;
+                    CustomizationRecipe* customizations = _MsGetRomKaizou(&num_customizations);
+                    byte customization_id = menu_list[selected_ability].customization_id;
+                    gear = _MsGetSaveWeapon(*(ushort*)(p_DAT_0186a9f8 + GearSelectionWindow->selected_index * 2),
+                                             (nint)(&gear_name));
+
+                    byte* p_DAT_0186aa30 = FhUtil.ptr_at<byte>(0x146AA30);
+                    int i = -1;
+                    do
+                    {
+                        i++;
+                        p_DAT_0186aa30[i] = gear_name[i];
+                    } while (gear_name[i] != 0);
+                    //_FUN_008d5650((int)gear, menu_list[selected_ability].a_ability_id);
+                    if (gear->slot_count != 0)
+                    {
+                        gear->abilities[selected_gear_slot] = menu_list[selected_ability].a_ability_id;
+                    }
+                    _MsSetSaveParamAll();
+
+                    _MsSetWeaponName(gear);
+                    _MsSaveItemUse(customizations[customization_id].item, -customizations[customization_id].item_cost);
+                    _SndSepPlaySimple(0x80000063);
+                    _MsGetSaveWeapon((uint)*(ushort*)(p_DAT_0186a9f8 + GearSelectionWindow->selected_index * 2), (nint)(&gear_name));
+
+                    byte* p_DAT_0186aa70 = FhUtil.ptr_at<byte>(0x146AA70);
+                    i = -1;
+                    do
+                    {
+                        i++;
+                        p_DAT_0186aa70[i] = gear_name[i];
+                    } while (gear_name[i] != 0);
+
+                    byte uVar9 = 0;
+                    byte prev;
+                    byte curr;
+                    i = -1;
+                    do
+                    {
+                        i++;
+                        prev = p_DAT_0186aa30[i];
+                        curr = p_DAT_0186aa70[i];
+
+                        int is_lower = curr < prev ? 1 : 0;
+                        if (curr != prev)
+                        {
+                            uVar9 = (byte)(-is_lower | 1);
+                            break;
+                        }
+                    } while (curr != 0);
+                    if (uVar9 == 0)
+                    {
+                        uVar9 = 0x1e;
+                    }
+                    else
+                    {
+                        uVar9 = 0x1f;
+                    }
+                    byte* pbVar8 = _FUN_008bee80(uVar9);
+                    _FUN_008c2c40(0, 0, p_DAT_0186aa30);
+                    _FUN_008c2c40(2, 0, p_DAT_0186aa70);
+                    _FUN_008e33a0(pbVar8, (byte*)0, (byte*)0);
+                    {
+                        TkWindow* DAT_023cc120 = (TkWindow*)FhUtil.get_at<uint>(0x1FCC120); ;
+                        DAT_023cc120->render_priority = 4;
+                    }
+                    *state = 10;
+                    break_loop = true;
+                    break;
+                case 0xe:
+                    // Custom state for selecting slot to overwrite
+                    if (MyWindow->exit_value == 0)
+                    {
+                        break_loop = true;
+                    } else
+                    {
+                        logger.Info($"exit_value={MyWindow->exit_value}");
+                        if (MyWindow->exit_value > 0)
+                        {
+                            selected_gear_slot = MyWindow->selected_index;
+                            logger.Info($"selected_gear_slot={selected_gear_slot}");
+                            *state = 5;
+                        } else
+                        {
+                            *state = 8;
+                        }
+                        break_loop = true;
+                    }
+                    break;
+                default:
+                    _UpdateGearCustomizationMenuState.orig_fptr(window);
+                    break_loop = true;
+                    break;
+            }
+        }
+        
+
 
         if (*state != pre_state) {
-            //logger.Debug($"{pre_state} -> {*state}");
+            logger.Info($"{pre_state} -> {*state}");
 
             if (pre_state == 0xc && *state == 0xa) {
                 // Applied customization
 
-                uint DAT_0186a9f4 = FhUtil.get_at<uint>(0x0146A9F4);
-                short selected_idx = *(short*)(DAT_0186a9f4 + 0x48);
+                TkWindow* DAT_0186a9f4 = (TkWindow*)FhUtil.get_at<uint>(0x0146A9F4);
+                short selected_idx = DAT_0186a9f4->selected_index;
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
                 int num_customizations;
                 CustomizationRecipe* customizations = _MsGetRomKaizou(&num_customizations);
@@ -332,19 +578,20 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
-    public void h_UpdateAeonCustomizationMenuState(int param_1) {
+    // param_1 is TkMenu*
+    public void h_UpdateAeonCustomizationMenuState(uint param_1, uint param_2) {
         uint* state = (uint *)(param_1 + 0x1c);
         uint pre_state = *state;
 
 
-        _UpdateAeonCustomizationMenuState.orig_fptr(param_1);
+        _UpdateAeonCustomizationMenuState.orig_fptr(param_1, param_2);
 
         if (*state != pre_state) {
             logger.Debug($"{pre_state} -> {*state}");
 
             if (pre_state == 0x15) {
-                uint DAT_0186a568 = FhUtil.get_at<uint>(0x0146a568);
-                short selected_idx = *(short*)(DAT_0186a568 + 0x48);
+                TkWindow* DAT_0186a568 = (TkWindow*)FhUtil.get_at<uint>(0x0146a568);
+                short selected_idx = DAT_0186a568->selected_index;
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
                 byte customization_id = menu_list[selected_idx].customization_id;
                 int num_customizations;
@@ -367,25 +614,25 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     public static ManagedCustomString customization_string = new ManagedCustomString($"Free!");
-    public void h_DrawGearCustomizationMenu(uint param_1) {
+    public void h_DrawGearCustomizationMenu(TkWindow* window) {
         //_DrawGearCustomizationMenu.orig_fptr(param_1);
-        DrawGearCustomizationMenu_reimplement(param_1);
+        DrawGearCustomizationMenu_reimplement(window);
         return;
     }
 
-    public void h_DrawAeonCustomizationMenu(uint param_1) {
+    public void h_DrawAeonCustomizationMenu(TkWindow* window) {
         //_DrawAeonCustomizationMenu.orig_fptr(param_1);
-        DrawAeonCustomizationMenu_reimplement(param_1);
+        DrawAeonCustomizationMenu_reimplement(window);
     }
 
-    public void DrawAeonCustomizationMenu_reimplement(uint param_1) {
+    public void DrawAeonCustomizationMenu_reimplement(TkWindow* window) {
         _TkVU1SyncPath();
         _FUN_008e71d0(7);
         uint current_summon = _TkMenuGetCurrentSummon();
 
 
         CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-        short selected_idx = *(short*)(param_1 + 0x48);
+        short selected_idx = window->selected_index;
         Vector2 pos_1;
         Vector2 pos_2;
 
@@ -440,33 +687,30 @@ public unsafe partial class ArchipelagoFFXModule {
         int iVar2 = (int)new Vector2(0, 365f).game_remap_1080p().Y;
         int iVar6, sVar1;
         float fVar10;
-        if (*(short*)(param_1 + 0x32) == *(short*)(param_1 + 0x34)) {
+        if (window->visible_item_offset == window->scroll_offset) {
             // Draw ability list
-            item_id = (uint)*(short*)(param_1 + 0x46);
-            _FUN_008c0f40(iVar2, (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0), 0, (int)item_id);
-            sVar1 = *(short*)(param_1 + 0x32);
+            _FUN_008c0f40(iVar2, (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0), 0, window->scroll_delta);
+            sVar1 = window->visible_item_offset;
             fVar10 = 0.0f;
             iVar6 = 0;
         }
         else {
             // Draw ability list when quick scrolling (L2/R2)
-            int param_1_0x46 = (int)*(short*)(param_1 + 0x46);
-            item_id = (uint)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0);
-            _FUN_008c0f40(iVar2, (int)item_id, 1, param_1_0x46);
-            FUN_008cd960_Extra(param_1, 1, (int)*(short*)(param_1 + 0x32), 0.0f, 0.0f);
+            _FUN_008c0f40(iVar2, (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0), 1, window->scroll_delta);
+            FUN_008cd960_Extra(window, 1, window->visible_item_offset, 0.0f, 0.0f);
 
-            _FUN_008c0f40(iVar2, (int)item_id, 2, param_1_0x46);
+            _FUN_008c0f40(iVar2, (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0), 2, window->scroll_delta);
 
-            fVar10 = (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0 * (float)param_1_0x46 * -0.00024414063);
-            sVar1 = (int)*(short*)(param_1 + 0x34);
+            fVar10 = (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0 * window->scroll_delta * -0.00024414063);
+            sVar1 = window->scroll_offset;
             iVar6 = 2;
         }
-        FUN_008cd960_Extra(param_1, iVar6, sVar1, 0.0f, fVar10);
+        FUN_008cd960_Extra(window, iVar6, sVar1, 0.0f, fVar10);
         _FUN_008c1350_DrawScissor512x416();
 
         ushort _DAT_0186a5a4 = FhUtil.get_at<ushort>(0x0146a5a4);
         ushort _DAT_0186a5a6 = FhUtil.get_at<ushort>(0x0146a5a6);
-        _FUN_008cd9f0(param_1, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
+        _FUN_008cd9f0(window, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
 
         float local_8;
         _ToGetCrossExtMesFontWidth(0, _FUN_008bee80(5), &local_8, 0.78f, 1.0f);
@@ -490,7 +734,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         pos_1 = new Vector2(955f, 370f).game_remap_1080p();
         pos_2 = new Vector2(  8f, 630f).game_remap_1080p();
-        _DrawCrossMenuScrollParts(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, *(short*)(param_1 + 0x32), *(ushort*)(param_1 + 0x3a), *(ushort*)(param_1 + 0x30));
+        _DrawCrossMenuScrollParts(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, window->visible_item_offset, window->max_visible_items, window->num_items);
 
         _TODrawMenuPlateXYWHType(fVar11, new Vector2(0, 925f).game_remap_1080p().Y, fVar10, new Vector2(0, 48f).game_remap_1080p().Y, 2);
 
@@ -510,18 +754,18 @@ public unsafe partial class ArchipelagoFFXModule {
         _TkMn2DrawKickSyncPacket();
     }
 
-    private void FUN_008cd960_Extra(uint param_1, int param_2, int menu_offset, float x, float y) {
-        _FUN_008cd960(param_1, param_2, menu_offset, x, y);
+    private void FUN_008cd960_Extra(TkWindow* window, int param_2, int menu_offset, float x, float y) {
+        _FUN_008cd960(window, param_2, menu_offset, x, y);
 
         Vector2 pos = new(x, y);
         pos += new Vector2(209f + 50f, 306f).game_remap_1080p();
 
         if (param_2 == 0) {
-            pos.Y -= (float)(new Vector2(0, 70f).game_remap_1080p().Y * *(short*)(param_1 + 0x46) * 0.00024414063); // Scroll offset
+            pos.Y -= (float)(new Vector2(0, 70f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
         }
 
         CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-        ushort menu_length = *(ushort*)(param_1 + 0x30);
+        short menu_length = window->num_items;
         for (int i = -1; i < 10; i++) {
             int curr_index = menu_offset + i;
             if (0 <= curr_index && curr_index < menu_length) {
@@ -542,9 +786,9 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
-    public void DrawGearCustomizationMenu_reimplement(uint param_1) {
+    public void DrawGearCustomizationMenu_reimplement(TkWindow* window) {
         CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-        short selected_idx = *(short*)(param_1 + 0x48);
+        short selected_idx = window->selected_index;
         Vector2 pos_1;
         Vector2 pos_2;
         if (menu_list[selected_idx].customization_id != 0xFF) {
@@ -587,33 +831,33 @@ public unsafe partial class ArchipelagoFFXModule {
         pos_2 = new Vector2(430f, 36f).game_remap_1080p();
         _FUN_008f8bb0(7, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
 
-        if (*(short*)(param_1 + 0x32) == *(short*)(param_1 + 0x34)) {
+        if (window->visible_item_offset == window->scroll_offset) {
 
             // Draw ability list
             _TODrawScissorXYWH(0, (int)(new Vector2(0, 315f).game_remap_1080p().Y), 0x200, (int)(new Vector2(0, 680f).game_remap_1080p().Y));
-            FUN_008d5d20_Extra((int)param_1, 0, *(short*)(param_1 + 0x32), 0, 0);
+            FUN_008d5d20_Extra(window, 0, window->visible_item_offset, 0, 0);
 
         } else {
             // Draw ability list when quick scrolling (L2/R2)
-            short uVar5 = *(short*)(param_1 + 0x46); // Scroll offset
+            short uVar5 = window->scroll_delta; // Scroll offset
 
             _FUN_008c0f40((int)(new Vector2(0, 315f).game_remap_1080p().Y), (int)(new Vector2(0, 680f).game_remap_1080p().Y), 1, uVar5);
-            FUN_008d5d20_Extra((int)param_1, 1, *(short*)(param_1 + 0x32), 0, 0);
+            FUN_008d5d20_Extra(window, 1, window->visible_item_offset, 0, 0);
 
             _FUN_008c0f40((int)(new Vector2(0, 315f).game_remap_1080p().Y), (int)(new Vector2(0, 680f).game_remap_1080p().Y), 2, uVar5);
 
             int iVar2 = (int)(new Vector2(0, 675f).game_remap_1080p().Y * uVar5 * -0.00024414063);
-            FUN_008d5d20_Extra((int)param_1, 2, *(short*)(param_1 + 0x34), 0, iVar2);
+            FUN_008d5d20_Extra(window, 2, window->scroll_offset, 0, iVar2);
         }
         _FUN_008c1350_DrawScissor512x416();
 
         pos_1 = new Vector2(389f, 325f).game_remap_1080p();
-        _FUN_008d5dc0((int)param_1, (int)pos_1.X, (int)pos_1.Y);
+        _FUN_008d5dc0(window, (int)pos_1.X, (int)pos_1.Y);
 
         {
-            int uVar5 = *(ushort*)(param_1 + 0x30);
-            int uVar1 = *(ushort*)(param_1 + 0x3a);
-            int iVar2 = *(short*)(param_1 + 0x32);
+            int uVar5 = window->num_items;
+            int uVar1 = window->max_visible_items;
+            int iVar2 = window->visible_item_offset;
             pos_1 = new Vector2(955f, 319f).game_remap_1080p();
             pos_2 = new Vector2(8f, 675f).game_remap_1080p();
             _DrawCrossMenuScrollParts(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, iVar2, uVar1, uVar5);
@@ -630,18 +874,18 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
 
-    private void FUN_008d5d20_Extra(int param_1, int param_2, int menu_offset, int x, int y) {
-        _FUN_008d5d20(param_1, param_2, menu_offset, x, y);
+    private void FUN_008d5d20_Extra(TkWindow* window, int param_2, int menu_offset, int x, int y) {
+        _FUN_008d5d20(window, param_2, menu_offset, x, y);
 
         Vector2 pos = new(x, y);
         pos += new Vector2(209f + 50f, 255f).game_remap_1080p();
 
         if (param_2 == 0) {
-            pos.Y -= (float)(new Vector2(0, 75f).game_remap_1080p().Y * *(short*)(param_1 + 0x46) * 0.00024414063); // Scroll offset
+            pos.Y -= (float)(new Vector2(0, 75f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
         }
 
         CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-        ushort menu_length = *(ushort*)(param_1 + 0x30);
+        short menu_length = window->num_items;
         for (int i = -1; i < 10; i++) {
             int curr_index = menu_offset + i;
             if (0 <= curr_index && curr_index < menu_length) {
@@ -660,5 +904,93 @@ public unsafe partial class ArchipelagoFFXModule {
             }
             pos += new Vector2(0, 75f).game_remap_1080p();
         }
+    }
+
+
+
+
+    public static TkWindow* MyWindow;
+
+    public static void CreateMyWindow(Equipment* gear)
+    {
+        MyWindow = _TkMenuMainAllocWindow();
+        MyWindow->num_items         = gear->slot_count;
+        MyWindow->max_visible_items = 4;
+        MyWindow->selected_index    = 0;
+        MyWindow->render_priority   = 2;
+        MyWindow->init_function     = &MyWindow_Init;
+        MyWindow->state_function    = &MyWindow_State;
+        MyWindow->render_function   = &MyWindow_Render;
+        _TkMenuMainRegistWindow(MyWindow);
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static void MyWindow_Init(TkWindow* window) {
+        window->current_state = 0;
+    }
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static void MyWindow_State(TkWindow* window) {
+        while (true)
+        {
+            switch (window->current_state)
+            {
+                case 0:
+                    window->exit_value = 0;
+                    window->selected_index = 0;
+                    window->current_state = 1;
+                    return;
+                case 1:
+                    if (Globals.Input.up.just_pressed && 0 < window->selected_index)
+                    {
+                        _SndSepPlaySimple(0x80000001);
+                        window->selected_index--;
+                    } else if (Globals.Input.down.just_pressed && window->selected_index < window->num_items - 1)
+                    {
+                        _SndSepPlaySimple(0x80000001);
+                        window->selected_index++;
+                    } else if (Globals.Input.confirm.just_pressed)
+                    {
+                        _SndSepPlaySimple(0x80000001);
+                        window->current_state = 2;
+
+                    } else if (Globals.Input.cancel.just_pressed)
+                    {
+                        _SndSepPlaySimple(0x80000004);
+                        window->current_state = 3;
+                    }
+                    return;
+                case 2:
+                    window->exit_value = 1;
+                    window->current_state = 5;
+                    break;
+                case 3:
+                    window->exit_value = -1;
+                    window->current_state = 7;
+                    break;
+                default:
+                    return;
+            }
+        }
+    }
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static void MyWindow_Render(TkWindow* window) {
+        Vector2 pos = new Vector2(970 + 150, 735 + 12 + 68 * window->selected_index).game_remap_1080p();
+        _TkMn2DrawCrossCursor(pos.X, pos.Y, 0);
+    }
+
+    public static bool h_FUN_008d5720(uint gear_id, int param_2)
+    {
+        Equipment* gear = _MsGetSaveWeapon(gear_id, 0);
+
+        bool can_customize = false;
+        if (gear->exists && !gear->is_hidden && gear->slot_count > 0)
+        {
+            if (param_2 != 0 || (!gear->is_celestial && !gear->is_brotherhood))
+            {
+                //if (gear->abilities[gear->slot_count-1] == 0xff || gear->abilities[gear->slot_count - 1] == 0)
+                can_customize = true;
+            }
+        }
+        return can_customize;
     }
 }

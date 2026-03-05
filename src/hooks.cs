@@ -454,6 +454,19 @@ public unsafe partial class ArchipelagoFFXModule {
         _FUN_008d48e0 = FhUtil.get_fptr<FUN_008d48e0>(__addr_FUN_008d48e0);
         _FUN_008d4140 = FhUtil.get_fptr<FUN_008d4140>(__addr_FUN_008d4140);
         _TkMn2DrawKickSyncPacket = FhUtil.get_fptr<TkMn2DrawKickSyncPacket>(__addr_TkMn2DrawKickSyncPacket);
+
+        _TkMenuMainAllocWindow = FhUtil.get_fptr<TkMenuMainAllocWindow>(__addr_TkMenuMainAllocWindow);
+        _TkMenuMainRegistWindow = FhUtil.get_fptr<TkMenuMainRegistWindow>(__addr_TkMenuMainRegistWindow);
+
+        _FUN_008e33a0 = FhUtil.get_fptr<FUN_008e33a0>(__addr_FUN_008e33a0);
+        _FUN_008b4460 = FhUtil.get_fptr<FUN_008b4460>(__addr_FUN_008b4460);
+        _FUN_008e2de0 = FhUtil.get_fptr<FUN_008e2de0>(__addr_FUN_008e2de0);
+        _MsSetSaveParamAll = FhUtil.get_fptr<MsSetSaveParamAll>(__addr_MsSetSaveParamAll);
+        _MsSetWeaponName = FhUtil.get_fptr<MsSetWeaponName>(__addr_MsSetWeaponName);
+        _FUN_008c2c40 = FhUtil.get_fptr<FUN_008c2c40>(__addr_FUN_008c2c40);
+        _TkMn2DrawCrossCursor = FhUtil.get_fptr<TkMn2DrawCrossCursor>(__addr_TkMn2DrawCrossCursor);
+
+        _FUN_008d5720 = new FhMethodHandle<FUN_008d5720>(this, game, __addr_FUN_008d5720, h_FUN_008d5720);
     }
 
     public static int ignore_this = 11;
@@ -494,7 +507,7 @@ public unsafe partial class ArchipelagoFFXModule {
             && _LocalizationManager_Initialize.hook()
             && _TkMenuAppearMainCmdWindow.hook()
             && _PrepareMenuList.hook() && _UpdateGearCustomizationMenuState.hook() && _DrawGearCustomizationMenu.hook()
-            && _UpdateAeonCustomizationMenuState.hook() && _DrawAeonCustomizationMenu.hook();
+            && _UpdateAeonCustomizationMenuState.hook() && _DrawAeonCustomizationMenu.hook() && _FUN_008d5720.hook();
         //&& _FUN_00656c90.hook() && _FUN_0065ee30.hook();
         //&& _openFile.hook() && _FUN_0070aec0.hook();
         //&& _MsCheckLeftWindow.hook() && _MsCheckUseCommand.hook() && _TOBtlDrawStatusLimitGauge.hook();
