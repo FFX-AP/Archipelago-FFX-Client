@@ -136,6 +136,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int             CaptureDamage;
         [JsonInclude]
         public int             SkipContestOfAeons;
+        [JsonInclude]
+        public int             HardcoreContestOfAeons;
 
         public ArchipelagoSeedOptions() {
             PlayerName           = "";
@@ -936,6 +938,15 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
         logger.Debug($"read {readBytes}, beginning={((byte*)file_ptr)[0]} {((byte*)file_ptr)[1]} {((byte*)file_ptr)[2]} {((byte*)file_ptr)[3]}");
         return readBytes;
+    }
+
+    public static void try_remove_autolife() {
+        // In every Contest of Aeons battle, autolife is applied at 004E through 005A, so just remove those
+        if (seed.Options.HardcoreContestOfAeons != 0) {
+            AtelScriptChunk* script_chunk = Globals.Atel.controllers[0].script_chunk;
+            nint code_ptr = (nint)((int)script_chunk + script_chunk->offset_code);
+            NativeMemory.Fill((void*)(code_ptr + 0x4E), 0xC, 0);
+        }
     }
 
     public override void render_imgui() {
