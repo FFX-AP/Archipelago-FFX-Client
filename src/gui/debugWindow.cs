@@ -498,7 +498,7 @@ public unsafe static class ArchipelagoGUI {
 
         // Only bother if flat
         int closestNodeIndex = -1;
-        if (Globals.SphereGrid.lpamng->tilt_level == SphereGridTilt.Flat) {
+        if (Globals.SphereGrid.lpamng->tilt_level == SphereGridTilt.FLAT) {
             float shortestDistance = 20;
             for (int i = 0; i < 1024; i++) {
                 float distance = (new Vector2(Globals.SphereGrid.lpamng->nodes[i].x, Globals.SphereGrid.lpamng->nodes[i].y) - truePos).Length();
@@ -578,7 +578,7 @@ public unsafe static class ArchipelagoGUI {
 
         // Only bother if flat
         int closestNodeIndex = -1;
-        if (Globals.SphereGrid.lpamng->tilt_level == SphereGridTilt.Flat) {
+        if (Globals.SphereGrid.lpamng->tilt_level == SphereGridTilt.FLAT) {
             float shortestDistance = 20;
             for (int i = 0; i < 1024; i++) {
                 float distance = (new Vector2(Globals.SphereGrid.lpamng->nodes[i].x, Globals.SphereGrid.lpamng->nodes[i].y) - truePos).Length();

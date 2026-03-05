@@ -918,9 +918,9 @@ public unsafe partial class ArchipelagoFFXModule {
         MyWindow->max_visible_items = 4;
         MyWindow->selected_index    = 0;
         MyWindow->render_priority   = 2;
-        MyWindow->init_function     = &MyWindow_Init;
-        MyWindow->state_function    = &MyWindow_State;
-        MyWindow->render_function   = &MyWindow_Render;
+        MyWindow->fn_init           = &MyWindow_Init;
+        MyWindow->fn_state          = &MyWindow_State;
+        MyWindow->fn_render         = &MyWindow_Render;
         _TkMenuMainRegistWindow(MyWindow);
     }
 
