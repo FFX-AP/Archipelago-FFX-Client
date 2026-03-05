@@ -3415,10 +3415,9 @@ public unsafe partial class ArchipelagoFFXModule {
                 new_weapon.crit_bonus = weapon_data->crit_bonus;
                 count = 0;
                 for (int i = 0; i < 4; i++) {
-                    if (weapon_data->abilities[i] == 0) {
+                    if (weapon_data->abilities[i] is 0x00 or 0xFF) {
                         new_weapon.abilities[i] = 0xff;
-                    }
-                    else {
+                    } else {
                         new_weapon.abilities[i] = weapon_data->abilities[i];
                         count++;
                     }
