@@ -1269,7 +1269,7 @@ public unsafe partial class ArchipelagoFFXModule {
             (0x42B2,  7), // Bickson
             (0x5AA5,  9), // Graav
             (0x7298,  8), // Abus
-            (0x8D0B,  0), // Doram
+            (0x8D0B, 10), // Doram
             (0xA4FE, 11), // Balgerda
             (0xBCF1, 12), // Raudy
         ] },
