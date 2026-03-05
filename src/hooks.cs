@@ -1229,209 +1229,137 @@ public unsafe partial class ArchipelagoFFXModule {
 
     // Recruit ids are the same as the blitzball player ids in-game
     private static readonly Dictionary<string, (uint offset, ushort recruit_id)[]> event_to_recruit_offsets = new() {
-        { "bsvr0400", [
-                (0x25EC, 52), // Vilucha
-            ]
-        },
+        { "bsvr0400", [ (0x25EC, 52) ] }, // Vilucha
 
         { "ptkl0200", [
-                (0x3391, 15), // Vuroja
-                (0x4E95, 13), // Larbeight
-                (0x6538, 38), // Tatts
-            ]
-        },
+            (0x3391, 15), // Vuroja
+            (0x4E95, 13), // Larbeight
+            (0x6538, 38), // Tatts
+        ] },
 
         { "ptkl0600", [
-                (0x14EB, 13), // Larbeight
-                (0x2AC1, 38), // Tatts
-                (0x4125, 15), // Vuroja
-            ]
-        },
+            (0x14EB, 13), // Larbeight
+            (0x2AC1, 38), // Tatts
+            (0x4125, 15), // Vuroja
+        ] },
 
-        { "ptkl0800", [
-                (0x1394, 16), // Kulukan
-            ]
-        },
+        { "ptkl0800", [ (0x1394, 16) ] }, // Kulukan
 
-        { "ptkl1700", [
-                (0x154C, 14), // Isken
-            ]
-        },
+        { "ptkl1700", [ (0x154C, 14) ] }, // Isken
 
-        { "ptkl1800", [
-                (0x154C, 14), // Isken
-            ]
-        },
+        { "ptkl1800", [ (0x154C, 14) ] }, // Isken
 
         { "klyt0500", [
-                (0x23B3, 18), // Nizarut
-                (0x3973, 17), // Deim
-            ]
-        },
+            (0x23B3, 18), // Nizarut
+            (0x3973, 17), // Deim
+        ] },
 
-        { "klyt0600", [
-                (0x12C4, 46), // Mep
-            ]
-        },
+        { "klyt0600", [ (0x12C4, 46) ] }, // Mep
 
-        { "swin0000", [
-                (0x8981, 56), // Kiyuri
-            ]
-        },
+        { "swin0000", [ (0x8981, 56) ] }, // Kiyuri
 
         { "lchb0000", [
-                (0x1C46, 42), // Biggs
-                (0x34F8, 43), // Wedge
-            ]
-        },
+            (0x1C46, 42), // Biggs
+            (0x34F8, 43), // Wedge
+        ] },
 
-        { "lchb0100", [
-                (0x41A6, 41), // Nedus
-            ]
-        },
+        { "lchb0100", [ (0x41A6, 41) ] }, // Nedus
 
         { "lchb0300", [
-                (0x42B2,  7), // Bickson
-                (0x5AA5,  9), // Graav
-                (0x7298,  8), // Abus
-                (0x8D0B,  0), // Doram
-                (0xA4FE, 11), // Balgerda
-                (0xBCF1, 12), // Raudy
-            ]
-        },
+            (0x42B2,  7), // Bickson
+            (0x5AA5,  9), // Graav
+            (0x7298,  8), // Abus
+            (0x8D0B,  0), // Doram
+            (0xA4FE, 11), // Balgerda
+            (0xBCF1, 12), // Raudy
+        ] },
 
         { "lchb0400", [
-                (0x2D5F, 25), // Basik Ronso
-                (0x442E, 26), // Argai Ronso
-                (0x5AFD, 27), // Gazna Ronso
-                (0x71CC, 28), // Nuvy Ronso
-                (0x889B, 29), // Irga Ronso
-                (0x9F6A, 30), // Zamzi Ronso
-            ]
-        },
+            (0x2D5F, 25), // Basik Ronso
+            (0x442E, 26), // Argai Ronso
+            (0x5AFD, 27), // Gazna Ronso
+            (0x71CC, 28), // Nuvy Ronso
+            (0x889B, 29), // Irga Ronso
+            (0x9F6A, 30), // Zamzi Ronso
+        ] },
 
-        { "lchb0500", [
-                (0x35EC, 54), // Zev Ronso
-            ]
-        },
+        { "lchb0500", [ (0x35EC, 54) ] }, // Zev Ronso
 
-        { "lchb0900", [
-                (0x1F58, 47), // Zalitz
-            ]
-        },
+        { "lchb0900", [ (0x1F58, 47) ] }, // Zalitz
 
         { "lchb1300", [
-                (0x447A, 2), // Datto
-                (0x631B, 3), // Letty
-                (0x80DE, 4), // Jassu
-                (0x9FDA, 5), // Botta
-                (0xBD16, 6), // Keepa
-            ]
-        },
+            (0x447A, 2), // Datto
+            (0x631B, 3), // Letty
+            (0x80DE, 4), // Jassu
+            (0x9FDA, 5), // Botta
+            (0xBD16, 6), // Keepa
+        ] },
 
-        { "lchb1800", [
-                (0x4407, 53), // Shaami
-            ]
-        },
+        { "lchb1800", [ (0x4407, 53) ] }, // Shaami
 
-        { "luca0100", [
-                (0x6DB9, 50), // Jumal
-            ]
-        },
+        { "luca0100", [ (0x6DB9, 50) ] }, // Jumal
 
-        { "luca0400", [
-                (0x4402, 40), // Shuu
-            ]
-        },
+        { "luca0400", [ (0x4402, 40) ] }, // Shuu
 
-        { "mihn0300", [
-                (0x8A4A, 44), // Ropp
-            ]
-        },
+        { "mihn0300", [ (0x8A4A, 44) ] }, // Ropp
 
-        { "djyt0000", [
-                (0x400B, 39), // Kyou
-            ]
-        },
+        { "djyt0000", [ (0x400B, 39) ] }, // Kyou
 
-        { "genk1100", [
-                (0x13D0, 59), // Miyu
-            ]
-        },
+        { "genk1100", [ (0x13D0, 59) ] }, // Miyu
 
         { "guad0000", [
-                (0x842E, 31), // Giera Guado
-                (0x9BD9, 34), // Auda Guado
-                (0xB877, 33), // Nav Guado
-            ]
-        },
+            (0x842E, 31), // Giera Guado
+            (0x9BD9, 34), // Auda Guado
+            (0xB877, 33), // Nav Guado
+        ] },
 
         { "guad0100", [
-                (0x239A, 36), // Noy Guado
-                (0x20FA, 55), // Yuma Guado
-            ]
-        },
+            (0x239A, 36), // Noy Guado
+            (0x20FA, 55), // Yuma Guado
+        ] },
 
         { "guad0400", [
-                (0x1AD8, 32), // Zazi Guado
-                (0x31A6, 35), // Pah Guado
-            ]
-        },
+            (0x1AD8, 32), // Zazi Guado
+            (0x31A6, 35), // Pah Guado
+        ] },
 
-        { "kami0100", [
-                (0x9A8F, 58), // Mifurey
-            ]
-        },
+        { "kami0100", [ (0x9A8F, 58) ] }, // Mifurey
 
-        { "mcyt0000", [
-                (0x3B7D, 45), // Linna
-            ]
-        },
+        { "mcyt0000", [ (0x3B7D, 45) ] }, // Linna
 
         { "nagi0000", [
-                ( 0x8872, 51), // Svanda
-                (0x33DDD, 48), // Naida
-            ]
-        },
+            ( 0x8872, 51), // Svanda
+            (0x33DDD, 48), // Naida
+        ] },
 
-        { "nagi0400", [
-                (0x2711, 49), // Durren
-            ]
-        },
+        { "nagi0400", [ (0x2711, 49) ] }, // Durren
 
-        { "hiku0000", [
-                (0x5906, 37), // Rin
-            ]
-        },
+        { "hiku0000", [ (0x5906, 37) ] }, // Rin
 
         { "hiku0500", [
-                ( 0x7499, 37), // Rin
-                ( 0x8F22, 19), // Eigaar
-                ( 0xA8D3, 20), // Blappa
-                ( 0xC644, 21), // Berrik
-                ( 0xDF7A, 22), // Judda
-                ( 0xF940, 23), // Lakkam
-                (0x113AD, 24), // Nimrook
-            ]
-        },
+            ( 0x7499, 37), // Rin
+            ( 0x8F22, 19), // Eigaar
+            ( 0xA8D3, 20), // Blappa
+            ( 0xC644, 21), // Berrik
+            ( 0xDF7A, 22), // Judda
+            ( 0xF940, 23), // Lakkam
+            (0x113AD, 24), // Nimrook
+        ] },
 
         { "hiku0800", [
-                (0x57EC,  1), // Wakka
-                (0xCAA0, 57), // Brother
-            ]
-        },
+            (0x57EC,  1), // Wakka
+            (0xCAA0, 57), // Brother
+        ] },
 
         { "hiku0801", [
-                (0x34DB,  1), // Wakka
-                (0x687F, 57), // Brother
-            ]
-        },
+            (0x34DB,  1), // Wakka
+            (0x687F, 57), // Brother
+        ] },
 
         { "hiku1900", [
-                (0x23C4,  1), // Wakka
-                (0x6843, 57), // Brother
-            ]
-        },
+            (0x23C4,  1), // Wakka
+            (0x6843, 57), // Brother
+        ] },
     };
 
     private static readonly Dictionary<string, (uint offset, ushort southNorth)[]> event_to_lightning_dodging_offsets = new(){
