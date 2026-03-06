@@ -1,9 +1,7 @@
-﻿using Fahrenheit;
-using Fahrenheit.Atel;
+﻿using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using TerraFX.Interop.DirectX;
 
@@ -465,7 +463,7 @@ public static unsafe class delegates {
     public const nint __addr_SndSepPlaySimple = 0x486DE0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate nint MsGetSaveWeapon(uint gear_inv_idx, nint ref_name);
+    public unsafe delegate Equipment* MsGetSaveWeapon(uint gear_inv_idx, nint ref_name);
     public const nint __addr_MsGetSaveWeapon = 0x3ABBF0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -609,11 +607,11 @@ public static unsafe class delegates {
     public static int __addr_PrepareMenuList = 0x004c2370;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void UpdateGearCustomizationMenuState(int param_1);
+    public delegate void UpdateGearCustomizationMenuState(TkWindow* window);
     public static int __addr_UpdateGearCustomizationMenuState = 0x004d5800;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void UpdateAeonCustomizationMenuState(int param_1);
+    public delegate void UpdateAeonCustomizationMenuState(uint param_1, uint param_2);
     public static int __addr_UpdateAeonCustomizationMenuState = 0x004cc300;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -648,11 +646,11 @@ public static unsafe class delegates {
 
     // Draw customization menu
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void DrawGearCustomizationMenu(uint param_1);
+    public delegate void DrawGearCustomizationMenu(TkWindow* window);
     public static int __addr_DrawGearCustomizationMenu = 0x004d5f30;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void DrawAeonCustomizationMenu(uint param_1);
+    public delegate void DrawAeonCustomizationMenu(TkWindow* window);
     public static int __addr_DrawAeonCustomizationMenu = 0x004cdb70;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -672,7 +670,7 @@ public static unsafe class delegates {
     public static int __addr_TODrawScissorXYWH = 0x004f9230;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FUN_008d5d20(int param_1, int param_2, int param_3, int param_4, int param_5);
+    public delegate void FUN_008d5d20(TkWindow* window, int param_2, int param_3, int param_4, int param_5);
     public static int __addr_FUN_008d5d20 = 0x004d5d20;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -684,7 +682,7 @@ public static unsafe class delegates {
     public static int __addr_FUN_008c1350_DrawScissor512x416 = 0x004c1350;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FUN_008d5dc0(int param_1, int param_2, int param_3);
+    public delegate void FUN_008d5dc0(TkWindow* window, int param_2, int param_3);
     public static int __addr_FUN_008d5dc0 = 0x004d5dc0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -708,11 +706,11 @@ public static unsafe class delegates {
     public static int __addr_FUN_008ff490 = 0x004ff490;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FUN_008cd960(uint param_1, int param_2, int param_3, float param_4, float param_5);
+    public delegate void FUN_008cd960(TkWindow* window, int param_2, int param_3, float param_4, float param_5);
     public static int __addr_FUN_008cd960 = 0x004cd960;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FUN_008cd9f0(uint param_1, int param_2, int param_3);
+    public delegate void FUN_008cd9f0(TkWindow* window, int param_2, int param_3);
     public static int __addr_FUN_008cd9f0 = 0x004cd9f0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -742,4 +740,46 @@ public static unsafe class delegates {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void TkMn2DrawKickSyncPacket();
     public static int __addr_TkMn2DrawKickSyncPacket = 0x004c0c90;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate int FUN_008e33a0(byte* text, byte* param_2, byte* param_3);
+    public static int __addr_FUN_008e33a0 = 0x004e33a0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate TkWindow* TkMenuMainAllocWindow();
+    public static int __addr_TkMenuMainAllocWindow = 0x004aa150;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate TkWindow* TkMenuMainRegistWindow(TkWindow* window);
+    public static int __addr_TkMenuMainRegistWindow = 0x004aaab0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008b4460(TkWindow* window);
+    public static int __addr_FUN_008b4460 = 0x004b4460;
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public delegate void FUN_008e2de0();
+    public static int __addr_FUN_008e2de0 = 0x004e2de0;
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public delegate void MsSetSaveParamAll();
+    public static int __addr_MsSetSaveParamAll = 0x003869c0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void MsSetWeaponName(Equipment* gear);
+    public static int __addr_MsSetWeaponName = 0x003993c0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FUN_008c2c40(int param_1, int param_2, byte* param_3);
+    public static int __addr_FUN_008c2c40 = 0x004c2c40;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void TkMn2DrawCrossCursor(float x, float y, int param_3);
+    public static int __addr_TkMn2DrawCrossCursor = 0x004c0640;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate bool FUN_008d5720(uint gear_id, int param_2);
+    public static int __addr_FUN_008d5720 = 0x004d5720;
+
+    
 }
