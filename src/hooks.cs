@@ -3358,7 +3358,6 @@ public unsafe partial class ArchipelagoFFXModule {
                     {
                         if (!Globals.save_data->unlocked_primers.get_bit(i))
                         {
-                            Globals.save_data->unlocked_primers.set_bit(i, true);
                             item_id += i;
                             break;
                         }
