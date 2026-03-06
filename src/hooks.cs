@@ -3352,6 +3352,18 @@ public unsafe partial class ArchipelagoFFXModule {
                     item_id = 0xA003;                    
                 }
 
+                // Al Bhed Primers
+                if (item_id == 0xA004 && Globals.save_data->key_items.get((int)item_id)) {
+                    for (byte i = 0; i < 26; i++)
+                    {
+                        if (!Globals.save_data->unlocked_primers.get_bit(i))
+                        {
+                            item_id += i;
+                            break;
+                        }
+                    }
+                }
+
                 // Progressive Jecht's Sphere
                 if (item_id == 0xA020 && Globals.save_data->key_items.get((int)item_id)) {
                     save_data->jecht_spheres.collected_amount++;
