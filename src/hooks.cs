@@ -1,5 +1,4 @@
-﻿using Fahrenheit;
-using Fahrenheit.Atel;
+﻿using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.FFX.Ids;
@@ -2958,8 +2957,16 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public static int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
         Chr* target = _MsGetChr((uint)target_id);
+        MonStats* mon_stats = (MonStats*)target->ptr_base_stats;
 
-        if (seed.Options.AlwaysCapture == 1 && seed.Options.CaptureDamage == 2 && target_id >= 20) {
+        ushort capture_index = mon_stats is not null ? mon_stats->monster_arena_idx : (ushort)0xFF;
+
+        if (seed.Options.AlwaysCapture == 1
+         && seed.Options.CaptureDamage == 2
+         && target_id >= 20 // Make sure to not capture ourselves
+         && capture_index != 0xFF // Make sure to not capture rifles and Monster Arena enemies
+         && Battle.btl->battle_type == 0
+        ) {
             target->should_try_capture = true;
         }
 
@@ -3347,7 +3354,25 @@ public unsafe partial class ArchipelagoFFXModule {
             case 0xA:
                 // Key Item
 
-                //Progressive Jecht's Sphere
+                // Progressive Mirror
+                if (item_id == 0xA002 && Globals.save_data->key_items.get((int)item_id)) {
+                    Globals.save_data->key_items.set((int)item_id, false);
+                    item_id = 0xA003;
+                }
+
+                // Al Bhed Primers
+                if (item_id == 0xA004 && Globals.save_data->key_items.get((int)item_id)) {
+                    for (byte i = 0; i < 26; i++)
+                    {
+                        if (!Globals.save_data->unlocked_primers.get_bit(i))
+                        {
+                            item_id += i;
+                            break;
+                        }
+                    }
+                }
+
+                // Progressive Jecht's Sphere
                 if (item_id == 0xA020 && Globals.save_data->key_items.get((int)item_id)) {
                     save_data->jecht_spheres.collected_amount++;
                 }
@@ -3415,10 +3440,9 @@ public unsafe partial class ArchipelagoFFXModule {
                 new_weapon.crit_bonus = weapon_data->crit_bonus;
                 count = 0;
                 for (int i = 0; i < 4; i++) {
-                    if (weapon_data->abilities[i] == 0) {
+                    if (weapon_data->abilities[i] is 0x00 or 0xFF) {
                         new_weapon.abilities[i] = 0xff;
-                    }
-                    else {
+                    } else {
                         new_weapon.abilities[i] = weapon_data->abilities[i];
                         count++;
                     }
