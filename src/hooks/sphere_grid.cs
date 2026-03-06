@@ -27,6 +27,9 @@ public delegate void CdeclVV();
 public delegate void CdeclVI(int p1);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+public delegate void CdeclVII(int p1, int p2);
+
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void CdeclVIII(int p1, int p2, int p3);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -39,6 +42,7 @@ public unsafe partial class ArchipelagoFFXModule {
     private FhMethodHandle<AbmapFindNextConnectingNode> _sphere_grid_find_next_node;
     private FhMethodHandle<CdeclVV> _sphere_grid_state_moving;
     private FhMethodHandle<CdeclVV> _sphere_grid_state_warping;
+    private FhMethodHandle<CdeclVV> _sphere_grid_change_node;
 
     private readonly abmap_get_panel _abmap_get_panel = FhUtil.get_fptr<abmap_get_panel>(0x6458a0);
     private readonly CdeclVI SndSepPlaySimple = FhUtil.get_fptr<CdeclVI>(0x486de0);
@@ -62,6 +66,7 @@ public unsafe partial class ArchipelagoFFXModule {
         _sphere_grid_find_next_node = new(this, GAME, 0x656e00, h_move_find_next_node);
         _sphere_grid_state_moving = new(this, GAME, 0x659990, h_state_moving);
         _sphere_grid_state_warping = new(this, GAME, 0x647f00, h_state_warping);
+        _sphere_grid_change_node = new(this, GAME, 0x648780, h_change_node);
 
         // _abmap_menu_init.hook();
         _eiAbmCalc.hook();
@@ -70,6 +75,7 @@ public unsafe partial class ArchipelagoFFXModule {
         _sphere_grid_find_next_node.hook();
         _sphere_grid_state_moving.hook();
         _sphere_grid_state_warping.hook();
+        _sphere_grid_change_node.hook();
     }
 
     public void h_eiAbmCalc() {
@@ -237,14 +243,14 @@ public unsafe partial class ArchipelagoFFXModule {
         *(float*)((int)SphereGrid.lpamng + 0x11624) = 0.1f * speed_mult;
     }
 
-    internal bool can_activate(SphereGridNode* node) {
-        return (node->node_type < NodeType.LUCK_1 || node->node_type > NodeType.LUCK_4)
+    internal bool can_activate(NodeType node_type) {
+        return (node_type < NodeType.LUCK_1 || node_type > NodeType.LUCK_4)
             && (
-                node->node_type.is_attribute_node()
-             || node->node_type.is_skill_node()
-             || node->node_type.is_special_node()
-             || node->node_type.is_white_magic()
-             || node->node_type.is_black_magic()
+                node_type.is_attribute_node()
+             || node_type.is_skill_node()
+             || node_type.is_special_node()
+             || node_type.is_white_magic()
+             || node_type.is_black_magic()
             );
     }
 
@@ -261,7 +267,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
             bool activated_some = false;
 
-            if (!node->activated_by.get_bit(chr_id) && can_activate(node)) {
+            if (!node->activated_by.get_bit(chr_id) && can_activate(node->node_type)) {
                 //_abmap_get_panel(chr_id, node_idx);
                 node->activated_by.set_bit(chr_id, true);
                 activated_some = true;
@@ -276,7 +282,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 short other_idx = link->node_a_idx == node_idx ? link->node_b_idx : link->node_a_idx;
                 SphereGridNode* other = &SphereGrid.lpamng->nodes[other_idx];
 
-                if (!other->activated_by.get_bit(chr_id) && can_activate(other)) {
+                if (!other->activated_by.get_bit(chr_id) && can_activate(other->node_type)) {
                     //_abmap_get_panel(chr_id, other_idx);
                     other->activated_by.set_bit(chr_id, true);
                     activated_some = true;
@@ -360,10 +366,12 @@ public unsafe partial class ArchipelagoFFXModule {
         }
 
         if (last_t < _last_last_t) {
-            knots_counted += 1;
+            if (knots_counted > 0) {
+                _logger.Info($"Activating node! t={_last_last_t}->{last_t}, node={_last_last_knot}->{_last_knot} => {*(short*)((int)SphereGrid.lpamng + 0x11634)}");
+                on_move_knot(*(byte*)((int)SphereGrid.lpamng + 0x115bc), _last_last_knot);
+            }
 
-            _logger.Info($"Activating node! t={_last_last_t}->{last_t}, node={_last_last_knot}->{_last_knot} => {*(short*)((int)SphereGrid.lpamng + 0x11634)}");
-            on_move_knot(*(byte*)((int)SphereGrid.lpamng + 0x115bc), _last_last_knot);
+            knots_counted += 1;
         }
     }
 
@@ -382,7 +390,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
             bool activated_some = false;
 
-            if (!node->activated_by.get_bit(chr_id) && can_activate(node)) {
+            if (!node->activated_by.get_bit(chr_id) && can_activate(node->node_type)) {
                 //_abmap_get_panel(chr_id, node_idx);
                 node->activated_by.set_bit(chr_id, true);
                 activated_some = true;
@@ -395,7 +403,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 short other_idx = link->node_a_idx == node_idx ? link->node_b_idx : link->node_a_idx;
                 SphereGridNode* other = &lpamng->nodes[other_idx];
 
-                if (!other->activated_by.get_bit(chr_id) && can_activate(other)) {
+                if (!other->activated_by.get_bit(chr_id) && can_activate(other->node_type)) {
                     //_abmap_get_panel(chr_id, other_idx);
                     other->activated_by.set_bit(chr_id, true);
                     activated_some = true;
@@ -406,6 +414,30 @@ public unsafe partial class ArchipelagoFFXModule {
                 lpamng->should_update = 1;
                 lpamng->should_update_node = -1;
             }
+        }
+    }
+
+    public void h_change_node() {
+        NodeType node_type = *(NodeType*)((int)SphereGrid.lpamng + 0x1164c);
+
+        if (node_type is NodeType.STRENGTH_4 or NodeType.MAGIC_4 or NodeType.DEFENSE_4 or NodeType.MAGIC_DEFENSE_4 or NodeType.ACCURACY_4 or NodeType.EVASION_4 or NodeType.AGILITY_4 or NodeType.LUCK_4) {
+            *(short*)((int)SphereGrid.lpamng + 0x1164c) -= 3;
+        } else if (node_type is NodeType.HP_300) {
+            *(short*)((int)SphereGrid.lpamng + 0x1164c) -= 1;
+        } else if (node_type is NodeType.MP_40) {
+            *(short*)((int)SphereGrid.lpamng + 0x1164c) -= 2;
+        }
+
+        short node_idx = *(short*)((int)SphereGrid.lpamng + 0x1164e);
+        byte ply_id = *(byte*)((int)SphereGrid.lpamng + 0x115bc);
+
+        _sphere_grid_change_node.orig_fptr();
+
+        if (SphereGrid.lpamng->nodes[node_idx].node_type != node_type
+                && !SphereGrid.lpamng->nodes[node_idx].activated_by.get_bit(ply_id)) {
+            SphereGrid.lpamng->nodes[node_idx].activated_by.set_bit(ply_id, true);
+            SphereGrid.lpamng->should_update = 1;
+            SphereGrid.lpamng->should_update_node = node_idx;
         }
     }
 }
