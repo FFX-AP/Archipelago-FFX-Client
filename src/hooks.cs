@@ -2957,7 +2957,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public static int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
         Chr* target = _MsGetChr((uint)target_id);
-        byte capture_index = FhUtil.get_at<byte>(target->ptr_base_stats + 0x78);
+        ushort capture_index = target_id >= 20 ? ((MonStats*)target->ptr_base_stats)->monster_arena_idx : (ushort)0xFF;
 
         if (seed.Options.AlwaysCapture == 1
          && seed.Options.CaptureDamage == 2
