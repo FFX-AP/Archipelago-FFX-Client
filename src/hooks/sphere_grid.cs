@@ -338,24 +338,32 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
+    private static short _last_last_knot = -1;
+    private static short _last_knot = -1;
     public void h_state_moving() {
         _last_last_t = *(float*)((int)SphereGrid.lpamng + 0x11620);
+        _last_last_knot = *(short*)((int)SphereGrid.lpamng + 0x11632);
 
         _sphere_grid_state_moving.orig_fptr();
 
-        if (*(short*)((int)SphereGrid.lpamng + 0x11632) == *(short*)((int)SphereGrid.lpamng + 0x11634)
-            && *(uint*)((int)SphereGrid.lpamng + 0x115A8) - (uint)FhUtil.ptr_at<byte>(0) != 659990) {
-            on_move_knot(*(byte*)((int)SphereGrid.lpamng + 0x115bc), *(short*)((int)SphereGrid.lpamng + 0x11634));
-            return;
-        }
+        _last_knot = *(short*)((int)SphereGrid.lpamng + 0x11632);
 
         last_speed = *(float*)((int)SphereGrid.lpamng + 0x11624);
         last_t = *(float*)((int)SphereGrid.lpamng + 0x11620);
 
+        if (*(short*)((int)SphereGrid.lpamng + 0x11632) == *(short*)((int)SphereGrid.lpamng + 0x11634)
+                && *(uint*)((int)SphereGrid.lpamng + 0x115A8) - (uint)FhUtil.ptr_at<byte>(0) != 659990
+                && last_t >= 1.0) {
+            _logger.Info($"Activating last node! t={_last_last_t}->{last_t}, node={_last_last_knot}->{_last_knot} => {*(short*)((int)SphereGrid.lpamng + 0x11634)}");
+            on_move_knot(*(byte*)((int)SphereGrid.lpamng + 0x115bc), _last_last_knot);
+            return;
+        }
+
         if (last_t < _last_last_t) {
             knots_counted += 1;
 
-            on_move_knot(*(byte*)((int)SphereGrid.lpamng + 0x115bc), *(short*)((int)SphereGrid.lpamng + 0x11632));
+            _logger.Info($"Activating node! t={_last_last_t}->{last_t}, node={_last_last_knot}->{_last_knot} => {*(short*)((int)SphereGrid.lpamng + 0x11634)}");
+            on_move_knot(*(byte*)((int)SphereGrid.lpamng + 0x115bc), _last_last_knot);
         }
     }
 
