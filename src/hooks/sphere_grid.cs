@@ -66,7 +66,7 @@ public unsafe partial class ArchipelagoFFXModule {
         _sphere_grid_find_next_node = new(this, GAME, 0x656e00, h_move_find_next_node);
         _sphere_grid_state_moving = new(this, GAME, 0x659990, h_state_moving);
         _sphere_grid_state_warping = new(this, GAME, 0x647f00, h_state_warping);
-        _sphere_grid_change_node = new(this, GAME, 0x648780, h_change_node);
+        _sphere_grid_change_node = new(this, GAME, 0x647d50, h_change_node);
 
         // _abmap_menu_init.hook();
         _eiAbmCalc.hook();
