@@ -2963,6 +2963,7 @@ public unsafe partial class ArchipelagoFFXModule {
          && seed.Options.CaptureDamage == 2
          && target_id >= 20 // Make sure to not capture ourselves
          && capture_index != 0xFF // Make sure to not capture rifles and Monster Arena enemies
+         && Battle.btl->battle_type == 0
         ) {
             target->should_try_capture = true;
         }
