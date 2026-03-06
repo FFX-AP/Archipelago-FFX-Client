@@ -2957,8 +2957,16 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public static int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
         Chr* target = _MsGetChr((uint)target_id);
+        MonStats* mon_stats = (MonStats*)target->ptr_base_stats;
 
-        if (seed.Options.AlwaysCapture == 1 && seed.Options.CaptureDamage == 2 && target_id >= 20) {
+        ushort capture_index = mon_stats is not null ? mon_stats->monster_arena_idx : (ushort)0xFF;
+
+        if (seed.Options.AlwaysCapture == 1
+         && seed.Options.CaptureDamage == 2
+         && target_id >= 20 // Make sure to not capture ourselves
+         && capture_index != 0xFF // Make sure to not capture rifles and Monster Arena enemies
+         && Battle.btl->battle_type == 0
+        ) {
             target->should_try_capture = true;
         }
 
@@ -3349,7 +3357,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 // Progressive Mirror
                 if (item_id == 0xA002 && Globals.save_data->key_items.get((int)item_id)) {
                     Globals.save_data->key_items.set((int)item_id, false);
-                    item_id = 0xA003;                    
+                    item_id = 0xA003;
                 }
 
                 // Al Bhed Primers
