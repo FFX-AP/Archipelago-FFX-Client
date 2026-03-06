@@ -1528,7 +1528,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 logger.Debug($"atel_event_setup: Handle removing Aeons");
 
                 // Lock all Aeons and skip Contest of Aeons
-                if (seed.Options.SkipContestOfAeons == 1) {
+                if (seed.Options.ContestOfAeonsDifficulty == 1) {
                     set(code_ptr, 0x58FA, [
                         AtelOp.CALLPOPA.build((ushort)CustomCallTarget.LOCK_ALL_AEONS),
                         AtelOp.JMP.build(0x0003),

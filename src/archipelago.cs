@@ -138,16 +138,16 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int             ContestOfAeonsDifficulty;
 
         public ArchipelagoSeedOptions() {
-            PlayerName           = "";
-            SeedId               = "";
-            GoalRequirement      = GoalRequirement.None;
-            RequiredPartyMembers = 1;
-            RequiredPrimers      = 0;
-            APMultiplier         = 1;
-            AlwaysSensor         = 0;
-            AlwaysCapture        = 0;
-            CaptureDamage        = 0;
-            SkipContestOfAeons   = 0;
+            PlayerName               = "";
+            SeedId                   = "";
+            GoalRequirement          = GoalRequirement.None;
+            RequiredPartyMembers     = 1;
+            RequiredPrimers          = 0;
+            APMultiplier             = 1;
+            AlwaysSensor             = 0;
+            AlwaysCapture            = 0;
+            CaptureDamage            = 0;
+            ContestOfAeonsDifficulty = 2;
         }
     }
     public struct ArchipelagoSeedLocations {
