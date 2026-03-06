@@ -772,13 +772,13 @@ public unsafe static class ArchipelagoGUI {
 
                 Action fn = cmd switch {
                     ["/resetregion", string regionString] => () => {
-                        if (Enum.TryParse(regionString, out RegionEnum region)) {
+                        if (Enum.TryParse(regionString, true, out RegionEnum region)) {
                             ArchipelagoFFXModule.region_states[region].story_progress = region_starting_state[region].story_progress;
                             ArchipelagoFFXModule.region_states[region].room_id        = region_starting_state[region].room_id;
                             ArchipelagoFFXModule.region_states[region].entrance       = region_starting_state[region].entrance;
                             region_starting_state[region].savedata.CopyTo(ArchipelagoFFXModule.region_states[region].savedata);
 
-                            List<(string, Color)> message = [(regionString, Color.Blue), (" has been reset", Color.White)];
+                            List<(string, Color)> message = [(region.ToString(), Color.Blue), (" has been reset", Color.White)];
                             add_log_message(message);
                         }
                         else {
@@ -810,7 +810,7 @@ public unsafe static class ArchipelagoGUI {
                     }
                     ,
                     ["/setregion", string regionString, string progressString, string mapString, string entranceString] => () => {
-                        if (Enum.TryParse(regionString, out RegionEnum region)) {
+                        if (Enum.TryParse(regionString, true, out RegionEnum region)) {
                             if (ushort.TryParse(progressString, out ushort progress)) {
                                 if (ushort.TryParse(mapString, out ushort map)) {
                                     if (ushort.TryParse(entranceString, out ushort entrance)) {
@@ -819,7 +819,7 @@ public unsafe static class ArchipelagoGUI {
                                         r.room_id = map;
                                         r.entrance = entrance;
 
-                                        List<(string, Color)> message = [(regionString, Color.Blue), ($"'s state has been set to (story_progress: {progress}, room_id: {map}, entrance: {entrance})", Color.White)];
+                                        List<(string, Color)> message = [(region.ToString(), Color.Blue), ($"'s state has been set to (story_progress: {progress}, room_id: {map}, entrance: {entrance})", Color.White)];
                                         add_log_message(message);
                                     }
                                     else {
