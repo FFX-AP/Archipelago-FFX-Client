@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Archipelago.MultiClient.Net.Enums;
-using System.Reflection.Metadata.Ecma335;
-using TerraFX.Interop.WinRT;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
