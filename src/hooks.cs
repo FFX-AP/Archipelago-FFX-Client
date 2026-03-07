@@ -4296,7 +4296,7 @@ public unsafe partial class ArchipelagoFFXModule {
             // Chose Kilika->Besaid
             worker->table_event_data[0] = 2; // 2 to cancel
         } else if (choice == 1f) {
-            worker->table_event_data[0] = choice; // 2 to cancel
+            worker->table_event_data[0] = choice; // Replicate the code that we're replacing
         }
 
         return 1;
