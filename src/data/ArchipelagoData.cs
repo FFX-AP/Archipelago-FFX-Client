@@ -60,6 +60,34 @@ public static class ArchipelagoData {
         MonsterArena,
     }
 
+    public static Dictionary<string[], RegionEnum> regionAliases = new() { //must be lowercase
+        //{new string[] {"none", "gameover", "startmap", "camtest"}, RegionEnum.None},
+        {new string[] {"dreamzanarkand", "intro", "dz", "drzn", "drzk", "open", "znkd", "dream"}, RegionEnum.DreamZanarkand},
+        {new string[] {"baajtemple", "baj", "baaj", "bt", "bjyt", "cdsp"}, RegionEnum.BaajTemple},
+        {new string[] {"besaid", "besaidisland", "bsil", "bsa", "bsvr", "bsyt", "bsmm"}, RegionEnum.Besaid},
+        //{new string[] {"ssliki", "liki", "slik", "ssl", "ssli"}, RegionEnum.SSLiki},
+        {new string[] {"kilika", "kilikaisland", "kilk", "kil", "ptkl", "klyt", }, RegionEnum.Kilika},
+        //{new string[] {"sswinno", "winno", "winn", "wino", "ssw", "sswi"}, RegionEnum.SSWinno},
+        {new string[] {"luca", "luc", "stadium", "lchb", "lchi"}, RegionEnum.Luca},
+        {new string[] {"miihenhighroad", "highroad", "oldroad", "miihen", "mihn", "mih", "mh"}, RegionEnum.MiihenHighroad},
+        {new string[] {"mushroomrockroad", "mrr", "mushroom", "rockroad", "mush", "kino", "kimm"}, RegionEnum.MushroomRockRoad},
+        {new string[] {"djose", "djo", "djos", "djyt"}, RegionEnum.Djose},
+        {new string[] {"moonflow", "moon", "flow", "moo", "genk"}, RegionEnum.Moonflow},
+        {new string[] {"guadosalam", "guado", "salam", "gs", "gua", "guad", "ikai"}, RegionEnum.Guadosalam},
+        {new string[] {"thunderplains", "thunder", "plains", "tp", "tpl", "thpl", "kami"}, RegionEnum.ThunderPlains},
+        {new string[] {"macalania", "macalaniawoods", "macalanialake", "lakemacalania", "woods", "lake", "mac", "maca", "mcw", "mcwo", "mcl", "mcla", "mcfr", "stmm", "mamm", "mcyt"}, RegionEnum.Macalania},
+        {new string[] {"bikanel", "desert", "bik", "bika", "hom", "home", "azit"}, RegionEnum.Bikanel},
+        {new string[] {"airship", "air", "airs", "hiku", "matu", "ssbt"}, RegionEnum.Airship},
+        {new string[] {"bevelle", "viapurifico", "purifico", "bev", "beve", "bvyt", "stbv"}, RegionEnum.Bevelle},
+        {new string[] {"calmlands", "remiemtemple", "remiem", "calm", "cla", "rem", "remi", "nagi", "lmyt"}, RegionEnum.CalmLands},
+        {new string[] {"cavernofthestolenfayth", "stolenfaythcavern", "cavern", "stolen", "stolenfayth", "cotsf", "csf"}, RegionEnum.CavernOfTheStolenFayth},
+        {new string[] {"mtgagazet", "gagazet", "gaga", "mountgagazet", "gz", "mtgz", "gzt", "gzs", "mtgs", "gzc", "mtgc", }, RegionEnum.MtGagazet},
+        {new string[] {"zanarkandruins", "zanarkand", "znk", "znkd", "dome", "zkrn"}, RegionEnum.ZanarkandRuins},
+        {new string[] {"insidesin", "sin", "sins", "final", "end", "endg"}, RegionEnum.Sin},
+        {new string[] {"omegaruins", "omega", "ultima", "ultimaruins", "or", "omeg", "omg", "omr", "omgr"}, RegionEnum.OmegaRuins},
+        {new string[] {"monsterarena", "ma", "arena", "capturearena", "mar", "moar", "mona", "zzzz"}, RegionEnum.MonsterArena},
+
+    };
     public enum GoalRequirement {
         None = 0,
         PartyMembers,
