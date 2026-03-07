@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Archipelago.MultiClient.Net.Enums;
+using System.Reflection.Metadata.Ecma335;
+using TerraFX.Interop.WinRT;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
@@ -60,34 +62,39 @@ public static class ArchipelagoData {
         MonsterArena,
     }
 
-    public static Dictionary<string[], RegionEnum> regionAliases = new() { //must be lowercase
-        //{new string[] {"none", "gameover", "startmap", "camtest"}, RegionEnum.None},
-        {new string[] {"dreamzanarkand", "intro", "dz", "drzn", "drzk", "open", "znkd", "dream"}, RegionEnum.DreamZanarkand},
-        {new string[] {"baajtemple", "baj", "baaj", "bt", "bjyt", "cdsp"}, RegionEnum.BaajTemple},
-        {new string[] {"besaid", "besaidisland", "bsil", "bsa", "bsvr", "bsyt", "bsmm"}, RegionEnum.Besaid},
-        //{new string[] {"ssliki", "liki", "slik", "ssl", "ssli"}, RegionEnum.SSLiki},
-        {new string[] {"kilika", "kilikaisland", "kilk", "kil", "ptkl", "klyt", }, RegionEnum.Kilika},
-        //{new string[] {"sswinno", "winno", "winn", "wino", "ssw", "sswi"}, RegionEnum.SSWinno},
-        {new string[] {"luca", "luc", "stadium", "lchb", "lchi"}, RegionEnum.Luca},
-        {new string[] {"miihenhighroad", "highroad", "oldroad", "miihen", "mihn", "mih", "mh"}, RegionEnum.MiihenHighroad},
-        {new string[] {"mushroomrockroad", "mrr", "mushroom", "rockroad", "mush", "kino", "kimm"}, RegionEnum.MushroomRockRoad},
-        {new string[] {"djose", "djo", "djos", "djyt"}, RegionEnum.Djose},
-        {new string[] {"moonflow", "moon", "flow", "moo", "genk"}, RegionEnum.Moonflow},
-        {new string[] {"guadosalam", "guado", "salam", "gs", "gua", "guad", "ikai"}, RegionEnum.Guadosalam},
-        {new string[] {"thunderplains", "thunder", "plains", "tp", "tpl", "thpl", "kami"}, RegionEnum.ThunderPlains},
-        {new string[] {"macalania", "macalaniawoods", "macalanialake", "lakemacalania", "woods", "lake", "mac", "maca", "mcw", "mcwo", "mcl", "mcla", "mcfr", "stmm", "mamm", "mcyt"}, RegionEnum.Macalania},
-        {new string[] {"bikanel", "desert", "bik", "bika", "hom", "home", "azit"}, RegionEnum.Bikanel},
-        {new string[] {"airship", "air", "airs", "hiku", "matu", "ssbt"}, RegionEnum.Airship},
-        {new string[] {"bevelle", "viapurifico", "purifico", "bev", "beve", "bvyt", "stbv"}, RegionEnum.Bevelle},
-        {new string[] {"calmlands", "remiemtemple", "remiem", "calm", "cla", "rem", "remi", "nagi", "lmyt"}, RegionEnum.CalmLands},
-        {new string[] {"cavernofthestolenfayth", "stolenfaythcavern", "cavern", "stolen", "stolenfayth", "cotsf", "csf"}, RegionEnum.CavernOfTheStolenFayth},
-        {new string[] {"mtgagazet", "gagazet", "gaga", "mountgagazet", "gz", "mtgz", "gzt", "gzs", "mtgs", "gzc", "mtgc", }, RegionEnum.MtGagazet},
-        {new string[] {"zanarkandruins", "zanarkand", "znk", "znkd", "dome", "zkrn"}, RegionEnum.ZanarkandRuins},
-        {new string[] {"insidesin", "sin", "sins", "final", "end", "endg"}, RegionEnum.Sin},
-        {new string[] {"omegaruins", "omega", "ultima", "ultimaruins", "or", "omeg", "omg", "omr", "omgr"}, RegionEnum.OmegaRuins},
-        {new string[] {"monsterarena", "ma", "arena", "capturearena", "mar", "moar", "mona", "zzzz"}, RegionEnum.MonsterArena},
+    public static RegionEnum stringToRegion(string region)
+    {
+        return region switch
+        {
+            "dreamzanarkand" or "intro" or "dz" or "drzn" or "drzk" or "open" or "znkd" or "dream"                                 => RegionEnum.DreamZanarkand,
+            "baajtemple" or "baj" or "baaj" or "bt" or "bjyt" or "cdsp"                                                            => RegionEnum.BaajTemple,
+            "besaid" or "besaidisland" or "bsil" or "bsa" or "bsvr" or "bsyt" or "bsmm"                                            => RegionEnum.Besaid,
+            //"ssliki" or "liki" or "slik" or "ssl" or "ssli"                                                                      => RegionEnum.SSLiki,
+            "kilika" or "kilikaisland" or "kilk" or "kil" or "ptkl" or "klyt"                                                      => RegionEnum.Kilika,
+            //"sswinno" or "winno" or "winn" or "wino" or "ssw" or "sswi"                                                          => RegionEnum.SSWinno,
+            "luca" or "luc" or "stadium" or "lchb" or "lchi"                                                                       => RegionEnum.Luca,
+            "miihenhighroad" or "mi'ihenhighroad" or "highroad" or "oldroad" or "miihen" or "mi'ihen" or "mihn" or "mih" or "mh"   => RegionEnum.MiihenHighroad,
+            "mushroomrockroad" or "mrr" or "mushroom" or "rockroad" or "mush" or "kino" or "kimm"                                  => RegionEnum.MushroomRockRoad,
+            "djose" or "djosehighroad" or "djo" or "djos" or "djyt"                                                                => RegionEnum.Djose,
+            "moonflow" or "moon" or "flow" or "moo" or "genk"                                                                      => RegionEnum.Moonflow,
+            "guadosalam" or "guado" or "salam" or "gs" or "gua" or "guad" or "ikai"                                                => RegionEnum.Guadosalam,
+            "thunderplains" or "thunder" or "plains" or "tp" or "tpl" or "thpl" or "kami"                                          => RegionEnum.ThunderPlains,
+            "macalania" or "macalaniawoods" or "woods" or  "mac" or "maca" or "mcw" or "mcwo" or "mcfr" or "forest"                => RegionEnum.Macalania,
+            "macalanialake" or "lakemacalania" or "lake" or "mcl" or "mcla" or "stmm" or "mamm" or "mcyt"                          => RegionEnum.Macalania,
+            "bikanel" or "desert" or "bik" or "bika" or "hom" or "home" or "azit"                                                  => RegionEnum.Bikanel,
+            "airship" or "air" or "airs" or "hiku" or "matu" or "ssbt"                                                             => RegionEnum.Airship,
+            "bevelle" or "viapurifico" or "purifico" or "bevl" or "bev" or "beve" or "bvyt" or "stbv"                              => RegionEnum.Bevelle,
+            "calmlands" or "remiemtemple" or "remiem" or "calm" or "cla" or "rem" or "remi" or "nagi" or "lmyt"                    => RegionEnum.CalmLands,
+            "cavernofthestolenfayth" or "stolenfaythcavern" or "cavern" or "stolen" or "stolenfayth" or "cotsf" or "cosf" or "csf" => RegionEnum.CavernOfTheStolenFayth,
+            "mtgagazet" or "gagazet" or "gaga" or "mountgagazet" or "gz" or "mtgz" or "gzt" or "gzs" or "mtgs" or "gzc" or "mtgc"  => RegionEnum.MtGagazet,
+            "zanarkandruins" or "zanarkand" or "znk" or "znkd" or "dome" or "zkrn"                                                 => RegionEnum.ZanarkandRuins,
+            "insidesin" or "sin" or "sins" or "final" or "end" or "endg" or "endgame"                                              => RegionEnum.Sin,
+            "omegaruins" or "omegadungeon" or "omega" or "ultima" or "ultimaruins" or "or" or "omeg" or "omg" or "omr" or "omgr"   => RegionEnum.OmegaRuins,
+            "monsterarena" or "ma" or "arena" or "capturearena" or "mar" or "moar" or "mona" or "zzzz"                             => RegionEnum.MonsterArena,
+            _                                                                                                                      => RegionEnum.None
+        };
+    }
 
-    };
     public enum GoalRequirement {
         None = 0,
         PartyMembers,
