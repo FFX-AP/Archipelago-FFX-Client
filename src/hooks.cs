@@ -4290,12 +4290,12 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     public static int blockKilikaBoatChoice(AtelBasicWorker* worker, int* storage, AtelStack* stack) {
-        float choice = worker->current_thread.reg_a;
+        uint choice = (uint)worker->current_thread.reg_a;
 
-        if (choice == 0f) {
+        if (choice == 0) {
             // Chose Kilika->Besaid
             worker->table_event_data[0] = 2; // 2 to cancel
-        } else if (choice == 1f) {
+        } else if (choice == 1) {
             worker->table_event_data[0] = choice; // Replicate the code that we're replacing
         }
 
