@@ -247,8 +247,6 @@ public unsafe partial class ArchipelagoFFXModule {
 
     internal static readonly HashSet<short> activated_nodes = [];
     internal void on_move_knot(int chr_id, short node_idx) {
-        _logger.Info($"Knot! {node_idx}");
-
         var lpamng = SphereGrid.lpamng;
 
         if (node_idx < lpamng->node_count) {
