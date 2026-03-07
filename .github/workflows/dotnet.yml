@@ -9,8 +9,8 @@ on:
 
 jobs:
   publish:
-    name: Test Publish on ${{matrix.os}}
-    runs-on: ${{ matrix.os }}
+    name: Test Publish ${{matrix.config}} on ${{matrix.os}}
+    runs-on: ${{matrix.os}}
     
     strategy:
       matrix:
@@ -28,5 +28,5 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     
-    - name: Publish ${{ matrix.config }}
-      run: dotnet publish -c ${{ matrix.config }}  --verbosity normal
+    - name: Publish ${{matrix.config}}
+      run: dotnet publish -c ${{matrix.config}}  --verbosity normal
