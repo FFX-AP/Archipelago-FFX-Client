@@ -81,7 +81,6 @@ public unsafe partial class ArchipelagoFFXModule {
     private static int knots_counted;
     private static bool freeze_move;
     private static bool skip_moves;
-    private static int sound_id;
     private static bool sphere_grid_debug_open;
     public void render_sphere_grid_debug() {
         if (ImGui.IsKeyPressed(ImGuiKey.GraveAccent))
@@ -92,12 +91,6 @@ public unsafe partial class ArchipelagoFFXModule {
         if (!ImGui.Begin("Sphere Grid Debug")) {
             ImGui.End();
             return;
-        }
-
-        ImGui.InputInt("Sound ID", ref sound_id, 1);
-        ImGui.SameLine();
-        if (ImGui.Button("Play Sound")) {
-            _SndSepPlaySimple(unchecked((uint)sound_id));
         }
 
         if (ImGui.CollapsingHeader("LpAbilityMapEngine")) {
