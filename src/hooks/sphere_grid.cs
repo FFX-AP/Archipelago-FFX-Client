@@ -10,27 +10,28 @@ using static Fahrenheit.FFX.Globals;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate void eiAbmCalc();
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate void abmap_get_panel(int ply_id, int node_idx);
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate void abmap_ctrl();
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate void abmap_confirm_move(int p1, int p2, int p3);
-
 public unsafe partial class ArchipelagoFFXModule {
-    private FhMethodHandle<eiAbmCalc> _eiAbmCalc;
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void abmap_get_panel(int ply_id, int node_idx);
+    public const nint __addr_abmap_get_panel = 0x6458a0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void abmap_ctrl();
+    public const nint __addr_AbmapState_MovingToTarget = 0x659990;
+    public const nint __addr_AbmapState_ChangingNode = 0x647d50;
+    public const nint __addr_AbmapState_Warping = 0x647f00;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void abmap_confirm_move(int p1, int p2, int p3);
+    public const nint __addr_FUN_00a56160 = 0x656160;
+
     private FhMethodHandle<abmap_ctrl> _sphere_grid_move_speed;
     private FhMethodHandle<abmap_confirm_move> _sphere_grid_confirm_move;
     private FhMethodHandle<abmap_ctrl> _sphere_grid_state_moving;
     private FhMethodHandle<abmap_ctrl> _sphere_grid_state_warping;
     private FhMethodHandle<abmap_ctrl> _sphere_grid_change_node;
 
-    private readonly abmap_get_panel _abmap_get_panel = FhUtil.get_fptr<abmap_get_panel>(0x6458a0);
+    private readonly abmap_get_panel _abmap_get_panel = FhUtil.get_fptr<abmap_get_panel>(__addr_abmap_get_panel);
 
     // Normal = 645010
     // ChoosingMoveTarget = 644EF0
@@ -43,24 +44,19 @@ public unsafe partial class ArchipelagoFFXModule {
     internal void init_abmap_hooks() {
         const string GAME = "FFX.exe";
 
-        _eiAbmCalc = new(this, GAME, 0x653570, h_eiAbmCalc);
-        _sphere_grid_move_speed = new(this, GAME, 0x659990, h_move_speed);
-        _sphere_grid_confirm_move = new(this, GAME, 0x656160, h_move_confirm);
-        _sphere_grid_state_moving = new(this, GAME, 0x659990, h_state_moving);
-        _sphere_grid_state_warping = new(this, GAME, 0x647f00, h_state_warping);
-        _sphere_grid_change_node = new(this, GAME, 0x647d50, h_change_node);
-
-        // _abmap_menu_init.hook();
-        _eiAbmCalc.hook();
-        _sphere_grid_move_speed.hook();
-        _sphere_grid_confirm_move.hook();
-        _sphere_grid_state_moving.hook();
-        _sphere_grid_state_warping.hook();
-        _sphere_grid_change_node.hook();
+        _sphere_grid_move_speed = new(this, GAME, __addr_AbmapState_MovingToTarget, h_move_speed);
+        _sphere_grid_confirm_move = new(this, GAME, __addr_FUN_00a56160, h_move_confirm);
+        _sphere_grid_state_moving = new(this, GAME, __addr_AbmapState_MovingToTarget, h_state_moving);
+        _sphere_grid_state_warping = new(this, GAME, __addr_AbmapState_Warping, h_state_warping);
+        _sphere_grid_change_node = new(this, GAME, __addr_AbmapState_ChangingNode, h_change_node);
     }
 
-    public void h_eiAbmCalc() {
-        _eiAbmCalc.orig_fptr();
+    internal bool hook_abmap() {
+        return _sphere_grid_move_speed.hook()
+            && _sphere_grid_confirm_move.hook()
+            && _sphere_grid_state_moving.hook()
+            && _sphere_grid_state_warping.hook()
+            && _sphere_grid_change_node.hook();
     }
 
     private string get_state_name_for_address(uint address) {

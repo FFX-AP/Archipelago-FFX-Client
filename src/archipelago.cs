@@ -333,7 +333,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         //loadSeed();
         loadSeedList();
         load_global_state();
-        return hook();
+
+        return hook()
+            && hook_abmap();
     }
 
     public static void initalize_states() {
