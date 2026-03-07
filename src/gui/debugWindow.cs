@@ -746,7 +746,7 @@ public unsafe static class ArchipelagoGUI {
         }
         bool process_input = ImGui.InputText("Input",
                                              ref client_input_command,
-                                             50,
+                                             150,
                                              ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.CallbackHistory,
                                              _client_input_ImGuiInputTextCallback);
 
