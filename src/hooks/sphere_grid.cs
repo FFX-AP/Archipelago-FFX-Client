@@ -229,6 +229,23 @@ public unsafe partial class ArchipelagoFFXModule {
         lpamng->moving_speed = 0.1f * speed_mult;
     }
 
+    private HashSet<short> _get_neighbour_indices(short node_idx) {
+        HashSet<short> set = [];
+
+        SphereGridNode node = SphereGrid.lpamng->nodes[node_idx];
+
+        foreach (uint ptr in node.link_ptrs) {
+            SphereGridLink* link = (SphereGridLink*)ptr;
+
+            if (link is null) continue;
+
+            short other_idx = link->node_a_idx != node_idx ? link->node_a_idx : link->node_b_idx;
+            set.Add(other_idx);
+        }
+
+        return set;
+    }
+
     internal bool can_activate(NodeType node_type) {
         return (node_type < NodeType.LUCK_1 || node_type > NodeType.LUCK_4)
             && (
@@ -244,38 +261,32 @@ public unsafe partial class ArchipelagoFFXModule {
         _SndSepPlaySimple(0x80000050);
     }
 
-    internal static readonly HashSet<short> activated_nodes = [];
+    private static readonly HashSet<short> activated_nodes = [];
+    private bool try_activate(short node_idx, int ply_id) {
+        SphereGridNode* node = &SphereGrid.lpamng->nodes[node_idx];
+
+        if (node->activated_by.get_bit(ply_id) || !can_activate(node->node_type)) {
+            return false;
+        }
+
+        node->activated_by.set_bit(ply_id, true);
+        play_activation_sound();
+        activated_nodes.Add(node_idx);
+
+        return true;
+    }
+
     internal void on_move_knot(int chr_id, short node_idx) {
         var lpamng = SphereGrid.lpamng;
 
         if (node_idx < lpamng->node_count) {
-            SphereGridNode* node = &lpamng->nodes[node_idx];
-
             bool activated_some = false;
+            activated_some |= try_activate(node_idx, chr_id);
 
-            if (!node->activated_by.get_bit(chr_id) && can_activate(node->node_type)) {
-                //_abmap_get_panel(chr_id, node_idx);
-                node->activated_by.set_bit(chr_id, true);
-                activated_some = true;
-                play_activation_sound();
-                activated_nodes.Add(node_idx);
-            }
-
-            for (int i = 0; i < 5; i++) {
-                SphereGridLink* link = node->get_link(i);
-                if (link == null) continue;
-
-                short other_idx = link->node_a_idx == node_idx ? link->node_b_idx : link->node_a_idx;
-                SphereGridNode* other = &lpamng->nodes[other_idx];
-
-                if (other->activated_by.get_bit(chr_id)) continue;
-                if (!can_activate(other->node_type)) continue;
-
-                //_abmap_get_panel(chr_id, other_idx);
-                other->activated_by.set_bit(chr_id, true);
-                activated_some = true;
-                play_activation_sound();
-                activated_nodes.Add(other_idx);
+            //TODO: Use the SphereGridNode's actual `get_neighbour_indices` method
+            //      when fahrenheit-crew/fahrenheit#97 is resolved in release
+            foreach (short neighbour_idx in _get_neighbour_indices(node_idx)) {
+                activated_some |= try_activate(neighbour_idx, chr_id);
             }
 
             if (activated_some) {
@@ -351,29 +362,18 @@ public unsafe partial class ArchipelagoFFXModule {
         if (last_warp_state == 1 && warp_state == 2) {
             short node_idx = lpamng->move_last_target_node_idx;
             byte chr_id = lpamng->current_chr_id;
-            SphereGridNode* node = &lpamng->nodes[node_idx];
 
             bool activated_some = false;
+            activated_some |= try_activate(node_idx, chr_id);
 
-            if (!node->activated_by.get_bit(chr_id) && can_activate(node->node_type)) {
-                //_abmap_get_panel(chr_id, node_idx);
-                node->activated_by.set_bit(chr_id, true);
-                activated_some = true;
+            //TODO: Use the SphereGridNode's actual `get_neighbour_indices` method
+            //      when fahrenheit-crew/fahrenheit#97 is resolved in release
+            foreach (short neighbour_idx in _get_neighbour_indices(node_idx)) {
+                activated_some |= try_activate(neighbour_idx, chr_id);
             }
 
-            for (int i = 0; i < 5; i++) {
-                SphereGridLink* link = node->get_link(i);
-                if (link == null) continue;
-
-                short other_idx = link->node_a_idx == node_idx ? link->node_b_idx : link->node_a_idx;
-                SphereGridNode* other = &lpamng->nodes[other_idx];
-
-                if (!other->activated_by.get_bit(chr_id) && can_activate(other->node_type)) {
-                    //_abmap_get_panel(chr_id, other_idx);
-                    other->activated_by.set_bit(chr_id, true);
-                    activated_some = true;
-                }
-            }
+            // On warping, we don't want the next move cancellation to also cancel our warp-activated nodes
+            activated_nodes.Clear();
 
             if (activated_some) {
                 lpamng->should_update = 1;
