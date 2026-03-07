@@ -1181,6 +1181,8 @@ public static class ArchipelagoData {
         {"hiku15_70",  [25]}, // Airship: Penance
         {"bvyt09_12",  [26]}, // Bevelle: Isaaru (probably?)
         {"stbv00_10",  [27]}, // Bevelle: Evrae Altana
+        {"stbv00_11",  [27]}, // Bevelle: Evrae Altana
+        {"stbv00_12",  [27]}, // Bevelle: Evrae Altana
         {"stbv01_10",  [28]}, // Bevelle: Seymour Natus
         {"nagi01_00",  [29]}, // Calm Lands: Defender X
         {"nagi05_74",  [31]}, // Cavern of the Stolen Fayth: Dark Yojimbo
