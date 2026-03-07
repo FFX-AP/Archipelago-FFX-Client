@@ -811,7 +811,8 @@ public unsafe static class ArchipelagoGUI {
                     }
                     ,
                     ["/setregion", string regionString, string progressString, string mapString, string entranceString] => () => {
-                        if (Enum.TryParse(regionString, true, out RegionEnum region)) {
+                        RegionEnum region = stringToRegion(regionString);
+                        if (region != RegionEnum.None) {
                             if (ushort.TryParse(progressString, out ushort progress)) {
                                 if (ushort.TryParse(mapString, out ushort map)) {
                                     if (ushort.TryParse(entranceString, out ushort entrance)) {
