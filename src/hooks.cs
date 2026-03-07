@@ -3006,10 +3006,15 @@ public unsafe partial class ArchipelagoFFXModule {
             }
 
             int qty = save_data->monsters_captured[arena_idx];
-            if (qty > 0)
-                FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = qty;
-            else
-                FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = 0;
+            lock (FFXArchipelagoClient.client_lock) {
+                if (FFXArchipelagoClient.is_connected)
+                {
+                    if (qty > 0)
+                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = qty;
+                    else
+                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = 0;
+                }
+            }
         }
         return captured;
     }

@@ -842,7 +842,7 @@ public static class ArchipelagoData {
                 { 2075, new() {visit_complete = true, next_story_progress = 2970, next_room_id = 255, next_entrance = 0, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Airship visit 1 complete"); } } },
                 //{ 3135, new() {next_story_progress = 3210, next_room_id = 255, next_entrance = 0, return_if_locked = RegionEnum.Sin, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Airship visit 2 complete"); } } },
             } } },
-        {RegionEnum.Bevelle, new(){ story_progress = 2040, room_id = 205, entrance = 0, airship_destination_index = 14, // Destination 12 doesn't work (12 = Bevelle but doesn't have destination, 18 = Highbridge)
+        {RegionEnum.Bevelle, new(){ story_progress = 2040, room_id = 205, entrance = 0, airship_destination_index = 14,
             story_checks = {
                 { 2220, new() {pilgrimage = true, check_delegate = (r) => {
                     // Bahamut
@@ -1004,12 +1004,20 @@ public static class ArchipelagoData {
         //}
 
         // Bikanel forced Zu fight
-        {"bika00_10", () =>  FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_LOGIC_ZU"] = true },
+        {"bika00_10", () => {
+            lock (FFXArchipelagoClient.client_lock) {
+                if (FFXArchipelagoClient.is_connected) FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_LOGIC_ZU"] = true;
+            }
+        } },
     };
 
     public static Dictionary<string, Action> encounterEscapeActions => new() {
         // Bikanel forced Zu fight
-        {"bika00_10", () =>  FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_LOGIC_ZU"] = true },
+        {"bika00_10", () => {
+            lock (FFXArchipelagoClient.client_lock) {
+                if (FFXArchipelagoClient.is_connected) FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_LOGIC_ZU"] = true;
+            }
+        } },
         {"mihn02_00", () => {
             int boss_id = 8; // Chocobo Eater
             if (!FFXArchipelagoClient.local_checked_locations.Contains(boss_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Boss)) {
