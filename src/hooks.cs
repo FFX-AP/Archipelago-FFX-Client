@@ -1,5 +1,4 @@
-﻿using Fahrenheit;
-using Fahrenheit.Atel;
+﻿using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.FFX.Ids;
@@ -455,6 +454,19 @@ public unsafe partial class ArchipelagoFFXModule {
         _FUN_008d48e0 = FhUtil.get_fptr<FUN_008d48e0>(__addr_FUN_008d48e0);
         _FUN_008d4140 = FhUtil.get_fptr<FUN_008d4140>(__addr_FUN_008d4140);
         _TkMn2DrawKickSyncPacket = FhUtil.get_fptr<TkMn2DrawKickSyncPacket>(__addr_TkMn2DrawKickSyncPacket);
+
+        _TkMenuMainAllocWindow = FhUtil.get_fptr<TkMenuMainAllocWindow>(__addr_TkMenuMainAllocWindow);
+        _TkMenuMainRegistWindow = FhUtil.get_fptr<TkMenuMainRegistWindow>(__addr_TkMenuMainRegistWindow);
+
+        _FUN_008e33a0 = FhUtil.get_fptr<FUN_008e33a0>(__addr_FUN_008e33a0);
+        _FUN_008b4460 = FhUtil.get_fptr<FUN_008b4460>(__addr_FUN_008b4460);
+        _FUN_008e2de0 = FhUtil.get_fptr<FUN_008e2de0>(__addr_FUN_008e2de0);
+        _MsSetSaveParamAll = FhUtil.get_fptr<MsSetSaveParamAll>(__addr_MsSetSaveParamAll);
+        _MsSetWeaponName = FhUtil.get_fptr<MsSetWeaponName>(__addr_MsSetWeaponName);
+        _FUN_008c2c40 = FhUtil.get_fptr<FUN_008c2c40>(__addr_FUN_008c2c40);
+        _TkMn2DrawCrossCursor = FhUtil.get_fptr<TkMn2DrawCrossCursor>(__addr_TkMn2DrawCrossCursor);
+
+        _FUN_008d5720 = new FhMethodHandle<FUN_008d5720>(this, game, __addr_FUN_008d5720, h_FUN_008d5720);
     }
 
     public static int ignore_this = 11;
@@ -495,7 +507,7 @@ public unsafe partial class ArchipelagoFFXModule {
             && _LocalizationManager_Initialize.hook()
             && _TkMenuAppearMainCmdWindow.hook()
             && _PrepareMenuList.hook() && _UpdateGearCustomizationMenuState.hook() && _DrawGearCustomizationMenu.hook()
-            && _UpdateAeonCustomizationMenuState.hook() && _DrawAeonCustomizationMenu.hook();
+            && _UpdateAeonCustomizationMenuState.hook() && _DrawAeonCustomizationMenu.hook() && _FUN_008d5720.hook();
         //&& _FUN_00656c90.hook() && _FUN_0065ee30.hook();
         //&& _openFile.hook() && _FUN_0070aec0.hook();
         //&& _MsCheckLeftWindow.hook() && _MsCheckUseCommand.hook() && _TOBtlDrawStatusLimitGauge.hook();
@@ -1227,33 +1239,139 @@ public unsafe partial class ArchipelagoFFXModule {
         {"swin0900", [(0x00A27,  4)] },
     };
 
-    //TODO: Figure out how to split & handle the multiple NPC's in one room.
-    private static readonly Dictionary<string, (uint offset, ushort recruit_id)[]> event_to_recruit_offsets = new(){
-        {"bsvr0400", [(0x25EC, 19)] }, // Vilucha
-        {"djyt0000", [(0x400B,  6)] }, // Kyou
-        {"genk1100", [(0x13D0, 10)] }, // Miyu
-        {"guad0300", [(0x20FA, 22)] }, // Yuma Guado
-        {"hiku0000", [(0x5906, 13)] }, // Rin
-        {"hiku0500", [(0x7499, 13)] }, // Rin
-        {"hiku0800", [(0x57EC, 20), (0xCAA0,  2)] }, // Wakka & Brother
-        {"hiku0801", [(0x34DB, 20), (0x687F,  2)] }, // Wakka & Brother
-        {"hiku1900", [(0x23C4, 20), (0x6843,  2)] }, // Wakka & Brother
-        {"kami0100", [(0x9A8F,  9)] }, // Mifurey
-        {"klyt0600", [(0x12C4,  8)] }, // Mep
-        {"lchb0000", [(0x1C46,  1), (0x34F8,  21)] }, // Biggs & Wedge
-        {"lchb0100", [(0x41A6, 12)] }, // Nedus
-        {"lchb0500", [(0x35EC, 24)] }, // Zev Ronso
-        {"lchb0900", [(0x1F58, 23)] }, // Zalitz
-        {"lchb1800", [(0x4407, 15)] }, // Shaami
-        {"luca0100", [(0x6DB9,  4)] }, // Jumal
-        {"luca0400", [(0x4402, 16)] }, // Shuu
-        {"mcyt0000", [(0x3B7D,  7)] }, // Linna
-        {"mihn0300", [(0x8A4A, 14)] }, // Ropp
-        {"nagi0000", [(0x8872, 17), (0x33DDD, 11)] }, // Svanda & Naida
-        {"nagi0400", [(0x2711,  3)] }, // Durren
-        {"ptkl0200", [(0x6538, 18)] }, // Tatts
-        {"ptkl0600", [(0x2AC1, 18)] }, // Tatts
-        {"swin0000", [(0x8981,  5)] }, // Kiyuri
+    // Recruit ids are the same as the blitzball player ids in-game
+    private static readonly Dictionary<string, (uint offset, ushort recruit_id)[]> event_to_recruit_offsets = new() {
+        { "bsvr0400", [ (0x25EC, 52) ] }, // Vilucha
+
+        { "ptkl0200", [
+            (0x3391, 15), // Vuroja
+            (0x4E95, 13), // Larbeight
+            (0x6538, 38), // Tatts
+        ] },
+
+        { "ptkl0600", [
+            (0x14EB, 13), // Larbeight
+            (0x2AC1, 38), // Tatts
+            (0x4125, 15), // Vuroja
+        ] },
+
+        { "ptkl0800", [ (0x1394, 16) ] }, // Kulukan
+
+        { "ptkl1700", [ (0x154C, 14) ] }, // Isken
+
+        { "ptkl1800", [ (0x154C, 14) ] }, // Isken
+
+        { "klyt0500", [
+            (0x23B3, 18), // Nizarut
+            (0x3973, 17), // Deim
+        ] },
+
+        { "klyt0600", [ (0x12C4, 46) ] }, // Mep
+
+        { "swin0000", [ (0x8981, 56) ] }, // Kiyuri
+
+        { "lchb0000", [
+            (0x1C46, 42), // Biggs
+            (0x34F8, 43), // Wedge
+        ] },
+
+        { "lchb0100", [ (0x41A6, 41) ] }, // Nedus
+
+        { "lchb0300", [
+            (0x42B2,  7), // Bickson
+            (0x5AA5,  9), // Graav
+            (0x7298,  8), // Abus
+            (0x8D0B, 10), // Doram
+            (0xA4FE, 11), // Balgerda
+            (0xBCF1, 12), // Raudy
+        ] },
+
+        { "lchb0400", [
+            (0x2D5F, 25), // Basik Ronso
+            (0x442E, 26), // Argai Ronso
+            (0x5AFD, 27), // Gazna Ronso
+            (0x71CC, 28), // Nuvy Ronso
+            (0x889B, 29), // Irga Ronso
+            (0x9F6A, 30), // Zamzi Ronso
+        ] },
+
+        { "lchb0500", [ (0x35EC, 54) ] }, // Zev Ronso
+
+        { "lchb0900", [ (0x1F58, 47) ] }, // Zalitz
+
+        { "lchb1300", [
+            (0x447A, 2), // Datto
+            (0x631B, 3), // Letty
+            (0x80DE, 4), // Jassu
+            (0x9FDA, 5), // Botta
+            (0xBD16, 6), // Keepa
+        ] },
+
+        { "lchb1800", [ (0x4407, 53) ] }, // Shaami
+
+        { "luca0100", [ (0x6DB9, 50) ] }, // Jumal
+
+        { "luca0400", [ (0x4402, 40) ] }, // Shuu
+
+        { "mihn0300", [ (0x8A4A, 44) ] }, // Ropp
+
+        { "djyt0000", [ (0x400B, 39) ] }, // Kyou
+
+        { "genk1100", [ (0x13D0, 59) ] }, // Miyu
+
+        { "guad0000", [
+            (0x842E, 31), // Giera Guado
+            (0x9BD9, 34), // Auda Guado
+            (0xB877, 33), // Nav Guado
+        ] },
+
+        { "guad0100", [
+            (0x239A, 36), // Noy Guado
+            (0x20FA, 55), // Yuma Guado
+        ] },
+
+        { "guad0400", [
+            (0x1AD8, 32), // Zazi Guado
+            (0x31A6, 35), // Pah Guado
+        ] },
+
+        { "kami0100", [ (0x9A8F, 58) ] }, // Mifurey
+
+        { "mcyt0000", [ (0x3B7D, 45) ] }, // Linna
+
+        { "nagi0000", [
+            ( 0x8872, 51), // Svanda
+            (0x33DDD, 48), // Naida
+        ] },
+
+        { "nagi0400", [ (0x2711, 49) ] }, // Durren
+
+        { "hiku0000", [ (0x5906, 37) ] }, // Rin
+
+        { "hiku0500", [
+            ( 0x7499, 37), // Rin
+            ( 0x8F22, 19), // Eigaar
+            ( 0xA8D3, 20), // Blappa
+            ( 0xC644, 21), // Berrik
+            ( 0xDF7A, 22), // Judda
+            ( 0xF940, 23), // Lakkam
+            (0x113AD, 24), // Nimrook
+        ] },
+
+        { "hiku0800", [
+            (0x57EC,  1), // Wakka
+            (0xCAA0, 57), // Brother
+        ] },
+
+        { "hiku0801", [
+            (0x34DB,  1), // Wakka
+            (0x687F, 57), // Brother
+        ] },
+
+        { "hiku1900", [
+            (0x23C4,  1), // Wakka
+            (0x6843, 57), // Brother
+        ] },
     };
 
     private static readonly Dictionary<string, (uint offset, ushort southNorth)[]> event_to_lightning_dodging_offsets = new(){
@@ -2852,8 +2970,16 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public static int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
         Chr* target = _MsGetChr((uint)target_id);
+        MonStats* mon_stats = (MonStats*)target->ptr_base_stats;
 
-        if (seed.Options.AlwaysCapture == 1 && seed.Options.CaptureDamage == 2 && target_id >= 20) {
+        ushort capture_index = mon_stats is not null ? mon_stats->monster_arena_idx : (ushort)0xFF;
+
+        if (seed.Options.AlwaysCapture == 1
+         && seed.Options.CaptureDamage == 2
+         && target_id >= 20 // Make sure to not capture ourselves
+         && capture_index != 0xFF // Make sure to not capture rifles and Monster Arena enemies
+         && Battle.btl->battle_type == 0
+        ) {
             target->should_try_capture = true;
         }
 
@@ -3241,7 +3367,25 @@ public unsafe partial class ArchipelagoFFXModule {
             case 0xA:
                 // Key Item
 
-                //Progressive Jecht's Sphere
+                // Progressive Mirror
+                if (item_id == 0xA002 && Globals.save_data->key_items.get((int)item_id)) {
+                    Globals.save_data->key_items.set((int)item_id, false);
+                    item_id = 0xA003;
+                }
+
+                // Al Bhed Primers
+                if (item_id == 0xA004 && Globals.save_data->key_items.get((int)item_id)) {
+                    for (byte i = 0; i < 26; i++)
+                    {
+                        if (!Globals.save_data->unlocked_primers.get_bit(i))
+                        {
+                            item_id += i;
+                            break;
+                        }
+                    }
+                }
+
+                // Progressive Jecht's Sphere
                 if (item_id == 0xA020 && Globals.save_data->key_items.get((int)item_id)) {
                     save_data->jecht_spheres.collected_amount++;
                 }
@@ -3309,10 +3453,9 @@ public unsafe partial class ArchipelagoFFXModule {
                 new_weapon.crit_bonus = weapon_data->crit_bonus;
                 count = 0;
                 for (int i = 0; i < 4; i++) {
-                    if (weapon_data->abilities[i] == 0) {
+                    if (weapon_data->abilities[i] is 0x00 or 0xFF) {
                         new_weapon.abilities[i] = 0xff;
-                    }
-                    else {
+                    } else {
                         new_weapon.abilities[i] = weapon_data->abilities[i];
                         count++;
                     }

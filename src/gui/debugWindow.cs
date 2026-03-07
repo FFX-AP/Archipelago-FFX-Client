@@ -1,5 +1,4 @@
 ﻿using Archipelago.MultiClient.Net.Enums;
-using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
@@ -68,7 +67,7 @@ public unsafe static class ArchipelagoGUI {
     public static int font_size = -1;
 
     private static bool show_popup;
-    public static string popup_content { 
+    public static string popup_content {
         get;
         set {
             field = value;
@@ -89,7 +88,7 @@ public unsafe static class ArchipelagoGUI {
         if (font_size == -1) font_size = (int)ImGui.GetFontSize();
         ImGui.PushFont(null, font_size);
 
-        if (show_popup) { 
+        if (show_popup) {
             ImGui.OpenPopup("Archipelago.GUI.Popup");
             show_popup = false;
         }
@@ -385,7 +384,7 @@ public unsafe static class ArchipelagoGUI {
 
                         ImGui.EndTable();
                     }
-                    
+
                 }
             }
             //var localizationManager = _LocalizationManager_GetInstance();
@@ -476,7 +475,7 @@ public unsafe static class ArchipelagoGUI {
         //    SphereGridTilt.SlightTilt => 1.125f,
         //    _ => 1,
         //};
-        
+
         float main_x = 2560;
         float main_y = 1440;
         float x_ratio = main_x / ImGui.GetWindowViewport().Size.X;
@@ -498,7 +497,7 @@ public unsafe static class ArchipelagoGUI {
 
         // Only bother if flat
         int closestNodeIndex = -1;
-        if (Globals.SphereGrid.lpamng->tilt_level == SphereGridTilt.Flat) {
+        if (Globals.SphereGrid.lpamng->tilt_level == SphereGridTilt.FLAT) {
             float shortestDistance = 20;
             for (int i = 0; i < 1024; i++) {
                 float distance = (new Vector2(Globals.SphereGrid.lpamng->nodes[i].x, Globals.SphereGrid.lpamng->nodes[i].y) - truePos).Length();
@@ -578,7 +577,7 @@ public unsafe static class ArchipelagoGUI {
 
         // Only bother if flat
         int closestNodeIndex = -1;
-        if (Globals.SphereGrid.lpamng->tilt_level == SphereGridTilt.Flat) {
+        if (Globals.SphereGrid.lpamng->tilt_level == SphereGridTilt.FLAT) {
             float shortestDistance = 20;
             for (int i = 0; i < 1024; i++) {
                 float distance = (new Vector2(Globals.SphereGrid.lpamng->nodes[i].x, Globals.SphereGrid.lpamng->nodes[i].y) - truePos).Length();
@@ -773,13 +772,13 @@ public unsafe static class ArchipelagoGUI {
 
                 Action fn = cmd switch {
                     ["/resetregion", string regionString] => () => {
-                        if (Enum.TryParse(regionString, out RegionEnum region)) {
+                        if (Enum.TryParse(regionString, true, out RegionEnum region)) {
                             ArchipelagoFFXModule.region_states[region].story_progress = region_starting_state[region].story_progress;
                             ArchipelagoFFXModule.region_states[region].room_id        = region_starting_state[region].room_id;
                             ArchipelagoFFXModule.region_states[region].entrance       = region_starting_state[region].entrance;
                             region_starting_state[region].savedata.CopyTo(ArchipelagoFFXModule.region_states[region].savedata);
 
-                            List<(string, Color)> message = [(regionString, Color.Blue), (" has been reset", Color.White)];
+                            List<(string, Color)> message = [(region.ToString(), Color.Blue), (" has been reset", Color.White)];
                             add_log_message(message);
                         }
                         else {
@@ -811,7 +810,7 @@ public unsafe static class ArchipelagoGUI {
                     }
                     ,
                     ["/setregion", string regionString, string progressString, string mapString, string entranceString] => () => {
-                        if (Enum.TryParse(regionString, out RegionEnum region)) {
+                        if (Enum.TryParse(regionString, true, out RegionEnum region)) {
                             if (ushort.TryParse(progressString, out ushort progress)) {
                                 if (ushort.TryParse(mapString, out ushort map)) {
                                     if (ushort.TryParse(entranceString, out ushort entrance)) {
@@ -820,7 +819,7 @@ public unsafe static class ArchipelagoGUI {
                                         r.room_id = map;
                                         r.entrance = entrance;
 
-                                        List<(string, Color)> message = [(regionString, Color.Blue), ($"'s state has been set to (story_progress: {progress}, room_id: {map}, entrance: {entrance})", Color.White)];
+                                        List<(string, Color)> message = [(region.ToString(), Color.Blue), ($"'s state has been set to (story_progress: {progress}, room_id: {map}, entrance: {entrance})", Color.White)];
                                         add_log_message(message);
                                     }
                                     else {
@@ -832,13 +831,13 @@ public unsafe static class ArchipelagoGUI {
                                     List<(string, Color)> message = [("invalid map_id: ", Color.Red), (mapString, Color.Blue)];
                                     add_log_message(message);
                                 }
-                    
+
                             }
                             else {
                                 List<(string, Color)> message = [("invalid story_progress: ", Color.Red), (progressString, Color.Blue)];
                                 add_log_message(message);
                             }
-                    
+
                         }
                         else {
                             List<(string, Color)> message = [("invalid region: ", Color.Red), (regionString, Color.Blue)];
@@ -884,7 +883,7 @@ public unsafe static class ArchipelagoGUI {
                     ,
                     ["/clear"] => () => {
                         lock (client_log_lock) {
-                            client_log.Clear(); 
+                            client_log.Clear();
                         }
                     }
                     ,
@@ -909,7 +908,7 @@ public unsafe static class ArchipelagoGUI {
             client_input_command = "";
         }
     }
-    
+
     private static void render_debug_tab() {
 #if DEBUG
         fixed (int* ap_mult = &ArchipelagoFFXModule.ap_multiplier) {
@@ -1100,7 +1099,7 @@ public unsafe static class ArchipelagoGUI {
                     ImGui.SeparatorText("Excess");
                     if (excess_inventory.Count == 0) {
                         ImGui.Text("Empty");
-                    } else { 
+                    } else {
                         foreach ((uint item_id, int amount) in excess_inventory) {
                             if (amount == 0) continue;
                             string item_name = get_item_name(item_id);
