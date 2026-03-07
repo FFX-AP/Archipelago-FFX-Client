@@ -944,6 +944,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             AtelScriptChunk* script_chunk = Globals.Atel.controllers[0].script_chunk;
             nint code_ptr = (nint)((int)script_chunk + script_chunk->offset_code);
             NativeMemory.Fill((void*)(code_ptr + 0x4E), 0xC, 0);
+            set(code_ptr, 0x4E, atelNOPArray(0xC));
         }
     }
 
