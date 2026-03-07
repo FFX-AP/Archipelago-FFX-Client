@@ -1183,9 +1183,7 @@ public unsafe partial class ArchipelagoFFXModule {
             AtelOp.RET     .build(      ),
 
         ]).SelectMany(x => x.to_bytes()).ToArray(),
-
-
-};
+    };
 
     private static readonly AtelInst[] save_sphere_load_model = [
         AtelOp.PUSHII  .build(0x5001),
@@ -1426,6 +1424,12 @@ public unsafe partial class ArchipelagoFFXModule {
             case "swin0000":
                 // Set destination to Kilika
                 ((byte*)((int)save_data + 0x0C7A))->set_bits<byte>(2, 2, 8);
+                break;
+            case "ptkl0600":
+                set(code_ptr, 0x4D3D, [
+                    AtelOp.CALLPOPA.build((ushort)CustomCallTarget.BLOCK_KILIKA_BOAT_CHOICE),
+                    .. atelNOPArray(1),
+                ]);
                 break;
             case "hiku2100":
                 logger.Debug($"atel_event_setup: Inject set_airship_destinations call");
@@ -3964,6 +3968,7 @@ public unsafe partial class ArchipelagoFFXModule {
         SEND_PARTY_MEMBER_LOCATION,
         SEND_RECRUIT_LOCATION,
         BLOCK_WARP,
+        BLOCK_KILIKA_BOAT_CHOICE,
         RESTORE_INTERACTION,
         SET_AIRSHIP_DESTINATIONS,
         SHOW_AIRSHIP_DESTINATIONS,
@@ -3999,6 +4004,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SendPartyMemberLocation)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SendRecruitLocation)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_BlockWarp)},
+        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_blockKilikaBoatChoice)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_RestoreInteraction)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SetAirshipDestinations)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_ShowAirshipDestinations)},
@@ -4220,6 +4226,11 @@ public unsafe partial class ArchipelagoFFXModule {
         return blockWarp(work, storage, atelStack);
     }
 
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int CT_RetInt_blockKilikaBoatChoice(AtelBasicWorker* worker, int* storage, AtelStack* stack) {
+        return blockKilikaBoatChoice(worker, storage, stack);
+    }
+
     public static int blockWarp(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         int entrance = atelStack->pop_int();
         int map      = atelStack->pop_int();
@@ -4276,6 +4287,19 @@ public unsafe partial class ArchipelagoFFXModule {
         h_Common_warpToMap(work, storage, atelStack);
         return 1;
 
+    }
+
+    public static int blockKilikaBoatChoice(AtelBasicWorker* worker, int* storage, AtelStack* stack) {
+        float choice = worker->current_thread.reg_a;
+
+        if (choice == 0f) {
+            // Chose Kilika->Besaid
+            worker->table_event_data[0] = 2; // 2 to cancel
+        } else if (choice == 1f) {
+            worker->table_event_data[0] = choice; // Replicate the code that we're replacing
+        }
+
+        return 1;
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
