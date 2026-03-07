@@ -98,24 +98,7 @@ public unsafe partial class ArchipelagoFFXModule {
             ImGui.Text($"{lpamng->node_count} nodes are connected by {lpamng->link_count} links over {lpamng->cluster_count} clusters.");
             ImGui.Text($"State: {get_state_name_for_address((uint)lpamng->__0x115A8 - (uint)FhUtil.ptr_at<byte>(0))}");
 
-            float current_move_speed = lpamng->moving_speed;
-            float current_t = lpamng->moving_progress;
-            float min_t = 0.0f;
-            float max_t = 1.0f;
-
-            ImGui.Text($"Moving at {current_move_speed} cbrt(tbsp) per second");
-            ImGui.BeginDisabled();
-            ImGui.SliderScalar("Progress", ImGuiDataType.Float, &current_t, &min_t, &max_t);
-            ImGui.Text($"Knots so far: {knots_counted}");
-            ImGui.EndDisabled();
-
-            if (ImGui.Button(skip_moves ? "Don't Skip Moves" : "Skip Moves")) {
-                skip_moves ^= true;
-            }
-
-            if (ImGui.Button(freeze_move ? "Unfreeze Move" : "Freeze Move")) {
-                freeze_move ^= true;
-            }
+            render_moving_stats();
 
             ImGui.SeparatorText("Current node");
             ImGui.Indent();
@@ -135,6 +118,29 @@ public unsafe partial class ArchipelagoFFXModule {
         }
 
         ImGui.End();
+    }
+
+    private void render_moving_stats() {
+        var lpamng = SphereGrid.lpamng;
+
+        float current_move_speed = lpamng->moving_speed;
+        float current_t = lpamng->moving_progress;
+        float min_t = 0.0f;
+        float max_t = 1.0f;
+
+        ImGui.Text($"Moving at {current_move_speed} cbrt(tbsp) per second");
+        ImGui.BeginDisabled();
+        ImGui.SliderScalar("Progress", ImGuiDataType.Float, &current_t, &min_t, &max_t);
+        ImGui.Text($"Knots so far: {knots_counted}");
+        ImGui.EndDisabled();
+
+        if (ImGui.Button(skip_moves ? "Don't Skip Moves" : "Skip Moves")) {
+            skip_moves ^= true;
+        }
+
+        if (ImGui.Button(freeze_move ? "Unfreeze Move" : "Freeze Move")) {
+            freeze_move ^= true;
+        }
     }
 
     private void render_node_info() {
