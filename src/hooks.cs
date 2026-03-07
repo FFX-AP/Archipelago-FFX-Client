@@ -4004,7 +4004,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SendPartyMemberLocation)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SendRecruitLocation)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_BlockWarp)},
-        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_BlockKilikaBoatChoice)},
+        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_blockKilikaBoatChoice)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_RestoreInteraction)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_SetAirshipDestinations)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_ShowAirshipDestinations)},
@@ -4227,7 +4227,7 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static int CT_RetInt_BlockKilikaBoatChoice(AtelBasicWorker* worker, int* storage, AtelStack* stack) {
+    public static int CT_RetInt_blockKilikaBoatChoice(AtelBasicWorker* worker, int* storage, AtelStack* stack) {
         return blockKilikaBoatChoice(worker, storage, stack);
     }
 
@@ -4292,40 +4292,11 @@ public unsafe partial class ArchipelagoFFXModule {
     public static int blockKilikaBoatChoice(AtelBasicWorker* worker, int* storage, AtelStack* stack) {
         float choice = worker->current_thread.reg_a;
 
-        // Chose Besaid
         if (choice == 0f) {
-            var CT_Common_positionText = FhUtil.get_fptr<CT_RetInt>(0x457f60);
-            var CT_Common_setTextHasTransparentBackdrop = FhUtil.get_fptr<CT_RetInt>(0x4581d0);
-            var CT_Common_displayFieldString = FhUtil.get_fptr<CT_RetInt>(0x457710);
-            var CT_Common_setTextFlags = FhUtil.get_fptr<CT_RetInt>(0x458340);
-            var CT_Common_006A = FhUtil.get_fptr<CT_RetInt>(0x4589f0);
-
-            stack->push_int(1);
-            stack->push_int(256);
-            stack->push_int(224);
-            stack->push_int(4);
-            CT_Common_positionText(worker, storage, stack);
-
-            stack->push_int(1);
-            stack->push_int(0);
-            CT_Common_setTextHasTransparentBackdrop(worker, storage, stack);
-
-            stack->push_int(1);
-            stack->push_int(0x4006);
-            CT_Common_displayFieldString(worker, storage, stack);
-
-            stack->push_int(1);
-            stack->push_int(0);
-            CT_Common_setTextFlags(worker, storage, stack);
-
-            stack->push_int(1);
-            stack->push_int(0);
-            CT_Common_006A(worker, storage, stack);
-
-            // This is a very messy way to set an event variable
-            worker->table_event_data[0] = 2;
+            // Chose Kilika->Besaid
+            worker->table_event_data[0] = 2; // 2 to cancel
         } else if (choice == 1f) {
-            worker->table_event_data[0] = 1;
+            worker->table_event_data[0] = choice; // 2 to cancel
         }
 
         return 1;
