@@ -60,6 +60,39 @@ public static class ArchipelagoData {
         MonsterArena,
     }
 
+    public static RegionEnum stringToRegion(string region)
+    {
+        return region.ToLowerInvariant() switch
+        {
+            "dreamzanarkand" or "intro" or "dz" or "drzn" or "drzk" or "open" or "znkd" or "dream"                                 => RegionEnum.DreamZanarkand,
+            "baajtemple" or "baj" or "baaj" or "bt" or "bjyt" or "cdsp"                                                            => RegionEnum.BaajTemple,
+            "besaid" or "besaidisland" or "bsil" or "bsa" or "bsvr" or "bsyt" or "bsmm"                                            => RegionEnum.Besaid,
+            //"ssliki" or "liki" or "slik" or "ssl" or "ssli"                                                                      => RegionEnum.SSLiki,
+            "kilika" or "kilikaisland" or "kilk" or "kil" or "ptkl" or "klyt"                                                      => RegionEnum.Kilika,
+            //"sswinno" or "winno" or "winn" or "wino" or "ssw" or "sswi"                                                          => RegionEnum.SSWinno,
+            "luca" or "luc" or "stadium" or "lchb" or "lchi"                                                                       => RegionEnum.Luca,
+            "miihenhighroad" or "mi'ihenhighroad" or "highroad" or "oldroad" or "miihen" or "mi'ihen" or "mihn" or "mih" or "mh"   => RegionEnum.MiihenHighroad,
+            "mushroomrockroad" or "mrr" or "mushroom" or "rockroad" or "mush" or "kino" or "kimm"                                  => RegionEnum.MushroomRockRoad,
+            "djose" or "djosehighroad" or "djo" or "djos" or "djyt"                                                                => RegionEnum.Djose,
+            "moonflow" or "moon" or "flow" or "moo" or "genk"                                                                      => RegionEnum.Moonflow,
+            "guadosalam" or "guado" or "salam" or "gs" or "gua" or "guad" or "ikai"                                                => RegionEnum.Guadosalam,
+            "thunderplains" or "thunder" or "plains" or "tp" or "tpl" or "thpl" or "kami"                                          => RegionEnum.ThunderPlains,
+            "macalania" or "macalaniawoods" or "woods" or  "mac" or "maca" or "mcw" or "mcwo" or "mcfr" or "forest"                => RegionEnum.Macalania,
+            "macalanialake" or "lakemacalania" or "lake" or "mcl" or "mcla" or "stmm" or "mamm" or "mcyt"                          => RegionEnum.Macalania,
+            "bikanel" or "desert" or "bik" or "bika" or "hom" or "home" or "azit"                                                  => RegionEnum.Bikanel,
+            "airship" or "air" or "airs" or "hiku" or "matu" or "ssbt"                                                             => RegionEnum.Airship,
+            "bevelle" or "viapurifico" or "purifico" or "bevl" or "bev" or "beve" or "bvyt" or "stbv"                              => RegionEnum.Bevelle,
+            "calmlands" or "remiemtemple" or "remiem" or "calm" or "cla" or "rem" or "remi" or "nagi" or "lmyt"                    => RegionEnum.CalmLands,
+            "cavernofthestolenfayth" or "stolenfaythcavern" or "cavern" or "stolen" or "stolenfayth" or "cotsf" or "cosf" or "csf" => RegionEnum.CavernOfTheStolenFayth,
+            "mtgagazet" or "gagazet" or "gaga" or "mountgagazet" or "gz" or "mtgz" or "gzt" or "gzs" or "mtgs" or "gzc" or "mtgc"  => RegionEnum.MtGagazet,
+            "zanarkandruins" or "zanarkand" or "znk" or "znkd" or "dome" or "zkrn"                                                 => RegionEnum.ZanarkandRuins,
+            "insidesin" or "sin" or "sins" or "final" or "end" or "endg" or "endgame"                                              => RegionEnum.Sin,
+            "omegaruins" or "omegadungeon" or "omega" or "ultima" or "ultimaruins" or "or" or "omeg" or "omg" or "omr" or "omgr"   => RegionEnum.OmegaRuins,
+            "monsterarena" or "ma" or "arena" or "capturearena" or "mar" or "moar" or "mona" or "zzzz"                             => RegionEnum.MonsterArena,
+            _                                                                                                                      => RegionEnum.None
+        };
+    }
+
     public enum GoalRequirement {
         None = 0,
         PartyMembers,
@@ -159,7 +192,7 @@ public static class ArchipelagoData {
             282,
             220,
             139,
-            191, // 
+            191, //
             336, // Jecht Sphere
             337, // Jecht Sphere
             347, //Blitzball Menu
@@ -606,7 +639,7 @@ public static class ArchipelagoData {
                     ArchipelagoFFXModule.call_warp_to_map(382, 0);
                 }} }
             } } },
-        {RegionEnum.BaajTemple, new(){ story_progress = 30, room_id = 48, entrance = 0, airship_destination_index = 1, 
+        {RegionEnum.BaajTemple, new(){ story_progress = 30, room_id = 48, entrance = 0, airship_destination_index = 1,
             story_checks = {
                 { 60, new() {check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Baaj Temple visit 1 complete"); } } },
                 { 110, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 49, next_entrance = 2, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Al Bhed Ship complete"); } } },
@@ -700,9 +733,9 @@ public static class ArchipelagoData {
                         }
                     }
                 } } },
-                { 730, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 123, next_entrance = 6, return_to_airship = true, 
+                { 730, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 123, next_entrance = 6, return_to_airship = true,
                     check_delegate = (r) => {
-                        ArchipelagoFFXModule.logger.Info("Luca visit complete"); 
+                        ArchipelagoFFXModule.logger.Info("Luca visit complete");
                         // CSR workaround
                         Globals.save_data->current_room_id = 123;
                         Globals.save_data->current_spawnpoint = 6;
@@ -740,7 +773,7 @@ public static class ArchipelagoData {
             } } },
         {RegionEnum.Moonflow, new(){ story_progress = 1030, room_id = 75, entrance = 0, airship_destination_index = 8,
             story_checks = {
-                { 1085, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 235, next_entrance = 1, return_to_airship = true, 
+                { 1085, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 235, next_entrance = 1, return_to_airship = true,
                     check_delegate = (r) => {
                     // Rikku
                     int partyMember_id = 6;
@@ -842,7 +875,7 @@ public static class ArchipelagoData {
                 { 2075, new() {visit_complete = true, next_story_progress = 2970, next_room_id = 255, next_entrance = 0, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Airship visit 1 complete"); } } },
                 //{ 3135, new() {next_story_progress = 3210, next_room_id = 255, next_entrance = 0, return_if_locked = RegionEnum.Sin, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Airship visit 2 complete"); } } },
             } } },
-        {RegionEnum.Bevelle, new(){ story_progress = 2040, room_id = 205, entrance = 0, airship_destination_index = 14, // Destination 12 doesn't work (12 = Bevelle but doesn't have destination, 18 = Highbridge) 
+        {RegionEnum.Bevelle, new(){ story_progress = 2040, room_id = 205, entrance = 0, airship_destination_index = 14, // Destination 12 doesn't work (12 = Bevelle but doesn't have destination, 18 = Highbridge)
             story_checks = {
                 { 2220, new() {pilgrimage = true, check_delegate = (r) => {
                     // Bahamut
@@ -857,7 +890,7 @@ public static class ArchipelagoData {
                 } } },
                 { 2385, new() {visit_complete = true, next_story_progress = 2920, next_room_id = 208, next_entrance = 1, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Bevelle visit 1 complete"); } } },
                 { 2945, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 208, next_entrance = 1, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Bevelle visit 2 complete"); } } },
-            } } }, 
+            } } },
         {RegionEnum.CalmLands, new(){ story_progress = 2385, room_id = 223, entrance = 0, airship_destination_index = 15,
             savedata = [
                 new ArchipelagoRegionSaveData(0x0285, 1),
@@ -1025,7 +1058,7 @@ public static class ArchipelagoData {
     public static Dictionary<string, Action> encounterToActionDict => new(){
         //{"bjyt04_00", ArchipelagoFFXModule.reset_party }, // Klikk (solo Tidus)
         //{"bjyt04_01", ArchipelagoFFXModule.reset_party }, // Klikk (Tidus + Rikku)
-        
+
         // Auron solo
         {"lchb07_00", () => ArchipelagoFFXModule.set_party([PlySaveId.PC_AURON], true, false) },
         // Yenke and Biran. Can only target Kimahri and scale on his stats.
@@ -1144,7 +1177,7 @@ public static class ArchipelagoData {
         {"bsil03_03", () => ArchipelagoFFXModule.set_underwater_party()},
         // S.S Liki
         {"slik02_01", () => ArchipelagoFFXModule.set_underwater_party()},
-        
+
         // Monster Arena
         {"zzzz00_52", () => ArchipelagoFFXModule.set_underwater_party()},
         {"zzzz00_54", () => ArchipelagoFFXModule.set_underwater_party()},
@@ -1181,6 +1214,8 @@ public static class ArchipelagoData {
         {"hiku15_70",  [25]}, // Airship: Penance
         {"bvyt09_12",  [26]}, // Bevelle: Isaaru (probably?)
         {"stbv00_10",  [27]}, // Bevelle: Evrae Altana
+        {"stbv00_11",  [27]}, // Bevelle: Evrae Altana
+        {"stbv00_12",  [27]}, // Bevelle: Evrae Altana
         {"stbv01_10",  [28]}, // Bevelle: Seymour Natus
         {"nagi01_00",  [29]}, // Calm Lands: Defender X
         {"nagi05_74",  [31]}, // Cavern of the Stolen Fayth: Dark Yojimbo

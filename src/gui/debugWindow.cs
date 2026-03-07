@@ -746,7 +746,7 @@ public unsafe static class ArchipelagoGUI {
         }
         bool process_input = ImGui.InputText("Input",
                                              ref client_input_command,
-                                             50,
+                                             150,
                                              ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.CallbackHistory,
                                              _client_input_ImGuiInputTextCallback);
 
@@ -772,7 +772,8 @@ public unsafe static class ArchipelagoGUI {
 
                 Action fn = cmd switch {
                     ["/resetregion", string regionString] => () => {
-                        if (Enum.TryParse(regionString, true, out RegionEnum region)) {
+                        RegionEnum region = stringToRegion(regionString);
+                        if (region != RegionEnum.None) {
                             ArchipelagoFFXModule.region_states[region].story_progress = region_starting_state[region].story_progress;
                             ArchipelagoFFXModule.region_states[region].room_id        = region_starting_state[region].room_id;
                             ArchipelagoFFXModule.region_states[region].entrance       = region_starting_state[region].entrance;
@@ -810,7 +811,8 @@ public unsafe static class ArchipelagoGUI {
                     }
                     ,
                     ["/setregion", string regionString, string progressString, string mapString, string entranceString] => () => {
-                        if (Enum.TryParse(regionString, true, out RegionEnum region)) {
+                        RegionEnum region = stringToRegion(regionString);
+                        if (region != RegionEnum.None) {
                             if (ushort.TryParse(progressString, out ushort progress)) {
                                 if (ushort.TryParse(mapString, out ushort map)) {
                                     if (ushort.TryParse(entranceString, out ushort entrance)) {
