@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -10,7 +11,10 @@ using static Fahrenheit.FFX.Globals;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
-public unsafe partial class ArchipelagoFFXModule {
+[FhLoad(FhGameId.FFX)]
+public unsafe class SphereGridQolModule : FhModule {
+    // Delegates for handles
+    //TODO: Remove these once FhCall is more up-to-date
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void abmap_get_panel(int ply_id, int node_idx);
     public const nint __addr_abmap_get_panel = 0x6458a0;
@@ -25,23 +29,36 @@ public unsafe partial class ArchipelagoFFXModule {
     public delegate void abmap_confirm_move(int p1, int p2, int p3);
     public const nint __addr_FUN_00a56160 = 0x656160;
 
-    private FhMethodHandle<abmap_ctrl> _sphere_grid_move_speed;
-    private FhMethodHandle<abmap_confirm_move> _sphere_grid_confirm_move;
-    private FhMethodHandle<abmap_ctrl> _sphere_grid_state_moving;
-    private FhMethodHandle<abmap_ctrl> _sphere_grid_state_warping;
-    private FhMethodHandle<abmap_ctrl> _sphere_grid_change_node;
+    // Sound IDs
+    private const uint SND_PREFIX = 0x80000000;
+    public const uint SND_ACTIVATE_NODE   = 0x50 | SND_PREFIX;
+    public const uint SND_DEACTIVATE_NODE = 0x6e | SND_PREFIX;
 
+    // Method handles
+    private readonly FhMethodHandle<abmap_ctrl> _sphere_grid_move_speed;
+    private readonly FhMethodHandle<abmap_confirm_move> _sphere_grid_confirm_move;
+    private readonly FhMethodHandle<abmap_ctrl> _sphere_grid_state_moving;
+    private readonly FhMethodHandle<abmap_ctrl> _sphere_grid_state_warping;
+    private readonly FhMethodHandle<abmap_ctrl> _sphere_grid_change_node;
+
+    // Function pointers
+    //TODO: Move this into a library common between modules
+    private static delegates.SndSepPlaySimple _SndSepPlaySimple = FhUtil.get_fptr<delegates.SndSepPlaySimple>(delegates.__addr_SndSepPlaySimple);
     private readonly abmap_get_panel _abmap_get_panel = FhUtil.get_fptr<abmap_get_panel>(__addr_abmap_get_panel);
 
-    // Normal = 645010
-    // ChoosingMoveTarget = 644EF0
-    // MovingToTarget = 659990
-    // AwaitingMoveConfirm = 648230
-    // ChoosingActivationTarget = 6452D0
-    // Activating = 648280
-    // HomingOnNode = 659E80
+    // Fahrenheit-related
+    private FhModContext? _mod_context;
+    private FileStream? _global_state;
 
-    internal void init_abmap_hooks() {
+    // Gui-related
+    private static int knots_counted;
+    private static bool freeze_move;
+    private static bool skip_moves;
+    private static bool debug_gui_open;
+
+    private static readonly HashSet<short> temporarily_activated_nodes = [];
+
+    public SphereGridQolModule() {
         const string GAME = "FFX.exe";
 
         _sphere_grid_move_speed = new(this, GAME, __addr_AbmapState_MovingToTarget, h_move_speed);
@@ -51,7 +68,10 @@ public unsafe partial class ArchipelagoFFXModule {
         _sphere_grid_change_node = new(this, GAME, __addr_AbmapState_ChangingNode, h_change_node);
     }
 
-    internal bool hook_abmap() {
+    public override bool init(FhModContext mod_context, FileStream global_state_file) {
+        _mod_context = mod_context;
+        _global_state = global_state_file;
+
         return _sphere_grid_move_speed.hook()
             && _sphere_grid_confirm_move.hook()
             && _sphere_grid_state_moving.hook()
@@ -59,42 +79,63 @@ public unsafe partial class ArchipelagoFFXModule {
             && _sphere_grid_change_node.hook();
     }
 
+    private string get_state_name() {
+        // Since Fahrenheit doesn't currently expose:
+        // - the base address of the game, nor
+        // - a first-party way to obtain this value,
+        // we have to do this ugly hack.
+        return get_state_name_for_address((uint)SphereGrid.lpamng->__0x115A8 - (uint)FhUtil.ptr_at<byte>(0));
+    }
+
     private string get_state_name_for_address(uint address) {
         return address switch{
             0x645010 => "Normal",
-            0x644EF0 => "ChoosingMoveTarget",
+            0x644ef0 => "ChoosingMoveTarget",
             0x659990 => "MovingToTarget",
             0x648230 => "AwaitingMoveConfirmation",
-            0x6452D0 => "ChoosingActivationTarget",
+            0x6452d0 => "ChoosingActivationTarget",
             0x648280 => "Activating",
-            0x659E80 => "HomingOnNode",
-            0x647F00 => "Warping",
-            0x647D50 => "ClearingNode",
-            _ => $"?????? (0x{address:X8})",
+            0x659e80 => "HomingOnNode",
+            0x647f00 => "Warping",
+            0x647d50 => "ClearingNode",
+            _ => $"?????? (0x{address:x8})",
         };
     }
 
-    private static int knots_counted;
-    private static bool freeze_move;
-    private static bool skip_moves;
-    private static bool sphere_grid_debug_open;
-    public void render_sphere_grid_debug() {
+    public override void render_imgui() {
+#if DEBUG
         if (ImGui.IsKeyPressed(ImGuiKey.GraveAccent))
-            sphere_grid_debug_open ^= true;
+            debug_gui_open ^= true;
 
-        if (!sphere_grid_debug_open) return;
+        if (!debug_gui_open) return;
 
         if (!ImGui.Begin("Sphere Grid Debug")) {
             ImGui.End();
             return;
         }
 
-        if (ImGui.CollapsingHeader("LpAbilityMapEngine")) {
-            var lpamng = SphereGrid.lpamng;
-            ImGui.Text($"{lpamng->node_count} nodes are connected by {lpamng->link_count} links over {lpamng->cluster_count} clusters.");
-            ImGui.Text($"State: {get_state_name_for_address((uint)lpamng->__0x115A8 - (uint)FhUtil.ptr_at<byte>(0))}");
+        render_lpamng_info();
 
-            render_moving_stats();
+        ImGui.End();
+#endif
+    }
+
+    private void render_lpamng_info() {
+        if (ImGui.CollapsingHeader("LpAbilityMapEngine")) {
+            if (!*SphereGrid.is_open) {
+                ImGui.Text("Please open the Sphere Grid.");
+                return;
+            }
+
+            var lpamng = SphereGrid.lpamng;
+
+            ImGui.Text($"{lpamng->node_count} nodes are connected by {lpamng->link_count} links over {lpamng->cluster_count} clusters.");
+            ImGui.Text($"State: {get_state_name()}");
+
+            ImGui.SeparatorText("Movement");
+            ImGui.Indent();
+            render_moving_info();
+            ImGui.Unindent();
 
             ImGui.SeparatorText("Current node");
             ImGui.Indent();
@@ -112,11 +153,9 @@ public unsafe partial class ArchipelagoFFXModule {
                 lpamng->should_update_node = -1;
             }
         }
-
-        ImGui.End();
     }
 
-    private void render_moving_stats() {
+    private void render_moving_info() {
         var lpamng = SphereGrid.lpamng;
 
         float current_move_speed = lpamng->moving_speed;
@@ -124,11 +163,14 @@ public unsafe partial class ArchipelagoFFXModule {
         float min_t = 0.0f;
         float max_t = 1.0f;
 
-        ImGui.Text($"Moving at {current_move_speed} cbrt(tbsp) per second");
+        ImGui.Text($"Moving at {current_move_speed} units per second");
+
+        // Disable the slider to make sure the user can't edit it at will
         ImGui.BeginDisabled();
         ImGui.SliderScalar("Progress", ImGuiDataType.Float, &current_t, &min_t, &max_t);
-        ImGui.Text($"Knots so far: {knots_counted}");
         ImGui.EndDisabled();
+
+        ImGui.Text($"Knots so far: {knots_counted}");
 
         if (ImGui.Button(skip_moves ? "Don't Skip Moves" : "Skip Moves")) {
             skip_moves ^= true;
@@ -167,47 +209,52 @@ public unsafe partial class ArchipelagoFFXModule {
 
         ImGui.Text($"Node type: {selected_node->node_type}");
 
-        byte activated_by = selected_node->activated_by;
         ImGui.Text("Activation status:");
+        ImGui.Indent();
+
+        byte activated_by = selected_node->activated_by;
 
         //TODO: Change this to `i < 8` once Seymour has a sphere grid
         for (int i = 0; i < 7; i++) {
             bool activated = (activated_by & (1 << i)) != 0;
 
-            if (save_data->ply_saves[i].join) {
-                byte[] name_buffer = new byte[FhEncoding.compute_decode_buffer_size(save_data->character_names[i])];
-                FhEncoding.decode(save_data->character_names[i], name_buffer, null, null, FhEncodingFlags.IMPLICIT_END);
+            if (!save_data->ply_saves[i].join) continue;
 
-                string activation = activated ? "Active" : "Inactive";
-                ImGui.Text($"{Encoding.UTF8.GetString(name_buffer)}: {activation}");
+            byte[] name_buffer = new byte[FhEncoding.compute_decode_buffer_size(save_data->character_names[i])];
+            FhEncoding.decode(save_data->character_names[i], name_buffer, null, null, FhEncodingFlags.IMPLICIT_END);
 
-                ImGui.SameLine(100);
+            string activation = activated ? "Active" : "Inactive";
+            ImGui.Text($"{Encoding.UTF8.GetString(name_buffer)}: {activation}");
 
-                if (ImGui.Button($"Toggle#{i}")) {
-                    if (activated) {
-                        selected_node->activated_by.set_bit(i, !activated);
-                        lpamng->should_update = 1;
-                        lpamng->should_update_node = lpamng->selected_node_idx;
-                        _SndSepPlaySimple(0x8000006e);
-                    } else {
-                        _abmap_get_panel(i, lpamng->selected_node_idx);
-                    }
+            ImGui.SameLine(150);
+
+            if (ImGui.Button(activated ? $"Deactivate##{i}" : $"Activate##{i}")) {
+                if (activated) {
+                    selected_node->activated_by.set_bit(i, false);
+                    _SndSepPlaySimple(SND_DEACTIVATE_NODE);
+
+                    lpamng->should_update = 1;
+                    lpamng->should_update_node = lpamng->selected_node_idx;
+                } else {
+                    _abmap_get_panel(i, lpamng->selected_node_idx);
                 }
             }
         }
 
-        ImGui.Text($"Can move to? {selected_node->properties.can_target()}");
-        ImGui.Text($"Has outline? {selected_node->properties.is_highlighted()}");
+        ImGui.Unindent();
 
-        ImGui.Text($"Thingy: {selected_node->move_cost}");
+        ImGui.Text($"Can target? {selected_node->properties.can_target()}");
+        ImGui.Text($"Is highlighted? {selected_node->properties.is_highlighted()}");
+
+        ImGui.Text($"Move cost: {selected_node->move_cost}");
     }
 
     public void h_move_speed() {
         var lpamng = SphereGrid.lpamng;
+
         float prev_t = lpamng->moving_progress;
 
         _sphere_grid_move_speed.orig_fptr();
-
 
         if (freeze_move) {
             lpamng->moving_progress = prev_t;
@@ -253,12 +300,7 @@ public unsafe partial class ArchipelagoFFXModule {
             );
     }
 
-    private void play_activation_sound() {
-        _SndSepPlaySimple(0x80000050);
-    }
-
-    private static readonly HashSet<short> activated_nodes = [];
-    private bool try_activate(short node_idx, int ply_id) {
+    private bool try_activate(short node_idx, int ply_id, bool temporary) {
         SphereGridNode* node = &SphereGrid.lpamng->nodes[node_idx];
 
         if (node->activated_by.get_bit(ply_id) || !can_activate(node->node_type)) {
@@ -266,29 +308,32 @@ public unsafe partial class ArchipelagoFFXModule {
         }
 
         node->activated_by.set_bit(ply_id, true);
-        play_activation_sound();
-        activated_nodes.Add(node_idx);
+        _SndSepPlaySimple(SND_ACTIVATE_NODE);
+
+        if (temporary) {
+            temporarily_activated_nodes.Add(node_idx);
+        }
 
         return true;
     }
 
     internal void on_move_knot(int chr_id, short node_idx) {
+        if (node_idx == -1) return;
+
         var lpamng = SphereGrid.lpamng;
 
-        if (node_idx < lpamng->node_count) {
-            bool activated_some = false;
-            activated_some |= try_activate(node_idx, chr_id);
+        bool activated_some = false;
+        activated_some |= try_activate(node_idx, chr_id, true);
 
-            //TODO: Use the SphereGridNode's actual `get_neighbour_indices` method
-            //      when fahrenheit-crew/fahrenheit#97 is resolved in release
-            foreach (short neighbour_idx in _get_neighbour_indices(node_idx)) {
-                activated_some |= try_activate(neighbour_idx, chr_id);
-            }
+        //TODO: Use the SphereGridNode's actual `get_neighbour_indices` method
+        //      when fahrenheit-crew/fahrenheit#97 is resolved in release
+        foreach (short neighbour_idx in _get_neighbour_indices(node_idx)) {
+            activated_some |= try_activate(neighbour_idx, chr_id, true);
+        }
 
-            if (activated_some) {
-                lpamng->should_update = 1;
-                lpamng->should_update_node = -1;
-            }
+        if (activated_some) {
+            lpamng->should_update = 1;
+            lpamng->should_update_node = -1;
         }
     }
 
@@ -299,26 +344,21 @@ public unsafe partial class ArchipelagoFFXModule {
 
         _sphere_grid_confirm_move.orig_fptr(p1, p2, p3);
 
-        if (p3 == 0) {
-            activated_nodes.Clear();
-        }
-
         // If we cancelled it, also deactivate all activated nodes
-        if (p3 == 1 && activated_nodes.Count > 0) {
+        if (p3 == 1 && temporarily_activated_nodes.Count > 0) {
             int chr_id = lpamng->current_chr_id;
 
-            foreach (short node_idx in activated_nodes) {
+            foreach (short node_idx in temporarily_activated_nodes) {
                 lpamng->nodes[node_idx].activated_by.set_bit(chr_id, false);
             }
 
-            if (activated_nodes.Count > 0) {
-                _SndSepPlaySimple(0x8000006e);
-            }
+            _SndSepPlaySimple(SND_DEACTIVATE_NODE);
 
             lpamng->should_update = 1;
             lpamng->should_update_node = -1;
-            activated_nodes.Clear();
         }
+
+        temporarily_activated_nodes.Clear();
     }
 
     public void h_state_moving() {
@@ -339,6 +379,8 @@ public unsafe partial class ArchipelagoFFXModule {
         }
 
         if (current_t < prev_t) {
+            // Don't activate the neighbours of the first node,
+            // since that's a bit counterintuitive
             if (knots_counted > 0) {
                 on_move_knot(lpamng->current_chr_id, last_knot);
             }
@@ -349,10 +391,15 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public void h_state_warping() {
         var lpamng = SphereGrid.lpamng;
+
         byte last_warp_state = *(byte*)((int)lpamng + 0x1164c);
 
         _sphere_grid_state_warping.orig_fptr();
 
+        // Warp states:
+        // 0 == Disappearing
+        // 1 == Moving
+        // 2 == Reappearing
         byte warp_state = *(byte*)((int)lpamng + 0x1164c);
 
         if (last_warp_state == 1 && warp_state == 2) {
@@ -360,16 +407,13 @@ public unsafe partial class ArchipelagoFFXModule {
             byte chr_id = lpamng->current_chr_id;
 
             bool activated_some = false;
-            activated_some |= try_activate(node_idx, chr_id);
+            activated_some |= try_activate(node_idx, chr_id, false);
 
             //TODO: Use the SphereGridNode's actual `get_neighbour_indices` method
             //      when fahrenheit-crew/fahrenheit#97 is resolved in release
             foreach (short neighbour_idx in _get_neighbour_indices(node_idx)) {
-                activated_some |= try_activate(neighbour_idx, chr_id);
+                activated_some |= try_activate(neighbour_idx, chr_id, false);
             }
-
-            // On warping, we don't want the next move cancellation to also cancel our warp-activated nodes
-            activated_nodes.Clear();
 
             if (activated_some) {
                 lpamng->should_update = 1;

@@ -63,7 +63,6 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public ArchipelagoFFXModule() {
         init_hooks();
-        init_abmap_hooks();
     }
 
     public static FhLangId? VoiceLanguage;
@@ -334,8 +333,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         loadSeedList();
         load_global_state();
 
-        return hook()
-            && hook_abmap();
+        return hook();
     }
 
     public static void initalize_states() {
@@ -943,10 +941,6 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public override void render_imgui() {
         ArchipelagoGUI.render();
-
-#if DEBUG
-        render_sphere_grid_debug();
-#endif
     }
 
     public struct CustomStringDrawInfo(ManagedCustomString customString, Vector2 pos, float scale = 0.65f, byte color = 0, bool persistent = false) {
