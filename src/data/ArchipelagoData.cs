@@ -62,7 +62,7 @@ public static class ArchipelagoData {
 
     public static RegionEnum stringToRegion(string region)
     {
-        return region switch
+        return region.ToLowerInvariant() switch
         {
             "dreamzanarkand" or "intro" or "dz" or "drzn" or "drzk" or "open" or "znkd" or "dream"                                 => RegionEnum.DreamZanarkand,
             "baajtemple" or "baj" or "baaj" or "bt" or "bjyt" or "cdsp"                                                            => RegionEnum.BaajTemple,
