@@ -243,7 +243,7 @@ public unsafe class RecentItemsModule : FhModule {
 
         List<(Color color, string part)> message = info.direction switch {
             RecentItemDirection.SelfReceive => [
-                (Color.Magenta, info.receiver.Alias),
+                (info.relevance == RecentItemRelevance.Receiver ? Color.Magenta : Color.Yellow, info.receiver.Alias),
                 (Color.White, "found their"),
                 (item_color, item.ItemDisplayName),
             ],
