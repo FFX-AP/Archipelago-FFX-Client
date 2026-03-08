@@ -7,5 +7,7 @@ bin
 obj
 release
 
-# Project assets folders
-assets
+# Project assets
+assets/efl
+assets/loadorder
+assets/start_game.bat

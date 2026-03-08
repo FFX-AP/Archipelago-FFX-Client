@@ -23,7 +23,7 @@ public static class FFXArchipelagoClient {
     public static          bool                  local_locations_updated = false;
     public static          bool                  remote_locations_updated = false;
     public static          string?               SeedId = null;
-    
+
     public static PlayerInfo? active_player => current_session?.Players.ActivePlayer;
     private static bool is_disconnecting = false;
     public static bool is_connected => current_session is not null && !is_disconnecting;
@@ -38,7 +38,7 @@ public static class FFXArchipelagoClient {
             session = ArchipelagoSessionFactory.CreateSession(server);
             connectHandlers(session);
             var roomInfoPacket = await session.ConnectAsync();
-            
+
             login_result = await session.LoginAsync("Final Fantasy X", user, ItemsHandlingFlags.RemoteItems, Version.Parse("0.6.0"), password: password, requestSlotData: true);
         }
         catch (Exception e) {
@@ -81,6 +81,8 @@ public static class FFXArchipelagoClient {
         }
         current_server = server;
         current_session = session;
+
+        current_session!.MessageLog.OnMessageReceived += RecentItemsModule.post_item_message;
     }
 
     public static void disconnect(ArchipelagoSession? session = null) {
