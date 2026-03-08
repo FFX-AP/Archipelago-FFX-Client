@@ -57,11 +57,11 @@ public unsafe class RecentItemsModule : FhModule {
         Send,
     }
 
+    [Flags]
     public enum RecentItemRelevance {
-        Impersonal,
-        Sender,
-        Receiver,
-        Self,
+        Impersonal = 0,
+        Sender = 1,
+        Receiver = 2,
     }
 
     public record RecentItemInfo(RecentItemDirection direction, RecentItemRelevance relevance, PlayerInfo sender, PlayerInfo receiver, ItemInfo item);
@@ -117,12 +117,13 @@ public unsafe class RecentItemsModule : FhModule {
         }
 
         RecentItemRelevance relevance = RecentItemRelevance.Impersonal;
-        if (send_message.IsSenderTheActivePlayer && send_message.IsReceiverTheActivePlayer) {
-            relevance = RecentItemRelevance.Self;
-        } if (send_message.IsSenderTheActivePlayer) {
-            relevance = RecentItemRelevance.Sender;
-        } else if (send_message.IsReceiverTheActivePlayer) {
-            relevance = RecentItemRelevance.Receiver;
+
+        if (send_message.IsSenderTheActivePlayer) {
+            relevance |= RecentItemRelevance.Sender;
+        }
+
+        if (send_message.IsReceiverTheActivePlayer) {
+            relevance |= RecentItemRelevance.Receiver;
         }
 
         RecentItemInfo info = new(direction, relevance, send_message.Sender, send_message.Receiver, send_message.Item);
