@@ -4639,6 +4639,14 @@ public unsafe partial class ArchipelagoFFXModule {
         {
             if (ArchipelagoFFXModule.item_locations.treasure.TryGetValue(treasure_id, out var item))
             {
+                lock (client_lock)
+                {
+                    if (FFXArchipelagoClient.is_connected)
+                    {
+                        FFXArchipelagoClient.current_session!.Locations.ScoutLocationsAsync(Archipelago.MultiClient.Net.Enums.HintCreationPolicy.CreateAndAnnounceOnce,
+                                                                                   treasure_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure);
+                    }
+                }
                 FFXArchipelagoClient.SayAsync($"kicked away {item.player}'s {item.name}!");   
             }
         }
