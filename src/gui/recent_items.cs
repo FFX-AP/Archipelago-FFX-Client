@@ -37,9 +37,13 @@ public unsafe class RecentItemsModule : FhModule {
         public readonly FhSettingToggle display_locations = new("display_locations", true);
         public readonly FhSettingNumber<int> item_count = new("item_count", 3, 0, 10, 1);
 
+        //TODO: Implement old items fading away
         public readonly FhSettingNumber<float> fade_after = new("fade_after", 10.0f, 0.0f, 60.0f, 1.0f);
+
+        //TODO: Implement different background behavior
         public readonly FhSettingDropdown<RecentItemsBackground> background = new("background", RecentItemsBackground.NONE);
 
+        //TODO: Implement configurable positioning
         public readonly FhSettingNumber<float> pos_x = new("x", 0.05f, 0.0f, 1.0f, 0.1f);
         public readonly FhSettingNumber<float> pos_y = new("y", 0.34f, 0.0f, 1.0f, 0.1f);
         public readonly FhSettingDropdown<RecentItemsTextAlignment> alignment = new("alignment", RecentItemsTextAlignment.LEFT);
