@@ -652,7 +652,7 @@ public unsafe static class ArchipelagoGUI {
             }
         }
         else {
-            ImGui.Text($"Connected as {FFXArchipelagoClient.active_player!.Name}");
+            ImGui.Text($"Connected as {FFXArchipelagoClient.active_player?.Name}");
             if (ImGui.Button("Disconnect")) {
                 FFXArchipelagoClient.disconnect();
             }
@@ -761,10 +761,7 @@ public unsafe static class ArchipelagoGUI {
 
             if (!client_input_command.StartsWith("/")) {
                 // Say
-                if (FFXArchipelagoClient.is_connected) {
-                    FFXArchipelagoClient.current_session!.Say(client_input_command);
-                }
-
+                FFXArchipelagoClient.SayAsync(client_input_command);
             }
             else {
                 // Client-side command
@@ -795,17 +792,22 @@ public unsafe static class ArchipelagoGUI {
                     ,
 #if DEBUG
                     ["/setdatastorage", string key, string value] => () => {
-                        if (FFXArchipelagoClient.is_connected) {
-                            FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_ROOM"] = value;
+                        lock (FFXArchipelagoClient.client_lock) {
+                            if (FFXArchipelagoClient.is_connected) {
+                                FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_ROOM"] = value;
+                            }
+
                         }
                     }
                     ,
                     ["/getdatastorage", string key] => () => {
-                        if (FFXArchipelagoClient.is_connected) {
-                            string? message_text = FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, key];
-                            if (message_text != null) {
-                                List<(string, Color)> message = [(key, Color.Blue), (message_text, Color.White)];
-                                add_log_message(message);
+                        lock (FFXArchipelagoClient.client_lock) {
+                            if (FFXArchipelagoClient.is_connected) {
+                                string? message_text = FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, key];
+                                if (message_text != null) {
+                                    List<(string, Color)> message = [(key, Color.Blue), (message_text, Color.White)];
+                                    add_log_message(message);
+                                }
                             }
                         }
                     }

@@ -296,15 +296,17 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     }
 
     public static bool loadSeed(ArchipelagoSeed loaded_seed) {
-        if (FFXArchipelagoClient.is_connected) {
-            if (FFXArchipelagoClient.SeedId != loaded_seed.Options.SeedId) {
-                string message = "Seed doesn't match connected slot";
-                ArchipelagoGUI.add_log_message([(message, Color.Red)]);
-                logger.Error(message);
-                return false;
-            } else {
-                if (FFXArchipelagoClient.current_server != null) {
-                    SeedToServer[SeedId] = FFXArchipelagoClient.current_server;
+        lock (client_lock) {
+            if (FFXArchipelagoClient.is_connected) {
+                if (FFXArchipelagoClient.SeedId != loaded_seed.Options.SeedId) {
+                    string message = "Seed doesn't match connected slot";
+                    ArchipelagoGUI.add_log_message([(message, Color.Red)]);
+                    logger.Error(message);
+                    return false;
+                } else {
+                    if (FFXArchipelagoClient.current_server != null) {
+                        SeedToServer[SeedId] = FFXArchipelagoClient.current_server;
+                    }
                 }
             }
         }
@@ -518,12 +520,15 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                     other_inventory[item_id] = amount;
                 }
 
-                for (int i = 0; i <= 103; i++) {
-                    int qty = save_data->monsters_captured[i];
-                    if (qty > 0)
-                        FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_CAPTURE_" + i] = qty;
-                    else
-                        FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_CAPTURE_" + i] = 0;
+                if (FFXArchipelagoClient.is_connected)
+                {
+                    for (int i = 0; i <= 103; i++) {
+                        int qty = save_data->monsters_captured[i];
+                        if (qty > 0)
+                            FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + i] = qty;
+                        else
+                            FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + i] = 0;
+                    }
                 }
 
                 loaded_state.celestial_level.CopyTo(celestial_level, 0);
@@ -622,7 +627,12 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             last_room_id = Globals.save_data->current_room_id;
             last_entrance_id = Globals.save_data->current_spawnpoint;
 
-            FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_ROOM"] = last_room_id;
+            lock (client_lock) {
+                if (FFXArchipelagoClient.is_connected)
+                {
+                    FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_ROOM"] = last_room_id;
+                }
+            }
         }
 
         uint TkSndReadVoice = FhUtil.get_at<uint>(0xF2FED0);

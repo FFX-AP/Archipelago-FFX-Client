@@ -4,6 +4,7 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.MessageLog.Parts;
 using Archipelago.MultiClient.Net.Models;
+using Archipelago.MultiClient.Net.Packets;
 using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
@@ -25,7 +26,7 @@ public static class FFXArchipelagoClient {
     
     public static PlayerInfo? active_player => current_session?.Players.ActivePlayer;
     private static bool is_disconnecting = false;
-    public static bool is_connected => current_session is not null & !is_disconnecting;
+    public static bool is_connected => current_session is not null && !is_disconnecting;
 
     public static async Task Connect(string server, string user, string password) {
         ArchipelagoFFXModule.logger.Debug("Connect");
@@ -84,10 +85,12 @@ public static class FFXArchipelagoClient {
 
     public static void disconnect(ArchipelagoSession? session = null) {
         ArchipelagoFFXModule.logger.Debug("disconnect");
-        session ??= current_session;
-        if (session is null || is_disconnecting) return;
-        is_disconnecting = true;
-        session.Socket.DisconnectAsync();
+        lock (client_lock) {
+            session ??= current_session;
+            if (session is null || is_disconnecting) return;
+            is_disconnecting = true;
+            session.Socket.DisconnectAsync();
+        }
     }
 
     private static void connectHandlers(ArchipelagoSession session) {
@@ -123,10 +126,12 @@ public static class FFXArchipelagoClient {
     private static void Socket_SocketClosed(string reason) {
         ArchipelagoFFXModule.logger.Debug($"Socket Closed: \"{reason}\"");
         ArchipelagoGUI.add_log_message([($"Disconnected from server ({reason})", Color.Red)]);
-        SeedId = null;
-        current_session = null;
-        current_server = null;
-        is_disconnecting = false;
+        lock (client_lock) {
+            current_session = null;
+            SeedId = null;
+            current_server = null;
+            is_disconnecting = false;
+        }
     }
 
     public unsafe static void update() {
@@ -135,58 +140,53 @@ public static class FFXArchipelagoClient {
             ArchipelagoFFXModule.logger.Debug($"received_item: {item.ItemName}");
         }
          */
-        if (current_session == null) {
-            return;
-        }
 
-        // TODO: Check for post-battle/other menu?
-        if (ArchipelagoFFXModule.seed.Options.SeedId   == null ||
-            Globals.save_data->current_room_id ==  23  || // Main Menu
-            Globals.save_data->current_room_id ==   0  || // Tutorial room
-            Globals.save_data->current_room_id == 348  || // Intro
-            Globals.Battle.btl->battle_state   !=   0)  { // In battle
-            return;
-        }
-
-        if (current_session.Items.AllItemsReceived.Count > received_items) {
-            ArchipelagoFFXModule.logger.Debug("New items received");
-            foreach (ItemInfo item in current_session.Items.AllItemsReceived.Skip(received_items)) {
-                ArchipelagoFFXModule.logger.Debug($"received_item: {item.ItemName}");
-                ArchipelagoFFXModule.obtain_item((uint)item.ItemId);
-                received_items++;
-            }
-        }
-
-        // Possibly unnecessary
         lock (client_lock) {
-            if (local_locations_updated) {
-                var local_only = local_checked_locations.Except(current_session.Locations.AllLocationsChecked);
-                if (local_only.Any()) {
-                    current_session.Locations.CompleteLocationChecksAsync(local_only.ToArray());
-                    ArchipelagoFFXModule.logger.Debug($"Sent: {string.Join(",", local_only)}");
+            // TODO: Check for post-battle/other menu?
+            if (   !is_connected
+                || ArchipelagoFFXModule.seed.Options.SeedId == null
+                || Globals.save_data->current_room_id ==  23 // Main Menu
+                || Globals.save_data->current_room_id ==   0 // Tutorial room
+                || Globals.save_data->current_room_id == 348 // Intro
+                || Globals.Battle.btl->battle_state   !=   0)  { // In battle
+                return;
+            }
+
+            if (current_session!.Items.AllItemsReceived.Count > received_items) {
+                ArchipelagoFFXModule.logger.Debug("New items received");
+                foreach (ItemInfo item in current_session.Items.AllItemsReceived.Skip(received_items)) {
+                    ArchipelagoFFXModule.logger.Debug($"received_item: {item.ItemName}");
+                    ArchipelagoFFXModule.obtain_item((uint)item.ItemId);
+                    received_items++;
                 }
-                local_locations_updated = false;
             }
-        }
 
-        lock (client_lock) {
-            if (remote_locations_updated) {
-                var remote_only = current_session.Locations.AllLocationsChecked.Except(local_checked_locations);
-                foreach (long location in remote_only) {
-                    if (ArchipelagoFFXModule.item_locations.location_to_item((int)location, out var item)) {
-                        ArchipelagoFFXModule.logger.Debug($"Synced remote location: location:{location}, item:{item.name}, player:{item.player}");
-                        ArchipelagoFFXModule.obtain_item(item.id);
+                if (local_locations_updated) {
+                    var local_only = local_checked_locations.Except(current_session.Locations.AllLocationsChecked);
+                    if (local_only.Any()) {
+                        current_session.Locations.CompleteLocationChecksAsync(local_only.ToArray());
+                        ArchipelagoFFXModule.logger.Debug($"Sent: {string.Join(",", local_only)}");
                     }
+                    local_locations_updated = false;
                 }
-                local_checked_locations.UnionWith(remote_only);
-                remote_locations_updated = false;
-            }
-        }
 
-        // TODO: Implement alternate goals
-        if (local_checked_locations.Contains(42 | (long)ArchipelagoLocationType.Boss)) {
-            // Yu Yevon defeated
-            current_session.SetGoalAchieved();
+                if (remote_locations_updated) {
+                    var remote_only = current_session.Locations.AllLocationsChecked.Except(local_checked_locations);
+                    foreach (long location in remote_only) {
+                        if (ArchipelagoFFXModule.item_locations.location_to_item((int)location, out var item)) {
+                            ArchipelagoFFXModule.logger.Debug($"Synced remote location: location:{location}, item:{item.name}, player:{item.player}");
+                            ArchipelagoFFXModule.obtain_item(item.id);
+                        }
+                    }
+                    local_checked_locations.UnionWith(remote_only);
+                    remote_locations_updated = false;
+                }
+
+            // TODO: Implement alternate goals
+            if (local_checked_locations.Contains(42 | (long)ArchipelagoLocationType.Boss)) {
+                // Yu Yevon defeated
+                current_session.SetGoalAchieved();
+            }
         }
 
         /*
@@ -239,6 +239,16 @@ public unsafe static void connectHandlers() {
 }
 */
 
+    public static void SayAsync(string message)
+    {
+        lock (client_lock) {
+            if (is_connected)
+            {
+                current_session!.Socket.SendPacketAsync(new SayPacket { Text = message });
+            }
+        }
+    }
+
     public enum ArchipelagoLocationType: int {
         Treasure      = 0x1000,
         Boss          = 0x2000,
@@ -258,8 +268,10 @@ public unsafe static void connectHandlers() {
     private static bool sendLocation(long locationId) {
         if (!local_checked_locations.Add(locationId)) return false;
         local_locations_updated = true;
-        if (is_connected) {
-            ArchipelagoFFXModule.logger.Debug(current_session!.Locations.GetLocationNameFromId(locationId) ?? $"Location: {locationId}");
+        lock (client_lock) {
+            if (is_connected) {
+                ArchipelagoFFXModule.logger.Debug(current_session!.Locations.GetLocationNameFromId(locationId) ?? $"Location: {locationId}");
+            }
         }
         return true;
     }

@@ -1894,6 +1894,12 @@ public unsafe partial class ArchipelagoFFXModule {
 
 
                 break;
+            case "mihn0700":
+                set(code_ptr, 0x4E78, [
+                    AtelOp.CALLPOPA.build((ushort)CustomCallTarget.KICKED_BLITZBALL_AWAY),
+                    ..atelNOPArray(3),
+                    ]);
+                break;
             case "mcfr0200":
                 // Check Saturn Sigil location instead of inventory
                 set(code_ptr, [0x2647, 0x283A, 0x298A], [
@@ -3006,10 +3012,15 @@ public unsafe partial class ArchipelagoFFXModule {
             }
 
             int qty = save_data->monsters_captured[arena_idx];
-            if (qty > 0)
-                FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = qty;
-            else
-                FFXArchipelagoClient.current_session?.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = 0;
+            lock (FFXArchipelagoClient.client_lock) {
+                if (FFXArchipelagoClient.is_connected)
+                {
+                    if (qty > 0)
+                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = qty;
+                    else
+                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = 0;
+                }
+            }
         }
         return captured;
     }
@@ -3990,6 +4001,7 @@ public unsafe partial class ArchipelagoFFXModule {
         RESTORE_ENTRY_POINT,
         LIGHTNING_DODGING,
         JECHT_SPHERE,
+        KICKED_BLITZBALL_AWAY,
     }
 
     static AtelCallTarget[] customNameSpace = {
@@ -4026,6 +4038,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_RestoreEntryPoint)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_LightningDodging)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_JechtSphere)},
+        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_KickedBlitzballAway)},
     };
     static GCHandle customNameSpaceHandle = GCHandle.Alloc(customNameSpace, GCHandleType.Pinned);
 
@@ -4612,6 +4625,31 @@ public unsafe partial class ArchipelagoFFXModule {
         }
         save_data->jecht_spheres.flags_spheres_seen.set_bit(jecht_sphere, true);
 
+        return 1;
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int CT_RetInt_KickedBlitzballAway(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
+    {
+        byte* table = (byte*)work->table_event_data;
+        table[0x0008] = 1;
+
+        int treasure_id = 312;
+        if (!FFXArchipelagoClient.local_checked_locations.Contains(treasure_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure))
+        {
+            if (ArchipelagoFFXModule.item_locations.treasure.TryGetValue(treasure_id, out var item))
+            {
+                lock (client_lock)
+                {
+                    if (FFXArchipelagoClient.is_connected)
+                    {
+                        FFXArchipelagoClient.current_session!.Locations.ScoutLocationsAsync(Archipelago.MultiClient.Net.Enums.HintCreationPolicy.CreateAndAnnounceOnce,
+                                                                                            treasure_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure);
+                    }
+                }
+                FFXArchipelagoClient.SayAsync($"kicked away {item.player}'s {item.name}!");   
+            }
+        }
         return 1;
     }
 }
