@@ -261,13 +261,13 @@ public unsafe class RecentItemsModule : FhModule {
 
         List<(Color color, string part)> message = info.direction switch {
             RecentItemDirection.SelfReceive => [
-                (info.relevance == RecentItemRelevance.Receiver ? Color.Magenta : Color.Yellow, info.receiver.Alias),
+                (info.relevance.HasFlag(RecentItemRelevance.Receiver) ? Color.Magenta : Color.Yellow, info.receiver.Alias),
                 (Color.White, "found their"),
                 (item_color, item.ItemDisplayName),
             ],
 
             RecentItemDirection.Receive => [
-                (info.relevance == RecentItemRelevance.Receiver ? Color.Magenta : Color.Yellow, info.receiver.Alias),
+                (info.relevance.HasFlag(RecentItemRelevance.Receiver) ? Color.Magenta : Color.Yellow, info.receiver.Alias),
                 (Color.White, "received"),
                 (item_color, item.ItemDisplayName),
                 (Color.White, "from"),
@@ -275,7 +275,7 @@ public unsafe class RecentItemsModule : FhModule {
             ],
 
             RecentItemDirection.Send => [
-                (info.relevance == RecentItemRelevance.Sender ? Color.Magenta : Color.Yellow, info.sender.Alias),
+                (info.relevance.HasFlag(RecentItemRelevance.Sender) ? Color.Magenta : Color.Yellow, info.sender.Alias),
                 (Color.White, "sent"),
                 (item_color, item.ItemDisplayName),
                 (Color.White, "to"),
