@@ -2908,6 +2908,7 @@ public unsafe partial class ArchipelagoFFXModule {
         if (field_idx == 52 && group_idx == 1 && formation_idx == 0) {
             // Try to avoid getting Penance'd by setting the group to Evrae manually
             group_idx = 0;
+            logger.Info("Tried to avoid getting Penance'd!");
         }
 
         var field_ptr = Battle.btl->ptr_btl_bin_fields + field_idx * 0xe;
