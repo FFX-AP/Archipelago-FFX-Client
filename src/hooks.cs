@@ -2903,6 +2903,13 @@ public unsafe partial class ArchipelagoFFXModule {
 
     // Pre-battle
     public static void h_MsBattleExe(uint param_1, int field_idx, int group_idx, int formation_idx) {
+        // Evrae is 52, 0, 0
+        // Penance is 52, 1, 0
+        if (field_idx == 52 && group_idx == 1 && formation_idx == 0) {
+            // Try to avoid getting Penance'd by setting the group to Evrae manually
+            group_idx = 0;
+        }
+
         var field_ptr = Battle.btl->ptr_btl_bin_fields + field_idx * 0xe;
         string field_name = Marshal.PtrToStringAnsi((nint)(field_ptr+6));
 
@@ -2910,7 +2917,7 @@ public unsafe partial class ArchipelagoFFXModule {
         byte group_name = *(byte*)(group_ptr+5 + formation_idx * 2);
 
         string encounter_name = $"{field_name}_{group_name:00}";
-        logger.Debug($"{encounter_name}: param_1={param_1}");
+        logger.Debug($"{encounter_name}: param_1={param_1}, ({field_idx}, {group_idx}, {formation_idx})");
         /*
         if (encounterToPartyDict.TryGetValue(encounter_name, out List<PlySaveId> characters)) {
             if (characters.Count > 0) {
@@ -4647,7 +4654,7 @@ public unsafe partial class ArchipelagoFFXModule {
                                                                                             treasure_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure);
                     }
                 }
-                FFXArchipelagoClient.SayAsync($"kicked away {item.player}'s {item.name}!");   
+                FFXArchipelagoClient.SayAsync($"kicked away {item.player}'s {item.name}!");
             }
         }
         return 1;
