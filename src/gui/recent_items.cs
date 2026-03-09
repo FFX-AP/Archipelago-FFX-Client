@@ -16,16 +16,27 @@ using Hexa.NET.ImGui;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe class RecentItemsModule : FhModule {
-    public enum RecentItemsTextAlignment {
-        LEFT = 0,
-        CENTER = 1,
-        RIGHT = 2,
+    public enum RecentItemsAnimation {
+        SMOOTH = 0,
+        INSTANT = 1,
+    }
+
+    public enum RecentItemsFadeMethod {
+        FADE = 0,
+        SLIDE = 1,
+        CAPTURE = 2, // Like FADE, but with a dark blue tint
     }
 
     public enum RecentItemsBackground {
         NONE = 0,
         PER_ITEM = 1,
         BLOCK = 2,
+    }
+
+    public enum RecentItemsTextAlignment {
+        LEFT = 0,
+        CENTER = 1,
+        RIGHT = 2,
     }
 
     // This is messy given `FhModule.settings` exists, but it allows us to access them more easily
@@ -37,8 +48,12 @@ public unsafe class RecentItemsModule : FhModule {
         public readonly FhSettingToggle display_locations = new("display_locations", true);
         public readonly FhSettingNumber<int> item_count = new("item_count", 3, 0, 10, 1);
 
+        //TODO: Implement smooth scrolling
+        public readonly FhSettingDropdown<RecentItemsAnimation> animation = new("animation", RecentItemsAnimation.SMOOTH);
+
         //TODO: Implement old items fading away
         public readonly FhSettingNumber<float> fade_after = new("fade_after", 10.0f, 0.0f, 60.0f, 1.0f);
+        public readonly FhSettingDropdown<RecentItemsFadeMethod> fade_method = new("fade_method", RecentItemsFadeMethod.SLIDE);
 
         //TODO: Implement different background behavior
         public readonly FhSettingDropdown<RecentItemsBackground> background = new("background", RecentItemsBackground.NONE);
@@ -85,6 +100,8 @@ public unsafe class RecentItemsModule : FhModule {
                 new FhSettingsCategory(
                     "visuals",
                     [
+                        module_settings.animation,
+                        module_settings.fade_method,
                         module_settings.fade_after,
                         module_settings.background,
                     ]

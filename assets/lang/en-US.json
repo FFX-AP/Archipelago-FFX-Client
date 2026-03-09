@@ -22,6 +22,19 @@
   "recent_items.visuals.name": "Visuals",
   "recent_items.visuals.desc": "Change how the recent items are displayed.",
 
+  "recent_items.visuals.animation.name": "Animation",
+  "recent_items.visuals.animation.desc": "How the items scroll by.",
+
+  "recent_items.visuals.animation.values.0.name": "Smooth",
+  "recent_items.visuals.animation.values.1.name": "Instant",
+
+  "recent_items.visuals.fade_method.name": "Fade Method",
+  "recent_items.visuals.fade_method.desc": "How items should fade in and out.",
+
+  "recent_items.visuals.fade_method.values.0.name": "Fade",
+  "recent_items.visuals.fade_method.values.1.name": "Slide",
+  "recent_items.visuals.fade_method.values.2.name": "Capture",
+
   "recent_items.visuals.fade_after.name": "Fade After",
   "recent_items.visuals.fade_after.desc": "How many seconds should an item be visible for before fading. Set to 0 to show permanently.",
 
