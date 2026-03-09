@@ -1999,12 +1999,6 @@ public unsafe partial class ArchipelagoFFXModule {
                     ]);
                 break;
             case "nagi0700":
-                // Turn around if locked
-                //set(code_ptr, 0x13AAF + 6, [
-                //    AtelOp.CALLPOPA     .build((ushort)CustomCallTarget.BLOCK_WARP),
-                //    ]);
-                //set(code_ptr, 0x13A92, atelNOPArray(17));
-
                 // Always show Nirvana chest
                 set(code_ptr, 0xE25D, AtelOp.JMP.build(0));
 
@@ -2020,6 +2014,25 @@ public unsafe partial class ArchipelagoFFXModule {
                 save_data->monsters_captured[43] = 99;
                 save_data->monsters_captured[59] = 99;
 
+                // Check Mars Sigil location instead of inventory
+                // 1B24 jFD:    9F1900 AE0A00 0E AD2000 B56001 19 02 D7FE00
+                set(code_ptr, 0x1B2B, [
+                    /* priv1759F >= 10
+                    AtelOp.PUSHV    .build(0x0019), // 9F1900
+                    AtelOp.PUSHII   .build(0x000A), // AE0A00
+                    AtelOp.GTE      .build(),       // 0E
+                    */
+
+                    // !Common.hasKeyItem(Mars Sigil)
+                    AtelOp.PUSHII   .build(276),                                                   // AD2000 -> AE1401
+                    AtelOp.CALL     .build((ushort)CustomCallTarget.IS_TREASURE_LOCATION_CHECKED), // B56001 -> B505F0
+                    AtelOp.NOT      .build(),                                                      // 19
+
+                    /* else jump to jFE
+                    AtelOp.LAND     .build(),       // 02
+                    AtelOp.POPXNCJMP.build(0x00FE), // D7FE00
+                    */
+                ]);
 
                 break;
         }
