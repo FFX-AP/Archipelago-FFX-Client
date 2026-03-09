@@ -2711,26 +2711,8 @@ public unsafe partial class ArchipelagoFFXModule {
         return true;
     }
 
-    private static void refill_spheres() {
-        uint[] spheres = {
-            0x2046, // Power Sphere
-            0x2047, // Mana Sphere
-            0x2048, // Speed Sphere
-            0x2049  // Ability Sphere
-        };
-
-        foreach (var item_id in spheres) {
-            uint inventory_amount = save_data->get_item_count((int)item_id);
-            if (inventory_amount < 40) {
-                h_give_item(item_id, 40 - (int)inventory_amount);
-            }
-        }
-    }
-
     private static void refill_inventory() {
         logger.Debug($"Refill inventory");
-
-        refill_spheres();
 
         foreach ((var item_id, var amount) in excess_inventory.ToList()) {
             if (amount > 0 && save_data->get_item_count((int)item_id) < 99) {
