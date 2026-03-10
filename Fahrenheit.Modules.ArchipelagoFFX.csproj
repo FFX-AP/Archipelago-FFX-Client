@@ -24,6 +24,9 @@
 	<ItemGroup>
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
 	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Update="Fahrenheit" Version="1.0.0-alpha08-Andrewki" />
+	</ItemGroup>
 	
 	<!-- BUILD EVENTS -->
 	<Target Name="ReplaceProperties" BeforeTargets="Publish">
@@ -64,18 +67,12 @@
 			<AssetDestination>$(PublishDir)fahrenheit\mods\$(AssemblyName)</AssetDestination>
 		</PropertyGroup>
 		<ItemGroup>
-			<AssetFiles Include="$(LoadOrder); $(StartGame)"/>
+			<AssetFiles Include="$(LoadOrder); $(StartGame)" />
 		</ItemGroup>
 		<Message Text="Copy solution assets..." />
-		<Exec Condition ="'$(OS)' == 'Windows_NT'"
-			  Command="powershell -Command &quot;robocopy '$(AssetsDir)' '$(AssetDestination)' /MIR /R:0 /W:0 /XF '$(LoadOrder)' /XF '$(StartGame)'" 
-			  ContinueOnError="true" IgnoreExitCode="true" />
-		<Exec Condition="'$(OS)' == 'Unix'"
-			  Command="rsync -acu --delete '$(AssetsDir)/' '$(AssetDestination)' --exclude='$(LoadOrderFile)' --exclude='$(StartGameFile)'"
-			  ContinueOnError="true" IgnoreExitCode="true" />
-		<Copy SourceFiles="@(AssetFiles)"
-			  DestinationFiles="$(PublishDir)fahrenheit\mods\$(LoadOrderFile); $(PublishDir)fahrenheit\$(StartGameFile)"
-			  ContinueOnError="true" />
+		<Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -Command &quot;robocopy '$(AssetsDir)' '$(AssetDestination)' /MIR /R:0 /W:0 /XF '$(LoadOrder)' /XF '$(StartGame)'" ContinueOnError="true" IgnoreExitCode="true" />
+		<Exec Condition="'$(OS)' == 'Unix'" Command="rsync -acu --delete '$(AssetsDir)/' '$(AssetDestination)' --exclude='$(LoadOrderFile)' --exclude='$(StartGameFile)'" ContinueOnError="true" IgnoreExitCode="true" />
+		<Copy SourceFiles="@(AssetFiles)" DestinationFiles="$(PublishDir)fahrenheit\mods\$(LoadOrderFile); $(PublishDir)fahrenheit\$(StartGameFile)" ContinueOnError="true" />
 	</Target>
 
 	<Target Name="MoveFilesToFinalDestination" AfterTargets="Publish">

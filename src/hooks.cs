@@ -206,6 +206,10 @@ public unsafe partial class ArchipelagoFFXModule {
     public static TOMkpCrossExtMesFontLClutTypeRGBA _TOMkpCrossExtMesFontLClutTypeRGBA;
     public static ToMakeBtlEasyFont _ToMakeBtlEasyFont;
 
+    public static FhMethodHandle<MsGetSaveCommand>   _MsGetSaveCommand;
+    public static FhMethodHandle<MsSetRamChrAbility> _MsSetRamChrAbility;
+
+
     public void init_hooks() {
         const string game = "FFX.exe";
 
@@ -429,7 +433,9 @@ public unsafe partial class ArchipelagoFFXModule {
         _MsGetRomSummonGrow = FhUtil.get_fptr<MsGetRomSummonGrow>(__addr_MsGetRomSummonGrow);
         _TkMn2GetSummonGrowMax = FhUtil.get_fptr<TkMn2GetSummonGrowMax>(__addr_TkMn2GetSummonGrowMax);
         _TkMenuGetCurrentSummon = FhUtil.get_fptr<TkMenuGetCurrentSummon>(__addr_TkMenuGetCurrentSummon);
-        _MsGetSaveCommand = FhUtil.get_fptr<MsGetSaveCommand>(__addr_MsGetSaveCommand);
+        
+        _MsGetSaveCommand = new FhMethodHandle<MsGetSaveCommand>(this, game, __addr_MsGetSaveCommand, h_MsGetSaveCommand);
+        _MsSetRamChrAbility = new FhMethodHandle<MsSetRamChrAbility>(this, game, __addr_MsSetRamChrAbility, h_MsSetRamChrAbility);
 
         _FUN_008c1c70                    = FhUtil.get_fptr<FUN_008c1c70>(__addr_FUN_008c1c70);
         _TODrawMenuPlateXYWHType         = FhUtil.get_fptr<TODrawMenuPlateXYWHType>(__addr_TODrawMenuPlateXYWHType);
@@ -501,6 +507,7 @@ public unsafe partial class ArchipelagoFFXModule {
             && _Common_putPartyMemberInSlot.hook() && _Common_pushParty.hook() && _Common_popParty.hook() && _MsBattleExe.hook() && _FUN_00791820.hook()
             && _MsApUp.hook() && _MsBtlReadSetScene.hook() && _MsMonsterCapture.hook() && _FUN_00783bb0.hook() && _MsCalcCommand.hook() && _MsDamageCheckDeath.hook() // && _Map_800F.hook() //_MsBtlGetPos.hook()
             && _eiAbmParaGet.hook() && _MsSetSaveParam.hook() && _MsSetRamChrParam.hook() // && _FUN_00a48910.hook()
+            && _MsGetSaveCommand.hook() && _MsSetRamChrAbility.hook()
             && _FUN_0086bec0.hook() && _FUN_0086bea0.hook() // Custom strings
             && _graphicInitFMVPlayer.hook() && _FmodVoice_dataChange.hook()
             && _AtelInitTotal.hook()
@@ -3681,6 +3688,29 @@ public unsafe partial class ArchipelagoFFXModule {
         //ply.accuracy = (byte)Math.Clamp(ply.accuracy * accuracy_mult / 100, 0, 255);
         //ply.hp = (uint)Math.Clamp(ply.hp * hp_mult / 100, 0, ply.auto_ability_effects.has_break_hp_limit ? 99999 : 9999);
         //ply.mp = (uint)Math.Clamp(ply.mp * mp_mult / 100, 0, ply.auto_ability_effects.has_break_mp_limit ? 9999 : 999);
+    }
+
+    public static bool h_MsGetSaveCommand(int char_id, uint com_id)
+    {
+        
+        return _MsGetSaveCommand.orig_fptr(char_id, com_id);
+    }
+
+    public static void h_MsSetRamChrAbility(int chr_id, Chr* chr)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            for (int n = 0; n < 16; n++)
+            {
+                Globals.save_data->ability_map_limit[i].set_bit(n, false);
+                if (i == 1 && n == 7)
+                    break;
+            }
+        }
+        
+        
+        _MsSetRamChrAbility.orig_fptr(chr_id, chr);
+        return;
     }
 
     public static void h_FUN_00a48910(uint chr_id, int node_idx) {
