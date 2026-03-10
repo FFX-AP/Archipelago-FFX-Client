@@ -443,6 +443,14 @@ public static unsafe class delegates {
     public unsafe delegate void MsSetRamChrAbility(int chr_id, Chr* chr);
     public const nint __addr_MsSetRamChrAbility = 0x39BB70;
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate int MsLimitTidusLearn(int chr_id);
+    public const nint __addr_MsLimitTidusLearn = 0x3B0CE0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate uint FUN_0078f0b0(uint param_1, uint param_2, uint param_3, uint* param_4, uint param_5);
+    public const nint __addr_FUN_0078f0b0 = 0x38F0B0;
+
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void TkMsImportantSet(uint param_1);

@@ -209,6 +209,9 @@ public unsafe partial class ArchipelagoFFXModule {
     public static FhMethodHandle<MsGetSaveCommand>   _MsGetSaveCommand;
     public static FhMethodHandle<MsSetRamChrAbility> _MsSetRamChrAbility;
 
+    public static FhMethodHandle<MsLimitTidusLearn> _MsLimitTidusLearn; 
+    public static FhMethodHandle<FUN_0078f0b0> _FUN_0078f0b0;
+
 
     public void init_hooks() {
         const string game = "FFX.exe";
@@ -436,6 +439,8 @@ public unsafe partial class ArchipelagoFFXModule {
         
         _MsGetSaveCommand = new FhMethodHandle<MsGetSaveCommand>(this, game, __addr_MsGetSaveCommand, h_MsGetSaveCommand);
         _MsSetRamChrAbility = new FhMethodHandle<MsSetRamChrAbility>(this, game, __addr_MsSetRamChrAbility, h_MsSetRamChrAbility);
+        _MsLimitTidusLearn = new FhMethodHandle<MsLimitTidusLearn>(this, game, __addr_MsLimitTidusLearn, h_MsLimitTidusLearn);
+        _FUN_0078f0b0 = new FhMethodHandle<FUN_0078f0b0>(this, game, __addr_FUN_0078f0b0, h_FUN_0078f0b0);
 
         _FUN_008c1c70                    = FhUtil.get_fptr<FUN_008c1c70>(__addr_FUN_008c1c70);
         _TODrawMenuPlateXYWHType         = FhUtil.get_fptr<TODrawMenuPlateXYWHType>(__addr_TODrawMenuPlateXYWHType);
@@ -507,7 +512,7 @@ public unsafe partial class ArchipelagoFFXModule {
             && _Common_putPartyMemberInSlot.hook() && _Common_pushParty.hook() && _Common_popParty.hook() && _MsBattleExe.hook() && _FUN_00791820.hook()
             && _MsApUp.hook() && _MsBtlReadSetScene.hook() && _MsMonsterCapture.hook() && _FUN_00783bb0.hook() && _MsCalcCommand.hook() && _MsDamageCheckDeath.hook() // && _Map_800F.hook() //_MsBtlGetPos.hook()
             && _eiAbmParaGet.hook() && _MsSetSaveParam.hook() && _MsSetRamChrParam.hook() // && _FUN_00a48910.hook()
-            && _MsGetSaveCommand.hook() && _MsSetRamChrAbility.hook()
+            && _MsGetSaveCommand.hook() && _MsSetRamChrAbility.hook() && _MsLimitTidusLearn.hook() && _FUN_0078f0b0.hook()
             && _FUN_0086bec0.hook() && _FUN_0086bea0.hook() // Custom strings
             && _graphicInitFMVPlayer.hook() && _FmodVoice_dataChange.hook()
             && _AtelInitTotal.hook()
@@ -3856,6 +3861,323 @@ public unsafe partial class ArchipelagoFFXModule {
         
         if (hasRequiem)
             Globals.save_data->ability_map_limit.has_requiem = true;
+    }
+
+    private static int h_MsLimitTidusLearn(int chr_id)
+    {
+        //{
+        //    int has_limit;
+        //    ushort* limit_id_ptr;
+        //    int* requirement_ptr;
+        //    int local_8;
+        //    ushort limit_id;
+
+        //    local_8 = 0;
+        //    has_limit = 0;
+        //    if ((chr_id == 0) && (btl._8469_1_ != '\x02'))
+        //    {
+        //        MsGetChr(0);
+        //        save_ram.tidus_limit_uses = save_ram.tidus_limit_uses + 1;
+        //        requirement_ptr = +TidusLimitRequirements;
+        //        limit_id_ptr = +TidusLimitIds;
+        //        do
+        //        {
+        //            limit_id = *limit_id_ptr;
+        //            has_limit = MsGetSaveCommand(0, limit_id);
+        //            if ((has_limit == 0) && (*requirement_ptr <= save_ram.tidus_limit_uses))
+        //            {
+        //                local_8 = 1;
+        //                /* Trigger the limit to be learned */
+        //                btl._5979_1_ = 1;
+        //                btl._8314_2_ = limit_id;
+        //            }
+        //            limit_id_ptr = limit_id_ptr + 1;
+        //            requirement_ptr = requirement_ptr + 1;
+        //            has_limit = local_8;
+        //        } while ((int)limit_id_ptr < 0xc43940);
+        //    }
+        //    return has_limit;
+        //}
+
+        // Todo: Send Tidus Overdrive Location on 10/20/40
+
+        return 0;
+    }
+
+    private static uint h_FUN_0078f0b0(uint param_1, uint param_2, uint param_3, uint* param_4, uint param_5)
+    {
+        return 1;
+        //{
+        //    char* pcVar1;
+        //    char cVar2;
+        //    byte bVar3;
+        //    byte bVar4;
+        //    byte bVar5;
+        //    ushort uVar6;
+        //    StatusPermanentFlags_2 SVar7;
+        //    StatusPermanentFlags_2 SVar8;
+        //    int iVar9;
+        //    byte bVar10;
+        //    Chr* pCVar11;
+        //    Chr* pCVar12;
+        //    Chr* pCVar13;
+        //    int iVar14;
+        //    char* pcVar15;
+        //    uint uVar16;
+        //    char* pcVar17;
+        //    undefined4 uVar18;
+        //    undefined4 uVar19;
+        //    char* local_30;
+        //    int local_28;
+        //    int local_20;
+        //    uint local_1c;
+        //    int local_18;
+        //    uint uVar20;
+
+        //    uVar20 = 0;
+        //    local_30 = (char*)0x0;
+        //    pCVar11 = MsGetChr(param_1);
+        //    pCVar12 = MsGetChr(param_3);
+        //    pcVar17 = &pCVar12->field1405_0x774[0].field_0x7;
+        //    local_28 = 2;
+        //    do
+        //    {
+        //        if (((byte)pcVar17[-5] == param_1) && ((byte)pcVar17[-4] == param_2))
+        //        {
+        //            pCVar12->field_0xf5e = (byte)param_5 & 0x7f;
+        //            pCVar12->field_0xded = (char)param_1;
+        //            if ((param_5 & 8) == 0)
+        //            {
+        //                if (*pcVar17 != '\0')
+        //                {
+        //                    MsMenuCloseTitleWindow(0);
+        //                    *pcVar17 = '\0';
+        //                    MsMessageCueRegist(4, *(undefined2*)(pcVar17 + 3), (int)*(short*)(pcVar17 + 1), 0x1b, 0x23);
+        //                    if (0 < *(short*)(pcVar17 + 1))
+        //                    {
+        //                        MsSetStealEffect(param_3, pcVar17[-6]);
+        //                        MsRegSEplay2(param_3, 0x41);
+        //                    }
+        //                    pcVar17[-2] = pcVar17[-2] | 1;
+        //                }
+        //                if (pcVar17[5] != '\0')
+        //                {
+        //                    MsMenuCloseTitleWindow(0);
+        //                    pcVar17[5] = '\0';
+        //                    MsMessageCueRegist(8, *(undefined4*)(pcVar17 + 9), 0, 0x1b, 0x23);
+        //                    if (0 < *(int*)(pcVar17 + 9))
+        //                    {
+        //                        MsPayGIL(-*(int*)(pcVar17 + 9));
+        //                        MsSetStealGillEffect(param_3, pcVar17[-6]);
+        //                        MsRegSEplay2(param_3, 0x41);
+        //                    }
+        //                    pcVar17[-2] = pcVar17[-2] | 1;
+        //                }
+        //            }
+        //            if (pcVar17[-3] != 0)
+        //            {
+        //                if ((pcVar17[-3] & 1U) != 0)
+        //                {
+        //                    bVar10 = (pCVar11->ram).limit_charge;
+        //                    (pCVar11->ram).limit_charge = 0;
+        //                    bVar10 = MsCheckRange((uint)(pCVar12->ram).limit_charge + (uint)bVar10, 0,
+        //                                          (pCVar12->ram).limit_charge_max);
+        //                    (pCVar12->ram).limit_charge = bVar10;
+        //                }
+        //                if ((pcVar17[-3] & 2U) != 0)
+        //                {
+        //                    pCVar13 = MsGetChr((uint)(byte)pcVar17[0x10]);
+        //                    if ((((param_3 == 3) && (pCVar13->loot != (ChrLoot*)0x0)) &&
+        //                        (uVar6 = pCVar13->loot->ronso_rage, uVar6 != 0)) &&
+        //                       (iVar14 = MsGetSaveCommand(3, uVar6), iVar14 == 0))
+        //                    {
+        //                        MsSetSaveCommand(3, uVar6, 1);
+        //                        MsMessageCueRegist(6, 3, uVar6, 0x1e, 0x32);
+        //                        (pCVar12->ram).limit_charge = (pCVar12->ram).limit_charge_max;
+        //                        if (((save_ram.ability_map_limit._0_4_ & 0xff00) == 0xff00) &&
+        //                           (((byte)save_ram.ability_map_limit[1] & 0xf) == 0xf))
+        //                        {
+        //                            achievementUnlockAchievement(0x19);
+        //                        }
+        //                    }
+        //                }
+        //                pcVar17[-3] = '\0';
+        //            }
+        //            pcVar1 = pcVar17 + -7;
+        //            if ((byte)pcVar17[-7] < (byte)pcVar17[-6])
+        //            {
+        //                pcVar15 = pcVar1 + (uint)(byte)pcVar17[-7] * 0x2c + 0x18;
+        //                local_20 = 0;
+        //                if ((param_5 & 8) == 0)
+        //                {
+        //                    iVar14 = (int)pcVar15[1];
+        //                    cVar2 = pcVar15[2];
+        //                    if (iVar14 == 1)
+        //                    {
+        //                        uVar19 = 1;
+        //                        uVar18 = 3;
+        //                    LAB_0078f30a:
+        //                        MsNumberRegist(param_3, uVar18, 0, 0, uVar19, cVar2, 0x81);
+        //                    }
+        //                    else if (iVar14 == 2)
+        //                    {
+        //                        uVar19 = 2;
+        //                        uVar18 = 4;
+        //                        goto LAB_0078f30a;
+        //                    }
+        //                    MsLimitTypeDamageCheck
+        //                              (param_1, pCVar11, param_3, pCVar12, *(undefined4*)(pcVar15 + 0x20),
+        //                               *(undefined4*)(pcVar15 + 0x1c), pcVar17[-1]);
+        //                    local_18 = 0;
+        //                    local_1c = 1;
+        //                    do
+        //                    {
+        //                        iVar9 = *(int*)(pcVar15 + local_18 * 4 + 0x20);
+        //                        if ((local_1c & *(ushort*)(pcVar15 + 0x18)) != 0)
+        //                        {
+        //                            if (local_18 == 0)
+        //                            {
+        //                                MsSubHP(param_3, pCVar12, iVar9, *(undefined4*)(pcVar15 + 0x24), iVar14, cVar2, 0x81);
+        //                                pCVar12->field1963_0xf60 = pCVar12->field1963_0xf60 - iVar9;
+        //                                local_20 = local_20 + iVar9;
+        //                            }
+        //                            else if (local_18 == 1)
+        //                            {
+        //                                FUN_0078e400(param_3, pCVar12, iVar9, *(undefined4*)(pcVar15 + 0x20), iVar14, cVar2, 0x81
+        //                                            );
+        //                            }
+        //                            else if (local_18 == 2)
+        //                            {
+        //                                FUN_0078e2a0(param_3, pCVar12, iVar9, iVar14, cVar2, 0x81);
+        //                                dbgPrintf("CTB DAMAGE %d %d : %d\n", param_3, iVar9, (pCVar12->ram).ctb);
+        //                            }
+        //                        }
+        //                        local_1c = local_1c << 1 | (uint)((int)local_1c < 0);
+        //                        local_18 = local_18 + 1;
+        //                    } while (local_18 < 3);
+        //                    MsLimitTypeStatusCheck(param_1, pCVar11, param_3, pCVar12, pcVar15[4], pcVar15[3]);
+        //                    SVar7 = (pCVar12->ram).status_suffer;
+        //                    bVar10 = (pCVar12->ram).status_suffer_turns_left.darkness;
+        //                    bVar3 = (pCVar12->ram).status_suffer_turns_left.silence;
+        //                    bVar4 = (pCVar12->ram).status_suffer_turns_left.regen;
+        //                    bVar5 = *(byte*)((int)&(pCVar12->ram).status_suffer_extra + 1);
+        //                    (pCVar12->ram).status_suffer = *(StatusPermanentFlags_2*)(pcVar15 + 0x14);
+        //                    iVar14 = 0;
+        //                    do
+        //                    {
+        //                        *(char*)((int)(pCVar12->ram).limits + iVar14 + -0x68) = pcVar15[iVar14 + 7];
+        //                        iVar14 = iVar14 + 1;
+        //                    } while (iVar14 < 0xd);
+        //                    (pCVar12->ram).status_suffer_extra = *(StatusExtraFlags_2*)(pcVar15 + 0x16);
+        //                    MsLimitStatusProcess(param_3, pCVar12, pcVar15[6]);
+        //                    if (((pCVar12->ram).status_suffer_turns_left.regen != 0) && (bVar4 == 0))
+        //                    {
+        //                        (pCVar12->ram).regen_strength = 0;
+        //                    }
+        //                    SVar8 = (pCVar12->ram).status_suffer;
+        //                    pCVar12->field_0xdce = (byte)SVar8 >> 2 & 1;
+        //                    if ((SVar8 & DEATH) != (SVar7 & DEATH))
+        //                    {
+        //                        FUN_00789220(param_3, pCVar12, param_1);
+        //                    }
+        //                    if (((pCVar12->ram).status_suffer >> 2 & 1) != (SVar7 >> 2 & 1))
+        //                    {
+        //                        MsStoneProcess(param_3, pCVar12);
+        //                    }
+        //                    if ((*(byte*)((int)&(pCVar12->ram).status_suffer_extra + 1) & 1) != (bVar5 & 1))
+        //                    {
+        //                        FUN_00789270(param_3, pCVar12);
+        //                    }
+        //                    if (((pCVar12->ram).status_suffer >> 0xb & 1) != (SVar7 >> 0xb & 1))
+        //                    {
+        //                        MsThreatProcess(param_3, pCVar12);
+        //                    }
+        //                    pcVar17[-2] = pcVar17[-2] | 1;
+        //                    if (((pCVar12->ram).auto_ability_effects.part_a & AUTO_MED) != NONE)
+        //                    {
+        //                        MsAutoCureProcess(param_3, pCVar12, param_1, SVar7 >> 3 & 1, SVar7 >> 1 & 1, bVar10, bVar3);
+        //                    }
+        //                    if ((0 < local_20) && (((pCVar12->ram).auto_ability_effects.part_a & AUTO_POTION) != NONE)
+        //                       )
+        //                    {
+        //                        MsAutoPotionProcess(param_3, pCVar12, param_1);
+        //                    }
+        //                    MsSetChrWeak(param_3, -1);
+        //                    uVar20 = uVar20 | 2;
+        //                    *pcVar1 = *pcVar1 + '\x01';
+        //                }
+        //                if ((pCVar12->ram).field_0x19c != '\0')
+        //                {
+        //                    FUN_0078d990(param_1, pCVar11, param_3, pCVar12);
+        //                }
+        //                if (((param_5 & 2) == 0) && ((*pcVar15 != '\x01' || ((pcVar17[-2] & 4U) == 0))))
+        //                {
+        //                    pcVar17[-2] = pcVar17[-2] | 4;
+        //                    local_30 = pcVar15;
+        //                }
+        //                if ((param_5 & 0x10) == 0)
+        //                {
+        //                    MsStatusEffectCheck(param_3);
+        //                    iVar14 = MsStatusDefenseEffect(param_1, param_3, *(undefined2*)(pcVar15 + 0x18));
+        //                    if (iVar14 != 0)
+        //                    {
+        //                        *param_4 = param_3;
+        //                    }
+        //                }
+        //            }
+        //            if ((byte)pcVar17[-7] < (byte)pcVar17[-6])
+        //            {
+        //                uVar20 = uVar20 | 1;
+        //            }
+        //            else
+        //            {
+        //                if (((pcVar17[-2] & 1U) != 0) && ((pcVar17[-2] & 2U) == 0))
+        //                {
+        //                    (pCVar12->ram).field_0x19d = 0;
+        //                    pcVar17[-2] = pcVar17[-2] | 2;
+        //                    MsActionRequest(param_3, param_1, 3, 0, 1, 0);
+        //                }
+        //                if ((param_5 & 0x400) == 0)
+        //                {
+        //                    MsPopBtlPos(pCVar12);
+        //                }
+        //                else
+        //                {
+        //                    pcVar17[-5] = -1;
+        //                }
+        //            }
+        //        }
+        //        pcVar17 = pcVar17 + 0x2d8;
+        //        local_28 = local_28 + -1;
+        //    } while (local_28 != 0);
+        //    if (((uVar20 & 1) == 0) &&
+        //       (iVar14 = MsDamageCheckDeath(param_1, param_3, 0, (uint)(param_1 != param_3)), iVar14 != 0))
+        //    {
+        //        return uVar20;
+        //    }
+        //    if (local_30 == (char*)0x0)
+        //    {
+        //        return uVar20;
+        //    }
+        //    iVar14 = (int)*local_30;
+        //    if ((param_5 & 0x20) == 0) goto LAB_0078f6ba;
+        //    if (iVar14 != 5)
+        //    {
+        //        if (iVar14 == 6)
+        //        {
+        //            uVar16 = brnd(9);
+        //            iVar14 = (uVar16 & 1) + 0xf;
+        //            goto LAB_0078f6ba;
+        //        }
+        //        if (iVar14 != 8) goto LAB_0078f6ba;
+        //    }
+        //    uVar16 = brnd(9);
+        //    iVar14 = (uVar16 & 3) + 0xd;
+        //LAB_0078f6ba:
+        //    MsDamageSetMotion(param_3, iVar14, (uint)(param_1 != param_3));
+        //    return uVar20;
+        //}
+
     }
 
     public static void h_FUN_00a48910(uint chr_id, int node_idx) {
