@@ -3865,6 +3865,8 @@ public unsafe partial class ArchipelagoFFXModule {
 
     private static int h_MsLimitTidusLearn(int chr_id)
     {
+        Chr
+        
         //{
         //    int has_limit;
         //    ushort* limit_id_ptr;
@@ -3900,12 +3902,66 @@ public unsafe partial class ArchipelagoFFXModule {
         //}
 
         // Todo: Send Tidus Overdrive Location on 10/20/40
+        if (chr_id == 0)
+        {
+            uint tidusLimitUses = ++Globals.save_data->tidus_limit_uses;
+
+            // Slice and Dice
+            if (tidusLimitUses >= 10)
+            {
+                int overdrive_id = 1;
+                if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
+                {
+                    if (ArchipelagoFFXModule.item_locations.other.TryGetValue(overdrive_id, out var item))
+                    {
+                        if (FFXArchipelagoClient.sendLocation(overdrive_id, FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
+                        {
+                            ArchipelagoFFXModule.obtain_item(item.id);
+                        }
+                    }
+                }
+            }
+
+            // Energy Rain
+            if (tidusLimitUses >= 20)
+            {
+                int overdrive_id = 2;
+                if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
+                {
+                    if (ArchipelagoFFXModule.item_locations.other.TryGetValue(overdrive_id, out var item))
+                    {
+                        if (FFXArchipelagoClient.sendLocation(overdrive_id, FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
+                        {
+                            ArchipelagoFFXModule.obtain_item(item.id);
+                        }
+                    }
+                }
+            }
+
+            // Blitz Ace
+            if (tidusLimitUses >= 40)
+            {
+                int overdrive_id = 3;
+                if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
+                {
+                    if (ArchipelagoFFXModule.item_locations.other.TryGetValue(overdrive_id, out var item))
+                    {
+                        if (FFXArchipelagoClient.sendLocation(overdrive_id, FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
+                        {
+                            ArchipelagoFFXModule.obtain_item(item.id);
+                        }
+                    }
+                }
+            }
+        }
 
         return 0;
     }
 
-    private static uint h_FUN_0078f0b0(uint param_1, uint param_2, uint param_3, uint* param_4, uint param_5)
+    private static uint h_FUN_0078f0b0(uint chr_id, uint param_2, uint param_3, uint* param_4, uint param_5)
     {
+        Chr
+        
         return 1;
         //{
         //    char* pcVar1;
