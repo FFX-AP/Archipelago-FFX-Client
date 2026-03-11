@@ -1323,10 +1323,9 @@ public unsafe partial class ArchipelagoFFXModule {
             (0xB877, 33), // Nav Guado
         ] },
 
-        { "guad0100", [
-            (0x239A, 36), // Noy Guado
-            (0x20FA, 55), // Yuma Guado
-        ] },
+        { "guad0100", [ (0x239A, 36) ] }, // Noy Guado
+
+        { "guad0300", [ (0x20FA, 55) ] }, // Yuma Guado
 
         { "guad0400", [
             (0x1AD8, 32), // Zazi Guado
