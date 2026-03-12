@@ -21,7 +21,7 @@ public unsafe partial class ArchipelagoFFXModule {
     public static MsGetRomSummonGrow _MsGetRomSummonGrow;
     public static TkMn2GetSummonGrowMax _TkMn2GetSummonGrowMax;
     public static TkMenuGetCurrentSummon _TkMenuGetCurrentSummon;
-    //public static MsGetSaveCommand _MsGetSaveCommand;
+    public static MsGetSaveCommand _MsGetSaveCommand;
 
     public static FUN_008c1c70 _FUN_008c1c70;
     public static TODrawMenuPlateXYWHType _TODrawMenuPlateXYWHType;
@@ -270,7 +270,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     CustomizationRecipe customization = customizations[customization_id];
                     ushort auto_ability_id = customization.auto_ability;
                     menu_list_iter->customization_id = 0xff;
-                    bool has_command = _MsGetSaveCommand.orig_fptr(current_summon, auto_ability_id);
+                    bool has_command = _MsGetSaveCommand(current_summon, auto_ability_id);
 
                     if (!has_command) {
                         uint item_count = Globals.save_data->get_item_count(customization.item);

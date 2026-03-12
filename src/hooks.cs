@@ -206,13 +206,6 @@ public unsafe partial class ArchipelagoFFXModule {
     public static TOMkpCrossExtMesFontLClutTypeRGBA _TOMkpCrossExtMesFontLClutTypeRGBA;
     public static ToMakeBtlEasyFont _ToMakeBtlEasyFont;
 
-    public static FhMethodHandle<MsGetSaveCommand>   _MsGetSaveCommand;
-    public static FhMethodHandle<MsSetRamChrAbility> _MsSetRamChrAbility;
-
-    public static FhMethodHandle<MsLimitTidusLearn> _MsLimitTidusLearn; 
-    public static FhMethodHandle<FUN_0078f0b0> _FUN_0078f0b0;
-
-
     public void init_hooks() {
         const string game = "FFX.exe";
 
@@ -436,11 +429,7 @@ public unsafe partial class ArchipelagoFFXModule {
         _MsGetRomSummonGrow = FhUtil.get_fptr<MsGetRomSummonGrow>(__addr_MsGetRomSummonGrow);
         _TkMn2GetSummonGrowMax = FhUtil.get_fptr<TkMn2GetSummonGrowMax>(__addr_TkMn2GetSummonGrowMax);
         _TkMenuGetCurrentSummon = FhUtil.get_fptr<TkMenuGetCurrentSummon>(__addr_TkMenuGetCurrentSummon);
-        
-        _MsGetSaveCommand = new FhMethodHandle<MsGetSaveCommand>(this, game, __addr_MsGetSaveCommand, h_MsGetSaveCommand);
-        _MsSetRamChrAbility = new FhMethodHandle<MsSetRamChrAbility>(this, game, __addr_MsSetRamChrAbility, h_MsSetRamChrAbility);
-        _MsLimitTidusLearn = new FhMethodHandle<MsLimitTidusLearn>(this, game, __addr_MsLimitTidusLearn, h_MsLimitTidusLearn);
-        _FUN_0078f0b0 = new FhMethodHandle<FUN_0078f0b0>(this, game, __addr_FUN_0078f0b0, h_FUN_0078f0b0);
+        _MsGetSaveCommand = FhUtil.get_fptr<MsGetSaveCommand>(__addr_MsGetSaveCommand);
 
         _FUN_008c1c70                    = FhUtil.get_fptr<FUN_008c1c70>(__addr_FUN_008c1c70);
         _TODrawMenuPlateXYWHType         = FhUtil.get_fptr<TODrawMenuPlateXYWHType>(__addr_TODrawMenuPlateXYWHType);
@@ -512,7 +501,6 @@ public unsafe partial class ArchipelagoFFXModule {
             && _Common_putPartyMemberInSlot.hook() && _Common_pushParty.hook() && _Common_popParty.hook() && _MsBattleExe.hook() && _FUN_00791820.hook()
             && _MsApUp.hook() && _MsBtlReadSetScene.hook() && _MsMonsterCapture.hook() && _FUN_00783bb0.hook() && _MsCalcCommand.hook() && _MsDamageCheckDeath.hook() // && _Map_800F.hook() //_MsBtlGetPos.hook()
             && _eiAbmParaGet.hook() && _MsSetSaveParam.hook() && _MsSetRamChrParam.hook() // && _FUN_00a48910.hook()
-            && _MsGetSaveCommand.hook() && _MsSetRamChrAbility.hook() && _MsLimitTidusLearn.hook() && _FUN_0078f0b0.hook()
             && _FUN_0086bec0.hook() && _FUN_0086bea0.hook() // Custom strings
             && _graphicInitFMVPlayer.hook() && _FmodVoice_dataChange.hook()
             && _AtelInitTotal.hook()
@@ -2011,12 +1999,6 @@ public unsafe partial class ArchipelagoFFXModule {
                     ]);
                 break;
             case "nagi0700":
-                // Turn around if locked
-                //set(code_ptr, 0x13AAF + 6, [
-                //    AtelOp.CALLPOPA     .build((ushort)CustomCallTarget.BLOCK_WARP),
-                //    ]);
-                //set(code_ptr, 0x13A92, atelNOPArray(17));
-
                 // Always show Nirvana chest
                 set(code_ptr, 0xE25D, AtelOp.JMP.build(0));
 
@@ -2032,6 +2014,25 @@ public unsafe partial class ArchipelagoFFXModule {
                 save_data->monsters_captured[43] = 99;
                 save_data->monsters_captured[59] = 99;
 
+                // Check Mars Sigil location instead of inventory
+                // 1B24 jFD:    9F1900 AE0A00 0E AD2000 B56001 19 02 D7FE00
+                set(code_ptr, 0x1B2B, [
+                    /* priv1759F >= 10
+                    AtelOp.PUSHV    .build(0x0019), // 9F1900
+                    AtelOp.PUSHII   .build(0x000A), // AE0A00
+                    AtelOp.GTE      .build(),       // 0E
+                    */
+
+                    // !Common.hasKeyItem(Mars Sigil)
+                    AtelOp.PUSHII   .build(276),                                                   // AD2000 -> AE1401
+                    AtelOp.CALL     .build((ushort)CustomCallTarget.IS_TREASURE_LOCATION_CHECKED), // B56001 -> B505F0
+                    AtelOp.NOT      .build(),                                                      // 19
+
+                    /* else jump to jFE
+                    AtelOp.LAND     .build(),       // 02
+                    AtelOp.POPXNCJMP.build(0x00FE), // D7FE00
+                    */
+                ]);
 
                 break;
         }
@@ -2723,26 +2724,8 @@ public unsafe partial class ArchipelagoFFXModule {
         return true;
     }
 
-    private static void refill_spheres() {
-        uint[] spheres = {
-            0x2046, // Power Sphere
-            0x2047, // Mana Sphere
-            0x2048, // Speed Sphere
-            0x2049  // Ability Sphere
-        };
-
-        foreach (var item_id in spheres) {
-            uint inventory_amount = save_data->get_item_count((int)item_id);
-            if (inventory_amount < 40) {
-                h_give_item(item_id, 40 - (int)inventory_amount);
-            }
-        }
-    }
-
     private static void refill_inventory() {
         logger.Debug($"Refill inventory");
-
-        refill_spheres();
 
         foreach ((var item_id, var amount) in excess_inventory.ToList()) {
             if (amount > 0 && save_data->get_item_count((int)item_id) < 99) {
@@ -2915,6 +2898,14 @@ public unsafe partial class ArchipelagoFFXModule {
 
     // Pre-battle
     public static void h_MsBattleExe(uint param_1, int field_idx, int group_idx, int formation_idx) {
+        // Evrae is 52, 0, 0
+        // Penance is 52, 1, 0
+        if (field_idx == 52 && group_idx == 1 && formation_idx == 0) {
+            // Try to avoid getting Penance'd by setting the group to Evrae manually
+            group_idx = 0;
+            logger.Info("Tried to avoid getting Penance'd!");
+        }
+
         var field_ptr = Battle.btl->ptr_btl_bin_fields + field_idx * 0xe;
         string field_name = Marshal.PtrToStringAnsi((nint)(field_ptr+6));
 
@@ -2922,7 +2913,7 @@ public unsafe partial class ArchipelagoFFXModule {
         byte group_name = *(byte*)(group_ptr+5 + formation_idx * 2);
 
         string encounter_name = $"{field_name}_{group_name:00}";
-        logger.Debug($"{encounter_name}: param_1={param_1}");
+        logger.Debug($"{encounter_name}: param_1={param_1}, ({field_idx}, {group_idx}, {formation_idx})");
         /*
         if (encounterToPartyDict.TryGetValue(encounter_name, out List<PlySaveId> characters)) {
             if (characters.Count > 0) {
@@ -3391,7 +3382,9 @@ public unsafe partial class ArchipelagoFFXModule {
         item_id &= 0xFFFF;
         int count;
         switch (item_type) {
-            case 0xA:   // Key Item
+            case 0xA:
+                // Key Item
+
                 // Progressive Mirror
                 if (item_id == 0xA002 && Globals.save_data->key_items.get((int)item_id)) {
                     //Globals.save_data->key_items.set((int)item_id, false);
@@ -3418,10 +3411,12 @@ public unsafe partial class ArchipelagoFFXModule {
                 h_TkMsImportantSet(item_id);
                 // TODO: Handle Al Bhed Primers
                 break;
-            case 0x2:   // Item
+            case 0x2:
+                // Item
                 h_give_item(item_id, amount);
                 break;
-            case 0x5:   // Equipment
+            case 0x5:
+                // Equipment
                 item_id &= 0xff;
                 UnownedEquipment* weapon_data = (UnownedEquipment*)h_read_from_bin((int)item_id, (short*)(*buki_get_pointer), 0);
                 //var data = get_from_bin((int)item_id, (short*)0x12000C00, 0);
@@ -3491,16 +3486,19 @@ public unsafe partial class ArchipelagoFFXModule {
                     h_obtain_treasure_cleanup(&rewardData, 7);
                 }
                 break;
-            case 0x1:   // Gil
+            case 0x1:
+                // Gil
                 if (amount == -1) amount = (int)((item_id & 0xFF0000) >> 16) * 1000;
                 _MsPayGIL(-amount);
                 break;
-            case 0xE:   // Region Unlock
+            case 0xE:
+                // Region Unlock
                 item_id &= 0xff;
                 logger.Debug($"Region: {(RegionEnum)item_id}");
                 region_is_unlocked[(RegionEnum)item_id] = true;
                 break;
-            case 0xF:   // Party Member
+            case 0xF:
+                // Party Member
                 int char_id = (int)(item_id & 0xFF);
                 logger.Debug($"Character: {id_to_character[char_id]}");
                 unlocked_characters[char_id] = true;
@@ -3529,15 +3527,16 @@ public unsafe partial class ArchipelagoFFXModule {
                     ArchipelagoGUI.add_log_message([(message, color)]);
                 }
                 break;
-            case 0x9:   // Trap
+            case 0x9:
+                // Trap
                 item_id &= 0xfff;
                 logger.Debug($"Trap: {item_id}");
                 if (item_id == 0) {
                     queued_voice_lines.Enqueue(voicelines[rng.Next(voicelines.Length)]);
                 }
                 break;
-            case 0x4:   // Overdrives
-            case 0xC:   // Other
+            case 0xC:
+                // Other
                 logger.Debug($"Other: {item_id}");
                 other_inventory.TryGetValue(item_id, out count);
                 other_inventory[item_id] = count+1;
@@ -3685,555 +3684,6 @@ public unsafe partial class ArchipelagoFFXModule {
         //ply.accuracy = (byte)Math.Clamp(ply.accuracy * accuracy_mult / 100, 0, 255);
         //ply.hp = (uint)Math.Clamp(ply.hp * hp_mult / 100, 0, ply.auto_ability_effects.has_break_hp_limit ? 99999 : 9999);
         //ply.mp = (uint)Math.Clamp(ply.mp * mp_mult / 100, 0, ply.auto_ability_effects.has_break_mp_limit ? 9999 : 999);
-    }
-
-    public static bool h_MsGetSaveCommand(int char_id, uint com_id)
-    {
-        tidus_overdrive();
-        auron_overdrive();
-        kimahri_overdrive();
-        wakka_overdrive();
-        seymour_overdrive();
-
-        return _MsGetSaveCommand.orig_fptr(char_id, com_id);
-    }
-
-    public static void h_MsSetRamChrAbility(int chr_id, Chr* chr)
-    {
-        tidus_overdrive();
-        auron_overdrive();
-        kimahri_overdrive();
-        wakka_overdrive();
-        seymour_overdrive();
-
-        _MsSetRamChrAbility.orig_fptr(chr_id, chr);
-        return;
-    }
-
-    private static void tidus_overdrive()
-    {
-        Globals.save_data->ability_map_limit.has_swordplay    = false;
-        Globals.save_data->ability_map_limit.has_spiral_cut   = false;
-        Globals.save_data->ability_map_limit.has_slice_n_dice = false;
-        Globals.save_data->ability_map_limit.has_energy_rain  = false;
-        Globals.save_data->ability_map_limit.has_blitz_ace    = false;
-
-        uint overdriveOffset = 0x4000;
-        bool hasSpiralCut    = other_inventory.ContainsKey(0x0000 | overdriveOffset);
-        bool hasSliceAndDice = other_inventory.ContainsKey(0x0001 | overdriveOffset);
-        bool hasEnergyRain   = other_inventory.ContainsKey(0x0002 | overdriveOffset);
-        bool hasBlitzAce     = other_inventory.ContainsKey(0x0003 | overdriveOffset);
-
-        if (hasSpiralCut || hasSliceAndDice || hasEnergyRain || hasBlitzAce)
-            Globals.save_data->ability_map_limit.has_swordplay    = true;
-
-        if (hasSpiralCut)
-            Globals.save_data->ability_map_limit.has_spiral_cut   = true;
-        if (hasSliceAndDice)
-            Globals.save_data->ability_map_limit.has_slice_n_dice = true;
-        if (hasEnergyRain)
-            Globals.save_data->ability_map_limit.has_energy_rain  = true;
-        if (hasBlitzAce)
-            Globals.save_data->ability_map_limit.has_blitz_ace    = true;
-    }
-
-    private static void auron_overdrive()
-    {
-        Globals.save_data->ability_map_limit.has_bushido = false;
-        Globals.save_data->ability_map_limit.has_dragon_fang = false;
-        Globals.save_data->ability_map_limit.has_shooting_star = false;
-        Globals.save_data->ability_map_limit.has_banishing_blade = false;
-        Globals.save_data->ability_map_limit.has_tornado = false;
-
-        uint overdriveOffset   = 0x4000;
-        bool hasDragonFang     = other_inventory.ContainsKey(0x0004 | overdriveOffset);
-        bool hasShootingStar   = other_inventory.ContainsKey(0x0005 | overdriveOffset);
-        bool hasBanishingBlade = other_inventory.ContainsKey(0x0006 | overdriveOffset);
-        bool hasTornado        = other_inventory.ContainsKey(0x0007 | overdriveOffset);
-
-        if (hasDragonFang || hasShootingStar || hasBanishingBlade || hasTornado)
-            Globals.save_data->ability_map_limit.has_bushido         = true;
-
-        if (hasDragonFang)
-            Globals.save_data->ability_map_limit.has_dragon_fang     = true;
-        if (hasShootingStar)
-            Globals.save_data->ability_map_limit.has_shooting_star   = true;
-        if (hasBanishingBlade)
-            Globals.save_data->ability_map_limit.has_banishing_blade = true;
-        if (hasTornado)
-            Globals.save_data->ability_map_limit.has_tornado         = true;
-    }
-
-    private static void kimahri_overdrive()
-    {
-        Globals.save_data->ability_map_limit.has_ronso_rage    = false;
-        Globals.save_data->ability_map_limit.has_jump          = false;
-        Globals.save_data->ability_map_limit.has_fire_breath   = false;
-        Globals.save_data->ability_map_limit.has_seed_cannon   = false;
-        Globals.save_data->ability_map_limit.has_self_destruct = false;
-        Globals.save_data->ability_map_limit.has_thrust_kick   = false;
-        Globals.save_data->ability_map_limit.has_stone_breath  = false;
-        Globals.save_data->ability_map_limit.has_aqua_breath   = false;
-        Globals.save_data->ability_map_limit.has_doom          = false;
-        Globals.save_data->ability_map_limit.has_white_wind    = false;
-        Globals.save_data->ability_map_limit.has_bad_breath    = false;
-        Globals.save_data->ability_map_limit.has_mighty_guard  = false;
-        Globals.save_data->ability_map_limit.has_nova          = false;
-
-        uint overdriveOffset = 0x4000;
-        bool hasJump         = other_inventory.ContainsKey(0x0008 | overdriveOffset);
-        bool hasFireBreath   = other_inventory.ContainsKey(0x0009 | overdriveOffset);
-        bool hasSeedCannon   = other_inventory.ContainsKey(0x000A | overdriveOffset);
-        bool hasSelfDestruct = other_inventory.ContainsKey(0x000B | overdriveOffset);
-        bool hasThrustKick   = other_inventory.ContainsKey(0x000C | overdriveOffset);
-        bool hasStoneBreath  = other_inventory.ContainsKey(0x000D | overdriveOffset);
-        bool hasAquaBreath   = other_inventory.ContainsKey(0x000E | overdriveOffset);
-        bool hasDoom         = other_inventory.ContainsKey(0x000F | overdriveOffset);
-        bool hasWhiteWind    = other_inventory.ContainsKey(0x0010 | overdriveOffset);
-        bool hasBadBreath    = other_inventory.ContainsKey(0x0011 | overdriveOffset);
-        bool hasMightyGuard  = other_inventory.ContainsKey(0x0012 | overdriveOffset);
-        bool hasNova         = other_inventory.ContainsKey(0x0013 | overdriveOffset);
-
-        if (hasJump || hasFireBreath || hasSeedCannon || hasSelfDestruct ||
-            hasThrustKick || hasStoneBreath || hasAquaBreath || hasDoom ||
-            hasWhiteWind || hasBadBreath || hasMightyGuard || hasNova)
-            Globals.save_data->ability_map_limit.has_ronso_rage    = true;
-
-        if (hasJump)
-            Globals.save_data->ability_map_limit.has_jump          = true;
-        if (hasFireBreath)
-            Globals.save_data->ability_map_limit.has_fire_breath   = true;
-        if (hasSeedCannon)
-            Globals.save_data->ability_map_limit.has_seed_cannon   = true;
-        if (hasSelfDestruct)
-            Globals.save_data->ability_map_limit.has_self_destruct = true;
-        if (hasThrustKick)
-            Globals.save_data->ability_map_limit.has_thrust_kick   = true;
-        if (hasStoneBreath)
-            Globals.save_data->ability_map_limit.has_stone_breath  = true;
-        if (hasAquaBreath)
-            Globals.save_data->ability_map_limit.has_aqua_breath   = true;
-        if (hasDoom)
-            Globals.save_data->ability_map_limit.has_doom          = true;
-        if (hasWhiteWind)
-            Globals.save_data->ability_map_limit.has_white_wind    = true;
-        if (hasBadBreath)
-            Globals.save_data->ability_map_limit.has_bad_breath    = true;
-        if (hasMightyGuard)
-            Globals.save_data->ability_map_limit.has_mighty_guard  = true;
-        if (hasNova)
-            Globals.save_data->ability_map_limit.has_nova          = true;
-    }
-
-    private static void wakka_overdrive()
-    {
-        Globals.save_data->ability_map_limit.has_slots         = false;
-        Globals.save_data->ability_map_limit.has_element_reels = false;
-        Globals.save_data->ability_map_limit.has_attack_reels  = false;
-        Globals.save_data->ability_map_limit.has_status_reels  = false;
-        Globals.save_data->ability_map_limit.has_aurochs_reels = false;
-
-        uint overdriveOffset = 0x4000;
-        bool hasElementReels = other_inventory.ContainsKey(0x0014 | overdriveOffset);
-        bool hasAttackReels  = other_inventory.ContainsKey(0x0015 | overdriveOffset);
-        bool hasStatusReels  = other_inventory.ContainsKey(0x0016 | overdriveOffset);
-        bool hasAurochsReels = other_inventory.ContainsKey(0x0017 | overdriveOffset);
-
-        if (hasElementReels || hasAttackReels || hasStatusReels || hasAurochsReels)
-            Globals.save_data->ability_map_limit.has_slots         = true;
-
-        if (hasElementReels)
-            Globals.save_data->ability_map_limit.has_element_reels = true;
-        if (hasAttackReels)
-            Globals.save_data->ability_map_limit.has_attack_reels  = true;
-        if (hasStatusReels)
-            Globals.save_data->ability_map_limit.has_status_reels  = true;
-        if (hasAurochsReels)
-            Globals.save_data->ability_map_limit.has_aurochs_reels = true;
-    }
-
-    private static void seymour_overdrive()
-    {
-        Globals.save_data->ability_map_limit.has_requiem = false;
-
-        uint overdriveOffset = 0x4000;
-        bool hasRequiem      = other_inventory.ContainsKey(0x0018 | overdriveOffset);
-        
-        if (hasRequiem)
-            Globals.save_data->ability_map_limit.has_requiem = true;
-    }
-
-    private static int h_MsLimitTidusLearn(int chr_id)
-    {
-        Chr
-        
-        //{
-        //    int has_limit;
-        //    ushort* limit_id_ptr;
-        //    int* requirement_ptr;
-        //    int local_8;
-        //    ushort limit_id;
-
-        //    local_8 = 0;
-        //    has_limit = 0;
-        //    if ((chr_id == 0) && (btl._8469_1_ != '\x02'))
-        //    {
-        //        MsGetChr(0);
-        //        save_ram.tidus_limit_uses = save_ram.tidus_limit_uses + 1;
-        //        requirement_ptr = +TidusLimitRequirements;
-        //        limit_id_ptr = +TidusLimitIds;
-        //        do
-        //        {
-        //            limit_id = *limit_id_ptr;
-        //            has_limit = MsGetSaveCommand(0, limit_id);
-        //            if ((has_limit == 0) && (*requirement_ptr <= save_ram.tidus_limit_uses))
-        //            {
-        //                local_8 = 1;
-        //                /* Trigger the limit to be learned */
-        //                btl._5979_1_ = 1;
-        //                btl._8314_2_ = limit_id;
-        //            }
-        //            limit_id_ptr = limit_id_ptr + 1;
-        //            requirement_ptr = requirement_ptr + 1;
-        //            has_limit = local_8;
-        //        } while ((int)limit_id_ptr < 0xc43940);
-        //    }
-        //    return has_limit;
-        //}
-
-        // Todo: Send Tidus Overdrive Location on 10/20/40
-        if (chr_id == 0)
-        {
-            uint tidusLimitUses = ++Globals.save_data->tidus_limit_uses;
-
-            // Slice and Dice
-            if (tidusLimitUses >= 10)
-            {
-                int overdrive_id = 1;
-                if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
-                {
-                    if (ArchipelagoFFXModule.item_locations.other.TryGetValue(overdrive_id, out var item))
-                    {
-                        if (FFXArchipelagoClient.sendLocation(overdrive_id, FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
-                        {
-                            ArchipelagoFFXModule.obtain_item(item.id);
-                        }
-                    }
-                }
-            }
-
-            // Energy Rain
-            if (tidusLimitUses >= 20)
-            {
-                int overdrive_id = 2;
-                if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
-                {
-                    if (ArchipelagoFFXModule.item_locations.other.TryGetValue(overdrive_id, out var item))
-                    {
-                        if (FFXArchipelagoClient.sendLocation(overdrive_id, FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
-                        {
-                            ArchipelagoFFXModule.obtain_item(item.id);
-                        }
-                    }
-                }
-            }
-
-            // Blitz Ace
-            if (tidusLimitUses >= 40)
-            {
-                int overdrive_id = 3;
-                if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
-                {
-                    if (ArchipelagoFFXModule.item_locations.other.TryGetValue(overdrive_id, out var item))
-                    {
-                        if (FFXArchipelagoClient.sendLocation(overdrive_id, FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
-                        {
-                            ArchipelagoFFXModule.obtain_item(item.id);
-                        }
-                    }
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    private static uint h_FUN_0078f0b0(uint chr_id, uint param_2, uint param_3, uint* param_4, uint param_5)
-    {
-        Chr
-        
-        return 1;
-        //{
-        //    char* pcVar1;
-        //    char cVar2;
-        //    byte bVar3;
-        //    byte bVar4;
-        //    byte bVar5;
-        //    ushort uVar6;
-        //    StatusPermanentFlags_2 SVar7;
-        //    StatusPermanentFlags_2 SVar8;
-        //    int iVar9;
-        //    byte bVar10;
-        //    Chr* pCVar11;
-        //    Chr* pCVar12;
-        //    Chr* pCVar13;
-        //    int iVar14;
-        //    char* pcVar15;
-        //    uint uVar16;
-        //    char* pcVar17;
-        //    undefined4 uVar18;
-        //    undefined4 uVar19;
-        //    char* local_30;
-        //    int local_28;
-        //    int local_20;
-        //    uint local_1c;
-        //    int local_18;
-        //    uint uVar20;
-
-        //    uVar20 = 0;
-        //    local_30 = (char*)0x0;
-        //    pCVar11 = MsGetChr(param_1);
-        //    pCVar12 = MsGetChr(param_3);
-        //    pcVar17 = &pCVar12->field1405_0x774[0].field_0x7;
-        //    local_28 = 2;
-        //    do
-        //    {
-        //        if (((byte)pcVar17[-5] == param_1) && ((byte)pcVar17[-4] == param_2))
-        //        {
-        //            pCVar12->field_0xf5e = (byte)param_5 & 0x7f;
-        //            pCVar12->field_0xded = (char)param_1;
-        //            if ((param_5 & 8) == 0)
-        //            {
-        //                if (*pcVar17 != '\0')
-        //                {
-        //                    MsMenuCloseTitleWindow(0);
-        //                    *pcVar17 = '\0';
-        //                    MsMessageCueRegist(4, *(undefined2*)(pcVar17 + 3), (int)*(short*)(pcVar17 + 1), 0x1b, 0x23);
-        //                    if (0 < *(short*)(pcVar17 + 1))
-        //                    {
-        //                        MsSetStealEffect(param_3, pcVar17[-6]);
-        //                        MsRegSEplay2(param_3, 0x41);
-        //                    }
-        //                    pcVar17[-2] = pcVar17[-2] | 1;
-        //                }
-        //                if (pcVar17[5] != '\0')
-        //                {
-        //                    MsMenuCloseTitleWindow(0);
-        //                    pcVar17[5] = '\0';
-        //                    MsMessageCueRegist(8, *(undefined4*)(pcVar17 + 9), 0, 0x1b, 0x23);
-        //                    if (0 < *(int*)(pcVar17 + 9))
-        //                    {
-        //                        MsPayGIL(-*(int*)(pcVar17 + 9));
-        //                        MsSetStealGillEffect(param_3, pcVar17[-6]);
-        //                        MsRegSEplay2(param_3, 0x41);
-        //                    }
-        //                    pcVar17[-2] = pcVar17[-2] | 1;
-        //                }
-        //            }
-        //            if (pcVar17[-3] != 0)
-        //            {
-        //                if ((pcVar17[-3] & 1U) != 0)
-        //                {
-        //                    bVar10 = (pCVar11->ram).limit_charge;
-        //                    (pCVar11->ram).limit_charge = 0;
-        //                    bVar10 = MsCheckRange((uint)(pCVar12->ram).limit_charge + (uint)bVar10, 0,
-        //                                          (pCVar12->ram).limit_charge_max);
-        //                    (pCVar12->ram).limit_charge = bVar10;
-        //                }
-        //                if ((pcVar17[-3] & 2U) != 0)
-        //                {
-        //                    pCVar13 = MsGetChr((uint)(byte)pcVar17[0x10]);
-        //                    if ((((param_3 == 3) && (pCVar13->loot != (ChrLoot*)0x0)) &&
-        //                        (uVar6 = pCVar13->loot->ronso_rage, uVar6 != 0)) &&
-        //                       (iVar14 = MsGetSaveCommand(3, uVar6), iVar14 == 0))
-        //                    {
-        //                        MsSetSaveCommand(3, uVar6, 1);
-        //                        MsMessageCueRegist(6, 3, uVar6, 0x1e, 0x32);
-        //                        (pCVar12->ram).limit_charge = (pCVar12->ram).limit_charge_max;
-        //                        if (((save_ram.ability_map_limit._0_4_ & 0xff00) == 0xff00) &&
-        //                           (((byte)save_ram.ability_map_limit[1] & 0xf) == 0xf))
-        //                        {
-        //                            achievementUnlockAchievement(0x19);
-        //                        }
-        //                    }
-        //                }
-        //                pcVar17[-3] = '\0';
-        //            }
-        //            pcVar1 = pcVar17 + -7;
-        //            if ((byte)pcVar17[-7] < (byte)pcVar17[-6])
-        //            {
-        //                pcVar15 = pcVar1 + (uint)(byte)pcVar17[-7] * 0x2c + 0x18;
-        //                local_20 = 0;
-        //                if ((param_5 & 8) == 0)
-        //                {
-        //                    iVar14 = (int)pcVar15[1];
-        //                    cVar2 = pcVar15[2];
-        //                    if (iVar14 == 1)
-        //                    {
-        //                        uVar19 = 1;
-        //                        uVar18 = 3;
-        //                    LAB_0078f30a:
-        //                        MsNumberRegist(param_3, uVar18, 0, 0, uVar19, cVar2, 0x81);
-        //                    }
-        //                    else if (iVar14 == 2)
-        //                    {
-        //                        uVar19 = 2;
-        //                        uVar18 = 4;
-        //                        goto LAB_0078f30a;
-        //                    }
-        //                    MsLimitTypeDamageCheck
-        //                              (param_1, pCVar11, param_3, pCVar12, *(undefined4*)(pcVar15 + 0x20),
-        //                               *(undefined4*)(pcVar15 + 0x1c), pcVar17[-1]);
-        //                    local_18 = 0;
-        //                    local_1c = 1;
-        //                    do
-        //                    {
-        //                        iVar9 = *(int*)(pcVar15 + local_18 * 4 + 0x20);
-        //                        if ((local_1c & *(ushort*)(pcVar15 + 0x18)) != 0)
-        //                        {
-        //                            if (local_18 == 0)
-        //                            {
-        //                                MsSubHP(param_3, pCVar12, iVar9, *(undefined4*)(pcVar15 + 0x24), iVar14, cVar2, 0x81);
-        //                                pCVar12->field1963_0xf60 = pCVar12->field1963_0xf60 - iVar9;
-        //                                local_20 = local_20 + iVar9;
-        //                            }
-        //                            else if (local_18 == 1)
-        //                            {
-        //                                FUN_0078e400(param_3, pCVar12, iVar9, *(undefined4*)(pcVar15 + 0x20), iVar14, cVar2, 0x81
-        //                                            );
-        //                            }
-        //                            else if (local_18 == 2)
-        //                            {
-        //                                FUN_0078e2a0(param_3, pCVar12, iVar9, iVar14, cVar2, 0x81);
-        //                                dbgPrintf("CTB DAMAGE %d %d : %d\n", param_3, iVar9, (pCVar12->ram).ctb);
-        //                            }
-        //                        }
-        //                        local_1c = local_1c << 1 | (uint)((int)local_1c < 0);
-        //                        local_18 = local_18 + 1;
-        //                    } while (local_18 < 3);
-        //                    MsLimitTypeStatusCheck(param_1, pCVar11, param_3, pCVar12, pcVar15[4], pcVar15[3]);
-        //                    SVar7 = (pCVar12->ram).status_suffer;
-        //                    bVar10 = (pCVar12->ram).status_suffer_turns_left.darkness;
-        //                    bVar3 = (pCVar12->ram).status_suffer_turns_left.silence;
-        //                    bVar4 = (pCVar12->ram).status_suffer_turns_left.regen;
-        //                    bVar5 = *(byte*)((int)&(pCVar12->ram).status_suffer_extra + 1);
-        //                    (pCVar12->ram).status_suffer = *(StatusPermanentFlags_2*)(pcVar15 + 0x14);
-        //                    iVar14 = 0;
-        //                    do
-        //                    {
-        //                        *(char*)((int)(pCVar12->ram).limits + iVar14 + -0x68) = pcVar15[iVar14 + 7];
-        //                        iVar14 = iVar14 + 1;
-        //                    } while (iVar14 < 0xd);
-        //                    (pCVar12->ram).status_suffer_extra = *(StatusExtraFlags_2*)(pcVar15 + 0x16);
-        //                    MsLimitStatusProcess(param_3, pCVar12, pcVar15[6]);
-        //                    if (((pCVar12->ram).status_suffer_turns_left.regen != 0) && (bVar4 == 0))
-        //                    {
-        //                        (pCVar12->ram).regen_strength = 0;
-        //                    }
-        //                    SVar8 = (pCVar12->ram).status_suffer;
-        //                    pCVar12->field_0xdce = (byte)SVar8 >> 2 & 1;
-        //                    if ((SVar8 & DEATH) != (SVar7 & DEATH))
-        //                    {
-        //                        FUN_00789220(param_3, pCVar12, param_1);
-        //                    }
-        //                    if (((pCVar12->ram).status_suffer >> 2 & 1) != (SVar7 >> 2 & 1))
-        //                    {
-        //                        MsStoneProcess(param_3, pCVar12);
-        //                    }
-        //                    if ((*(byte*)((int)&(pCVar12->ram).status_suffer_extra + 1) & 1) != (bVar5 & 1))
-        //                    {
-        //                        FUN_00789270(param_3, pCVar12);
-        //                    }
-        //                    if (((pCVar12->ram).status_suffer >> 0xb & 1) != (SVar7 >> 0xb & 1))
-        //                    {
-        //                        MsThreatProcess(param_3, pCVar12);
-        //                    }
-        //                    pcVar17[-2] = pcVar17[-2] | 1;
-        //                    if (((pCVar12->ram).auto_ability_effects.part_a & AUTO_MED) != NONE)
-        //                    {
-        //                        MsAutoCureProcess(param_3, pCVar12, param_1, SVar7 >> 3 & 1, SVar7 >> 1 & 1, bVar10, bVar3);
-        //                    }
-        //                    if ((0 < local_20) && (((pCVar12->ram).auto_ability_effects.part_a & AUTO_POTION) != NONE)
-        //                       )
-        //                    {
-        //                        MsAutoPotionProcess(param_3, pCVar12, param_1);
-        //                    }
-        //                    MsSetChrWeak(param_3, -1);
-        //                    uVar20 = uVar20 | 2;
-        //                    *pcVar1 = *pcVar1 + '\x01';
-        //                }
-        //                if ((pCVar12->ram).field_0x19c != '\0')
-        //                {
-        //                    FUN_0078d990(param_1, pCVar11, param_3, pCVar12);
-        //                }
-        //                if (((param_5 & 2) == 0) && ((*pcVar15 != '\x01' || ((pcVar17[-2] & 4U) == 0))))
-        //                {
-        //                    pcVar17[-2] = pcVar17[-2] | 4;
-        //                    local_30 = pcVar15;
-        //                }
-        //                if ((param_5 & 0x10) == 0)
-        //                {
-        //                    MsStatusEffectCheck(param_3);
-        //                    iVar14 = MsStatusDefenseEffect(param_1, param_3, *(undefined2*)(pcVar15 + 0x18));
-        //                    if (iVar14 != 0)
-        //                    {
-        //                        *param_4 = param_3;
-        //                    }
-        //                }
-        //            }
-        //            if ((byte)pcVar17[-7] < (byte)pcVar17[-6])
-        //            {
-        //                uVar20 = uVar20 | 1;
-        //            }
-        //            else
-        //            {
-        //                if (((pcVar17[-2] & 1U) != 0) && ((pcVar17[-2] & 2U) == 0))
-        //                {
-        //                    (pCVar12->ram).field_0x19d = 0;
-        //                    pcVar17[-2] = pcVar17[-2] | 2;
-        //                    MsActionRequest(param_3, param_1, 3, 0, 1, 0);
-        //                }
-        //                if ((param_5 & 0x400) == 0)
-        //                {
-        //                    MsPopBtlPos(pCVar12);
-        //                }
-        //                else
-        //                {
-        //                    pcVar17[-5] = -1;
-        //                }
-        //            }
-        //        }
-        //        pcVar17 = pcVar17 + 0x2d8;
-        //        local_28 = local_28 + -1;
-        //    } while (local_28 != 0);
-        //    if (((uVar20 & 1) == 0) &&
-        //       (iVar14 = MsDamageCheckDeath(param_1, param_3, 0, (uint)(param_1 != param_3)), iVar14 != 0))
-        //    {
-        //        return uVar20;
-        //    }
-        //    if (local_30 == (char*)0x0)
-        //    {
-        //        return uVar20;
-        //    }
-        //    iVar14 = (int)*local_30;
-        //    if ((param_5 & 0x20) == 0) goto LAB_0078f6ba;
-        //    if (iVar14 != 5)
-        //    {
-        //        if (iVar14 == 6)
-        //        {
-        //            uVar16 = brnd(9);
-        //            iVar14 = (uVar16 & 1) + 0xf;
-        //            goto LAB_0078f6ba;
-        //        }
-        //        if (iVar14 != 8) goto LAB_0078f6ba;
-        //    }
-        //    uVar16 = brnd(9);
-        //    iVar14 = (uVar16 & 3) + 0xd;
-        //LAB_0078f6ba:
-        //    MsDamageSetMotion(param_3, iVar14, (uint)(param_1 != param_3));
-        //    return uVar20;
-        //}
-
     }
 
     public static void h_FUN_00a48910(uint chr_id, int node_idx) {
@@ -5200,7 +4650,7 @@ public unsafe partial class ArchipelagoFFXModule {
                                                                                             treasure_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure);
                     }
                 }
-                FFXArchipelagoClient.SayAsync($"kicked away {item.player}'s {item.name}!");   
+                FFXArchipelagoClient.SayAsync($"kicked away {item.player}'s {item.name}!");
             }
         }
         return 1;
