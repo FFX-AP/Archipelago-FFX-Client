@@ -168,10 +168,6 @@ public unsafe class OverdriveModule : FhModule {
     private delegate int TOBtlDrawLearningMessageWindow(int chr_id, int com_id);
     private const nint __addr_TOBtlDrawLearningMessageWindow = 0x495290;
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate int FUN_007B4B80(int chr_id, int param_2, int param_3, uint param_4);
-    private const nint __addr_FUN_007B4B80 = 0x3B4B80;
-
     private const nint __addr_ret_doesChrKnowCommand = 0x3A30C0;
 
     // Method Handles
@@ -180,7 +176,6 @@ public unsafe class OverdriveModule : FhModule {
     private readonly FhMethodHandle<MsLimitTidusLearn> _MsLimitTidusLearn;
     private readonly FhMethodHandle<MsAfterDamageProcess> _MsAfterDamageProcess;
     private readonly FhMethodHandle<TOBtlDrawLearningMessageWindow> _TOBtlDrawLearningMessageWindow;
-    private readonly FhMethodHandle<FUN_007B4B80> _FUN_007B4B80;
     private readonly FhMethodHandle<CT_RetInt> _ret_doesChrKnowCommand;
 
     private readonly MsGetChr _MsGetChr;
@@ -257,7 +252,6 @@ public unsafe class OverdriveModule : FhModule {
         _MsLimitTidusLearn = new FhMethodHandle<MsLimitTidusLearn>(this, GAME, __addr_MsLimitTidusLearn, h_MsLimitTidusLearn);
         _MsAfterDamageProcess = new FhMethodHandle<MsAfterDamageProcess>(this, GAME, __addr_MsAfterDamageProcess, h_MsAfterDamageProcess);
         _TOBtlDrawLearningMessageWindow = new FhMethodHandle<TOBtlDrawLearningMessageWindow>(this, GAME, __addr_TOBtlDrawLearningMessageWindow, h_TOBtlDrawLearningMessageWindow);
-        _FUN_007B4B80 = new FhMethodHandle<FUN_007B4B80>(this, GAME, __addr_FUN_007B4B80, h_FUN_007B4B80);
         _ret_doesChrKnowCommand = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
 
         _MsGetChr = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
@@ -415,7 +409,6 @@ public unsafe class OverdriveModule : FhModule {
             && _MsSetRamChrAbility.hook()
             && _MsLimitTidusLearn.hook()
             && _MsAfterDamageProcess.hook()
-            && _FUN_007B4B80.hook()
             && _ret_doesChrKnowCommand.hook();
     }
 
@@ -748,13 +741,6 @@ public unsafe class OverdriveModule : FhModule {
         iVar7 = (int)(uVar9 & 3) + 0xd;
         _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
         return uVar12;
-    }
-
-    private int h_FUN_007B4B80(int chr_id, int param_2, int param_3, uint param_4)
-    {
-        //if (param_2 == 0x10A)
-        
-        return _FUN_007B4B80.orig_fptr(chr_id, param_2, param_3, param_4);
     }
 
     private int h_ret_doesChrKnowCommand(AtelBasicWorker* work, int* storage, AtelStack* atelStack)

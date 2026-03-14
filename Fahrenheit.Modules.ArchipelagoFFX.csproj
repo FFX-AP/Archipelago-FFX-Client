@@ -25,7 +25,7 @@
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Update="Fahrenheit" Version="1.0.0-alpha08-Andrewki" />
+	  <PackageReference Update="Fahrenheit" Version="1.0.0-alpha08-Andrewki-150326" />
 	</ItemGroup>
 	
 	<!-- BUILD EVENTS -->
