@@ -440,6 +440,10 @@ public static unsafe class delegates {
     public const int __addr_MsGetSaveCommand = 0x3850E0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate int MsSetSaveCommand(int chr_id, uint param_2, int param_3);
+    public const nint __addr_MsSetSaveCommand = 0x385D10;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void MsSetRamChrAbility(int chr_id, Chr* chr);
     public const nint __addr_MsSetRamChrAbility = 0x39BB70;
 

@@ -3404,12 +3404,20 @@ public unsafe partial class ArchipelagoFFXModule {
                 }
 
                 // Progressive Jecht's Sphere
-                if (item_id == 0xA020 && Globals.save_data->key_items.get((int)item_id)) {
+                if (item_id == 0xA020) {
                     save_data->jecht_spheres.collected_amount++;
+
+                    if (save_data->jecht_spheres.collected_amount >= 1)
+                        OverdriveModule.send_overdrive(PlayerCommandId.PCOM_SHOOTING_STAR);
+
+                    if (save_data->jecht_spheres.collected_amount >= 3)
+                        OverdriveModule.send_overdrive(PlayerCommandId.PCOM_BANISHING_BLADE);
+
+                    if (save_data->jecht_spheres.collected_amount >= 10)
+                        OverdriveModule.send_overdrive(PlayerCommandId.PCOM_TORNADO);
                 }
 
                 h_TkMsImportantSet(item_id);
-                // TODO: Handle Al Bhed Primers
                 break;
             case 0x2:
                 // Item
@@ -3533,6 +3541,38 @@ public unsafe partial class ArchipelagoFFXModule {
                 logger.Debug($"Trap: {item_id}");
                 if (item_id == 0) {
                     queued_voice_lines.Enqueue(voicelines[rng.Next(voicelines.Length)]);
+                }
+                break;
+            case 0x4:
+                // Overdrive
+                logger.Debug($"Overdrive: {item_id}");
+                other_inventory.TryGetValue(item_id, out count);
+                other_inventory[item_id] = count + 1;
+
+                switch(item_id & 0xFF)
+                {
+                    case <= 0x3:
+                        //chr_id = PlySaveId.PC_TIDUS;
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_TIDUS);
+                        break;
+                    case <= 0x7:
+                        //chr_id = PlySaveId.PC_AURON;
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_AURON);
+                        break;
+                    case <= 0x13:
+                        //chr_id = PlySaveId.PC_KIMAHRI;
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_KIMAHRI);
+                        break;
+                    case <= 0x17:
+                        //chr_id = PlySaveId.PC_WAKKA;
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_WAKKA);
+                        break;
+                    case 0x83:
+                        //chr_id = PlySaveId.PC_SEYMOUR;
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_SEYMOUR);
+                        break;
+                    default:
+                        throw new NotImplementedException();
                 }
                 break;
             case 0xC:
