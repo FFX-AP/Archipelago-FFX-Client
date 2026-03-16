@@ -272,7 +272,7 @@ public unsafe partial class OverdriveModule : FhModule {
         return 0;
     }
 
-    // Called multiple times on every instance damage. Complete reimplementation in order to interject on Kimahri's overdrive learning.
+    // Called multiple times on every instance damage. Complete reimplementation in order to interject on Kimahri's overdrive learning
     private uint h_MsAfterDamageProcess(int attacker_id, uint param_2, int target_id, uint* param_4, uint param_5)
     {
         byte bVar1;
@@ -551,7 +551,7 @@ public unsafe partial class OverdriveModule : FhModule {
         return uVar12;
     }
 
-    // Required in order to allow Biran & Yenke's ChrLoot to progress to the next Ronso Rage based on location sent, rather than command known.
+    // Required in order to allow Biran & Yenke's ChrLoot to progress to the next Ronso Rage based on location sent, rather than command known
     private int h_ret_doesChrKnowCommand(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
     {
         int com_id = atelStack->pop_int();
@@ -566,7 +566,7 @@ public unsafe partial class OverdriveModule : FhModule {
         return _ret_doesChrKnowCommand.orig_fptr(work, storage, atelStack);
     }
 
-    // Required to interject on receiving Wakka's overdrive from Blitzball.
+    // Required to interject on receiving Wakka's overdrive from Blitzball
     private int h_ret_teachAbilityToPartyMemberSilently(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
     {
         int com_id = atelStack->pop_int();
@@ -584,6 +584,7 @@ public unsafe partial class OverdriveModule : FhModule {
         return _ret_teachAbilityToPartyMemberSilently.orig_fptr(work, storage, atelStack);
     }
 
+    // Required to interject on receiving Valefor's overdrive from Dog
     private int h_ret_teachAbilityToPartyMemberWithMsg(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
     {
         int com_id = atelStack->pop_int();

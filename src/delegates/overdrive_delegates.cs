@@ -5,7 +5,6 @@ using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
     public unsafe partial class OverdriveModule {
-        // Delegates
         //TODO: Remove these once FhCall is more up-to-date
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int MsGetSaveCommand(int char_id, uint com_id);
