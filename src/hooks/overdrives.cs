@@ -169,6 +169,7 @@ public unsafe class OverdriveModule : FhModule {
     private const nint __addr_TOBtlDrawLearningMessageWindow = 0x495290;
 
     private const nint __addr_ret_doesChrKnowCommand = 0x3A30C0;
+    private const nint __addr_ret_teachAbilityToPartyMemberSilently = 0x000000;
 
     // Method Handles
     private readonly FhMethodHandle<MsGetSaveCommand> _MsGetSaveCommand;
@@ -177,6 +178,7 @@ public unsafe class OverdriveModule : FhModule {
     private readonly FhMethodHandle<MsAfterDamageProcess> _MsAfterDamageProcess;
     private readonly FhMethodHandle<TOBtlDrawLearningMessageWindow> _TOBtlDrawLearningMessageWindow;
     private readonly FhMethodHandle<CT_RetInt> _ret_doesChrKnowCommand;
+    private readonly FhMethodHandle<CT_RetInt> _ret_teachAbilityToPartyMemberSilently;
 
     private readonly MsGetChr _MsGetChr;
     private readonly MsMenuCloseTitleWindow _MsMenuCloseTitleWindow;
@@ -253,6 +255,7 @@ public unsafe class OverdriveModule : FhModule {
         _MsAfterDamageProcess = new FhMethodHandle<MsAfterDamageProcess>(this, GAME, __addr_MsAfterDamageProcess, h_MsAfterDamageProcess);
         _TOBtlDrawLearningMessageWindow = new FhMethodHandle<TOBtlDrawLearningMessageWindow>(this, GAME, __addr_TOBtlDrawLearningMessageWindow, h_TOBtlDrawLearningMessageWindow);
         _ret_doesChrKnowCommand = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
+        _ret_teachAbilityToPartyMemberSilently = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_teachAbilityToPartyMemberSilently, h_ret_teachAbilityToPartyMemberSilently);
 
         _MsGetChr = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
         _MsMenuCloseTitleWindow = FhUtil.get_fptr<MsMenuCloseTitleWindow>(__addr_MsMenuCloseTitleWindow);
@@ -751,6 +754,23 @@ public unsafe class OverdriveModule : FhModule {
         if (chr_id == PlySaveId.PC_KIMAHRI && 
             com_id is >= PlayerCommandId.PCOM_JUMP and <= PlayerCommandId.PCOM_NOVA)
                 return local_checked_locations.Contains(((com_id - PlayerCommandId.PCOM_SPIRAL_CUT) & 0xFF) | (long)ArchipelagoLocationType.Overdrive) ? 1 : 0;
+
+        atelStack->push_int(chr_id);
+        atelStack->push_int(com_id);
+        return _ret_doesChrKnowCommand.orig_fptr(work, storage, atelStack);
+    }
+
+    private int h_ret_teachAbilityToPartyMemberSilently(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
+    {
+        int com_id = atelStack->pop_int();
+        int chr_id = atelStack->pop_int();
+
+        if (chr_id == PlySaveId.PC_WAKKA &&
+            com_id is >= PlayerCommandId.PCOM_ATTACK_REELS and <= PlayerCommandId.PCOM_AUROCHS_REELS)
+        {
+            send_overdrive(com_id);
+            return 1;
+        }
 
         atelStack->push_int(chr_id);
         atelStack->push_int(com_id);
