@@ -3552,24 +3552,22 @@ public unsafe partial class ArchipelagoFFXModule {
                 switch(item_id & 0xFF)
                 {
                     case <= 0x3:
-                        //chr_id = PlySaveId.PC_TIDUS;
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_TIDUS);
                         break;
                     case <= 0x7:
-                        //chr_id = PlySaveId.PC_AURON;
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_AURON);
                         break;
                     case <= 0x13:
-                        //chr_id = PlySaveId.PC_KIMAHRI;
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_KIMAHRI);
                         break;
                     case <= 0x17:
-                        //chr_id = PlySaveId.PC_WAKKA;
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_WAKKA);
                         break;
                     case 0x83:
-                        //chr_id = PlySaveId.PC_SEYMOUR;
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_SEYMOUR);
+                        break;
+                    case 0xCD:
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_VALEFOR);
                         break;
                     default:
                         throw new NotImplementedException();
