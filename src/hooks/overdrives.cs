@@ -316,6 +316,9 @@ public unsafe class OverdriveModule : FhModule {
                 case PlySaveId.PC_SEYMOUR:
                     seymour_overdrive();
                     break;
+                case PlySaveId.PC_VALEFOR:
+                    valefor_overdrive();
+                    break;
             }
         }
 
@@ -403,6 +406,13 @@ public unsafe class OverdriveModule : FhModule {
 
             save_data->ability_map_limit.has_requiem = hasRequiem;
         }
+
+        private static void valefor_overdrive()
+        {
+            bool hasEnergyBlast  = other_inventory.ContainsKey(0x00CD | overdriveOffset);
+
+            save_data->ability_map_limit.has_energy_blast = hasEnergyBlast;
+        }
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file)
@@ -422,7 +432,9 @@ public unsafe class OverdriveModule : FhModule {
     // When game is attempting to give a character an overdrive, instead call the relevant overdrive provider function
     private int h_MsGetSaveCommand(int chr_id, uint com_id)
     {
-        if (com_id is >= PlayerCommandId.PCOM_SPIRAL_CUT and <= PlayerCommandId.PCOM_AUROCHS_REELS || com_id == PlayerCommandId.PCOM_REQUIEM)
+        if (com_id is >= PlayerCommandId.PCOM_SPIRAL_CUT and <= PlayerCommandId.PCOM_AUROCHS_REELS 
+            || com_id == PlayerCommandId.PCOM_REQUIEM
+            || com_id == PlayerCommandId.PCOM_ENERGY_BLAST)
         {
             OverdriveProvider.provide_overdrive(chr_id);
         }
@@ -767,7 +779,7 @@ public unsafe class OverdriveModule : FhModule {
 
         atelStack->push_int(chr_id);
         atelStack->push_int(com_id);
-        return _ret_doesChrKnowCommand.orig_fptr(work, storage, atelStack);
+        return _ret_teachAbilityToPartyMemberSilently.orig_fptr(work, storage, atelStack);
     }
 
     private int h_ret_teachAbilityToPartyMemberWithMsg(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
@@ -777,7 +789,7 @@ public unsafe class OverdriveModule : FhModule {
         int window_idx = atelStack->pop_int();
 
         if (chr_id == PlySaveId.PC_VALEFOR && 
-            (com_id + 0x3000) == PlayerCommandId.PCOM_ENERGY_BLAST)
+            (com_id | 0x3000) == PlayerCommandId.PCOM_ENERGY_BLAST)
         {
             send_overdrive(PlayerCommandId.PCOM_ENERGY_BLAST);
         }
