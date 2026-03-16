@@ -164,21 +164,22 @@ public unsafe class OverdriveModule : FhModule {
     private delegate int Brnd(int rng_idx);
     private const nint __addr_Brnd = 0x398900;
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate int TOBtlDrawLearningMessageWindow(int chr_id, int com_id);
-    private const nint __addr_TOBtlDrawLearningMessageWindow = 0x495290;
+    //[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    //private delegate void ret_teachAbilityToPartyMemberWithMsg(int param_1, int param_2);
+    //private const nint __addr_ret_teachAbilityToPartyMemberWithMsg = 0x45B7C0;
 
     private const nint __addr_ret_doesChrKnowCommand = 0x3A30C0;
-    private const nint __addr_ret_teachAbilityToPartyMemberSilently = 0x000000;
+    private const nint __addr_ret_teachAbilityToPartyMemberSilently = 0x45B010;
+    private const nint __addr_ret_teachAbilityToPartyMemberWithMsg = 0x45B120;
 
     // Method Handles
     private readonly FhMethodHandle<MsGetSaveCommand> _MsGetSaveCommand;
     private readonly FhMethodHandle<MsSetRamChrAbility> _MsSetRamChrAbility;
     private readonly FhMethodHandle<MsLimitTidusLearn> _MsLimitTidusLearn;
     private readonly FhMethodHandle<MsAfterDamageProcess> _MsAfterDamageProcess;
-    private readonly FhMethodHandle<TOBtlDrawLearningMessageWindow> _TOBtlDrawLearningMessageWindow;
     private readonly FhMethodHandle<CT_RetInt> _ret_doesChrKnowCommand;
     private readonly FhMethodHandle<CT_RetInt> _ret_teachAbilityToPartyMemberSilently;
+    private readonly FhMethodHandle<CT_RetInt> _ret_teachAbilityToPartyMemberWithMsg;
 
     private readonly MsGetChr _MsGetChr;
     private readonly MsMenuCloseTitleWindow _MsMenuCloseTitleWindow;
@@ -253,9 +254,9 @@ public unsafe class OverdriveModule : FhModule {
         _MsSetRamChrAbility = new FhMethodHandle<MsSetRamChrAbility>(this, GAME, __addr_MsSetRamChrAbility, h_MsSetRamChrAbility);
         _MsLimitTidusLearn = new FhMethodHandle<MsLimitTidusLearn>(this, GAME, __addr_MsLimitTidusLearn, h_MsLimitTidusLearn);
         _MsAfterDamageProcess = new FhMethodHandle<MsAfterDamageProcess>(this, GAME, __addr_MsAfterDamageProcess, h_MsAfterDamageProcess);
-        _TOBtlDrawLearningMessageWindow = new FhMethodHandle<TOBtlDrawLearningMessageWindow>(this, GAME, __addr_TOBtlDrawLearningMessageWindow, h_TOBtlDrawLearningMessageWindow);
         _ret_doesChrKnowCommand = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
         _ret_teachAbilityToPartyMemberSilently = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_teachAbilityToPartyMemberSilently, h_ret_teachAbilityToPartyMemberSilently);
+        _ret_teachAbilityToPartyMemberWithMsg = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_teachAbilityToPartyMemberWithMsg, h_ret_teachAbilityToPartyMemberWithMsg);
 
         _MsGetChr = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
         _MsMenuCloseTitleWindow = FhUtil.get_fptr<MsMenuCloseTitleWindow>(__addr_MsMenuCloseTitleWindow);
@@ -291,6 +292,7 @@ public unsafe class OverdriveModule : FhModule {
         _Brnd = FhUtil.get_fptr<Brnd>(__addr_Brnd);
     }
 
+    // Helper class for overdrive provider functions
     public static class OverdriveProvider
     {
         private const int overdriveOffset = 0x4000;
@@ -412,9 +414,12 @@ public unsafe class OverdriveModule : FhModule {
             && _MsSetRamChrAbility.hook()
             && _MsLimitTidusLearn.hook()
             && _MsAfterDamageProcess.hook()
-            && _ret_doesChrKnowCommand.hook();
+            && _ret_doesChrKnowCommand.hook()
+            && _ret_teachAbilityToPartyMemberSilently.hook()
+            && _ret_teachAbilityToPartyMemberWithMsg.hook();
     }
 
+    // When game is attempting to give a character an overdrive, instead call the relevant overdrive provider function
     private int h_MsGetSaveCommand(int chr_id, uint com_id)
     {
         if (com_id is >= PlayerCommandId.PCOM_SPIRAL_CUT and <= PlayerCommandId.PCOM_AUROCHS_REELS || com_id == PlayerCommandId.PCOM_REQUIEM)
@@ -425,6 +430,7 @@ public unsafe class OverdriveModule : FhModule {
         return _MsGetSaveCommand.orig_fptr(chr_id, com_id);
     }
 
+    // When game is attempting to set character abilities, ensure the correct overdrive provider is called first
     private void h_MsSetRamChrAbility(int chr_id, Chr* chr)
     {
         OverdriveProvider.provide_overdrive(chr_id);
@@ -433,6 +439,7 @@ public unsafe class OverdriveModule : FhModule {
         return;
     }
 
+    // Runs on every Tidus Limit. Override the normal requirements, and send locations based on 10 / 20 / 40
     private int h_MsLimitTidusLearn(int chr_id)
     {
         if (chr_id == PlySaveId.PC_TIDUS)
@@ -440,31 +447,18 @@ public unsafe class OverdriveModule : FhModule {
             uint tidusLimitUses = ++save_data->tidus_limit_uses;
 
             if (tidusLimitUses >= 10)
-                if (send_overdrive(PlayerCommandId.PCOM_SLICE_AND_DICE))
-                {
-                    h_TOBtlDrawLearningMessageWindow(chr_id, PlayerCommandId.PCOM_SLICE_AND_DICE);
-                }
+                send_overdrive(PlayerCommandId.PCOM_SLICE_AND_DICE);
 
             if (tidusLimitUses >= 20)
-                if (send_overdrive(PlayerCommandId.PCOM_ENERGY_RAIN))
-                {
-                    h_TOBtlDrawLearningMessageWindow(chr_id, PlayerCommandId.PCOM_ENERGY_RAIN);
-                }
+                send_overdrive(PlayerCommandId.PCOM_ENERGY_RAIN);
 
             if (tidusLimitUses >= 40)
-                if (send_overdrive(PlayerCommandId.PCOM_BLITZ_ACE))
-                {
-                    h_TOBtlDrawLearningMessageWindow(chr_id, PlayerCommandId.PCOM_BLITZ_ACE);
-                }
+                send_overdrive(PlayerCommandId.PCOM_BLITZ_ACE);
         }
         return 0;
     }
 
-    private int h_TOBtlDrawLearningMessageWindow(int chr_id, int com_id)
-    {
-        return _TOBtlDrawLearningMessageWindow.orig_fptr(chr_id, com_id);
-    }
-
+    // Called multiple times on every instance damage. Complete reimplementation in order to interject on Kimahri's overdrive learning.
     private uint h_MsAfterDamageProcess(int attacker_id, uint param_2, int target_id, uint* param_4, uint param_5)
     {
         byte bVar1;
@@ -549,10 +543,7 @@ public unsafe class OverdriveModule : FhModule {
                                     //_MsSetSaveCommand(3, rage_to_learn, 1);
                                     //_MsMessageCueRegist(0x1, 3, rage_to_learn, 0x1e, 0x32);
 
-                                    if (send_overdrive(rage_to_learn))
-                                    {
-                                        h_TOBtlDrawLearningMessageWindow(attacker_id, rage_to_learn);
-                                    }
+                                    send_overdrive(rage_to_learn);                                    
 
                                     target->ram.limit_charge = target->ram.limit_charge_max;
 
@@ -746,6 +737,7 @@ public unsafe class OverdriveModule : FhModule {
         return uVar12;
     }
 
+    // Required in order to allow Biran & Yenke's ChrLoot to progress to the next Ronso Rage based on location sent, rather than command known.
     private int h_ret_doesChrKnowCommand(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
     {
         int com_id = atelStack->pop_int();
@@ -760,16 +752,17 @@ public unsafe class OverdriveModule : FhModule {
         return _ret_doesChrKnowCommand.orig_fptr(work, storage, atelStack);
     }
 
+    // Required to interject on receiving Wakka's overdrive from Blitzball.
     private int h_ret_teachAbilityToPartyMemberSilently(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
     {
         int com_id = atelStack->pop_int();
         int chr_id = atelStack->pop_int();
 
         if (chr_id == PlySaveId.PC_WAKKA &&
-            com_id is >= PlayerCommandId.PCOM_ATTACK_REELS and <= PlayerCommandId.PCOM_AUROCHS_REELS)
+            (com_id | 0x3000) is >= PlayerCommandId.PCOM_ATTACK_REELS and <= PlayerCommandId.PCOM_AUROCHS_REELS)
         {
-            send_overdrive(com_id);
-            return 1;
+            send_overdrive(com_id | 0x3000);
+            return chr_id;
         }
 
         atelStack->push_int(chr_id);
@@ -777,10 +770,28 @@ public unsafe class OverdriveModule : FhModule {
         return _ret_doesChrKnowCommand.orig_fptr(work, storage, atelStack);
     }
 
-    public static bool send_overdrive(int com_id)
+    private int h_ret_teachAbilityToPartyMemberWithMsg(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
+    {
+        int com_id = atelStack->pop_int();
+        int chr_id = atelStack->pop_int();
+        int window_idx = atelStack->pop_int();
+
+        if (chr_id == PlySaveId.PC_VALEFOR && 
+            (com_id + 0x3000) == PlayerCommandId.PCOM_ENERGY_BLAST)
+        {
+            send_overdrive(PlayerCommandId.PCOM_ENERGY_BLAST);
+        }
+        
+        atelStack->push_int(window_idx);
+        atelStack->push_int(chr_id);
+        atelStack->push_int(com_id);
+
+        return _ret_teachAbilityToPartyMemberWithMsg.orig_fptr(work, storage, atelStack);
+    }
+
+    public static void send_overdrive(int com_id)
     {
         int overdrive_id = com_id - PlayerCommandId.PCOM_SPIRAL_CUT;
-        bool location_sent = false;
 
         if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
         {
@@ -788,12 +799,10 @@ public unsafe class OverdriveModule : FhModule {
             {
                 if (FFXArchipelagoClient.sendLocation(overdrive_id, FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
                 {
-                    location_sent = true;
                     ArchipelagoFFXModule.obtain_item(item.id);
                 }
             }
         }
-        return location_sent;
     }
 
     private static T* ptr_at<T>(nint address)          where T : unmanaged { return (T*)(address); }
