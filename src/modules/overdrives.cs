@@ -13,7 +13,8 @@ using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
-public unsafe partial class OverdriveModule : FhModule {
+public unsafe partial class OverdriveModule : FhModule 
+{
     // Fahrenheit-related
     private FhModContext? _mod_context;
     private FileStream? _global_state;
@@ -59,39 +60,6 @@ public unsafe partial class OverdriveModule : FhModule {
         _ret_doesChrKnowCommand = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
         _ret_teachAbilityToPartyMemberSilently = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_teachAbilityToPartyMemberSilently, h_ret_teachAbilityToPartyMemberSilently);
         _ret_teachAbilityToPartyMemberWithMsg = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_teachAbilityToPartyMemberWithMsg, h_ret_teachAbilityToPartyMemberWithMsg);
-
-        _MsGetChr = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
-        _MsMenuCloseTitleWindow = FhUtil.get_fptr<MsMenuCloseTitleWindow>(__addr_MsMenuCloseTitleWindow);
-        _MsMessageCueRegist = FhUtil.get_fptr<MsMessageCueRegist>(__addr_MsMessageCueRegist);
-        _MsSetStealEffect = FhUtil.get_fptr<MsSetStealEffect>(__addr_MsSetStealEffect);
-        _MsRegSEplay2 = FhUtil.get_fptr<MsRegSEplay2>(__addr_MsRegSEplay2);
-        _MsPayGIL = FhUtil.get_fptr<MsPayGIL>(__addr_MsPayGIL);
-        _MsSetStealGillEffect = FhUtil.get_fptr<MsSetStealGillEffect>(__addr_MsSetStealGillEffect);
-        _MsCheckRange = FhUtil.get_fptr<MsCheckRange>(__addr_MsCheckRange);
-        _MsSetSaveCommand = FhUtil.get_fptr<MsSetSaveCommand>(__addr_MsSetSaveCommand);
-        _achievementUnlockAchievement = FhUtil.get_fptr<achievementUnlockAchievement>(__addr_achievementUnlockAchievement);
-        _MsNumberRegist = FhUtil.get_fptr<MsNumberRegist>(__addr_MsNumberRegist);
-        _MsLimitTypeDamageCheck = FhUtil.get_fptr<MsLimitTypeDamageCheck>(__addr_MsLimitTypeDamageCheck);
-        _MsSubHP = FhUtil.get_fptr<MsSubHP>(__addr_MsSubHP);
-        _MsSubMP = FhUtil.get_fptr<MsSubMP>(__addr_MsSubMP);
-        _MsSubCTB = FhUtil.get_fptr<MsSubCTB>(__addr_MsSubCTB);
-        _MsLimitTypeStatusCheck = FhUtil.get_fptr<MsLimitTypeStatusCheck>(__addr_MsLimitTypeStatusCheck);
-        _MsLimitStatusProcess = FhUtil.get_fptr<MsLimitStatusProcess>(__addr_MsLimitStatusProcess);
-        _MsAliveProcess = FhUtil.get_fptr<MsAliveProcess>(__addr_MsAliveProcess);
-        _MsStoneProcess = FhUtil.get_fptr<MsStoneProcess>(__addr_MsStoneProcess);
-        _MsBlowProcess = FhUtil.get_fptr<MsBlowProcess>(__addr_MsBlowProcess);
-        _MsThreatProcess = FhUtil.get_fptr<MsThreatProcess>(__addr_MsThreatProcess);
-        _MsAutoCureProcess = FhUtil.get_fptr<MsAutoCureProcess>(__addr_MsAutoCureProcess);
-        _MsAutoPotionProcess = FhUtil.get_fptr<MsAutoPotionProcess>(__addr_MsAutoPotionProcess);
-        _MsSetChrWeak = FhUtil.get_fptr<MsSetChrWeak>(__addr_MsSetChrWeak);
-        _MsAutoRelifeProcess = FhUtil.get_fptr<MsAutoRelifeProcess>(__addr_MsAutoRelifeProcess);
-        _MsStatusEffectCheck = FhUtil.get_fptr<MsStatusEffectCheck>(__addr_MsStatusEffectCheck);
-        _MsStatusDefenseEffect = FhUtil.get_fptr<MsStatusDefenseEffect>(__addr_MsStatusDefenseEffect);
-        _MsActionRequest = FhUtil.get_fptr<MsActionRequest>(__addr_MsActionRequest);
-        _MsPopBtlPos = FhUtil.get_fptr<MsPopBtlPos>(__addr_MsPopBtlPos);
-        _MsDamageCheckDeath = FhUtil.get_fptr<MsDamageCheckDeath>(__addr_MsDamageCheckDeath);
-        _MsDamageSetMotion = FhUtil.get_fptr<MsDamageSetMotion>(__addr_MsDamageSetMotion);
-        _Brnd = FhUtil.get_fptr<Brnd>(__addr_Brnd);
     }
 
     // Helper class for overdrive provider functions
@@ -231,6 +199,10 @@ public unsafe partial class OverdriveModule : FhModule {
             && _ret_teachAbilityToPartyMemberWithMsg.hook();
     }
 
+    private static T* ptr_at<T>(nint address) where T : unmanaged { return (T*)(address); }
+    private static T get_at<T>(nint address) where T : unmanaged { return *ptr_at<T>(address); }
+    private static T set_at<T>(nint address, T value) where T : unmanaged { return *ptr_at<T>(address) = value; }
+
     // When game is attempting to give a character an overdrive, instead call the relevant overdrive provider function
     private int h_MsGetSaveCommand(int chr_id, uint com_id)
     {
@@ -256,19 +228,18 @@ public unsafe partial class OverdriveModule : FhModule {
     // Runs on every Tidus Limit. Override the normal requirements, and send locations based on 10 / 20 / 40
     private int h_MsLimitTidusLearn(int chr_id)
     {
-        if (chr_id == PlySaveId.PC_TIDUS)
-        {
-            uint tidusLimitUses = ++save_data->tidus_limit_uses;
+        if (chr_id != PlySaveId.PC_TIDUS)
+            return 0;
 
-            if (tidusLimitUses >= 10)
-                send_overdrive(PlayerCommandId.PCOM_SLICE_AND_DICE);
+        uint tidusLimitUses = ++save_data->tidus_limit_uses;
 
-            if (tidusLimitUses >= 20)
-                send_overdrive(PlayerCommandId.PCOM_ENERGY_RAIN);
-
-            if (tidusLimitUses >= 40)
-                send_overdrive(PlayerCommandId.PCOM_BLITZ_ACE);
-        }
+        if (tidusLimitUses >= 10)
+            send_overdrive(PlayerCommandId.PCOM_SLICE_AND_DICE);
+        if (tidusLimitUses >= 20)
+            send_overdrive(PlayerCommandId.PCOM_ENERGY_RAIN);
+        if (tidusLimitUses >= 40)
+            send_overdrive(PlayerCommandId.PCOM_BLITZ_ACE);
+        
         return 0;
     }
 
@@ -534,7 +505,7 @@ public unsafe partial class OverdriveModule : FhModule {
         {
             if (iVar7 == 6)
             {
-                uVar9 = (uint)_Brnd(9);
+                uVar9 = (uint)_brnd(9);
                 iVar7 = (int)(uVar9 & 1) + 0xf;
                 _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
                 return uVar12;
@@ -545,7 +516,7 @@ public unsafe partial class OverdriveModule : FhModule {
                 return uVar12;
             }
         }
-        uVar9 = (uint)_Brnd(9);
+        uVar9 = (uint)_brnd(9);
         iVar7 = (int)(uVar9 & 3) + 0xd;
         _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
         return uVar12;
@@ -606,6 +577,7 @@ public unsafe partial class OverdriveModule : FhModule {
 
     public static void send_overdrive(int com_id)
     {
+        // Apworld defines Spiral Cut as overdrive location 0, and all other overdrives are as an offset from that value.
         int overdrive_id = com_id - PlayerCommandId.PCOM_SPIRAL_CUT;
 
         if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
@@ -619,10 +591,4 @@ public unsafe partial class OverdriveModule : FhModule {
             }
         }
     }
-
-    private static T* ptr_at<T>(nint address)          where T : unmanaged { return (T*)(address); }
-    private static T  get_at<T>(nint address)          where T : unmanaged { return *ptr_at<T>(address); }
-    private static T  set_at<T>(nint address, T value) where T : unmanaged { return *ptr_at<T>(address) = value; }
-
 }
-

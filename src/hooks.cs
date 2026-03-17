@@ -3549,8 +3549,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 other_inventory.TryGetValue(item_id, out count);
                 other_inventory[item_id] = count + 1;
 
-                switch(item_id & 0xFF)
-                {
+                switch (item_id & 0xFFF) {
                     case <= 0x3:
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_TIDUS);
                         break;
