@@ -52,8 +52,10 @@ public unsafe partial class OverdriveModule : FhModule
         [FieldOffset(0x05)] public byte        field5_0x5;
         [FieldOffset(0x05)] public byte        field6_0x6;
         [FieldOffset(0x07)] public byte        field7_0x7;
+        [FieldOffset(0x08)] public short       field8_0x8;
         [FieldOffset(0x0C)] public byte        field12_0xC;
         [FieldOffset(0x10)] public byte        field16_0x10;
+        [FieldOffset(0x17)] public byte        field23_0x17;
         [FieldOffset(0x18)] public DamageInfo  field24_0x18;
     };
 
@@ -274,7 +276,7 @@ public unsafe partial class OverdriveModule : FhModule
                         _MsMenuCloseTitleWindow(0);
                         target_0x774->field7_0x7 = 0;
                         _MsMessageCueRegist(0x4, target_0x774->field7_0x7 + 3, target_0x774->field7_0x7 + 1, 0x1b, 0x23);
-                        if (0 < *(short*)(target_0x774 + 1))
+                        if (0 < target_0x774->field8_0x8)
                         {
                             _MsSetStealEffect(target_id, target_0x774->field1_0x1);
                             _MsRegSEplay2(target_id, 0x41);
@@ -287,8 +289,8 @@ public unsafe partial class OverdriveModule : FhModule
                     {
                         _MsMenuCloseTitleWindow(0);
                         target_0x774->field12_0xC = 0;
-                        _MsMessageCueRegist(0x8, *(int*)(target_0x774 + 9), 0, 0x1b, 0x23);
-                        if (0 < *(int*)(target_0x774 + 9))
+                        _MsMessageCueRegist(0x8, target_0x774->field16_0x10, 0, 0x1b, 0x23);
+                        if (0 < target_0x774->field16_0x10)
                         {
                             _MsPayGIL(-*(int*)(target_0x774 + 9));
                             _MsSetStealGillEffect(target_id, target_0x774->field1_0x1);
@@ -310,7 +312,7 @@ public unsafe partial class OverdriveModule : FhModule
 
                     if (target_0x774->field4_0x4.get_bit(1))
                     {
-                        Chr* pCVar8 = _MsGetChr(target_0x774->field16_0x10);
+                        Chr* pCVar8 = _MsGetChr(target_0x774->field23_0x17);
                         if (target_id == 3 && pCVar8->loot != (ChrLoot*)0x0)
                         {
                             ushort rage_to_learn = pCVar8->loot->ronso_rage;
@@ -344,13 +346,13 @@ public unsafe partial class OverdriveModule : FhModule
 
                 if (target_0x774->field0_0x0 < target_0x774->field1_0x1)
                 {
-                    DamageInfo* target_0x774_0x0 = &target_0x774->field24_0x18 + target_0x774->field0_0x0;
+                    DamageInfo* target_0x774_damage_info = &target_0x774->field24_0x18 + target_0x774->field0_0x0;
 
                     int local_20 = 0;
                     if (!param_5.get_bit(3))
                     {
-                        int iVar7 = target_0x774_0x0->field1_0x1;
-                        uint uVar9 = target_0x774_0x0->field2_0x2;
+                        int iVar7 = target_0x774_damage_info->field1_0x1;
+                        uint uVar9 = target_0x774_damage_info->field2_0x2;
 
                         if (iVar7 == 1)
                         {
@@ -361,44 +363,44 @@ public unsafe partial class OverdriveModule : FhModule
                             _MsNumberRegist(target_id, 4, 0, 0, 2, uVar9, 0x81);
                         }
 
-                        _MsLimitTypeDamageCheck(attacker_id, attacker, target_id, target, target_0x774_0x0->out_damage_hp, target_0x774_0x0->out_damage_expected, target_0x774->field6_0x6);
+                        _MsLimitTypeDamageCheck(attacker_id, attacker, target_id, target, target_0x774_damage_info->out_damage_hp, target_0x774_damage_info->out_damage_expected, target_0x774->field6_0x6);
 
-                        if (target_0x774_0x0->dmg_calc_flags1.get_bit(0))
+                        if (target_0x774_damage_info->dmg_calc_flags1.get_bit(0))
                         {
-                            _MsSubHP(target_id, target, target_0x774_0x0->out_damage_hp, target_0x774_0x0->out_damage_mp, iVar7, uVar9, 0x81);
+                            _MsSubHP(target_id, target, target_0x774_damage_info->out_damage_hp, target_0x774_damage_info->out_damage_mp, iVar7, uVar9, 0x81);
 
-                            set_at((int)target + 0xF60, get_at<int>((int)target + 0xF60) - target_0x774_0x0->out_damage_hp);
+                            set_at((int)target + 0xF60, get_at<int>((int)target + 0xF60) - target_0x774_damage_info->out_damage_hp);
 
-                            local_20 += target_0x774_0x0->out_damage_hp;
+                            local_20 += target_0x774_damage_info->out_damage_hp;
                         }
 
-                        if (target_0x774_0x0->dmg_calc_flags1.get_bit(1))
+                        if (target_0x774_damage_info->dmg_calc_flags1.get_bit(1))
                         {
-                            _MsSubMP(target_id, target, target_0x774_0x0->out_damage_mp, target_0x774_0x0->out_damage_hp, iVar7, uVar9, 0x81);
+                            _MsSubMP(target_id, target, target_0x774_damage_info->out_damage_mp, target_0x774_damage_info->out_damage_hp, iVar7, uVar9, 0x81);
                         }
 
-                        if (target_0x774_0x0->dmg_calc_flags1.get_bit(2))
+                        if (target_0x774_damage_info->dmg_calc_flags1.get_bit(2))
                         {
-                            _MsSubCTB(target_id, target, target_0x774_0x0->out_damage_ctb, iVar7, uVar9, 0x81);
+                            _MsSubCTB(target_id, target, target_0x774_damage_info->out_damage_ctb, iVar7, uVar9, 0x81);
                             //dbgPrintf("CTB DAMAGE %d %d : %d\n", target_id, iVar10, (target->ram).ctb);
                         }
 
-                        _MsLimitTypeStatusCheck(attacker_id, attacker, target_id, target, target_0x774_0x0->field4_0x4, target_0x774_0x0->field3_0x3);
+                        _MsLimitTypeStatusCheck(attacker_id, attacker, target_id, target, target_0x774_damage_info->field4_0x4, target_0x774_damage_info->field3_0x3);
                         StatusPermanentFlags SVar5 = target->ram.status_suffer;
                         byte bVar1 = target->ram.status_suffer_turns_left.darkness;
                         byte bVar2 = target->ram.status_suffer_turns_left.silence;
                         byte bVar3 = target->ram.status_suffer_turns_left.regen;
                         StatusExtraFlags bVar4 = target->ram.status_suffer_extra;
-                        target->ram.status_suffer = target_0x774_0x0->target_status_suffer;
+                        target->ram.status_suffer = target_0x774_damage_info->target_status_suffer;
 
                         for (int i = 0; i < 0xD; i++)
                         {
                             // TODO: Improvements pending the availability of indexers from Fahrenheit, as per https://github.com/fahrenheit-crew/fahrenheit/issues/114
-                            (&target->ram.status_suffer_turns_left.sleep)[i] = (&target_0x774_0x0->target_status_suffer_turns_left.sleep)[i];
+                            (&target->ram.status_suffer_turns_left.sleep)[i] = (&target_0x774_damage_info->target_status_suffer_turns_left.sleep)[i];
                         }
 
-                        target->ram.status_suffer_extra = target_0x774_0x0->target_status_suffer_extra;
-                        _MsLimitStatusProcess(target_id, target, target_0x774_0x0->flags_buffs_mix);
+                        target->ram.status_suffer_extra = target_0x774_damage_info->target_status_suffer_extra;
+                        _MsLimitStatusProcess(target_id, target, target_0x774_damage_info->flags_buffs_mix);
 
                         if ((target->ram.status_suffer_turns_left.regen != 0) && (bVar3 == 0))
                         {
@@ -448,16 +450,16 @@ public unsafe partial class OverdriveModule : FhModule
                         _MsAutoRelifeProcess(attacker_id, attacker, target_id, target);
                     }
 
-                    if (!param_5.get_bit(1) && (target_0x774_0x0->field0_0x0 != 1 || !target_0x774->field5_0x5.get_bit(2)))
+                    if (!param_5.get_bit(1) && (target_0x774_damage_info->field0_0x0 != 1 || !target_0x774->field5_0x5.get_bit(2)))
                     {
                         target_0x774->field5_0x5 |= 4;
-                        local_30 = target_0x774_0x0;
+                        local_30 = target_0x774_damage_info;
                     }
 
                     if (!param_5.get_bit(4))
                     {
                         _MsStatusEffectCheck(target_id);
-                        if (_MsStatusDefenseEffect(attacker_id, target_id, target_0x774_0x0->dmg_calc_flags1) != 0)
+                        if (_MsStatusDefenseEffect(attacker_id, target_id, target_0x774_damage_info->dmg_calc_flags1) != 0)
                         {
                             *param_4 = (uint)target_id;
                         }
@@ -488,7 +490,7 @@ public unsafe partial class OverdriveModule : FhModule
                 }
             }
 
-            target_0x774 = target_0x774 + 0x2d8;
+            target_0x774 += 1;
         }
 
         if (!uVar12.get_bit(0) && _MsDamageCheckDeath(attacker_id, target_id, 0, (attacker_id != target_id) ? 1 : 0) != 0)
