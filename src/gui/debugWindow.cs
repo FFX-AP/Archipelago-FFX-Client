@@ -750,7 +750,7 @@ public unsafe static class ArchipelagoGUI {
                                              ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.CallbackHistory,
                                              _client_input_ImGuiInputTextCallback);
 
-        if (process_input) {
+        if (process_input && client_input_command.Length > 0) {
             client_input_history.AddFirst(client_input_command);
             if (client_input_history.Count > 10) {
                 client_input_history.RemoveLast();
