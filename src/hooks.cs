@@ -3543,29 +3543,29 @@ public unsafe partial class ArchipelagoFFXModule {
                     queued_voice_lines.Enqueue(voicelines[rng.Next(voicelines.Length)]);
                 }
                 break;
-            case 0x4:
+            case 0x3:
                 // Overdrive
                 logger.Debug($"Overdrive: {item_id}");
                 other_inventory.TryGetValue(item_id, out count);
                 other_inventory[item_id] = count + 1;
 
-                switch (item_id & 0xFFF) {
-                    case <= 0x3:
+                switch (item_id) {
+                    case >= PlayerCommandId.PCOM_SPIRAL_CUT and <= PlayerCommandId.PCOM_BLITZ_ACE:
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_TIDUS);
                         break;
-                    case <= 0x7:
+                    case >= PlayerCommandId.PCOM_SHOOTING_STAR and <= PlayerCommandId.PCOM_TORNADO:
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_AURON);
                         break;
-                    case <= 0x13:
+                    case >= PlayerCommandId.PCOM_JUMP and <= PlayerCommandId.PCOM_NOVA:
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_KIMAHRI);
                         break;
-                    case <= 0x17:
+                    case >= PlayerCommandId.PCOM_ELEMENT_REELS and <= PlayerCommandId.PCOM_AUROCHS_REELS:
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_WAKKA);
                         break;
-                    case 0x83:
+                    case PlayerCommandId.PCOM_REQUIEM:
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_SEYMOUR);
                         break;
-                    case 0xCD:
+                    case PlayerCommandId.PCOM_ENERGY_BLAST:
                         OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_VALEFOR);
                         break;
                     default:
