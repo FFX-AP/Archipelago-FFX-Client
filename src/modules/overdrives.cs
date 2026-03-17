@@ -530,7 +530,9 @@ public unsafe partial class OverdriveModule : FhModule
 
         if (chr_id == PlySaveId.PC_KIMAHRI && 
             com_id is >= PlayerCommandId.PCOM_JUMP and <= PlayerCommandId.PCOM_NOVA)
-                return local_checked_locations.Contains(((com_id - PlayerCommandId.PCOM_SPIRAL_CUT) & 0xFF) | (long)ArchipelagoLocationType.Overdrive) ? 1 : 0;
+        {
+            return local_checked_locations.Contains(((com_id - PlayerCommandId.PCOM_SPIRAL_CUT) & 0xFF) | (long)ArchipelagoLocationType.Overdrive) ? 1 : 0;
+        }
 
         atelStack->push_int(chr_id);
         atelStack->push_int(com_id);
