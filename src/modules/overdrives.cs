@@ -54,7 +54,7 @@ public unsafe partial class OverdriveModule : FhModule
         [FieldOffset(0x07)] public byte        field7_0x7;
         [FieldOffset(0x08)] public short       field8_0x8;
         [FieldOffset(0x0C)] public byte        field12_0xC;
-        [FieldOffset(0x10)] public byte        field16_0x10;
+        [FieldOffset(0x10)] public int         field16_0x10;
         [FieldOffset(0x17)] public byte        field23_0x17;
         [FieldOffset(0x18)] public DamageInfo  field24_0x18;
     };
