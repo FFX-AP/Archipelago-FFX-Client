@@ -254,14 +254,10 @@ public unsafe partial class OverdriveModule : FhModule
     // Called multiple times on every instance damage. Complete reimplementation in order to interject on Kimahri's overdrive learning
     private uint h_MsAfterDamageProcess(int attacker_id, uint param_2, int target_id, uint* param_4, uint param_5)
     {
-        int iVar7;
-        uint uVar9;
         uint uVar12 = 0;
         DamageInfo* local_30 = (DamageInfo*)0x0;
         Chr* attacker = _MsGetChr(attacker_id);
         Chr* target = _MsGetChr(target_id);
-        //byte* target_0x774 = &target->field1402_0x774[0].field_0x7;
-        //byte* target_0x774 = (byte*)(target + 0x774 + 7);
         Chr__0x774* target_0x774 = (Chr__0x774*)target + 0x774;
 
         for (int n = 2; n > 0; n--)
@@ -309,8 +305,7 @@ public unsafe partial class OverdriveModule : FhModule
                     {
                         byte bVar1 = attacker->ram.limit_charge;
                         attacker->ram.limit_charge = 0;
-                        iVar7 = _MsCheckRange(target->ram.limit_charge + bVar1, 0, target->ram.limit_charge_max);
-                        target->ram.limit_charge = (byte)iVar7;
+                        target->ram.limit_charge = (byte)_MsCheckRange(target->ram.limit_charge + bVar1, 0, target->ram.limit_charge_max);
                     }
 
                     if (target_0x774->field4_0x4.get_bit(1))
@@ -321,8 +316,7 @@ public unsafe partial class OverdriveModule : FhModule
                             ushort rage_to_learn = pCVar8->loot->ronso_rage;
                             if (rage_to_learn != 0)
                             {
-                                iVar7 = _MsGetSaveCommand(3, rage_to_learn) ? 1 : 0;
-                                if (iVar7 == 0)
+                                if (!_MsGetSaveCommand(3, rage_to_learn))
                                 {
                                     //_MsSetSaveCommand(3, rage_to_learn, 1);
                                     //_MsMessageCueRegist(0x1, 3, rage_to_learn, 0x1e, 0x32);
@@ -355,8 +349,8 @@ public unsafe partial class OverdriveModule : FhModule
                     int local_20 = 0;
                     if (!param_5.get_bit(3))
                     {
-                        iVar7 = target_0x774_0x0->field1_0x1;
-                        uVar9 = target_0x774_0x0->field2_0x2;
+                        int iVar7 = target_0x774_0x0->field1_0x1;
+                        uint uVar9 = target_0x774_0x0->field2_0x2;
 
                         if (iVar7 == 1)
                         {
@@ -507,33 +501,29 @@ public unsafe partial class OverdriveModule : FhModule
             return uVar12;
         }
 
-        iVar7 = local_30->field0_0x0;
         if (!param_5.get_bit(5))
         {
-            _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
+            _MsDamageSetMotion(target_id, local_30->field0_0x0, (attacker_id != target_id) ? 1 : 0);
             return uVar12;
         }
 
-        if (iVar7 != 5)
+        if (local_30->field0_0x0 != 5)
         {
-            if (iVar7 == 6)
+            if (local_30->field0_0x0 == 6)
             {
-                uVar9 = (uint)_brnd(9);
-                iVar7 = uVar9.get_bit(0) ? 0x10 : 0xF;
-                _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
+                local_30->field0_0x0 = _brnd(9).get_bit(0) ? (byte)0x10 : (byte)0xF;
+                _MsDamageSetMotion(target_id, local_30->field0_0x0, (attacker_id != target_id) ? 1 : 0);
                 return uVar12;
             }
 
-            if (iVar7 != 8)
+            if (local_30->field0_0x0 != 8)
             {
-                _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
+                _MsDamageSetMotion(target_id, local_30->field0_0x0, (attacker_id != target_id) ? 1 : 0);
                 return uVar12;
             }
         }
 
-        uVar9 = (uint)_brnd(9);
-        iVar7 = (int)uVar9.get_bits(0, 2) + 0xD;
-        _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
+        _MsDamageSetMotion(target_id, _brnd(9).get_bits(0, 2) + 0xD, (attacker_id != target_id) ? 1 : 0);
         return uVar12;
     }
 
