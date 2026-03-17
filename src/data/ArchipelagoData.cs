@@ -1,4 +1,4 @@
-﻿using Fahrenheit;
+﻿using Archipelago.MultiClient.Net.Enums;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using Archipelago.MultiClient.Net.Enums;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
@@ -1510,4 +1509,34 @@ public static class ArchipelagoData {
         "Aeon Customization: EVA +1: 1x Speed Sphere",
         "Aeon Customization: ACC +1: 1x Speed Sphere",
         ];
+
+    public static Dictionary<uint, string> overdrive_names = new Dictionary<uint, string>()
+    {
+        {PlayerCommandId.PCOM_SPIRAL_CUT,       "Overdrive: Spiral Cut"      },
+        {PlayerCommandId.PCOM_SLICE_AND_DICE,   "Overdrive: Slice & Dice"    },
+        {PlayerCommandId.PCOM_ENERGY_RAIN,      "Overdrive: Energy Rain"     },
+        {PlayerCommandId.PCOM_BLITZ_ACE,        "Overdrive: Blitz Ace"       },
+        {PlayerCommandId.PCOM_SHOOTING_STAR,    "Overdrive: Shooting Star"   },
+        {PlayerCommandId.PCOM_DRAGON_FANG,      "Overdrive: Dragon Fang"     },
+        {PlayerCommandId.PCOM_BANISHING_BLADE,  "Overdrive: Banishing Blade" },
+        {PlayerCommandId.PCOM_TORNADO,          "Overdrive: Tornado"         },
+        {PlayerCommandId.PCOM_JUMP,             "Overdrive: Jump"            },
+        {PlayerCommandId.PCOM_FIRE_BREATH,      "Overdrive: Fire Breath"     },
+        {PlayerCommandId.PCOM_SEED_CANNON,      "Overdrive: Seed Cannon"     },
+        {PlayerCommandId.PCOM_SELF_DESTRUCT,    "Overdrive: Self-Destruct"   },
+        {PlayerCommandId.PCOM_THRUST_KICK,      "Overdrive: Thrust Kick"     },
+        {PlayerCommandId.PCOM_STONE_BREATH,     "Overdrive: Stone Breath"    },
+        {PlayerCommandId.PCOM_AQUA_BREATH,      "Overdrive: Aqua Breath"     },
+        {PlayerCommandId.PCOM_DOOM,             "Overdrive: Doom"            },
+        {PlayerCommandId.PCOM_WHITE_WIND,       "Overdrive: White Wind"      },
+        {PlayerCommandId.PCOM_BAD_BREATH,       "Overdrive: Bad Breath"      },
+        {PlayerCommandId.PCOM_MIGHTY_GUARD,     "Overdrive: Might Guard"     },
+        {PlayerCommandId.PCOM_NOVA,             "Overdrive: Nova"            },
+        {PlayerCommandId.PCOM_ELEMENT_REELS,    "Overdrive: Element Reels"   },
+        {PlayerCommandId.PCOM_ATTACK_REELS,     "Overdrive: Attack Reels"    },
+        {PlayerCommandId.PCOM_STATUS_REELS,     "Overdrive: Status Reels"    },
+        {PlayerCommandId.PCOM_AUROCHS_REELS,    "Overdrive: Aurochs Reels"   },
+        {PlayerCommandId.PCOM_REQUIEM,          "Overdrive: Requiem"         },
+        {PlayerCommandId.PCOM_ENERGY_BLAST,     "Overdrive: Energy Blast"    },
+    };
 }

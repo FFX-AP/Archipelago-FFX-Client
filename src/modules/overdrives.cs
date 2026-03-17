@@ -55,7 +55,7 @@ public unsafe partial class OverdriveModule : FhModule
         [FieldOffset(0x08)] public short       field8_0x8;
         [FieldOffset(0x0C)] public byte        field12_0xC;
         [FieldOffset(0x10)] public int         field16_0x10;
-        [FieldOffset(0x17)] public byte        field23_0x17;
+        [FieldOffset(0x17)] public byte        chr_id__0x17;
         [FieldOffset(0x18)] public DamageInfo  field24_0x18;
     };
 
@@ -260,21 +260,22 @@ public unsafe partial class OverdriveModule : FhModule
         DamageInfo* local_30 = (DamageInfo*)0x0;
         Chr* attacker = _MsGetChr(attacker_id);
         Chr* target = _MsGetChr(target_id);
-        Chr__0x774* target_0x774 = (Chr__0x774*)target + 0x774;
+        Chr__0x774* target_0x774 = (Chr__0x774*)((int)target + 0x774);
 
         for (int n = 2; n > 0; n--)
         {
             if (target_0x774->field2_0x2 == attacker_id && target_0x774->field3_0x3 == param_2)
             {
                 //set_at((int)target + 0xF5E, param_5 & 0x7f);
-                set_at((int)target + 0xF5E, param_5.get_bits(0, 7));
-                set_at((int)target + 0xDED, attacker_id);
+                set_at((int)target + 0xF5E, (byte)param_5.get_bits(0, 7));
+                set_at((int)target + 0xDED, (byte)attacker_id);
                 if (!param_5.get_bit(3))
                 {
                     if (target_0x774->field7_0x7 != 0)
                     {
                         _MsMenuCloseTitleWindow(0);
                         target_0x774->field7_0x7 = 0;
+                        //_MsMessageCueRegist(0x4, target_0x774->field7_0x7 + 3, target_0x774->field7_0x7 + 1, 0x1b, 0x23);
                         _MsMessageCueRegist(0x4, target_0x774->field7_0x7 + 3, target_0x774->field7_0x7 + 1, 0x1b, 0x23);
                         if (0 < target_0x774->field8_0x8)
                         {
@@ -312,7 +313,7 @@ public unsafe partial class OverdriveModule : FhModule
 
                     if (target_0x774->field4_0x4.get_bit(1))
                     {
-                        Chr* pCVar8 = _MsGetChr(target_0x774->field23_0x17);
+                        Chr* pCVar8 = _MsGetChr(target_0x774->chr_id__0x17);
                         if (target_id == 3 && pCVar8->loot != (ChrLoot*)0x0)
                         {
                             ushort rage_to_learn = pCVar8->loot->ronso_rage;
@@ -474,7 +475,7 @@ public unsafe partial class OverdriveModule : FhModule
                 {
                     if (target_0x774->field5_0x5.get_bit(0) && !target_0x774->field5_0x5.get_bit(1))
                     {
-                        get_at<bool>((int)&target->ram + 0x19D);
+                        set_at((int)&target->ram + 0x19D, false);
                         target_0x774->field5_0x5 |= 2;
                         _MsActionRequest(target_id, attacker_id, 3, 0, 1, null);
                     }
@@ -513,8 +514,7 @@ public unsafe partial class OverdriveModule : FhModule
         {
             if (local_30->field0_0x0 == 6)
             {
-                local_30->field0_0x0 = _brnd(9).get_bit(0) ? (byte)0x10 : (byte)0xF;
-                _MsDamageSetMotion(target_id, local_30->field0_0x0, (attacker_id != target_id) ? 1 : 0);
+                _MsDamageSetMotion(target_id, _brnd(9).get_bit(0) ? (byte)0x10 : (byte)0xF, (attacker_id != target_id) ? 1 : 0);
                 return uVar12;
             }
 

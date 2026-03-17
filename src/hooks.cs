@@ -2979,6 +2979,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 }
             }
         }
+        logger.Info($"Local7c = {local_7c[0]}");
     }
 
     public static int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
@@ -3954,11 +3955,16 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     public static string get_other_item_name(uint item_id) {
-        var item_type = (item_id & 0xF000) >> 12;
-        var id = item_id & 0xFF;
+        var item_type = (item_id & 0xF000) >> 0xC;
+        var id = item_id & 0xFFF;
 
-        if (item_type != 0xC || !(id < other_item_names.Length)) return $"Unnamed item ({item_id})";
-        return other_item_names[id];
+        if (item_type == 0xC && (id < other_item_names.Length))
+            return other_item_names[id];
+
+        if (item_type == 0x4 && overdrive_names.ContainsKey(id + PlayerCommandId.PCOM_SPIRAL_CUT))
+            return overdrive_names[id + PlayerCommandId.PCOM_SPIRAL_CUT];
+
+        return $"Unnamed item ({item_id})";
     }
 
     private static Dictionary<int, CT_Exec>     cached_CT_Execs     = new();
