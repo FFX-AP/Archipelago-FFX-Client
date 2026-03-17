@@ -69,7 +69,7 @@ public unsafe partial class OverdriveModule : FhModule
         _MsAfterDamageProcess = new FhMethodHandle<MsAfterDamageProcess>(this, GAME, __addr_MsAfterDamageProcess, h_MsAfterDamageProcess);
         _ret_doesChrKnowCommand = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
         _ret_teachAbilityToPartyMemberSilently = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_teachAbilityToPartyMemberSilently, h_ret_teachAbilityToPartyMemberSilently);
-        _ret_teachAbilityToPartyMemberWithMsg = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_teachAbilityToPartyMemberWithMsg, h_ret_teachAbilityToPartyMemberWithMsg);
+        _init_teachAbilityToPartyMemberWithMsg = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_init_teachAbilityToPartyMemberWithMsg, h_init_teachAbilityToPartyMemberWithMsg);
     }
 
     // Helper class for overdrive provider functions
@@ -206,7 +206,7 @@ public unsafe partial class OverdriveModule : FhModule
             && _MsAfterDamageProcess.hook()
             && _ret_doesChrKnowCommand.hook()
             && _ret_teachAbilityToPartyMemberSilently.hook()
-            && _ret_teachAbilityToPartyMemberWithMsg.hook();
+            && _init_teachAbilityToPartyMemberWithMsg.hook();
     }
 
     private static T* ptr_at<T>(nint address) where T : unmanaged { return (T*)(address); }
@@ -565,7 +565,7 @@ public unsafe partial class OverdriveModule : FhModule
     }
 
     // Required to interject on receiving Valefor's overdrive from Dog
-    private int h_ret_teachAbilityToPartyMemberWithMsg(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
+    private int h_init_teachAbilityToPartyMemberWithMsg(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
     {
         int com_id = atelStack->pop_int();
         int chr_id = atelStack->pop_int();
@@ -581,7 +581,7 @@ public unsafe partial class OverdriveModule : FhModule
         atelStack->push_int(chr_id);
         atelStack->push_int(com_id);
 
-        return _ret_teachAbilityToPartyMemberWithMsg.orig_fptr(work, storage, atelStack);
+        return _init_teachAbilityToPartyMemberWithMsg.orig_fptr(work, storage, atelStack);
     }
 
     public static void send_overdrive(int com_id)

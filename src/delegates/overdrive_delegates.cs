@@ -152,7 +152,7 @@ public unsafe partial class OverdriveModule {
 
     private const nint __addr_ret_doesChrKnowCommand = 0x3A30C0;
     private const nint __addr_ret_teachAbilityToPartyMemberSilently = 0x45B010;
-    private const nint __addr_ret_teachAbilityToPartyMemberWithMsg = 0x45B120;
+    private const nint __addr_init_teachAbilityToPartyMemberWithMsg = 0x45B120;
 
     // Method Handles
     private readonly FhMethodHandle<MsGetSaveCommand> _MsGetSaveCommand;
@@ -161,7 +161,7 @@ public unsafe partial class OverdriveModule {
     private readonly FhMethodHandle<MsAfterDamageProcess> _MsAfterDamageProcess;
     private readonly FhMethodHandle<CT_RetInt> _ret_doesChrKnowCommand;
     private readonly FhMethodHandle<CT_RetInt> _ret_teachAbilityToPartyMemberSilently;
-    private readonly FhMethodHandle<CT_RetInt> _ret_teachAbilityToPartyMemberWithMsg;
+    private readonly FhMethodHandle<CT_RetInt> _init_teachAbilityToPartyMemberWithMsg;
 
     private readonly MsGetChr _MsGetChr = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
     private readonly MsMenuCloseTitleWindow _MsMenuCloseTitleWindow = FhUtil.get_fptr<MsMenuCloseTitleWindow>(__addr_MsMenuCloseTitleWindow);
