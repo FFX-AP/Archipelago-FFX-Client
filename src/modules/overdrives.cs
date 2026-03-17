@@ -246,38 +246,24 @@ public unsafe partial class OverdriveModule : FhModule
     // Called multiple times on every instance damage. Complete reimplementation in order to interject on Kimahri's overdrive learning
     private uint h_MsAfterDamageProcess(int attacker_id, uint param_2, int target_id, uint* param_4, uint param_5)
     {
-        byte bVar1;
-        byte bVar2;
-        byte bVar3;
-        StatusPermanentFlags SVar5;
-        StatusPermanentFlags SVar6;
         int iVar7;
-        Chr* pCVar8;
         uint uVar9;
-        DamageInfo* pcVar11;
-        int iVar10;
-        int iVar11;
-        int local_20;
-        Chr__0x774* pcVar1;
-        ushort rage_to_learn;
-
         uint uVar12 = 0;
         DamageInfo* local_30 = (DamageInfo*)0x0;
         Chr* attacker = _MsGetChr(attacker_id);
         Chr* target = _MsGetChr(target_id);
         //byte* pcVar10 = &target->field1402_0x774[0].field_0x7;
-        byte* pcVar10 = (byte*)((int)target + 0x774 + 7);
+        byte* pcVar10 = (byte*)(target + 0x774 + 7);
         int local_28 = 2;
 
         do
         {
-            if (((uint)pcVar10[-5] == attacker_id) && (pcVar10[-4] == param_2))
+            if ((pcVar10[-5] == attacker_id) && (pcVar10[-4] == param_2))
             {
-                //target->field_0xf5e = (byte)((byte)param_5 & 0x7f);
-                set_at<byte>((int)target + 0xF5E, (byte)((byte)param_5 & 0x7f));
-                //target->field1589_0xded = (byte)attacker_id;
-                set_at<byte>((int)target + 0xDED, (byte)attacker_id);
-                if ((param_5 & 8) == 0)
+                //set_at((int)target + 0xF5E, param_5 & 0x7f);
+                set_at((int)target + 0xF5E, param_5.get_bits(0, 7));
+                set_at((int)target + 0xDED, attacker_id);
+                if (!param_5.get_bit(3))
                 {
                     if (*pcVar10 != 0)
                     {
@@ -286,11 +272,13 @@ public unsafe partial class OverdriveModule : FhModule
                         _MsMessageCueRegist(0x4, *pcVar10 + 3, *pcVar10 + 1, 0x1b, 0x23);
                         if (0 < *(short*)(pcVar10 + 1))
                         {
-                            _MsSetStealEffect(target_id, (int)pcVar10[-6]);
+                            _MsSetStealEffect(target_id, pcVar10[-6]);
                             _MsRegSEplay2(target_id, 0x41);
                         }
+
                         pcVar10[-2] |= 1;
                     }
+
                     if (pcVar10[5] != 0)
                     {
                         _MsMenuCloseTitleWindow(0);
@@ -299,27 +287,30 @@ public unsafe partial class OverdriveModule : FhModule
                         if (0 < *(int*)(pcVar10 + 9))
                         {
                             _MsPayGIL(-*(int*)(pcVar10 + 9));
-                            _MsSetStealGillEffect(target_id, (int)pcVar10[-6]);
+                            _MsSetStealGillEffect(target_id, pcVar10[-6]);
                             _MsRegSEplay2(target_id, 0x41);
                         }
+
                         pcVar10[-2] |= 1;
                     }
                 }
+
                 if (pcVar10[-3] != 0)
                 {
-                    if ((pcVar10[-3] & 1) != 0)
+                    if (pcVar10[-3].get_bit(0))
                     {
-                        bVar1 = (attacker->ram).limit_charge;
-                        (attacker->ram).limit_charge = 0;
+                        byte bVar1 = attacker->ram.limit_charge;
+                        attacker->ram.limit_charge = 0;
                         iVar7 = _MsCheckRange(target->ram.limit_charge + bVar1, 0, target->ram.limit_charge_max);
-                        (target->ram).limit_charge = (byte)iVar7;
+                        target->ram.limit_charge = (byte)iVar7;
                     }
-                    if ((pcVar10[-3] & 2) != 0)
+
+                    if (pcVar10[-3].get_bit(1))
                     {
-                        pCVar8 = _MsGetChr(pcVar10[0x10]);
+                        Chr* pCVar8 = _MsGetChr(pcVar10[0x10]);
                         if (target_id == 3 && pCVar8->loot != (ChrLoot*)0x0)
                         {
-                            rage_to_learn = pCVar8->loot->ronso_rage;
+                            ushort rage_to_learn = pCVar8->loot->ronso_rage;
                             if (rage_to_learn != 0)
                             {
                                 iVar7 = _MsGetSaveCommand(3, rage_to_learn) ? 1 : 0;
@@ -345,114 +336,123 @@ public unsafe partial class OverdriveModule : FhModule
                             }
                         }
                     }
+
                     pcVar10[-3] = 0;
                 }
-                pcVar1 = (Chr__0x774*)(pcVar10 + -7);
+
+                Chr__0x774* pcVar1 = (Chr__0x774*)(pcVar10 + -7);
                 if (pcVar10[-7] < pcVar10[-6])
                 {
-                    //pcVar11 = (DamageInfo*)&pcVar1->field20_0x14[pcVar10[-7]].field4_0x4;
-                    pcVar11 = ptr_at<DamageInfo>((int)pcVar1 + 0x18) + get_at<byte>((int)pcVar1);
-                    local_20 = 0;
-                    if ((param_5 & 8) == 0)
+                    DamageInfo* pcVar11 = ptr_at<DamageInfo>((int)pcVar1 + 0x18) + get_at<byte>((int)pcVar1);
+                    int local_20 = 0;
+                    if (!param_5.get_bit(3))
                     {
                         iVar7 = pcVar11->field1_0x1;
                         uVar9 = pcVar11->field2_0x2;
+
                         if (iVar7 == 1)
                         {
-                            iVar11 = 1;
-                            iVar10 = 3;
-                            _MsNumberRegist(target_id, iVar10, 0, 0, iVar11, uVar9, 0x81);
+                            _MsNumberRegist(target_id, 3, 0, 0, 1, uVar9, 0x81);
                         }
                         else if (iVar7 == 2)
                         {
-                            iVar11 = 2;
-                            iVar10 = 4;
-                            _MsNumberRegist(target_id, iVar10, 0, 0, iVar11, uVar9, 0x81);
+                            _MsNumberRegist(target_id, 4, 0, 0, 2, uVar9, 0x81);
                         }
+
                         _MsLimitTypeDamageCheck(attacker_id, attacker, target_id, target, pcVar11->out_damage_hp, pcVar11->out_damage_expected, pcVar10[-1]);
 
-                        if ((pcVar11->dmg_calc_flags1 & 1) != 0)
+                        if (pcVar11->dmg_calc_flags1.get_bit(0))
                         {
                             _MsSubHP(target_id, target, pcVar11->out_damage_hp, pcVar11->out_damage_mp, iVar7, uVar9, 0x81);
 
-                            //target->field1960_0xf60 = target->field1960_0xf60 - iVar10;
                             set_at((int)target + 0xF60, get_at<int>((int)target + 0xF60) - pcVar11->out_damage_hp);
 
                             local_20 += pcVar11->out_damage_hp;
                         }
-                        if ((pcVar11->dmg_calc_flags1 & 2) != 0)
+
+                        if (pcVar11->dmg_calc_flags1.get_bit(1))
                         {
                             _MsSubMP(target_id, target, pcVar11->out_damage_mp, pcVar11->out_damage_hp, iVar7, uVar9, 0x81);
                         }
-                        if ((pcVar11->dmg_calc_flags1 & 4) != 0)
+
+                        if (pcVar11->dmg_calc_flags1.get_bit(2))
                         {
                             _MsSubCTB(target_id, target, pcVar11->out_damage_ctb, iVar7, uVar9, 0x81);
                             //dbgPrintf("CTB DAMAGE %d %d : %d\n", target_id, iVar10, (target->ram).ctb);
                         }
 
                         _MsLimitTypeStatusCheck(attacker_id, attacker, target_id, target, pcVar11->field4_0x4, pcVar11->field3_0x3);
-                        SVar5 = (target->ram).status_suffer;
-                        bVar1 = (target->ram).status_suffer_turns_left.darkness;
-                        bVar2 = (target->ram).status_suffer_turns_left.silence;
-                        bVar3 = (target->ram).status_suffer_turns_left.regen;
+                        StatusPermanentFlags SVar5 = target->ram.status_suffer;
+                        byte bVar1 = target->ram.status_suffer_turns_left.darkness;
+                        byte bVar2 = target->ram.status_suffer_turns_left.silence;
+                        byte bVar3 = target->ram.status_suffer_turns_left.regen;
                         StatusExtraFlags bVar4 = target->ram.status_suffer_extra;
                         target->ram.status_suffer = pcVar11->target_status_suffer;
+
                         for (int i = 0; i < 0xD; i++)
                         {
                             (&target->ram.status_suffer_turns_left.sleep)[i] = (&pcVar11->target_status_suffer_turns_left.sleep)[i];
                         }
 
+                        // TODO: Improvements pendinging the availability of Fh Indexers, as per https://github.com/fahrenheit-crew/fahrenheit/issues/114
                         target->ram.status_suffer_extra = pcVar11->target_status_suffer_extra;
                         _MsLimitStatusProcess(target_id, target, pcVar11->flags_buffs_mix);
 
-                        if (((target->ram).status_suffer_turns_left.regen != 0) && (bVar3 == 0))
+                        if ((target->ram.status_suffer_turns_left.regen != 0) && (bVar3 == 0))
                         {
-                            (target->ram).regen_strength = 0;
+                            target->ram.regen_strength = 0;
                         }
 
-                        SVar6 = target->ram.status_suffer;
-                        //target->field_0xdce = (byte)SVar6 >> 2 & 1;
-                        set_at<bool>((int)target + 0xDCE, SVar6.petrification());
+                        StatusPermanentFlags SVar6 = target->ram.status_suffer;
+                        set_at((int)target + 0xDCE, SVar6.petrification());
                         if (target->ram.status_suffer.death() != SVar5.death())
                         {
                             _MsAliveProcess(target_id, target);
                         }
+
                         if (target->ram.status_suffer.petrification() != SVar5.petrification())
                         {
                             _MsStoneProcess(target_id, target);
                         }
+
                         if (target->ram.status_suffer_extra.eject() != bVar4.eject())
                         {
                             _MsBlowProcess(target_id, target);
                         }
+
                         if (target->ram.status_suffer.threaten() != SVar5.threaten())
                         {
                             _MsThreatProcess(target_id, target);
                         }
+
                         pcVar10[-2] |= 1;
                         if (target->ram.auto_ability_effects.has_auto_med)
                         {
                             _MsAutoCureProcess(target_id, target, attacker_id, (int)SVar5 >> 3 & 1, (int)SVar5 >> 1 & 1, bVar1, bVar2);
                         }
-                        if ((0 < local_20) && (target->ram.auto_ability_effects.has_auto_potion))
+
+                        if (0 < local_20 && target->ram.auto_ability_effects.has_auto_potion)
                         {
                             _MsAutoPotionProcess(target_id, target, attacker_id);
                         }
+
                         _MsSetChrWeak(target_id, -1);
                         uVar12 = uVar12 | 2;
                         pcVar1->field0_0x0 += 1;
                     }
-                    //if (target->ram.field_0x19c != '\0')
+
                     if (get_at<bool>((int)&target->ram + 0x19C))
                     {
                         _MsAutoRelifeProcess(attacker_id, attacker, target_id, target);
                     }
-                    if (((param_5 & 2) == 0) && ((pcVar11->field0_0x0 != 1 || ((pcVar10[-2] & 4) == 0))))
+
+                    if (!param_5.get_bit(1) && (pcVar11->field0_0x0 != 1 || !pcVar10[-2].get_bit(2)))
                     {
                         pcVar10[-2] |= 4;
                         local_30 = pcVar11;
                     }
-                    if ((param_5 & 0x10) == 0)
+
+                    if (!param_5.get_bit(4))
                     {
                         _MsStatusEffectCheck(target_id);
                         if (_MsStatusDefenseEffect(attacker_id, target_id, pcVar11->dmg_calc_flags1) != 0)
@@ -461,20 +461,21 @@ public unsafe partial class OverdriveModule : FhModule
                         }
                     }
                 }
+
                 if (pcVar10[-7] < pcVar10[-6])
                 {
                     uVar12 = uVar12 | 1;
                 }
                 else
                 {
-                    if (((pcVar10[-2] & 1) != 0) && ((pcVar10[-2] & 2) == 0))
+                    if (pcVar10[-2].get_bit(0) && !pcVar10[-2].get_bit(1))
                     {
-                        //target->ram.field_0x19d = 0;
                         get_at<bool>((int)&target->ram + 0x19D);
                         pcVar10[-2] |= 2;
                         _MsActionRequest(target_id, attacker_id, 3, 0, 1, null);
                     }
-                    if ((param_5 & 0x400) == 0)
+
+                    if (!param_5.get_bit(10))
                     {
                         _MsPopBtlPos(target);
                     }
@@ -484,40 +485,47 @@ public unsafe partial class OverdriveModule : FhModule
                     }
                 }
             }
+
             pcVar10 = pcVar10 + 0x2d8;
             local_28 = local_28 + -1;
         } while (local_28 != 0);
-        if ((uVar12 & 1) == 0 && _MsDamageCheckDeath(attacker_id, target_id, 0, (attacker_id != target_id) ? 1 : 0) != 0)
+
+        if (!uVar12.get_bit(0) && _MsDamageCheckDeath(attacker_id, target_id, 0, (attacker_id != target_id) ? 1 : 0) != 0)
         {
             return uVar12;
         }
+
         if (local_30 == (DamageInfo*)0x0)
         {
             return uVar12;
         }
-        iVar7 = (int)(char)local_30->field0_0x0;
-        if ((param_5 & 0x20) == 0)
+
+        iVar7 = local_30->field0_0x0;
+        if (!param_5.get_bit(5))
         {
             _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
             return uVar12;
         }
+
         if (iVar7 != 5)
         {
             if (iVar7 == 6)
             {
                 uVar9 = (uint)_brnd(9);
-                iVar7 = (int)(uVar9 & 1) + 0xf;
+                iVar7 = uVar9.get_bit(0) ? 0x10 : 0xF;
                 _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
                 return uVar12;
             }
+
             if (iVar7 != 8)
             {
                 _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
                 return uVar12;
             }
         }
+
         uVar9 = (uint)_brnd(9);
-        iVar7 = (int)(uVar9 & 3) + 0xd;
+        iVar7 = (int)uVar9.get_bits(0, 2) + 0xD;
         _MsDamageSetMotion(target_id, iVar7, (attacker_id != target_id) ? 1 : 0);
         return uVar12;
     }
