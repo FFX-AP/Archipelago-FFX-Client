@@ -1,0 +1,43 @@
+[*.cs]
+
+# A decently long guideline
+guidelines = 120
+
+# A new line at the end of the file for a nicer git diff
+insert_final_newline = true
+
+# Constructors and methods look awkward when expression-bodied
+csharp_style_expression_bodied_constructors = false
+csharp_style_expression_bodied_methods = false
+
+# K&R style (same-line) braces
+csharp_new_line_before_open_brace = none
+
+# Do not mess with vertical alignment during Code Cleanup.
+csharp_space_around_declaration_statements = ignore
+
+# Rider has a glitch where this setting isn't respected when it's user-specific, but *is* respected here
+# Necessary because we often copy function names of basegame directly.
+resharper_inconsistent_naming_highlighting=none
+
+# Fahrenheit naming rules
+dotnet_naming_symbols.public_symbols.applicable_kinds           = property,method,field
+dotnet_naming_symbols.public_symbols.applicable_accessibilities = public
+
+dotnet_naming_symbols.const_symbols.applicable_kinds           = *
+dotnet_naming_symbols.const_symbols.applicable_accessibilities = public
+dotnet_naming_symbols.const_symbols.required_modifiers         = const
+
+dotnet_naming_style.snake_case.capitalization = all_lower
+dotnet_naming_style.snake_case.word_separator = _
+
+dotnet_naming_style.snake_case_caps.capitalization = all_upper
+dotnet_naming_style.snake_case_caps.word_separator = _
+
+dotnet_naming_rule.fh_naming.symbols  = public_symbols
+dotnet_naming_rule.fh_naming.style    = snake_case
+dotnet_naming_rule.fh_naming.severity = suggestion
+
+dotnet_naming_rule.fh_const_naming.symbols  = const_symbols
+dotnet_naming_rule.fh_const_naming.style    = snake_case_caps
+dotnet_naming_rule.fh_const_naming.severity = suggestion
