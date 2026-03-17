@@ -391,10 +391,10 @@ public unsafe partial class OverdriveModule : FhModule
 
                         for (int i = 0; i < 0xD; i++)
                         {
+                            // TODO: Improvements pending the availability of indexers from Fahrenheit, as per https://github.com/fahrenheit-crew/fahrenheit/issues/114
                             (&target->ram.status_suffer_turns_left.sleep)[i] = (&pcVar11->target_status_suffer_turns_left.sleep)[i];
                         }
 
-                        // TODO: Improvements pendinging the availability of Fh Indexers, as per https://github.com/fahrenheit-crew/fahrenheit/issues/114
                         target->ram.status_suffer_extra = pcVar11->target_status_suffer_extra;
                         _MsLimitStatusProcess(target_id, target, pcVar11->flags_buffs_mix);
 
@@ -587,7 +587,7 @@ public unsafe partial class OverdriveModule : FhModule
 
     public static void send_overdrive(int com_id)
     {
-        // Apworld defines Spiral Cut as overdrive location 0, and all other overdrives are as an offset from that value.
+        // Apworld defines Spiral Cut as overdrive location 0, and all other overdrives are treated as an offset from that value.
         int overdrive_id = com_id - PlayerCommandId.PCOM_SPIRAL_CUT;
 
         if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
