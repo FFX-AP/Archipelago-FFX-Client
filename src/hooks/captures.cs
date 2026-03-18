@@ -110,7 +110,7 @@ public unsafe partial class CaptureModule : FhModule {
 
         Chr* mon = _MsGetMon(mon_idx);
         if (initialized_monsters.Add(mon->chr_id)) {
-            MonStats* stats = mon->ptr_base_stats;
+            MonStats* stats = (MonStats*)mon->ptr_base_stats;
 
             // Corrects incorrect monster arena indexes to be uncapturable
             if (_incorrect_arena_idx.Contains((short)(mon->chr_id & 0xFFF))) {
