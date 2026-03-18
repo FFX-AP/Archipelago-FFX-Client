@@ -23,6 +23,10 @@ public unsafe partial class CaptureModule : FhModule {
         _FUN_00783bb0 = new FhMethodHandle<FUN_00783bb0>(this, GAME, __addr_FUN_00783bb0, h_FUN_00783bb0);
         _AtelEventSetUp = new FhMethodHandle<AtelEventSetUp>(this, GAME, __addr_AtelEventSetUp, h_AtelEventSetUp);
         _ret_hasKeyItem = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_hasKeyItem, h_ret_hasKeyItem);
+        _MsDamageCheckDeath = new FhMethodHandle<MsDamageCheckDeath>(this, GAME, __addr_MsDamageCheckDeath, h_MsDamageCheckDeath);
+        _MsSetRamChrParam = new FhMethodHandle<MsSetRamChrParam>(this, GAME, __addr_MsSetRamChrParam, h_MsSetRamChrParam);
+        _MsSetSaveParam = new FhMethodHandle<MsSetSaveParam>(this, GAME, __addr_MsSetSaveParam, h_MsSetSaveParam);
+        _MsCalcCommand = new FhMethodHandle<MsCalcCommand>(this, GAME, __addr_MsCalcCommand, h_MsCalcCommand);
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
@@ -32,7 +36,11 @@ public unsafe partial class CaptureModule : FhModule {
         return _MsMonsterCapture.hook()
             && _FUN_00783bb0.hook()
             && _AtelEventSetUp.hook()
-            && _ret_hasKeyItem.hook();
+            && _ret_hasKeyItem.hook()
+            && _MsDamageCheckDeath.hook()
+            && _MsSetRamChrParam.hook()
+            && _MsSetSaveParam.hook()
+            && _MsCalcCommand.hook();
     }
 
     private static void set(byte* code_ptr, uint offset, AtelInst[] opcodes) {
@@ -163,21 +171,102 @@ public unsafe partial class CaptureModule : FhModule {
         }
     }
 
-    
-   //Check Mars Sigil location instead of inventory
+    //Check Mars Sigil location instead of inventory
     private int h_ret_hasKeyItem(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         if (_event_name == "nagi0700") {
             int item_id = atelStack->pop_int();
-            
+
             if (item_id == 0xA028) {
                 return local_checked_locations.Contains(276 | (long)ArchipelagoLocationType.Treasure) ? 1 : 0;
-            } else {
+            }
+            else {
                 atelStack->push_int(item_id);
             }
         }
 
         return _ret_hasKeyItem.orig_fptr(work, storage, atelStack);
     }
-}
 
+    private int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
+        Chr* target = _MsGetChr((uint)target_id);
+        MonStats* mon_stats = (MonStats*)target->ptr_base_stats;
+
+        ushort capture_index = mon_stats is not null ? mon_stats->monster_arena_idx : (ushort)0xFF;
+
+        if (ArchipelagoFFXModule.seed.Options.AlwaysCapture == 1
+         && ArchipelagoFFXModule.seed.Options.CaptureDamage == 2
+         && target_id >= 20 // Make sure to not capture ourselves
+         && capture_index != 0xFF // Make sure to not capture rifles
+         && Battle.btl->battle_type == 0 // ... and Monster Arena enemies
+        ) {
+            target->should_try_capture = true;
+        }
+
+        return _MsDamageCheckDeath.orig_fptr(attacker_id, target_id, param_3, param_4);
+    }
+
+    private void h_MsSetRamChrParam(uint chr_id) {
+        _MsSetRamChrParam.orig_fptr(chr_id);
+
+        Chr* chr = _MsGetChr(chr_id);
+
+        if (ArchipelagoFFXModule.seed.Options.AlwaysCapture == 1) {
+            chr->ram.auto_ability_effects.has_capture = true;
+        }
+    }
+
+    private void h_MsSetSaveParam(uint chr_id) {
+        _MsSetSaveParam.orig_fptr(chr_id);
+
+        // Does nothing??
+        if (ArchipelagoFFXModule.seed.Options.AlwaysCapture == 1) {
+            save_data->ply_saves[(int)chr_id].auto_ability_effects.has_capture = true;
+        }
+    }
+
+    public void h_MsCalcCommand(AttackCue* param_1, int param_2) {
+        _MsCalcCommand.orig_fptr(param_1, param_2);
+        if (param_1 == null) return;
+
+        uint local_6c;
+        Command* command = _MsGetCommand(param_1->attacker_id, 0, -1, &param_1->command_list[param_2], &local_6c);
+
+        if (param_1->command_count <= param_2 || command == null) return;
+
+        Chr* attacker = _MsGetChr(param_1->attacker_id);
+
+        int[] local_7c = [0, 0, 0, param_2];
+        if (command->absorbs_dmg) {
+            local_7c[2] = (int)_FUN_0078d100(attacker);
+        }
+
+        //TODO: Figure out a way not to duplicate affection in _FUN_0078bb30
+        byte[] targets = new byte[32];
+        byte[] local_48 = new byte[32];
+        fixed (byte* p_targets = targets) {
+            fixed (byte* p_local_48 = local_48) {
+                fixed (int* p_local_7c = local_7c) {
+                    _FUN_0078bb30(param_1->attacker_id, p_targets, p_local_48, command, local_6c, &param_1->command_list[param_2].targets, p_local_7c + 1);
+                }
+            }
+        }
+
+        for (uint target_id = 0; target_id < 32; target_id++) {
+            if (targets[target_id] != 0) {
+                if (local_7c[2] == 0 || target_id != param_1->attacker_id) {
+                    Chr* target = _MsGetChr(target_id);
+                    uint iVar6 = _FUN_0078d100(target);
+                    if (iVar6 != 0) {
+                        if (attacker->ram.auto_ability_effects.has_capture && Battle.btl->battle_type == 0 && (ArchipelagoFFXModule.seed.Options.CaptureDamage > 0 || command->uses_weapon_properties)) {
+                            target->should_try_capture = true;
+                        }
+                        else {
+                            target->should_try_capture = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
