@@ -16,7 +16,6 @@ using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
 using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
 using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 using Color = Archipelago.MultiClient.Net.Models.Color;
-using Scope = Archipelago.MultiClient.Net.Enums.Scope;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 public unsafe partial class ArchipelagoFFXModule {
@@ -80,13 +79,11 @@ public unsafe partial class ArchipelagoFFXModule {
     // Battle releated
     private static MsBtlListGroup _MsBtlListGroup;
     private static FhMethodHandle<MsBattleExe> _MsBattleExe;
-    private static FhMethodHandle<MsMonsterCapture> _MsMonsterCapture;
+    
     private static FhMethodHandle<MsCalcCommand> _MsCalcCommand;
     private static FhMethodHandle<MsDamageCheckDeath> _MsDamageCheckDeath;
     public static MsBattleLabelExe _MsBattleLabelExe;
     private static FhMethodHandle<FUN_00791820> _FUN_00791820;
-    public static FhMethodHandle<FUN_00783bb0> _FUN_00783bb0;
-    public static MsGetMon _MsGetMon;
 
     private static MsGetCommand _MsGetCommand;
     private static FUN_0078d100 _FUN_0078d100;
@@ -279,15 +276,12 @@ public unsafe partial class ArchipelagoFFXModule {
 
         _MsBtlReadSetScene = new FhMethodHandle<MsBtlReadSetScene>(this, game, 0x00383ed0, h_MsBtlReadSetScene);
 
-        _MsMonsterCapture = new FhMethodHandle<MsMonsterCapture>(this, game, __addr_MsMonsterCapture, h_MsMonsterCapture);
+        
         _MsCalcCommand = new FhMethodHandle<MsCalcCommand>(this, game, __addr_MsCalcCommand, h_MsCalcCommand);
         _MsDamageCheckDeath = new FhMethodHandle<MsDamageCheckDeath>(this, game, __addr_MsDamageCheckDeath, h_MsDamageCheckDeath);
         _MsGetCommand = FhUtil.get_fptr<MsGetCommand>(__addr_MsGetCommand);
         _FUN_0078d100 = FhUtil.get_fptr<FUN_0078d100>(__addr_FUN_0078d100);
         _FUN_0078bb30 = FhUtil.get_fptr<FUN_0078bb30>(__addr_FUN_0078bb30);
-
-        _FUN_00783bb0 = new FhMethodHandle<FUN_00783bb0>(this, game, __addr_FUN_00783bb0, h_FUN_00783bb0);
-        _MsGetMon = FhUtil.get_fptr<MsGetMon>(__addr_MsGetMon);
 
 
         // giveItem
@@ -499,7 +493,7 @@ public unsafe partial class ArchipelagoFFXModule {
             && _SgEvent_showModularMenuInit.hook()
             && _Common_addPartyMember.hook() && _Common_removePartyMember.hook() && _Common_removePartyMemberLongTerm.hook() && _Common_setWeaponVisibilty.hook()
             && _Common_putPartyMemberInSlot.hook() && _Common_pushParty.hook() && _Common_popParty.hook() && _MsBattleExe.hook() && _FUN_00791820.hook()
-            && _MsApUp.hook() && _MsBtlReadSetScene.hook() && _MsMonsterCapture.hook() && _FUN_00783bb0.hook() && _MsCalcCommand.hook() && _MsDamageCheckDeath.hook() // && _Map_800F.hook() //_MsBtlGetPos.hook()
+            && _MsApUp.hook() && _MsBtlReadSetScene.hook() && _MsCalcCommand.hook() && _MsDamageCheckDeath.hook() // && _Map_800F.hook() //_MsBtlGetPos.hook()
             && _eiAbmParaGet.hook() && _MsSetSaveParam.hook() && _MsSetRamChrParam.hook() // && _FUN_00a48910.hook()
             && _FUN_0086bec0.hook() && _FUN_0086bea0.hook() // Custom strings
             && _graphicInitFMVPlayer.hook() && _FmodVoice_dataChange.hook()
@@ -1997,43 +1991,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     AtelOp.CALLPOPA.build((ushort)CustomCallTarget.SEND_PARTY_MEMBER_LOCATION),
                     ]);
                 break;
-            case "nagi0700":
-                // Always show Nirvana chest
-                set(code_ptr, 0xE25D, AtelOp.JMP.build(0));
-
-                // Continue even if Calm Lands conquest not complete
-                set(code_ptr, 0xE07B, AtelOp.JMP.build(2));
-
-                // Skip introduction and explanation
-                set(code_ptr, 0xDCF3, AtelOp.JMP.build(0xB29));
-
-                // Unlock Monster Arena
-                save_data->event_flags[0].set_bit(0, true);
-
-                save_data->monsters_captured[43] = 99;
-                save_data->monsters_captured[59] = 99;
-
-                // Check Mars Sigil location instead of inventory
-                // 1B24 jFD:    9F1900 AE0A00 0E AD2000 B56001 19 02 D7FE00
-                set(code_ptr, 0x1B2B, [
-                    /* priv1759F >= 10
-                    AtelOp.PUSHV    .build(0x0019), // 9F1900
-                    AtelOp.PUSHII   .build(0x000A), // AE0A00
-                    AtelOp.GTE      .build(),       // 0E
-                    */
-
-                    // !Common.hasKeyItem(Mars Sigil)
-                    AtelOp.PUSHII   .build(276),                                                   // AD2000 -> AE1401
-                    AtelOp.CALL     .build((ushort)CustomCallTarget.IS_TREASURE_LOCATION_CHECKED), // B56001 -> B505F0
-                    AtelOp.NOT      .build(),                                                      // 19
-
-                    /* else jump to jFE
-                    AtelOp.LAND     .build(),       // 02
-                    AtelOp.POPXNCJMP.build(0x00FE), // D7FE00
-                    */
-                ]);
-
-                break;
+            
         }
 
         // Blitz Recruit locations (RecruitSanity)
@@ -3000,92 +2958,6 @@ public unsafe partial class ArchipelagoFFXModule {
         //if (target->captured == false && target->capture == true) target->capture = false; // Unnecessary?
 
         return result;
-    }
-
-    public static bool h_MsMonsterCapture(int target_id, int arena_idx) {
-        bool captured = _MsMonsterCapture.orig_fptr(target_id, arena_idx);
-
-        logger.Info($"Fiend Capture: Target={target_id}, Arena Index={arena_idx}, Captured={captured}");
-
-        // Send AP Location if successfully captured
-        if (captured) {
-            if (sendLocation(arena_idx, ArchipelagoLocationType.Capture) && item_locations.capture.TryGetValue(arena_idx, out var item)) {
-                ArchipelagoFFXModule.obtain_item(item.id);
-            }
-
-            int qty = save_data->monsters_captured[arena_idx];
-            lock (FFXArchipelagoClient.client_lock) {
-                if (FFXArchipelagoClient.is_connected)
-                {
-                    if (qty > 0)
-                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = qty;
-                    else
-                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = 0;
-                }
-            }
-        }
-        return captured;
-    }
-
-    private static HashSet<ushort> initialized_monsters = [];
-    public static void h_FUN_00783bb0(byte mon_id) {
-        byte num_initialized = FhUtil.get_at<byte>(0xD2CA80);
-        if (num_initialized == 0) initialized_monsters.Clear();
-
-        _FUN_00783bb0.orig_fptr(mon_id);
-
-        Chr* mon = _MsGetMon(mon_id);
-        if (initialized_monsters.Add(mon->chr_id)) {
-            MonStats* stats = (MonStats*)mon->ptr_base_stats;
-            //logger.Debug($"{mon->chr_id & 0xFFF} stats:  stats=\n{stats->ToString()}");
-            if (
-                (mon->chr_id & 0xFFF) == 041 ||  // Sahagin
-                (mon->chr_id & 0xFFF) == 042 ||  // Sahagin
-                (mon->chr_id & 0xFFF) == 043 ||  // Sahagin
-                (mon->chr_id & 0xFFF) == 068 ||  // Piranha
-                (mon->chr_id & 0xFFF) == 069 ||  // Piranha
-                (mon->chr_id & 0xFFF) == 070 ||  // Piranha
-                (mon->chr_id & 0xFFF) == 101 ||  // Tros
-                (mon->chr_id & 0xFFF) == 155 ||  // Sahagin
-                (mon->chr_id & 0xFFF) == 156 ||  // Sahagin Chief
-                (mon->chr_id & 0xFFF) == 157 ||  // Garuda
-                (mon->chr_id & 0xFFF) == 230 ||  // Garuda
-                (mon->chr_id & 0xFFF) == 231 ||  // Dingo
-                (mon->chr_id & 0xFFF) == 232 ||  // Water Flan
-                (mon->chr_id & 0xFFF) == 233 ||  // Condor
-                (mon->chr_id & 0xFFF) == 234     // Ragora - Lancet Tutorial
-               )
-                stats->monster_arena_idx = 0xFF;
-
-            //ChrLoot* loot = (ChrLoot*)(((int*)mon->ptr_mon_wep_bin)[5] + mon->ptr_mon_wep_bin);
-            //
-            //loot->drop_chance_equipment = 255;
-            //loot->equipment_loot.ability_count = 100; // Guaranteed 4 abilities?
-            //loot->equipment_loot.slot_count = 20; // Guaranteed 4 slots
-            //
-            //for (int chr = 0; chr < 7; chr++) {
-            //    // Guaranteed Capture
-            //    loot->equipment_loot.abilities_tidus.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_yuna.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_auron.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_kimahri.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_wakka.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_lulu.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_rikku.weapon_abilities[0] = 0x807A;
-            //    for (int i = 1; i < 8; i++) {
-            //        loot->equipment_loot.abilities_tidus.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_yuna.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_auron.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_kimahri.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_wakka.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_lulu.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_rikku.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //    }
-            //}
-
-        } else {
-            logger.Debug($"{mon_id}: already initialized ({mon->chr_id})");
-        }
     }
 
     // Battle loop?

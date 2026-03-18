@@ -479,9 +479,6 @@ public static unsafe class delegates {
     public unsafe delegate void MsBattleExe(uint param_1, int field_idx, int group_idx, int formation_idx);
     public const nint __addr_MsBattleExe = 0x3810F0;
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate bool MsMonsterCapture(int target_id, int arena_idx);
-    public const nint __addr_MsMonsterCapture = 0x390B80;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void MsCalcCommand(AttackCue* param_1, int param_2);
@@ -535,15 +532,7 @@ public static unsafe class delegates {
 
     // Initializes monster data pointers
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FUN_00783bb0(byte mon_id);
-    public static int __addr_FUN_00783bb0 = 0x00383bb0;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate Chr* MsGetMon(byte mon_idx);
-    public static int __addr_MsGetMon = 0x00395ab0;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate Chr* MsGetChr(uint chr_id);
+    public delegate Chr* MsGetChr(uint chr_id);
     public const nint __addr_MsGetChr = 0x394030;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
