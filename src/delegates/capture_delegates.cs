@@ -1,14 +1,11 @@
-﻿using Fahrenheit.Atel;
-using Fahrenheit.FFX;
+﻿using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using System.Runtime.InteropServices;
+using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
 public unsafe partial class CaptureModule : FhModule {
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate int CT_RetInt(AtelBasicWorker* work, int* storage, AtelStack* atelStack);
-
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate bool MsMonsterCapture(int target_id, int arena_idx);
     private const nint __addr_MsMonsterCapture = 0x390B80;

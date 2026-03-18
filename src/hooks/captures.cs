@@ -8,6 +8,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using static Fahrenheit.FFX.Globals;
 using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
+using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
@@ -52,6 +53,7 @@ public unsafe partial class CaptureModule : FhModule {
             }
         }
     }
+
     private static void set(byte* code_ptr, uint[] offsets, AtelInst[] opcodes) {
         foreach (uint offset in offsets) {
             set(code_ptr, offset, opcodes);
@@ -69,11 +71,11 @@ public unsafe partial class CaptureModule : FhModule {
                 ArchipelagoFFXModule.obtain_item(item.id);
             }
 
-            int qty = save_data->monsters_captured[arena_idx];
+            int amount = save_data->monsters_captured[arena_idx];
             lock (FFXArchipelagoClient.client_lock) {
                 if (FFXArchipelagoClient.is_connected) {
-                    if (qty > 0)
-                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = qty;
+                    if (amount > 0)
+                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = amount;
                     else
                         FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = 0;
                 }
@@ -83,6 +85,23 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     private HashSet<ushort> initialized_monsters = [];
+    private static readonly HashSet<short> _incorrect_arena_idx = [
+        041, // Sahagin
+        042, // Sahagin
+        043, // Sahagin
+        068, // Piranha
+        069, // Piranha
+        070, // Piranha
+        101, // Tros
+        155, // Sahagin
+        156, // Sahagin Chief
+        157, // Garuda (Tutorial)
+        230, // Garuda (Tutorial)
+        231, // Dingo (Tutorial)
+        232, // Water Flan (Tutorial)
+        233, // Condor (Tutorial)
+        234, // Ragora (Tutorial)    
+    ];
     private void h_FUN_00783bb0(byte mon_idx) {
         byte num_initialized = FhUtil.get_at<byte>(0xD2CA80);
         if (num_initialized == 0) initialized_monsters.Clear();
@@ -91,26 +110,12 @@ public unsafe partial class CaptureModule : FhModule {
 
         Chr* mon = _MsGetMon(mon_idx);
         if (initialized_monsters.Add(mon->chr_id)) {
-            MonStats* stats = (MonStats*)mon->ptr_base_stats;
-            //logger.Debug($"{mon->chr_id & 0xFFF} stats:  stats=\n{stats->ToString()}");
-            if (
-                (mon->chr_id & 0xFFF) == 041 ||  // Sahagin
-                (mon->chr_id & 0xFFF) == 042 ||  // Sahagin
-                (mon->chr_id & 0xFFF) == 043 ||  // Sahagin
-                (mon->chr_id & 0xFFF) == 068 ||  // Piranha
-                (mon->chr_id & 0xFFF) == 069 ||  // Piranha
-                (mon->chr_id & 0xFFF) == 070 ||  // Piranha
-                (mon->chr_id & 0xFFF) == 101 ||  // Tros
-                (mon->chr_id & 0xFFF) == 155 ||  // Sahagin
-                (mon->chr_id & 0xFFF) == 156 ||  // Sahagin Chief
-                (mon->chr_id & 0xFFF) == 157 ||  // Garuda
-                (mon->chr_id & 0xFFF) == 230 ||  // Garuda
-                (mon->chr_id & 0xFFF) == 231 ||  // Dingo
-                (mon->chr_id & 0xFFF) == 232 ||  // Water Flan
-                (mon->chr_id & 0xFFF) == 233 ||  // Condor
-                (mon->chr_id & 0xFFF) == 234     // Ragora - Lancet Tutorial
-               )
+            MonStats* stats = mon->ptr_base_stats;
+
+            // Corrects incorrect monster arena indexes to be uncapturable
+            if (_incorrect_arena_idx.Contains((short)(mon->chr_id & 0xFFF))) {
                 stats->monster_arena_idx = 0xFF;
+            }                
 
             //ChrLoot* loot = (ChrLoot*)(((int*)mon->ptr_mon_wep_bin)[5] + mon->ptr_mon_wep_bin);
             //
@@ -224,7 +229,7 @@ public unsafe partial class CaptureModule : FhModule {
         }
     }
 
-    public void h_MsCalcCommand(AttackCue* param_1, int param_2) {
+    private void h_MsCalcCommand(AttackCue* param_1, int param_2) {
         _MsCalcCommand.orig_fptr(param_1, param_2);
         if (param_1 == null) return;
 

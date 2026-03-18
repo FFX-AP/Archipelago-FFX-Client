@@ -271,10 +271,6 @@ public unsafe partial class ArchipelagoFFXModule {
 
         _MsBtlReadSetScene = new FhMethodHandle<MsBtlReadSetScene>(this, game, 0x00383ed0, h_MsBtlReadSetScene);
 
-        
-        
-
-
         // giveItem
         _FUN_007905a0 = new FhMethodHandle<FUN_007905a0>(this, game, 0x003905a0, h_give_item);
 
