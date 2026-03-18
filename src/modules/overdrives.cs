@@ -68,8 +68,7 @@ public unsafe partial class OverdriveModule : FhModule
         _MsLimitTidusLearn = new FhMethodHandle<MsLimitTidusLearn>(this, GAME, __addr_MsLimitTidusLearn, h_MsLimitTidusLearn);
         _MsAfterDamageProcess = new FhMethodHandle<MsAfterDamageProcess>(this, GAME, __addr_MsAfterDamageProcess, h_MsAfterDamageProcess);
         _ret_doesChrKnowCommand = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
-        _ret_teachAbilityToPartyMemberSilently = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_teachAbilityToPartyMemberSilently, h_ret_teachAbilityToPartyMemberSilently);
-        _init_teachAbilityToPartyMemberWithMsg = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_init_teachAbilityToPartyMemberWithMsg, h_init_teachAbilityToPartyMemberWithMsg);
+        _MsSetSaveCommandWithPrefix = new FhMethodHandle<MsSetSaveCommandWithPrefix>(this, GAME, __addr_MsSetSaveCommandWithPrefix, h_MsSetSaveCommandWithPrefix);
     }
 
     // Helper class for overdrive provider functions
@@ -205,8 +204,7 @@ public unsafe partial class OverdriveModule : FhModule
             && _MsLimitTidusLearn.hook()
             && _MsAfterDamageProcess.hook()
             && _ret_doesChrKnowCommand.hook()
-            && _ret_teachAbilityToPartyMemberSilently.hook()
-            && _init_teachAbilityToPartyMemberWithMsg.hook();
+            && _MsSetSaveCommandWithPrefix.hook();
     }
 
     private static T* ptr_at<T>(nint address) where T : unmanaged { return (T*)(address); }
@@ -546,42 +544,16 @@ public unsafe partial class OverdriveModule : FhModule
         return _ret_doesChrKnowCommand.orig_fptr(work, storage, atelStack);
     }
 
-    // Required to interject on receiving Wakka's overdrive from Blitzball
-    private int h_ret_teachAbilityToPartyMemberSilently(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
-    {
-        int com_id = atelStack->pop_int();
-        int chr_id = atelStack->pop_int();
-
-        if (chr_id == PlySaveId.PC_WAKKA &&
-            (com_id | 0x3000) is >= PlayerCommandId.PCOM_ATTACK_REELS and <= PlayerCommandId.PCOM_AUROCHS_REELS)
-        {
+    // Called from teachAbilityToPartyMemberSilently & teachAbilityToPartyMemberWithMsg
+    private void h_MsSetSaveCommandWithPrefix(int chr_id, int com_id, int param_3) {
+        if ((chr_id == PlySaveId.PC_WAKKA && (com_id | 0x3000) is >= PlayerCommandId.PCOM_ATTACK_REELS and <= PlayerCommandId.PCOM_AUROCHS_REELS) ||
+            (chr_id == PlySaveId.PC_VALEFOR && (com_id | 0x3000) == PlayerCommandId.PCOM_ENERGY_BLAST)) {
             send_overdrive(com_id | 0x3000);
-            return chr_id;
+            return;
         }
 
-        atelStack->push_int(chr_id);
-        atelStack->push_int(com_id);
-        return _ret_teachAbilityToPartyMemberSilently.orig_fptr(work, storage, atelStack);
-    }
-
-    // Required to interject on receiving Valefor's overdrive from Dog
-    private int h_init_teachAbilityToPartyMemberWithMsg(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
-    {
-        int com_id = atelStack->pop_int();
-        int chr_id = atelStack->pop_int();
-        int window_idx = atelStack->pop_int();
-
-        if (chr_id == PlySaveId.PC_VALEFOR && 
-            (com_id | 0x3000) == PlayerCommandId.PCOM_ENERGY_BLAST)
-        {
-            send_overdrive(PlayerCommandId.PCOM_ENERGY_BLAST);
-        }
-        
-        atelStack->push_int(window_idx);
-        atelStack->push_int(chr_id);
-        atelStack->push_int(com_id);
-
-        return _init_teachAbilityToPartyMemberWithMsg.orig_fptr(work, storage, atelStack);
+        _MsSetSaveCommandWithPrefix.orig_fptr(chr_id, com_id, param_3);
+        return;
     }
 
     public static void send_overdrive(int com_id)

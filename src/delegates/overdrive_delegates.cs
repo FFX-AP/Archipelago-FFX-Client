@@ -150,18 +150,18 @@ public unsafe partial class OverdriveModule {
     private delegate int brnd(int rng_idx);
     private const nint __addr_brnd = 0x398900;
 
-    private const nint __addr_ret_doesChrKnowCommand = 0x3A30C0;
-    private const nint __addr_ret_teachAbilityToPartyMemberSilently = 0x45B010;
-    private const nint __addr_init_teachAbilityToPartyMemberWithMsg = 0x45B120;
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void MsSetSaveCommandWithPrefix(int chr_id, int com_id, int param_3);
+    private const nint __addr_MsSetSaveCommandWithPrefix = 0x474190;
 
+    private const nint __addr_ret_doesChrKnowCommand = 0x3A30C0;
     // Method Handles
     private readonly FhMethodHandle<MsGetSaveCommand> _MsGetSaveCommand;
     private readonly FhMethodHandle<MsSetRamChrAbility> _MsSetRamChrAbility;
     private readonly FhMethodHandle<MsLimitTidusLearn> _MsLimitTidusLearn;
     private readonly FhMethodHandle<MsAfterDamageProcess> _MsAfterDamageProcess;
     private readonly FhMethodHandle<CT_RetInt> _ret_doesChrKnowCommand;
-    private readonly FhMethodHandle<CT_RetInt> _ret_teachAbilityToPartyMemberSilently;
-    private readonly FhMethodHandle<CT_RetInt> _init_teachAbilityToPartyMemberWithMsg;
+    private readonly FhMethodHandle<MsSetSaveCommandWithPrefix> _MsSetSaveCommandWithPrefix;
 
     private readonly MsGetChr _MsGetChr = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
     private readonly MsMenuCloseTitleWindow _MsMenuCloseTitleWindow = FhUtil.get_fptr<MsMenuCloseTitleWindow>(__addr_MsMenuCloseTitleWindow);
