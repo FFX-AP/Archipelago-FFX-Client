@@ -1323,10 +1323,9 @@ public unsafe partial class ArchipelagoFFXModule {
             (0xB877, 33), // Nav Guado
         ] },
 
-        { "guad0100", [
-            (0x239A, 36), // Noy Guado
-            (0x20FA, 55), // Yuma Guado
-        ] },
+        { "guad0100", [ (0x239A, 36) ] }, // Noy Guado
+
+        { "guad0300", [ (0x20FA, 55) ] }, // Yuma Guado
 
         { "guad0400", [
             (0x1AD8, 32), // Zazi Guado
@@ -1999,12 +1998,6 @@ public unsafe partial class ArchipelagoFFXModule {
                     ]);
                 break;
             case "nagi0700":
-                // Turn around if locked
-                //set(code_ptr, 0x13AAF + 6, [
-                //    AtelOp.CALLPOPA     .build((ushort)CustomCallTarget.BLOCK_WARP),
-                //    ]);
-                //set(code_ptr, 0x13A92, atelNOPArray(17));
-
                 // Always show Nirvana chest
                 set(code_ptr, 0xE25D, AtelOp.JMP.build(0));
 
@@ -2020,6 +2013,25 @@ public unsafe partial class ArchipelagoFFXModule {
                 save_data->monsters_captured[43] = 99;
                 save_data->monsters_captured[59] = 99;
 
+                // Check Mars Sigil location instead of inventory
+                // 1B24 jFD:    9F1900 AE0A00 0E AD2000 B56001 19 02 D7FE00
+                set(code_ptr, 0x1B2B, [
+                    /* priv1759F >= 10
+                    AtelOp.PUSHV    .build(0x0019), // 9F1900
+                    AtelOp.PUSHII   .build(0x000A), // AE0A00
+                    AtelOp.GTE      .build(),       // 0E
+                    */
+
+                    // !Common.hasKeyItem(Mars Sigil)
+                    AtelOp.PUSHII   .build(276),                                                   // AD2000 -> AE1401
+                    AtelOp.CALL     .build((ushort)CustomCallTarget.IS_TREASURE_LOCATION_CHECKED), // B56001 -> B505F0
+                    AtelOp.NOT      .build(),                                                      // 19
+
+                    /* else jump to jFE
+                    AtelOp.LAND     .build(),       // 02
+                    AtelOp.POPXNCJMP.build(0x00FE), // D7FE00
+                    */
+                ]);
 
                 break;
         }
@@ -2711,26 +2723,8 @@ public unsafe partial class ArchipelagoFFXModule {
         return true;
     }
 
-    private static void refill_spheres() {
-        uint[] spheres = {
-            0x2046, // Power Sphere
-            0x2047, // Mana Sphere
-            0x2048, // Speed Sphere
-            0x2049  // Ability Sphere
-        };
-
-        foreach (var item_id in spheres) {
-            uint inventory_amount = save_data->get_item_count((int)item_id);
-            if (inventory_amount < 40) {
-                h_give_item(item_id, 40 - (int)inventory_amount);
-            }
-        }
-    }
-
     private static void refill_inventory() {
         logger.Debug($"Refill inventory");
-
-        refill_spheres();
 
         foreach ((var item_id, var amount) in excess_inventory.ToList()) {
             if (amount > 0 && save_data->get_item_count((int)item_id) < 99) {
@@ -2903,6 +2897,14 @@ public unsafe partial class ArchipelagoFFXModule {
 
     // Pre-battle
     public static void h_MsBattleExe(uint param_1, int field_idx, int group_idx, int formation_idx) {
+        // Evrae is 52, 0, 0
+        // Penance is 52, 1, 0
+        if (field_idx == 52 && group_idx == 1 && formation_idx == 0) {
+            // Try to avoid getting Penance'd by setting the group to Evrae manually
+            group_idx = 0;
+            logger.Info("Tried to avoid getting Penance'd!");
+        }
+
         var field_ptr = Battle.btl->ptr_btl_bin_fields + field_idx * 0xe;
         string field_name = Marshal.PtrToStringAnsi((nint)(field_ptr+6));
 
@@ -2910,7 +2912,7 @@ public unsafe partial class ArchipelagoFFXModule {
         byte group_name = *(byte*)(group_ptr+5 + formation_idx * 2);
 
         string encounter_name = $"{field_name}_{group_name:00}";
-        logger.Debug($"{encounter_name}: param_1={param_1}");
+        logger.Debug($"{encounter_name}: param_1={param_1}, ({field_idx}, {group_idx}, {formation_idx})");
         /*
         if (encounterToPartyDict.TryGetValue(encounter_name, out List<PlySaveId> characters)) {
             if (characters.Count > 0) {
@@ -4647,7 +4649,7 @@ public unsafe partial class ArchipelagoFFXModule {
                                                                                             treasure_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure);
                     }
                 }
-                FFXArchipelagoClient.SayAsync($"kicked away {item.player}'s {item.name}!");   
+                FFXArchipelagoClient.SayAsync($"kicked away {item.player}'s {item.name}!");
             }
         }
         return 1;
