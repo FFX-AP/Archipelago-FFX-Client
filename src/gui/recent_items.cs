@@ -46,7 +46,7 @@ public unsafe class RecentItemsModule : FhModule {
         public readonly FhSettingToggle display_items = new("display_items", true);
         public readonly FhSettingToggle display_only_personal = new("display_only_personal", false);
         public readonly FhSettingToggle display_locations = new("display_locations", true);
-        public readonly FhSettingNumber<int> item_count = new("item_count", 3, 0, 10, 1);
+        public readonly FhSettingNumber<int> item_count = new("item_count", 4, 0, 10, 1);
 
         //TODO: Implement smooth scrolling
         public readonly FhSettingDropdown<RecentItemsAnimation> animation = new("animation", RecentItemsAnimation.SMOOTH);
@@ -84,39 +84,39 @@ public unsafe class RecentItemsModule : FhModule {
     public static LinkedList<RecentItemInfo> recent_items = [ ];
 
     public RecentItemsModule() {
-        settings = new FhSettingsCategory(
-            "recent_items",
-            [
-                new FhSettingsCategory(
-                    "filter",
-                    [
-                        module_settings.display_items,
-                        module_settings.display_only_personal,
-                        module_settings.display_locations,
-                        module_settings.item_count,
-                    ]
-                ),
-
-                new FhSettingsCategory(
-                    "visuals",
-                    [
-                        module_settings.animation,
-                        module_settings.fade_method,
-                        module_settings.fade_after,
-                        module_settings.background,
-                    ]
-                ),
-
-                new FhSettingsCategory(
-                    "position",
-                    [
-                        module_settings.pos_x,
-                        module_settings.pos_y,
-                        module_settings.alignment,
-                    ]
-                ),
-            ]
-        );
+        // settings = new FhSettingsCategory(
+        //     "recent_items",
+        //     [
+        //         new FhSettingsCategory(
+        //             "filter",
+        //             [
+        //                 module_settings.display_items,
+        //                 module_settings.display_only_personal,
+        //                 module_settings.display_locations,
+        //                 module_settings.item_count,
+        //             ]
+        //         ),
+        //
+        //         new FhSettingsCategory(
+        //             "visuals",
+        //             [
+        //                 module_settings.animation,
+        //                 module_settings.fade_method,
+        //                 module_settings.fade_after,
+        //                 module_settings.background,
+        //             ]
+        //         ),
+        //
+        //         new FhSettingsCategory(
+        //             "position",
+        //             [
+        //                 module_settings.pos_x,
+        //                 module_settings.pos_y,
+        //                 module_settings.alignment,
+        //             ]
+        //         ),
+        //     ]
+        // );
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
