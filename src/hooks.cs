@@ -3960,7 +3960,7 @@ public unsafe partial class ArchipelagoFFXModule {
         if (item_type == 0xC && (id < other_item_names.Length))
             return other_item_names[id];
 
-        if (item_type == 0x4 && overdrive_names.ContainsKey(id + PlayerCommandId.PCOM_SPIRAL_CUT))
+        if (item_type == 0x3 && overdrive_names.ContainsKey(id + PlayerCommandId.PCOM_SPIRAL_CUT))
             return overdrive_names[id + PlayerCommandId.PCOM_SPIRAL_CUT];
 
         return $"Unnamed item ({item_id})";

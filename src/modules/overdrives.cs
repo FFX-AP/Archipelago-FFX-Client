@@ -74,7 +74,7 @@ public unsafe partial class OverdriveModule : FhModule
     // Helper class for overdrive provider functions
     public static class OverdriveProvider
     {
-        private const int overdriveOffset = 0x4000;
+        private const int overdriveOffset = 0x3000;
         
         public static void provide_overdrive(int chr_id)
         {
