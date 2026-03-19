@@ -1,4 +1,5 @@
-﻿using Fahrenheit.Atel;
+﻿using Archipelago.MultiClient.Net.Enums;
+using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.FFX.Ids;
@@ -240,6 +241,11 @@ public unsafe partial class OverdriveModule : FhModule
             return 0;
 
         uint tidusLimitUses = ++save_data->tidus_limit_uses;
+        lock (FFXArchipelagoClient.client_lock) {
+            if (FFXArchipelagoClient.is_connected) {
+                FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_TIDUS_OVERDRIVE"] = tidusLimitUses;
+            }
+        }
 
         if (tidusLimitUses >= 10)
             send_overdrive(PlayerCommandId.PCOM_SLICE_AND_DICE);
