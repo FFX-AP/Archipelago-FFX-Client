@@ -125,6 +125,7 @@ public unsafe class RecentItemsModule : FhModule {
 
     public static void post_item_message(LogMessage message) {
         if (message is not ItemSendLogMessage send_message) return;
+        if (message is HintItemSendLogMessage) return;
 
         RecentItemDirection direction = RecentItemDirection.Send;
         if (send_message.Sender == send_message.Receiver) {
