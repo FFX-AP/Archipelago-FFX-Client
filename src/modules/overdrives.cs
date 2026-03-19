@@ -103,10 +103,10 @@ public unsafe partial class OverdriveModule : FhModule
 
         private static void tidus_overdrive()
         {
-            bool hasSpiralCut    = other_inventory.ContainsKey(0x0000 | overdriveOffset);
-            bool hasSliceAndDice = other_inventory.ContainsKey(0x0001 | overdriveOffset);
-            bool hasEnergyRain   = other_inventory.ContainsKey(0x0002 | overdriveOffset);
-            bool hasBlitzAce     = other_inventory.ContainsKey(0x0003 | overdriveOffset);
+            bool hasSpiralCut    = other_inventory.ContainsKey(PlayerCommandId.PCOM_SPIRAL_CUT);
+            bool hasSliceAndDice = other_inventory.ContainsKey(PlayerCommandId.PCOM_SLICE_AND_DICE);
+            bool hasEnergyRain   = other_inventory.ContainsKey(PlayerCommandId.PCOM_ENERGY_RAIN);
+            bool hasBlitzAce     = other_inventory.ContainsKey(PlayerCommandId.PCOM_BLITZ_ACE);
 
             save_data->ability_map_limit.has_swordplay    = hasSpiralCut || hasSliceAndDice || hasEnergyRain || hasBlitzAce;
 
@@ -118,10 +118,10 @@ public unsafe partial class OverdriveModule : FhModule
 
         private static void auron_overdrive()
         {
-            bool hasDragonFang     = other_inventory.ContainsKey(0x0004 | overdriveOffset);
-            bool hasShootingStar   = other_inventory.ContainsKey(0x0005 | overdriveOffset);
-            bool hasBanishingBlade = other_inventory.ContainsKey(0x0006 | overdriveOffset);
-            bool hasTornado        = other_inventory.ContainsKey(0x0007 | overdriveOffset);
+            bool hasDragonFang     = other_inventory.ContainsKey(PlayerCommandId.PCOM_DRAGON_FANG);
+            bool hasShootingStar   = other_inventory.ContainsKey(PlayerCommandId.PCOM_SHOOTING_STAR);
+            bool hasBanishingBlade = other_inventory.ContainsKey(PlayerCommandId.PCOM_BANISHING_BLADE);
+            bool hasTornado        = other_inventory.ContainsKey(PlayerCommandId.PCOM_TORNADO);
 
             save_data->ability_map_limit.has_bushido         = hasDragonFang || hasShootingStar || hasBanishingBlade || hasTornado;
 
@@ -133,18 +133,18 @@ public unsafe partial class OverdriveModule : FhModule
 
         private static void kimahri_overdrive()
         {
-            bool hasJump         = other_inventory.ContainsKey(0x0008 | overdriveOffset);
-            bool hasFireBreath   = other_inventory.ContainsKey(0x0009 | overdriveOffset);
-            bool hasSeedCannon   = other_inventory.ContainsKey(0x000A | overdriveOffset);
-            bool hasSelfDestruct = other_inventory.ContainsKey(0x000B | overdriveOffset);
-            bool hasThrustKick   = other_inventory.ContainsKey(0x000C | overdriveOffset);
-            bool hasStoneBreath  = other_inventory.ContainsKey(0x000D | overdriveOffset);
-            bool hasAquaBreath   = other_inventory.ContainsKey(0x000E | overdriveOffset);
-            bool hasDoom         = other_inventory.ContainsKey(0x000F | overdriveOffset);
-            bool hasWhiteWind    = other_inventory.ContainsKey(0x0010 | overdriveOffset);
-            bool hasBadBreath    = other_inventory.ContainsKey(0x0011 | overdriveOffset);
-            bool hasMightyGuard  = other_inventory.ContainsKey(0x0012 | overdriveOffset);
-            bool hasNova         = other_inventory.ContainsKey(0x0013 | overdriveOffset);
+            bool hasJump         = other_inventory.ContainsKey(PlayerCommandId.PCOM_JUMP);
+            bool hasFireBreath   = other_inventory.ContainsKey(PlayerCommandId.PCOM_FIRE_BREATH);
+            bool hasSeedCannon   = other_inventory.ContainsKey(PlayerCommandId.PCOM_SEED_CANNON);
+            bool hasSelfDestruct = other_inventory.ContainsKey(PlayerCommandId.PCOM_SELF_DESTRUCT);
+            bool hasThrustKick   = other_inventory.ContainsKey(PlayerCommandId.PCOM_THRUST_KICK);
+            bool hasStoneBreath  = other_inventory.ContainsKey(PlayerCommandId.PCOM_STONE_BREATH);
+            bool hasAquaBreath   = other_inventory.ContainsKey(PlayerCommandId.PCOM_AQUA_BREATH);
+            bool hasDoom         = other_inventory.ContainsKey(PlayerCommandId.PCOM_DOOM);
+            bool hasWhiteWind    = other_inventory.ContainsKey(PlayerCommandId.PCOM_WHITE_WIND);
+            bool hasBadBreath    = other_inventory.ContainsKey(PlayerCommandId.PCOM_BAD_BREATH);
+            bool hasMightyGuard  = other_inventory.ContainsKey(PlayerCommandId.PCOM_MIGHTY_GUARD);
+            bool hasNova         = other_inventory.ContainsKey(PlayerCommandId.PCOM_NOVA);
 
             save_data->ability_map_limit.has_ronso_rage    = hasJump       || hasFireBreath  || hasSeedCannon  || hasSelfDestruct ||
                                                              hasThrustKick || hasStoneBreath || hasAquaBreath  || hasDoom         ||
@@ -166,10 +166,10 @@ public unsafe partial class OverdriveModule : FhModule
 
         private static void wakka_overdrive()
         {
-            bool hasElementReels = other_inventory.ContainsKey(0x0014 | overdriveOffset);
-            bool hasAttackReels  = other_inventory.ContainsKey(0x0015 | overdriveOffset);
-            bool hasStatusReels  = other_inventory.ContainsKey(0x0016 | overdriveOffset);
-            bool hasAurochsReels = other_inventory.ContainsKey(0x0017 | overdriveOffset);
+            bool hasElementReels = other_inventory.ContainsKey(PlayerCommandId.PCOM_ELEMENT_REELS);
+            bool hasAttackReels  = other_inventory.ContainsKey(PlayerCommandId.PCOM_ATTACK_REELS);
+            bool hasStatusReels  = other_inventory.ContainsKey(PlayerCommandId.PCOM_STATUS_REELS);
+            bool hasAurochsReels = other_inventory.ContainsKey(PlayerCommandId.PCOM_AUROCHS_REELS);
 
             save_data->ability_map_limit.has_slots         = hasElementReels || hasAttackReels || hasStatusReels || hasAurochsReels;
 
@@ -181,14 +181,14 @@ public unsafe partial class OverdriveModule : FhModule
 
         private static void seymour_overdrive()
         {
-            bool hasRequiem      = other_inventory.ContainsKey(0x0083 | overdriveOffset);
+            bool hasRequiem      = other_inventory.ContainsKey(PlayerCommandId.PCOM_REQUIEM);
 
             save_data->ability_map_limit.has_requiem = hasRequiem;
         }
 
         private static void valefor_overdrive()
         {
-            bool hasEnergyBlast  = other_inventory.ContainsKey(0x00CD | overdriveOffset);
+            bool hasEnergyBlast  = other_inventory.ContainsKey(PlayerCommandId.PCOM_ENERGY_BLAST);
 
             save_data->ability_map_limit.has_energy_blast = hasEnergyBlast;
         }
@@ -317,8 +317,8 @@ public unsafe partial class OverdriveModule : FhModule
                             ushort rage_to_learn = pCVar8->loot->ronso_rage;
                             if (rage_to_learn != 0)
                             {
-                                if (!_MsGetSaveCommand(3, rage_to_learn))
-                                {
+                                //if (!_MsGetSaveCommand(3, rage_to_learn))
+                                //{
                                     //_MsSetSaveCommand(3, rage_to_learn, 1);
                                     //_MsMessageCueRegist(0x1, 3, rage_to_learn, 0x1e, 0x32);
 
@@ -335,7 +335,7 @@ public unsafe partial class OverdriveModule : FhModule
                                     {
                                         _achievementUnlockAchievement(0x19);
                                     }
-                                }
+                                //}
                             }
                         }
                     }
