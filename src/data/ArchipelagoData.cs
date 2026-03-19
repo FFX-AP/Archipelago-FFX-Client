@@ -1069,7 +1069,7 @@ public static class ArchipelagoData {
         // Auron solo
         {"lchb07_00", () => ArchipelagoFFXModule.set_party([PlySaveId.PC_AURON], true, false) },
         // Yenke and Biran. Can only target Kimahri and scale on his stats.
-        {"mtgz01_10", () => ArchipelagoFFXModule.set_party([PlySaveId.PC_KIMAHRI], true, false) },
+        {"mtgz01_10", () => ArchipelagoFFXModule.set_party([PlySaveId.PC_KIMAHRI], true, true) },
 
         // Tutorials
         // Will softlock without Lulu
