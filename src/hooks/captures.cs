@@ -116,33 +116,6 @@ public unsafe partial class CaptureModule : FhModule {
             if (_incorrect_arena_idx.Contains((short)(mon->chr_id & 0xFFF))) {
                 stats->monster_arena_idx = 0xFF;
             }                
-
-            //ChrLoot* loot = (ChrLoot*)(((int*)mon->ptr_mon_wep_bin)[5] + mon->ptr_mon_wep_bin);
-            //
-            //loot->drop_chance_equipment = 255;
-            //loot->equipment_loot.ability_count = 100; // Guaranteed 4 abilities?
-            //loot->equipment_loot.slot_count = 20; // Guaranteed 4 slots
-            //
-            //for (int chr = 0; chr < 7; chr++) {
-            //    // Guaranteed Capture
-            //    loot->equipment_loot.abilities_tidus.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_yuna.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_auron.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_kimahri.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_wakka.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_lulu.weapon_abilities[0] = 0x807A;
-            //    loot->equipment_loot.abilities_rikku.weapon_abilities[0] = 0x807A;
-            //    for (int i = 1; i < 8; i++) {
-            //        loot->equipment_loot.abilities_tidus.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_yuna.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_auron.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_kimahri.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_wakka.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_lulu.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //        loot->equipment_loot.abilities_rikku.weapon_abilities[i] = (ushort)(0x8000 + rng.Next(0x81));
-            //    }
-            //}
-
         }
         else {
             _logger.Debug($"{mon_idx}: already initialized ({mon->chr_id})");
