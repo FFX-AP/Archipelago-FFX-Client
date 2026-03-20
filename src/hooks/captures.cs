@@ -149,7 +149,7 @@ public unsafe partial class CaptureModule : FhModule {
         }
     }
 
-    private string? _event_name = Marshal.PtrToStringAnsi((nint)get_event_name((uint)event_id))!;
+    private string? _event_name;
     private void h_AtelEventSetUp(int event_id) {
         _AtelEventSetUp.orig_fptr(event_id);
 
