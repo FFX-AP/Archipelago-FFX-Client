@@ -323,25 +323,19 @@ public unsafe partial class OverdriveModule : FhModule
                             ushort rage_to_learn = pCVar8->loot->ronso_rage;
                             if (rage_to_learn != 0)
                             {
-                                //if (!_MsGetSaveCommand(3, rage_to_learn))
-                                //{
-                                    //_MsSetSaveCommand(3, rage_to_learn, 1);
-                                    //_MsMessageCueRegist(0x1, 3, rage_to_learn, 0x1e, 0x32);
-
-                                    send_overdrive(rage_to_learn);                                    
-
+                                if(send_overdrive(rage_to_learn)) {
                                     target->ram.limit_charge = target->ram.limit_charge_max;
+                                }
 
-                                    if (save_data->ability_map_limit.has_jump         && save_data->ability_map_limit.has_fire_breath   &&
-                                        save_data->ability_map_limit.has_seed_cannon  && save_data->ability_map_limit.has_self_destruct &&
-                                        save_data->ability_map_limit.has_thrust_kick  && save_data->ability_map_limit.has_stone_breath  &&
-                                        save_data->ability_map_limit.has_aqua_breath  && save_data->ability_map_limit.has_doom          &&
-                                        save_data->ability_map_limit.has_white_wind   && save_data->ability_map_limit.has_bad_breath    &&
-                                        save_data->ability_map_limit.has_mighty_guard && save_data->ability_map_limit.has_nova)
-                                    {
-                                        _achievementUnlockAchievement(0x19);
-                                    }
-                                //}
+                                if (save_data->ability_map_limit.has_jump         && save_data->ability_map_limit.has_fire_breath   &&
+                                    save_data->ability_map_limit.has_seed_cannon  && save_data->ability_map_limit.has_self_destruct &&
+                                    save_data->ability_map_limit.has_thrust_kick  && save_data->ability_map_limit.has_stone_breath  &&
+                                    save_data->ability_map_limit.has_aqua_breath  && save_data->ability_map_limit.has_doom          &&
+                                    save_data->ability_map_limit.has_white_wind   && save_data->ability_map_limit.has_bad_breath    &&
+                                    save_data->ability_map_limit.has_mighty_guard && save_data->ability_map_limit.has_nova)
+                                {
+                                    _achievementUnlockAchievement(0x19);
+                                }
                             }
                         }
                     }
@@ -562,10 +556,11 @@ public unsafe partial class OverdriveModule : FhModule
         return;
     }
 
-    public static void send_overdrive(int com_id)
+    public static bool send_overdrive(int com_id)
     {
         // Apworld defines Spiral Cut as overdrive location 0, and all other overdrives are treated as an offset from that value.
         int overdrive_id = com_id - PlayerCommandId.PCOM_SPIRAL_CUT;
+        bool sent_overdrive = false;
 
         if (!FFXArchipelagoClient.local_checked_locations.Contains(overdrive_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
         {
@@ -574,8 +569,11 @@ public unsafe partial class OverdriveModule : FhModule
                 if (FFXArchipelagoClient.sendLocation(overdrive_id, FFXArchipelagoClient.ArchipelagoLocationType.Overdrive))
                 {
                     ArchipelagoFFXModule.obtain_item(item.id);
+                    sent_overdrive = true;
                 }
             }
         }
+
+        return sent_overdrive;
     }
 }
