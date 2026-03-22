@@ -2,10 +2,8 @@
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
-using Archipelago.MultiClient.Net.MessageLog.Parts;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
-using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 using System;
@@ -252,13 +250,13 @@ public unsafe static void connectHandlers() {
     public enum ArchipelagoLocationType: int {
         Treasure      = 0x1000,
         Boss          = 0x2000,
-        PartyMember   = 0x3000,
-        Overdrive     = 0x4000,
+        Overdrive     = 0x3000,
         OverdriveMode = 0x5000,
         Other         = 0x6000,
         Recruit       = 0x7000,
         SphereGrid    = 0x8000,
         Capture       = 0x9000,
+        PartyMember   = 0xF000,
     }
 
     public static bool sendLocation(long locationId, ArchipelagoLocationType locationType) {

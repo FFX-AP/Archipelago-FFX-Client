@@ -436,6 +436,10 @@ public static unsafe class delegates {
 
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate bool MsGetSaveCommand(int char_id, uint com_id);
+    public const int __addr_MsGetSaveCommand = 0x3850E0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void TkMsImportantSet(uint param_1);
     public const nint __addr_TkMsImportantSet = 0x0048e700;
 
@@ -636,11 +640,8 @@ public static unsafe class delegates {
     public delegate byte TkMenuGetCurrentSummon();
     public static int __addr_TkMenuGetCurrentSummon = 0x4A9830;
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate bool MsGetSaveCommand(int char_id, uint com_id);
-    public static int __addr_MsGetSaveCommand = 0x3850E0;
 
-    
+
 
 
 

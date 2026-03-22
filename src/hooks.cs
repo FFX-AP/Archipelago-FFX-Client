@@ -2681,6 +2681,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     //return true;
                 }
                 foreach (uint item in seed.Locations.StartingItems) obtain_item(item);
+                OverdriveModule.OverdriveProvider.set_overdrive_modes();
             }
             if (seed.Options.SeedId is null) {
                 // In-game with no seed
@@ -3403,12 +3404,20 @@ public unsafe partial class ArchipelagoFFXModule {
                 }
 
                 // Progressive Jecht's Sphere
-                if (item_id == 0xA020 && Globals.save_data->key_items.get((int)item_id)) {
+                if (item_id == 0xA020) {
                     save_data->jecht_spheres.collected_amount++;
+
+                    if (save_data->jecht_spheres.collected_amount >= 1)
+                        OverdriveModule.send_overdrive(PlayerCommandId.PCOM_SHOOTING_STAR);
+
+                    if (save_data->jecht_spheres.collected_amount >= 3)
+                        OverdriveModule.send_overdrive(PlayerCommandId.PCOM_BANISHING_BLADE);
+
+                    if (save_data->jecht_spheres.collected_amount >= 10)
+                        OverdriveModule.send_overdrive(PlayerCommandId.PCOM_TORNADO);
                 }
 
                 h_TkMsImportantSet(item_id);
-                // TODO: Handle Al Bhed Primers
                 break;
             case 0x2:
                 // Item
@@ -3532,6 +3541,35 @@ public unsafe partial class ArchipelagoFFXModule {
                 logger.Debug($"Trap: {item_id}");
                 if (item_id == 0) {
                     queued_voice_lines.Enqueue(voicelines[rng.Next(voicelines.Length)]);
+                }
+                break;
+            case 0x3:
+                // Overdrive
+                logger.Debug($"Overdrive: {item_id}");
+                other_inventory.TryGetValue(item_id, out count);
+                other_inventory[item_id] = count + 1;
+
+                switch (item_id) {
+                    case >= PlayerCommandId.PCOM_SPIRAL_CUT and <= PlayerCommandId.PCOM_BLITZ_ACE:
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_TIDUS);
+                        break;
+                    case >= PlayerCommandId.PCOM_SHOOTING_STAR and <= PlayerCommandId.PCOM_TORNADO:
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_AURON);
+                        break;
+                    case >= PlayerCommandId.PCOM_JUMP and <= PlayerCommandId.PCOM_NOVA:
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_KIMAHRI);
+                        break;
+                    case >= PlayerCommandId.PCOM_ELEMENT_REELS and <= PlayerCommandId.PCOM_AUROCHS_REELS:
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_WAKKA);
+                        break;
+                    case PlayerCommandId.PCOM_REQUIEM:
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_SEYMOUR);
+                        break;
+                    case PlayerCommandId.PCOM_ENERGY_BLAST:
+                        OverdriveModule.OverdriveProvider.provide_overdrive(PlySaveId.PC_VALEFOR);
+                        break;
+                    default:
+                        throw new NotImplementedException();
                 }
                 break;
             case 0xC:
@@ -3916,11 +3954,16 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     public static string get_other_item_name(uint item_id) {
-        var item_type = (item_id & 0xF000) >> 12;
-        var id = item_id & 0xFF;
+        var item_type = (item_id & 0xF000) >> 0xC;
+        var id = item_id & 0xFFF;
 
-        if (item_type != 0xC || !(id < other_item_names.Length)) return $"Unnamed item ({item_id})";
-        return other_item_names[id];
+        if (item_type == 0xC && (id < other_item_names.Length))
+            return other_item_names[id];
+
+        if (item_type == 0x3 && overdrive_names.ContainsKey(item_id))
+            return overdrive_names[item_id];
+
+        return $"Unnamed item ({item_id})";
     }
 
     private static Dictionary<int, CT_Exec>     cached_CT_Execs     = new();
