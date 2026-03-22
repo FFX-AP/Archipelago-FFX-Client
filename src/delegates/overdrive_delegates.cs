@@ -1,4 +1,5 @@
-﻿using Fahrenheit.FFX.Battle;
+﻿using Fahrenheit.FFX;
+using Fahrenheit.FFX.Battle;
 using System.Runtime.InteropServices;
 using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 
@@ -154,7 +155,36 @@ public unsafe partial class OverdriveModule {
     private delegate void MsSetSaveCommandWithPrefix(int chr_id, int com_id, int param_3);
     private const nint __addr_MsSetSaveCommandWithPrefix = 0x474190;
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate int TOBtlDrawLearningMessageWindow(int chr_id, int com_id);
+    private const nint __addr_TOBtlDrawLearningMessageWindow = 0x495290;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void TOBtlSetMacroCommandType(int param_1, int param_2, byte param_3);
+    private const nint __addr_TOBtlSetMacroCommandType = 0x4B5770;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void TOBtlSetMacroCommandValue(int param_1, int param_2, byte* param_3);
+    private const nint __addr_TOBtlSetMacroCommandValue = 0x4B57A0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate byte* TOGetSaveChrName(int chr_id);
+    private const nint __addr_TOGetSaveChrName = 0x4AC800;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate Command* MsGetComData(int com_id, byte** param_2);
+    private const nint __addr_MsGetComData = 0x39A4C0;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate byte* MsGetRomBtlText(int param_1, int param_2);
+    private const nint __addr_MsGetRomBtlText = 0x38F940;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate int FUN_0089db10(int param_1, byte* param_2);
+    private const nint __addr_FUN_0089db10 = 0x49DB10;
+
     private const nint __addr_ret_doesChrKnowCommand = 0x3A30C0;
+
     // Method Handles
     private readonly FhMethodHandle<MsGetSaveCommand> _MsGetSaveCommand;
     private readonly FhMethodHandle<MsSetRamChrAbility> _MsSetRamChrAbility;
@@ -162,6 +192,7 @@ public unsafe partial class OverdriveModule {
     private readonly FhMethodHandle<MsAfterDamageProcess> _MsAfterDamageProcess;
     private readonly FhMethodHandle<CT_RetInt> _ret_doesChrKnowCommand;
     private readonly FhMethodHandle<MsSetSaveCommandWithPrefix> _MsSetSaveCommandWithPrefix;
+    private readonly FhMethodHandle<TOBtlDrawLearningMessageWindow> _TOBtlDrawLearningMessageWindow;
 
     private readonly MsGetChr _MsGetChr = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
     private readonly MsMenuCloseTitleWindow _MsMenuCloseTitleWindow = FhUtil.get_fptr<MsMenuCloseTitleWindow>(__addr_MsMenuCloseTitleWindow);
@@ -195,6 +226,13 @@ public unsafe partial class OverdriveModule {
     private readonly MsDamageCheckDeath _MsDamageCheckDeath = FhUtil.get_fptr<MsDamageCheckDeath>(__addr_MsDamageCheckDeath);
     private readonly MsDamageSetMotion _MsDamageSetMotion = FhUtil.get_fptr<MsDamageSetMotion>(__addr_MsDamageSetMotion);
     private readonly brnd _brnd = FhUtil.get_fptr<brnd>(__addr_brnd);
+    private readonly TOBtlSetMacroCommandType _TOBtlSetMacroCommandType = FhUtil.get_fptr<TOBtlSetMacroCommandType>(__addr_TOBtlSetMacroCommandType);
+    private readonly TOBtlSetMacroCommandValue _TOBtlSetMacroCommandValue = FhUtil.get_fptr<TOBtlSetMacroCommandValue>(__addr_TOBtlSetMacroCommandValue);
+    private readonly TOGetSaveChrName _TOGetSaveChrName = FhUtil.get_fptr<TOGetSaveChrName>(__addr_TOGetSaveChrName);
+    private readonly MsGetComData _MsGetComData = FhUtil.get_fptr<MsGetComData>(__addr_MsGetComData);
+    private readonly MsGetRomBtlText _MsGetRomBtlText = FhUtil.get_fptr<MsGetRomBtlText>(__addr_MsGetRomBtlText);
+    private readonly FUN_0089db10 _FUN_0089db10 = FhUtil.get_fptr<FUN_0089db10>(__addr_FUN_0089db10);
 
     private readonly MsGetSaveCommand _fn_MsGetSaveCommand = FhUtil.get_fptr<MsGetSaveCommand>(__addr_MsGetSaveCommand);
+    private readonly TOBtlDrawLearningMessageWindow _fn_TOBtlDrawLearningMessageWindow = FhUtil.get_fptr<TOBtlDrawLearningMessageWindow>(__addr_TOBtlDrawLearningMessageWindow);
 }

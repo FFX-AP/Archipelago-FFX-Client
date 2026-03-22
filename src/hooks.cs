@@ -2981,7 +2981,6 @@ public unsafe partial class ArchipelagoFFXModule {
                 }
             }
         }
-        logger.Info($"Local7c = {local_7c[0]}");
     }
 
     public static int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {

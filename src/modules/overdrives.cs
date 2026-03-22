@@ -70,6 +70,7 @@ public unsafe partial class OverdriveModule : FhModule
         _MsAfterDamageProcess = new FhMethodHandle<MsAfterDamageProcess>(this, GAME, __addr_MsAfterDamageProcess, h_MsAfterDamageProcess);
         _ret_doesChrKnowCommand = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
         _MsSetSaveCommandWithPrefix = new FhMethodHandle<MsSetSaveCommandWithPrefix>(this, GAME, __addr_MsSetSaveCommandWithPrefix, h_MsSetSaveCommandWithPrefix);
+        _TOBtlDrawLearningMessageWindow = new FhMethodHandle<TOBtlDrawLearningMessageWindow>(this, GAME, __addr_TOBtlDrawLearningMessageWindow, h_TOBtlDrawLearningMessageWindow);
     }
 
     // Helper class for overdrive provider functions
@@ -215,7 +216,8 @@ public unsafe partial class OverdriveModule : FhModule
             && _MsLimitTidusLearn.hook()
             && _MsAfterDamageProcess.hook()
             && _ret_doesChrKnowCommand.hook()
-            && _MsSetSaveCommandWithPrefix.hook();
+            && _MsSetSaveCommandWithPrefix.hook()
+            && _TOBtlDrawLearningMessageWindow.hook();
     }
 
     private static T* ptr_at<T>(nint address) where T : unmanaged { return (T*)(address); }
@@ -328,12 +330,13 @@ public unsafe partial class OverdriveModule : FhModule
                     if (target_0x774->field4_0x4.get_bit(1))
                     {
                         Chr* pCVar8 = _MsGetChr(target_0x774->chr_id__0x17);
-                        if (target_id == 3 && pCVar8->loot != (ChrLoot*)0x0)
+                        if (target_id == PlySaveId.PC_KIMAHRI && pCVar8->loot != (ChrLoot*)0x0)
                         {
                             ushort rage_to_learn = pCVar8->loot->ronso_rage;
                             if (rage_to_learn != 0)
                             {
                                 if(send_overdrive(rage_to_learn)) {
+                                    _MsMessageCueRegist(6, PlySaveId.PC_KIMAHRI, rage_to_learn, 0x1e, 0x32);
                                     target->ram.limit_charge = target->ram.limit_charge_max;
                                 }
 
@@ -564,6 +567,38 @@ public unsafe partial class OverdriveModule : FhModule
 
         _MsSetSaveCommandWithPrefix.orig_fptr(chr_id, com_id, param_3);
         return;
+    }
+
+    private int h_TOBtlDrawLearningMessageWindow(int chr_id, int com_id) {
+        byte* data_end;
+
+        byte* chr_name = _TOGetSaveChrName(chr_id);
+        _TOBtlSetMacroCommandType(7, 0, 0);
+        _TOBtlSetMacroCommandValue(7, 0, chr_name);
+
+        Command* com = _MsGetComData(com_id, &data_end);
+        ushort com_name_offset = com->name_offset;
+
+        _TOBtlSetMacroCommandType(7, 1, 0);
+
+        if (item_locations.overdrive.TryGetValue(com_id - PlayerCommandId.PCOM_SPIRAL_CUT, out var item)) {
+            NativeCustomString custom_text;
+
+            if (item.id != 0) {
+                custom_text = new($"{item.name}");
+            } else {
+                custom_text = new($"{item.player}'s {item.name}");
+            }
+
+            _TOBtlSetMacroCommandValue(7, 1, custom_text.encoded);
+        } else {
+            _TOBtlSetMacroCommandValue(7, 1, data_end + com_name_offset);
+        }
+
+        byte* btl_text = _MsGetRomBtlText(0x300d, 0);
+        _FUN_0089db10(0, btl_text);
+
+        return 7;
     }
 
     public static bool send_overdrive(int com_id)
