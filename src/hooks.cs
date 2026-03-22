@@ -2681,6 +2681,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     //return true;
                 }
                 foreach (uint item in seed.Locations.StartingItems) obtain_item(item);
+                OverdriveModule.OverdriveProvider.set_overdrive_modes();
             }
             if (seed.Options.SeedId is null) {
                 // In-game with no seed
@@ -4515,7 +4516,6 @@ public unsafe partial class ArchipelagoFFXModule {
 
         update_region_state(save_data->current_room_id, save_data->current_spawnpoint);
         refill_inventory();
-        OverdriveModule.OverdriveProvider.set_overdrive_modes();
         return 1;
     }
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
