@@ -259,12 +259,23 @@ public unsafe partial class OverdriveModule : FhModule
             }
         }
 
-        if (tidusLimitUses >= 10)
-            send_overdrive(PlayerCommandId.PCOM_SLICE_AND_DICE);
-        if (tidusLimitUses >= 20)
-            send_overdrive(PlayerCommandId.PCOM_ENERGY_RAIN);
-        if (tidusLimitUses >= 40)
-            send_overdrive(PlayerCommandId.PCOM_BLITZ_ACE);
+        if (tidusLimitUses >= 10) {
+            if (send_overdrive(PlayerCommandId.PCOM_SLICE_AND_DICE)) {
+                _MsMessageCueRegist(6, PlySaveId.PC_TIDUS, PlayerCommandId.PCOM_SLICE_AND_DICE, 0x1e, 0x32);
+            }
+        }
+
+        if (tidusLimitUses >= 20) {
+            if(send_overdrive(PlayerCommandId.PCOM_ENERGY_RAIN)) {
+                _MsMessageCueRegist(6, PlySaveId.PC_TIDUS, PlayerCommandId.PCOM_ENERGY_RAIN, 0x1e, 0x32);
+            }
+        }
+
+        if (tidusLimitUses >= 40) {
+            if(send_overdrive(PlayerCommandId.PCOM_BLITZ_ACE)) {
+                _MsMessageCueRegist(6, PlySaveId.PC_TIDUS, PlayerCommandId.PCOM_BLITZ_ACE, 0x1e, 0x32);
+            }
+        }
         
         return 0;
     }
