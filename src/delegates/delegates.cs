@@ -478,13 +478,7 @@ public static unsafe class delegates {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void MsBattleExe(uint param_1, int field_idx, int group_idx, int formation_idx);
     public const nint __addr_MsBattleExe = 0x3810F0;
-
-
-    
-
-    
-
-    
+  
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void TkMsGetRomItem(uint param_1, int* param_2);
