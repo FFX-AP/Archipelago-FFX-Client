@@ -2732,9 +2732,6 @@ public unsafe partial class ArchipelagoFFXModule {
                 h_give_item(item_id, amount);
             }
         }
-        
-        if (seed.Options.OverdriveModes == 1) 
-            OverdriveModule.OverdriveProvider.set_overdrive_modes();
     }
 
     private static int h_Common_transitionToMap(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
@@ -4518,6 +4515,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         update_region_state(save_data->current_room_id, save_data->current_spawnpoint);
         refill_inventory();
+        OverdriveModule.OverdriveProvider.set_overdrive_modes();
         return 1;
     }
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
