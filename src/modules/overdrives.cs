@@ -193,6 +193,16 @@ public unsafe partial class OverdriveModule : FhModule
 
             save_data->ability_map_limit.has_energy_blast = hasEnergyBlast;
         }
+
+        public static void set_overdrive_modes() {
+            for (int i = 0; i <= PlySaveId.PC_SEYMOUR; i++) {
+                PlySave* ply_save = &save_data->ply_saves[i];
+
+                for (int n = 0; n <= 16; n++) {
+                    (*(uint*)&ply_save->obtained_limit_modes).set_bit(n, true);
+                }
+            }
+        }
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file)

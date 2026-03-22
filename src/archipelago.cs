@@ -135,6 +135,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int             CaptureDamage;
         [JsonInclude]
         public int             SkipContestOfAeons;
+        [JsonInclude]
+        public int             OverdriveModes;
 
         public ArchipelagoSeedOptions() {
             PlayerName           = "";
@@ -147,6 +149,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             AlwaysCapture        = 0;
             CaptureDamage        = 0;
             SkipContestOfAeons   = 0;
+            OverdriveModes       = 0;
         }
     }
     public struct ArchipelagoSeedLocations {
