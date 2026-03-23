@@ -94,7 +94,7 @@
 
   <Target Name="PublishCSR" AfterTargets="Publish">
     <Message Text="Publish fh-mods-csr" />
-    <MSBuild Projects="$(fhcsrProject)" Properties="PublishDir=$(PublishDir)fahrenheit\mods\$(fhcsrName);Configuration=$(Configuration)" Targets="Publish" />
+    <MSBuild Projects="$(fhcsrProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(fhcsrName);Configuration=$(Configuration)" Targets="Build" />
   </Target>
   
 </Project>
