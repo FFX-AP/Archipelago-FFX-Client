@@ -38,10 +38,10 @@
 
 	<!-- BUILD EVENTS -->
   <Target Name="ReplaceProperties" BeforeTargets="Publish">
-        <PropertyGroup>
-            <File>archipelago-ffx.manifest.json</File>
-        </PropertyGroup>
-        <WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="UTF-8" />
+      <PropertyGroup>
+        <File>archipelago-ffx.manifest.json</File>
+      </PropertyGroup>
+      <WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="UTF-8" />
     </Target>
 
 	<Target Name="DownloadFahrenheitRelease" AfterTargets="Publish">
@@ -69,9 +69,9 @@
 	<Target Name="CopyAssets" AfterTargets="Publish">
 		<PropertyGroup>
 			<AssetsDir>$(ProjectDir)assets\</AssetsDir>
-            <LoadOrderFile>loadorder</LoadOrderFile>
+				<LoadOrderFile>loadorder</LoadOrderFile>
 			<LoadOrder>$(AssetsDir)$(LoadOrderFile)</LoadOrder>
-            <StartGameFile>start_game.bat</StartGameFile>
+        <StartGameFile>start_game.bat</StartGameFile>
 			<StartGame>$(AssetsDir)$(StartGameFile)</StartGame>
 			<AssetDestination>$(PublishDir)fahrenheit\mods\$(AssemblyName)</AssetDestination>
 		</PropertyGroup>
