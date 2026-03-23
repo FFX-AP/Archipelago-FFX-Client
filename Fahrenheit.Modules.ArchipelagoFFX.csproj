@@ -30,11 +30,11 @@
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
 	</ItemGroup>
 
-  <PropertyGroup>
-    <fhcsrName>fhcsr</fhcsrName>
-    <fhcsrPath>$(ProjectDir)fh-mods-csr/</fhcsrPath>
-    <fhcsrProject>$(fhcsrPath)Fahrenheit.Mods.CSR.csproj</fhcsrProject>
-  </PropertyGroup>
+	<PropertyGroup>
+		<fhcsrName>fhcsr</fhcsrName>
+		<fhcsrPath>$(ProjectDir)fh-mods-csr/</fhcsrPath>
+		<fhcsrProject>$(fhcsrPath)Fahrenheit.Mods.CSR.csproj</fhcsrProject>
+	</PropertyGroup>
 
 	<!-- BUILD EVENTS -->
   <Target Name="ReplaceProperties" BeforeTargets="Publish">
