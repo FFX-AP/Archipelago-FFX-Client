@@ -15,9 +15,9 @@
 		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="fh-mods-csr\**" />
-	  <EmbeddedResource Remove="fh-mods-csr\**" />
-	  <None Remove="fh-mods-csr\**" />
+		<Compile Remove="fh-mods-csr\**" />
+		<EmbeddedResource Remove="fh-mods-csr\**" />
+		<None Remove="fh-mods-csr\**" />
 	</ItemGroup>
 
 	<!-- SHARED FILE LINKS -->
@@ -37,12 +37,12 @@
 	</PropertyGroup>
 
 	<!-- BUILD EVENTS -->
-  <Target Name="ReplaceProperties" BeforeTargets="Publish">
-      <PropertyGroup>
-        <File>archipelago-ffx.manifest.json</File>
-      </PropertyGroup>
-      <WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="UTF-8" />
-    </Target>
+	<Target Name="ReplaceProperties" BeforeTargets="Publish">
+		<PropertyGroup>
+			<File>archipelago-ffx.manifest.json</File>
+		</PropertyGroup>
+		<WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="UTF-8" />
+	</Target>
 
 	<Target Name="DownloadFahrenheitRelease" AfterTargets="Publish">
 		<PropertyGroup>
