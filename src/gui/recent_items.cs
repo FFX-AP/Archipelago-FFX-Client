@@ -152,26 +152,6 @@ public unsafe class RecentItemsModule : FhModule {
         return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
     }
 
-#if DEBUG
-    private readonly Random bogus_item_rng = new();
-    private readonly LinkedList<(bool direction, int item_rng, int player_rng)> bogus_items = [];
-    private static float bogus_item_gen_seconds_passed;
-
-    public override void post_update() {
-        bogus_item_gen_seconds_passed += 1.0f/60.0f;
-
-        if (bogus_item_gen_seconds_passed > 20f) {
-            bogus_item_gen_seconds_passed -= 20f;
-
-            bogus_items.AddFirst((
-                bogus_item_rng.Next(0, 2) == 0,
-                bogus_item_rng.Next(0, 4),
-                bogus_item_rng.Next(0, 20)
-            ));
-        }
-    }
-#endif
-
     public override void render_imgui() {
         if (!module_settings.display_items.get()) return;
 
@@ -218,21 +198,8 @@ public unsafe class RecentItemsModule : FhModule {
         ImGui.Dummy(new());
 
         var item = recent_items.First;
-#if DEBUG
-        var bogus_item = bogus_items.First;
-#endif
         for (int i = 0; i < module_settings.item_count.get(); i++) {
-#if DEBUG
-            if (item is null) {
-                if (bogus_item is null) break;
-
-                render_bogus_item(bogus_item.Value);
-                bogus_item = bogus_item.Next;
-                continue;
-            }
-#else
             if (item is null) break;
-#endif
 
             if (module_settings.display_only_personal.get() && item.Value.relevance == RecentItemRelevance.Impersonal) {
                 // Skip this item
@@ -306,61 +273,4 @@ public unsafe class RecentItemsModule : FhModule {
             ImGui.Unindent();
         }
     }
-
-#if DEBUG
-    private void render_bogus_item((bool direction, int item_rng, int player_rng) item) {
-        (string item_name, Color item_color) = item.item_rng switch {
-            1 => ("A Trap", Color.Salmon),
-            2 => ("Prog", Color.Plum),
-            3 => ("A Goodie", Color.SlateBlue),
-            _ => ("Trash", Color.Cyan),
-        };
-
-        string verb = item.direction ? "Sent" : "Received";
-        string direction = item.direction ? "to" : "from";
-
-        string player = item.player_rng switch {
-             0 => "Tidus",
-             1 => "Yuna",
-             2 => "Auron",
-             3 => "Kimahri",
-             4 => "Wakka",
-             5 => "Lulu",
-             6 => "Rikku",
-             7 => "Seymour",
-             8 => "Valefor",
-             9 => "Ifrit",
-            10 => "Ixion",
-            11 => "Shiva",
-            12 => "Bahamut",
-            13 => "Anima",
-            14 => "Yojimbo",
-            15 => "Cindy",
-            16 => "Sandy",
-            17 => "Mindy",
-            18 => "You",
-            _  => "????",
-        };
-
-        ImGui.TextColored(color_to_vector4(Color.White), verb);
-        ImGui.SameLine();
-        ImGui.TextColored(color_to_vector4(item_color), item_name);
-        ImGui.SameLine();
-        ImGui.TextColored(color_to_vector4(Color.White), direction);
-        ImGui.SameLine();
-        ImGui.TextColored(color_to_vector4(Color.Yellow), player);
-
-        if (module_settings.display_locations.get()) {
-            ImGui.Indent();
-
-            ImGui.TextColored(color_to_vector4(Color.White), "(");
-            ImGui.SameLine();
-            ImGui.TextColored(color_to_vector4(Color.Green) + new Vector4(0.2f, 0.2f, 0.2f, 0.0f), "Bogus Item for Debugging");
-            ImGui.SameLine();
-            ImGui.TextColored(color_to_vector4(Color.White), ")");
-
-            ImGui.Unindent();
-        }
-    }
-#endif
 }
