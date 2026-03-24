@@ -12,6 +12,9 @@ csharp_style_expression_bodied_methods = false
 
 # K&R style (same-line) braces
 csharp_new_line_before_open_brace = none
+csharp_new_line_before_catch = false
+csharp_new_line_before_else = false
+csharp_new_line_before_finally = false
 
 # Do not mess with vertical alignment during Code Cleanup.
 csharp_space_around_declaration_statements = ignore
