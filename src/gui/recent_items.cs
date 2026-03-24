@@ -16,7 +16,6 @@ using Hexa.NET.ImGui;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe class RecentItemsModule : FhModule {
-    public enum RecentItemsAnimation {
     private static class Colors {
         private static Vector4 color_to_vector4(Color color) {
             return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
@@ -51,6 +50,7 @@ public unsafe class RecentItemsModule : FhModule {
         }
     }
 
+    public enum RecentItemsInterpolation {
         SMOOTH = 0,
         INSTANT = 1,
     }
@@ -58,7 +58,6 @@ public unsafe class RecentItemsModule : FhModule {
     public enum RecentItemsFadeMethod {
         FADE = 0,
         SLIDE = 1,
-        CAPTURE = 2, // Like FADE, but with a dark blue tint
     }
 
     public enum RecentItemsBackground {
@@ -83,7 +82,7 @@ public unsafe class RecentItemsModule : FhModule {
         public readonly FhSettingNumber<int> item_count = new("item_count", 4, 0, 10, 1);
 
         //TODO: Implement smooth scrolling
-        public readonly FhSettingDropdown<RecentItemsAnimation> animation = new("animation", RecentItemsAnimation.SMOOTH);
+        public readonly FhSettingDropdown<RecentItemsInterpolation> animation = new("interpolation", RecentItemsInterpolation.SMOOTH);
 
         //TODO: Implement old items fading away
         public readonly FhSettingNumber<float> fade_after = new("fade_after", 10.0f, 0.0f, 60.0f, 1.0f);
