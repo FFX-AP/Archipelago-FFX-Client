@@ -100,12 +100,6 @@ public unsafe class RecentItemsModule : FhModule {
 
     public RecentItemsSettings module_settings = new();
 
-    public enum RecentItemDirection {
-        SelfReceive,
-        Receive,
-        Send,
-    }
-
     [Flags]
     public enum RecentItemRelevance {
         Impersonal = 0,
@@ -113,7 +107,7 @@ public unsafe class RecentItemsModule : FhModule {
         Receiver = 2,
     }
 
-    public record RecentItemInfo(RecentItemDirection direction, RecentItemRelevance relevance, PlayerInfo sender, PlayerInfo receiver, ItemInfo item);
+    public record RecentItemInfo(RecentItemRelevance relevance, PlayerInfo sender, PlayerInfo receiver, ItemInfo item);
 
     public static LinkedList<RecentItemInfo> recent_items = [ ];
 
@@ -161,13 +155,6 @@ public unsafe class RecentItemsModule : FhModule {
         if (message is not ItemSendLogMessage send_message) return;
         if (message is HintItemSendLogMessage) return;
 
-        RecentItemDirection direction = RecentItemDirection.Send;
-        if (send_message.Sender == send_message.Receiver) {
-            direction = RecentItemDirection.SelfReceive;
-        } else if (send_message.IsReceiverTheActivePlayer) {
-            direction = RecentItemDirection.Receive;
-        }
-
         RecentItemRelevance relevance = RecentItemRelevance.Impersonal;
 
         if (send_message.IsSenderTheActivePlayer) {
@@ -178,7 +165,7 @@ public unsafe class RecentItemsModule : FhModule {
             relevance |= RecentItemRelevance.Receiver;
         }
 
-        RecentItemInfo info = new(direction, relevance, send_message.Sender, send_message.Receiver, send_message.Item);
+        RecentItemInfo info = new(relevance, send_message.Sender, send_message.Receiver, send_message.Item);
         recent_items.AddFirst(info);
     }
 
