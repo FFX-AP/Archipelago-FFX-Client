@@ -17,6 +17,40 @@ using Hexa.NET.ImGui;
 [FhLoad(FhGameId.FFX)]
 public unsafe class RecentItemsModule : FhModule {
     public enum RecentItemsAnimation {
+    private static class Colors {
+        private static Vector4 color_to_vector4(Color color) {
+            return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
+        }
+
+        // Pascal case names to mimic enums
+        public static readonly Vector4 Default = color_to_vector4(Color.White);
+
+        public static readonly Vector4 PlayerSelf  = color_to_vector4(Color.Magenta);
+        public static readonly Vector4 PlayerOther = color_to_vector4(Color.Yellow);
+
+        public static readonly Vector4 ItemFiller = color_to_vector4(Color.Cyan);
+        public static readonly Vector4 ItemTrap   = color_to_vector4(Color.Salmon);
+        public static readonly Vector4 ItemProg   = color_to_vector4(Color.Plum);
+        public static readonly Vector4 ItemUseful = color_to_vector4(Color.SlateBlue);
+
+        // Location color is slightly modified to be more readable on dark backgrounds
+        public static readonly Vector4 Location = color_to_vector4(Color.Green) + new Vector4(0.2f, 0.2f, 0.2f, 0.0f);
+
+        public static Vector4 get_item_color(ItemInfo item) {
+            Vector4 item_color = ItemFiller;
+
+            if (item.Flags.HasFlag(ItemFlags.Trap)) {
+                item_color = ItemTrap;
+            } else if (item.Flags.HasFlag(ItemFlags.Advancement)) {
+                item_color = ItemProg;
+            } else if (item.Flags.HasFlag(ItemFlags.NeverExclude)) {
+                item_color = ItemUseful;
+            }
+
+            return item_color;
+        }
+    }
+
         SMOOTH = 0,
         INSTANT = 1,
     }
@@ -148,10 +182,6 @@ public unsafe class RecentItemsModule : FhModule {
         recent_items.AddFirst(info);
     }
 
-    private Vector4 color_to_vector4(Color color) {
-        return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
-    }
-
     public override void render_imgui() {
         if (!module_settings.display_items.get()) return;
 
@@ -215,46 +245,44 @@ public unsafe class RecentItemsModule : FhModule {
         ImGui.End();
     }
 
-    private void render_item(RecentItemInfo info) {
+    private List<(Vector4 color, string part)> construct_message(RecentItemInfo info) {
         ItemInfo item = info.item;
 
-        Color item_color = Color.Cyan;
-        if (item.Flags.HasFlag(ItemFlags.Trap)) {
-            item_color = Color.Salmon;
-        } else if (item.Flags.HasFlag(ItemFlags.Advancement)) {
-            item_color = Color.Plum;
-        } else if (item.Flags.HasFlag(ItemFlags.NeverExclude)) {
-            item_color = Color.SlateBlue;
+        Vector4 item_color = Colors.get_item_color(item);
+        Vector4 sender_color =
+            info.relevance.HasFlag(RecentItemRelevance.Sender)
+                ? Colors.PlayerSelf
+                : Colors.PlayerOther;
+
+        Vector4 receiver_color =
+            info.relevance.HasFlag(RecentItemRelevance.Receiver)
+                ? Colors.PlayerSelf
+                : Colors.PlayerOther;
+
+        if (info.receiver == info.sender) {
+            // Player found their item
+            return [
+                ( receiver_color, info.receiver.Alias ),
+                ( Colors.Default, "found their" ),
+                ( item_color, item.ItemDisplayName ),
+            ];
         }
 
-        List<(Color color, string part)> message = info.direction switch {
-            RecentItemDirection.SelfReceive => [
-                (info.relevance.HasFlag(RecentItemRelevance.Receiver) ? Color.Magenta : Color.Yellow, info.receiver.Alias),
-                (Color.White, "found their"),
-                (item_color, item.ItemDisplayName),
-            ],
+        // Amy sent item to Basket
+        return [
+            ( sender_color, info.sender.Alias ),
+            ( Colors.Default, "sent" ),
+            ( item_color, item.ItemDisplayName ),
+            ( Colors.Default, "to" ),
+            ( receiver_color, info.receiver.Alias ),
+        ];
+    }
 
-            RecentItemDirection.Receive => [
-                (info.relevance.HasFlag(RecentItemRelevance.Receiver) ? Color.Magenta : Color.Yellow, info.receiver.Alias),
-                (Color.White, "received"),
-                (item_color, item.ItemDisplayName),
-                (Color.White, "from"),
-                (Color.Yellow, info.sender.Alias),
-            ],
-
-            RecentItemDirection.Send => [
-                (info.relevance.HasFlag(RecentItemRelevance.Sender) ? Color.Magenta : Color.Yellow, info.sender.Alias),
-                (Color.White, "sent"),
-                (item_color, item.ItemDisplayName),
-                (Color.White, "to"),
-                (Color.Yellow, info.receiver.Alias),
-            ],
-
-            _ => throw new NotImplementedException(),
-        };
+    private void render_item(RecentItemInfo info) {
+        List<(Vector4 color, string part)> message = construct_message(info);
 
         for (int i = 0; i < message.Count; i++) {
-            ImGui.TextColored(color_to_vector4(message[i].color), message[i].part);
+            ImGui.TextColored(message[i].color, message[i].part);
 
             if (i != message.Count - 1) {
                 ImGui.SameLine();
@@ -264,11 +292,11 @@ public unsafe class RecentItemsModule : FhModule {
         if (module_settings.display_locations.get()) {
             ImGui.Indent();
 
-            ImGui.TextColored(color_to_vector4(Color.White), "(");
+            ImGui.TextColored(Colors.Default, "(");
             ImGui.SameLine();
-            ImGui.TextColored(color_to_vector4(Color.Green) + new Vector4(0.2f, 0.2f, 0.2f, 0.0f), item.LocationDisplayName);
+            ImGui.TextColored(Colors.Location, info.item.LocationDisplayName);
             ImGui.SameLine();
-            ImGui.TextColored(color_to_vector4(Color.White), ")");
+            ImGui.TextColored(Colors.Default, ")");
 
             ImGui.Unindent();
         }
