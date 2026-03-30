@@ -171,7 +171,7 @@ public unsafe class RecentItemsModule : FhModule {
     public override void render_imgui() {
         if (!module_settings.display_items.get()) return;
 
-        // Do not display anything where it'd be rude
+        // Do not display anything where it'd be rude to
         if (Globals.save_data->current_room_id ==  23 // Main Menu
          || Globals.save_data->current_room_id ==   0 // Tutorial room
          || Globals.save_data->current_room_id == 348 // Intro
