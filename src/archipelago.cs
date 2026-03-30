@@ -135,6 +135,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int             CaptureDamage;
         [JsonInclude]
         public int             SkipContestOfAeons;
+        [JsonInclude]
+        public int             OverdriveModes;
 
         public ArchipelagoSeedOptions() {
             PlayerName           = "";
@@ -147,6 +149,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             AlwaysCapture        = 0;
             CaptureDamage        = 0;
             SkipContestOfAeons   = 0;
+            OverdriveModes       = 0;
         }
     }
     public struct ArchipelagoSeedLocations {
@@ -471,7 +474,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Error(message);
                 return;
-            } else if (save_version < new SemVer(0, 6, 0, "alpha")) {
+            } else if (save_version < new SemVer(0, 7, 0, "alpha")) {
                 string message = "Incompatible version. Returning to main menu";
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Info(message);
@@ -528,6 +531,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                         else
                             FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + i] = 0;
                     }
+                    FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_TIDUS_OVERDRIVE"] = save_data->tidus_limit_uses;
                 }
 
                 loaded_state.celestial_level.CopyTo(celestial_level, 0);
