@@ -63,7 +63,7 @@
 		<Message Text="Cleanup unused Fahrenheit mods..." />
 		<RemoveDir Directories="$(PublishDir)fahrenheit\mods" />
 		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(AssemblyName)" />
-    <MakeDir Directories="$(PublishDir)fahrenheit\mods\$(fhcsrName)" />
+		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(fhcsrName)" />
 	</Target>
 
 	<Target Name="CopyAssets" AfterTargets="Publish">
@@ -71,7 +71,7 @@
 			<AssetsDir>$(ProjectDir)assets\</AssetsDir>
 			<LoadOrderFile>loadorder</LoadOrderFile>
 			<LoadOrder>$(AssetsDir)$(LoadOrderFile)</LoadOrder>
-      <StartGameFile>start_game.bat</StartGameFile>
+			<StartGameFile>start_game.bat</StartGameFile>
 			<StartGame>$(AssetsDir)$(StartGameFile)</StartGame>
 			<AssetDestination>$(PublishDir)fahrenheit\mods\$(AssemblyName)</AssetDestination>
 		</PropertyGroup>
@@ -93,8 +93,8 @@
 	</Target>
 
   <Target Name="PublishCSR" AfterTargets="Publish">
-    <Message Text="Publish fh-mods-csr" />
-    <MSBuild Projects="$(fhcsrProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(fhcsrName);Configuration=$(Configuration)" Targets="Build" />
+		<Message Text="Publish fh-mods-csr" />
+		<MSBuild Projects="$(fhcsrProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(fhcsrName);Configuration=$(Configuration)" Targets="Build" />
   </Target>
   
 </Project>
