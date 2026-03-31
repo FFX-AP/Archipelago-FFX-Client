@@ -23,18 +23,20 @@ public unsafe class RecentItemsModule : FhModule {
         }
 
         // Pascal case names to mimic enums
+        private static readonly Vector4 BrightenFactor = new(0.2f, 0.2f, 0.2f, 0.0f);
+
         public static readonly Vector4 Default = color_to_vector4(Color.White);
 
-        public static readonly Vector4 PlayerSelf  = color_to_vector4(Color.Magenta);
+        public static readonly Vector4 PlayerSelf  = color_to_vector4(Color.Magenta) + BrightenFactor;
         public static readonly Vector4 PlayerOther = color_to_vector4(Color.Yellow);
 
         public static readonly Vector4 ItemFiller = color_to_vector4(Color.Cyan);
         public static readonly Vector4 ItemTrap   = color_to_vector4(Color.Salmon);
         public static readonly Vector4 ItemProg   = color_to_vector4(Color.Plum);
-        public static readonly Vector4 ItemUseful = color_to_vector4(Color.SlateBlue);
+        public static readonly Vector4 ItemUseful = color_to_vector4(Color.SlateBlue) + BrightenFactor;
 
         // Location color is slightly modified to be more readable on dark backgrounds
-        public static readonly Vector4 Location = color_to_vector4(Color.Green) + new Vector4(0.2f, 0.2f, 0.2f, 0.0f);
+        public static readonly Vector4 Location = color_to_vector4(Color.Green) + BrightenFactor;
 
         public static Vector4 get_item_color(ItemInfo item) {
             Vector4 item_color = ItemFiller;
