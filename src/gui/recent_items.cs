@@ -247,6 +247,8 @@ public unsafe class RecentItemsModule : FhModule {
     }
 
     public override void render_imgui() {
+        return;
+
         if (!module_settings.display_items.get()) return;
 
         // Do not display anything where it'd be rude to
