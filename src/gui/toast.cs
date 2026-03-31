@@ -203,7 +203,9 @@ public class ToastModule : FhModule {
         _toast_queue.AddFirst(new_toast);
     }
 
+#if DEBUG
     private static bool is_debug_open = false;
+    private static int spawned_debug_toasts = 0;
     private void render_debug() {
         if (ImGui.IsKeyPressed(ImGuiKey.Backslash)) {
             is_debug_open = !is_debug_open;
@@ -243,8 +245,8 @@ public class ToastModule : FhModule {
 
         ImGui.End();
     }
+#endif
 
-    private static int spawned_debug_toasts = 0;
     public override void render_imgui() {
 #if DEBUG
         render_debug();
@@ -394,8 +396,6 @@ public class ToastModule : FhModule {
           | ImGuiWindowFlags.NoMove
           | ImGuiWindowFlags.NoScrollbar;
 
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 2.0f);
-
         ImGui.SetNextWindowPos(toast.pos!.Value);
         ImGui.SetNextWindowSize(toast.get_size());
 
@@ -410,8 +410,6 @@ public class ToastModule : FhModule {
         }
 
         ImGui.End();
-
-        ImGui.PopStyleVar();
     }
 
     private void render_message(ToastMessagePart[] message) {
