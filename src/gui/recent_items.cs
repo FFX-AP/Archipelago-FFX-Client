@@ -164,6 +164,7 @@ public unsafe class RecentItemsModule : FhModule {
                 new(receiver_color, info.receiver.Alias),
                 new(Colors.Default, "found their"),
                 new(item_color, item.ItemDisplayName),
+                new(Colors.Location, $"\t{item.LocationDisplayName}", "\n"),
             ];
         } else {
             // Amy sent item to Basket
@@ -173,6 +174,7 @@ public unsafe class RecentItemsModule : FhModule {
                 new(item_color, item.ItemDisplayName),
                 new(Colors.Default, "to"),
                 new(receiver_color, info.receiver.Alias),
+                new(Colors.Location, $"\t{item.LocationDisplayName}", "\n"),
             ];
         }
 
