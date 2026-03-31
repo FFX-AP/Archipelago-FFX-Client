@@ -10,6 +10,7 @@ using Archipelago.MultiClient.Net.Models;
 
 using Fahrenheit;
 using Fahrenheit.FFX;
+using Fahrenheit.Modules.ArchipelagoFFX;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 
 using Hexa.NET.ImGui;
@@ -108,9 +109,84 @@ public unsafe class RecentItemsModule : FhModule {
 
     public record RecentItemInfo(RecentItemRelevance relevance, PlayerInfo sender, PlayerInfo receiver, ItemInfo item);
 
+    private static List<(Vector4 color, string part)> construct_message(RecentItemInfo info) {
+        ItemInfo item = info.item;
+
+        Vector4 item_color = Colors.get_item_color(item);
+        Vector4 sender_color =
+            info.relevance.HasFlag(RecentItemRelevance.Sender)
+                ? Colors.PlayerSelf
+                : Colors.PlayerOther;
+
+        Vector4 receiver_color =
+            info.relevance.HasFlag(RecentItemRelevance.Receiver)
+                ? Colors.PlayerSelf
+                : Colors.PlayerOther;
+
+        if (info.receiver == info.sender) {
+            // Player found their item
+            return [
+                ( receiver_color, info.receiver.Alias ),
+                ( Colors.Default, "found their" ),
+                ( item_color, item.ItemDisplayName ),
+            ];
+        }
+
+        // Amy sent item to Basket
+        return [
+            ( sender_color, info.sender.Alias ),
+            ( Colors.Default, "sent" ),
+            ( item_color, item.ItemDisplayName ),
+            ( Colors.Default, "to" ),
+            ( receiver_color, info.receiver.Alias ),
+        ];
+    }
+
+    private static ToastModule.Toast construct_toast(RecentItemInfo info) {
+        ToastModule.ToastMessagePart[] description;
+
+        ItemInfo item = info.item;
+
+        Vector4 item_color = Colors.get_item_color(item);
+        Vector4 sender_color =
+            info.relevance.HasFlag(RecentItemRelevance.Sender)
+                ? Colors.PlayerSelf
+                : Colors.PlayerOther;
+
+        Vector4 receiver_color =
+            info.relevance.HasFlag(RecentItemRelevance.Receiver)
+                ? Colors.PlayerSelf
+                : Colors.PlayerOther;
+
+        if (info.receiver == info.sender) {
+            // Player found their item
+            description = [
+                new(receiver_color, info.receiver.Alias),
+                new(Colors.Default, "found their"),
+                new(item_color, item.ItemDisplayName),
+            ];
+        } else {
+            // Amy sent item to Basket
+            description = [
+                new(sender_color, info.sender.Alias),
+                new(Colors.Default, "sent"),
+                new(item_color, item.ItemDisplayName),
+                new(Colors.Default, "to"),
+                new(receiver_color, info.receiver.Alias),
+            ];
+        }
+
+        // No title
+        return new([], description);
+    }
+
     public static LinkedList<RecentItemInfo> recent_items = [ ];
+    private FhModuleHandle<ToastModule> _handle_toast_module;
+    private static ToastModule? _toasts;
 
     public RecentItemsModule() {
+        _handle_toast_module = new(this);
+
         // settings = new FhSettingsCategory(
         //     "recent_items",
         //     [
@@ -147,7 +223,7 @@ public unsafe class RecentItemsModule : FhModule {
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return true;
+        return _handle_toast_module.try_get_module(out _toasts);
     }
 
     public static void post_item_message(LogMessage message) {
@@ -165,7 +241,9 @@ public unsafe class RecentItemsModule : FhModule {
         }
 
         RecentItemInfo info = new(relevance, send_message.Sender, send_message.Receiver, send_message.Item);
-        recent_items.AddFirst(info);
+
+        _toasts!.queue_toast(construct_toast(info));
+        // recent_items.AddFirst(info);
     }
 
     public override void render_imgui() {
@@ -229,39 +307,6 @@ public unsafe class RecentItemsModule : FhModule {
 
         ImGui.PopFont();
         ImGui.End();
-    }
-
-    private List<(Vector4 color, string part)> construct_message(RecentItemInfo info) {
-        ItemInfo item = info.item;
-
-        Vector4 item_color = Colors.get_item_color(item);
-        Vector4 sender_color =
-            info.relevance.HasFlag(RecentItemRelevance.Sender)
-                ? Colors.PlayerSelf
-                : Colors.PlayerOther;
-
-        Vector4 receiver_color =
-            info.relevance.HasFlag(RecentItemRelevance.Receiver)
-                ? Colors.PlayerSelf
-                : Colors.PlayerOther;
-
-        if (info.receiver == info.sender) {
-            // Player found their item
-            return [
-                ( receiver_color, info.receiver.Alias ),
-                ( Colors.Default, "found their" ),
-                ( item_color, item.ItemDisplayName ),
-            ];
-        }
-
-        // Amy sent item to Basket
-        return [
-            ( sender_color, info.sender.Alias ),
-            ( Colors.Default, "sent" ),
-            ( item_color, item.ItemDisplayName ),
-            ( Colors.Default, "to" ),
-            ( receiver_color, info.receiver.Alias ),
-        ];
     }
 
     private void render_item(RecentItemInfo info) {
