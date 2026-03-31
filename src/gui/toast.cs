@@ -137,7 +137,7 @@ public class ToastModule : FhModule {
             }
 
             if (part is not null && (part.prefix.Length > 0 || part.text.Length > 0)) {
-                size.Y += line_height;
+                size.Y += ImGui.GetTextLineHeight();
             }
 
             max_width = float.Max(max_width, temp_width);
