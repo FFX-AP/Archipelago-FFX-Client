@@ -335,12 +335,17 @@ public unsafe partial class CaptureModule : FhModule {
             can_encounter = false;
         }
 
+        _logger.Info($"  btl.__0x12: {*(byte*)((nint)Battle.btl + 0x12)}");
+        _logger.Info($"  can_encounter: {can_encounter}");
+
         if (*(byte*)((nint)Battle.btl + 0x12) == 2) return 0;
         if (field_idx < 0) return 0;
         if (walked_delta <= 0.0f || !can_encounter) return 0;
 
         BtlBinField* field = _MsBtlListField(field_idx);
         BtlBinEncounter* encounter = _MsBtlListEncount(field_idx);
+
+        _logger.Info($"  encounter->group_count: {encounter->group_count}");
 
         if (group_idx < 0 || group_idx >= encounter->group_count) return 0;
         if (*EnableBattle != 0) return 0;
