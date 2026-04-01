@@ -202,6 +202,9 @@ public unsafe class RecentItemsModule : FhModule {
         return new([], description);
     }
 
+    //TODO: Remove this in favor of FhSettings once those are fixed.
+    public static bool show_recent_items = true;
+
     public static LinkedList<RecentItemInfo> recent_items = [ ];
     private FhModuleHandle<ToastModule> _handle_toast_module;
     private static ToastModule? _toasts;
@@ -263,6 +266,8 @@ public unsafe class RecentItemsModule : FhModule {
         }
 
         RecentItemInfo info = new(relevance, send_message.Sender, send_message.Receiver, send_message.Item);
+
+        if (!show_recent_items) return;
 
         _toasts!.queue_toast(construct_toast(info));
         // recent_items.AddFirst(info);
