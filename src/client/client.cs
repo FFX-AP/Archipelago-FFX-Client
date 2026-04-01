@@ -79,8 +79,6 @@ public static class FFXArchipelagoClient {
         }
         current_server = server;
         current_session = session;
-
-        current_session!.MessageLog.OnMessageReceived += RecentItemsModule.post_item_message;
     }
 
     public static void disconnect(ArchipelagoSession? session = null) {
@@ -100,6 +98,8 @@ public static class FFXArchipelagoClient {
         session.Socket.SocketOpened += Socket_SocketOpened;
         session.Socket.SocketClosed += Socket_SocketClosed;
         session.Locations.CheckedLocationsUpdated += Locations_CheckedLocationsUpdated;
+
+        session.MessageLog.OnMessageReceived += RecentItemsModule.post_item_message;
     }
 
     private static void Locations_CheckedLocationsUpdated(System.Collections.ObjectModel.ReadOnlyCollection<long> newCheckedLocations) {
