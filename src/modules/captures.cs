@@ -298,7 +298,7 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     private int h_MsBattleEncountExe(int field_id, int group_idx, float walked_delta) {
-        if (walked_delta <= 0.0f) return -1;
+        if (walked_delta <= 0.0f) return 0;
         _logger.Info($"MsBattleEncountExe(0x{field_id:X}, {group_idx}, {walked_delta})");
 
         // Globals
