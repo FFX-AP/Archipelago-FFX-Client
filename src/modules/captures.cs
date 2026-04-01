@@ -23,7 +23,7 @@ public unsafe partial class CaptureModule : FhModule {
     private struct BtlBinField {
         [InlineArray(8)]
         public struct FieldName {
-            private char _data;
+            private byte _data;
         }
 
         public short id;
@@ -308,11 +308,11 @@ public unsafe partial class CaptureModule : FhModule {
         int* g_encounter_level = FhUtil.ptr_at<int>(0x8421C8);
         int* EnableBattle = FhUtil.ptr_at<int>(0x8421BC);
 
-        _logger.Info($"  g_keybattle = {*g_keybattle}");
-        _logger.Info($"  g_keydown_R = {*g_keydown_R}");
-        _logger.Info($"  DAT_0112ca28 = {*DAT_0112ca28}");
-        _logger.Info($"  g_encounter_level = {*g_encounter_level}");
-        _logger.Info($"  EnableBattle = {*EnableBattle}");
+        // _logger.Info($"  g_keybattle = {*g_keybattle}");
+        // _logger.Info($"  g_keydown_R = {*g_keydown_R}");
+        // _logger.Info($"  DAT_0112ca28 = {*DAT_0112ca28}");
+        // _logger.Info($"  g_encounter_level = {*g_encounter_level}");
+        // _logger.Info($"  EnableBattle = {*EnableBattle}");
 
         int field_idx = _MsBtlListFieldNum(field_id);
 
@@ -336,8 +336,8 @@ public unsafe partial class CaptureModule : FhModule {
             can_encounter = false;
         }
 
-        _logger.Info($"  btl.__0x12: {*(byte*)((nint)Battle.btl + 0x12)}");
-        _logger.Info($"  can_encounter: {can_encounter}");
+        // _logger.Info($"  btl.__0x12: {*(byte*)((nint)Battle.btl + 0x12)}");
+        // _logger.Info($"  can_encounter: {can_encounter}");
 
         if (*(byte*)((nint)Battle.btl + 0x12) == 2) return 0;
         if (field_idx < 0) return 0;
@@ -346,7 +346,7 @@ public unsafe partial class CaptureModule : FhModule {
         BtlBinField* field = _MsBtlListField(field_idx);
         BtlBinEncounter* encounter = _MsBtlListEncount(field_idx);
 
-        _logger.Info($"  encounter->group_count: {encounter->group_count}");
+        // _logger.Info($"  encounter->group_count: {encounter->group_count}");
 
         if (group_idx < 0 || group_idx >= encounter->group_count) return 0;
         if (*EnableBattle == 0) return 0;
@@ -371,18 +371,27 @@ public unsafe partial class CaptureModule : FhModule {
         _logger.Info($"  rolls_to_do: {(int)(Battle.btl->walked_dist / 10.0f)}");
         _logger.Info( "  Rolls:");
 
+        bool in_grace = group->grace / 2 >= rolls_so_far;
+        if (in_grace) _logger.Info( "    In grace period");
+
         for (; 10.0f < Battle.btl->walked_dist; Battle.btl->walked_dist -= 10.0f) {
-            if (group->grace / 2 >= rolls_so_far) continue;
+            if (in_grace) continue;
 
             int encounter_chance = (rolls_so_far - (group->grace / 2)) * 256 / (group->grace * 4);
             *(float*)((nint)Battle.btl + 0x110) *= 256.0f - encounter_chance;
             *(float*)((nint)Battle.btl + 0x114) *= 256.0f;
 
-            _logger.Info($"  encounter_chance: {encounter_chance}");
-            _logger.Info($"  new btl__0x110: {*(float*)((nint)Battle.btl + 0x110)}");
-            _logger.Info($"  new btl__0x114: {*(float*)((nint)Battle.btl + 0x114)}");
+            _logger.Info($"    encounter_chance: {encounter_chance}");
+            // _logger.Info($"    new btl__0x110: {*(float*)((nint)Battle.btl + 0x110)}");
+            // _logger.Info($"    new btl__0x114: {*(float*)((nint)Battle.btl + 0x114)}");
 
-            if ((_brnd(0) & 0xFF) >= encounter_chance) continue;
+            if ((_brnd(0) & 0xFF) >= encounter_chance) {
+                _logger.Info("    No encounter!");
+                _logger.Info("");
+                continue;
+            }
+
+            _logger.Info("    Encounter!");
 
             int formation_rng = _brnd(1);
             int iVar7 = 0;
@@ -393,14 +402,24 @@ public unsafe partial class CaptureModule : FhModule {
                 iVar7 += formation.weight / 16;
                 if (!(formation_rng % group->total_weight < iVar7)) continue;
 
-                string file_name = $"{new string(field->name)}{group_idx}_{formation_idx}";
-                _logger.Info($"  Rolled Formation #{formation_idx} ({file_name})!");
+                char[] field_name = new char[6];
+
+                for (int i = 0; i < 6; i++) {
+                    field_name[i] = (char)field->name[i];
+                }
+
+                string file_name = $"{new string(field_name)}_{formation_idx:D2}";
+                _logger.Info($"    Rolled Formation #{formation_idx} ({file_name})!");
 
                 string filepath = $"host0:/ffx/master/jppc/battle/btl/{file_name}/{file_name}.bin";
                 char[] filepath_c = filepath.ToCharArray();
 
+                _logger.Info($"      Filepath: {filepath}");
+
                 fixed (char* filepath_ptr = &filepath_c[0]) {
                     void* open_result = _sceOpen(filepath_ptr, 1);
+
+                    _logger.Info($"        open_result: {(nint)open_result:X8}");
 
                     if (open_result is null) goto IGNORE_FILE;
 
@@ -422,7 +441,7 @@ public unsafe partial class CaptureModule : FhModule {
                             mon_ids.Add($"{mon_id:X4}");
                         }
 
-                        _logger.Info($"    Monsters: {string.Join(", ", mon_ids)}");
+                        _logger.Info($"      Monsters: {string.Join(", ", mon_ids)}");
                     }
 
                     _sceClose(open_result);
@@ -440,6 +459,8 @@ IGNORE_FILE:
                 Battle.btl->group_idx = (byte)group_idx;
                 Battle.btl->formation_idx = (byte)formation_idx;
                 _ResetEncountExe(1);
+
+                _logger.Info("  MsBattleEncountExe returning...");
 
                 return -1;
             }
