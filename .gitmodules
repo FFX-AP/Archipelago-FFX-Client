@@ -1,0 +1,3 @@
+[submodule "fh-mods-csr"]
+	path = fh-mods-csr
+	url = https://github.com/FFX-AP/fh-mods-csr.git
