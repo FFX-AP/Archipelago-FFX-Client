@@ -349,7 +349,7 @@ public unsafe partial class CaptureModule : FhModule {
         _logger.Info($"  encounter->group_count: {encounter->group_count}");
 
         if (group_idx < 0 || group_idx >= encounter->group_count) return 0;
-        if (*EnableBattle != 0) return 0;
+        if (*EnableBattle == 0) return 0;
 
         BtlBinGroup* group = _MsBtlListGroup(field_idx, group_idx);
 
