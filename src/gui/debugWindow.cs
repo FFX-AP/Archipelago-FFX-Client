@@ -1076,6 +1076,8 @@ public unsafe static class ArchipelagoGUI {
             ImGui.EndCombo();
         }
 
+        ImGui.Checkbox("Show Recent Items", ref RecentItemsModule.show_recent_items);
+
         if (ImGui.Button("Save settings")) {
             ArchipelagoFFXModule.VoiceLanguage = voice_lang != 0xFF ? (FhLangId)voice_lang : null;
             ArchipelagoFFXModule.TextLanguage = text_lang != 0xFF ? (FhLangId)text_lang : null;
