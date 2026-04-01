@@ -150,33 +150,51 @@ public unsafe class RecentItemsModule : FhModule {
         ItemInfo item = info.item;
 
         Vector4 item_color = Colors.get_item_color(item);
+        string item_name = item.ItemDisplayName;
+        if (item_name.Length > 50) {
+            item_name = $"{item_name[..47]}...";
+        }
+
         Vector4 sender_color =
             info.relevance.HasFlag(RecentItemRelevance.Sender)
                 ? Colors.PlayerSelf
                 : Colors.PlayerOther;
+        string sender_name = info.sender.Alias;
+        if (sender_name.Length > 20) {
+            sender_name = $"{sender_name[..17]}...";
+        }
 
         Vector4 receiver_color =
             info.relevance.HasFlag(RecentItemRelevance.Receiver)
                 ? Colors.PlayerSelf
                 : Colors.PlayerOther;
+        string receiver_name = info.receiver.Alias;
+        if (receiver_name.Length > 20) {
+            receiver_name = $"{sender_name[..17]}...";
+        }
+
+        string location_name = item.LocationDisplayName;
+        if (location_name.Length > 50) {
+            location_name = $"{location_name[..47]}...";
+        }
 
         if (info.receiver == info.sender) {
             // Player found their item
             description = [
-                new(receiver_color, info.receiver.Alias),
+                new(receiver_color, receiver_name),
                 new(Colors.Default, "found their"),
-                new(item_color, item.ItemDisplayName),
-                new(Colors.Location, $"\t{item.LocationDisplayName}", "\n"),
+                new(item_color, item_name),
+                new(Colors.Location, $"\t{location_name}", "\n"),
             ];
         } else {
             // Amy sent item to Basket
             description = [
-                new(sender_color, info.sender.Alias),
+                new(sender_color, sender_name),
                 new(Colors.Default, "sent"),
-                new(item_color, item.ItemDisplayName),
+                new(item_color, item_name),
                 new(Colors.Default, "to"),
-                new(receiver_color, info.receiver.Alias),
-                new(Colors.Location, $"\t{item.LocationDisplayName}", "\n"),
+                new(receiver_color, receiver_name),
+                new(Colors.Location, $"\t{location_name}", "\n"),
             ];
         }
 
