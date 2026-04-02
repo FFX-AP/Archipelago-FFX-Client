@@ -332,15 +332,15 @@ public unsafe partial class CaptureModule : FhModule {
         }
     }
 
-    private int get_extra_weight_for_formation(BtlBinField* field, int formation_idx) {
+    private int get_extra_weight_for_formation(BtlBinField* field, BtlBinFormation formation) {
         char[] field_name = new char[6];
 
         for (int i = 0; i < 6; i++) {
             field_name[i] = (char)field->name[i];
         }
 
-        string file_name = $"{new string(field_name)}_{formation_idx:D2}";
-        _logger.Info($"Formation #{formation_idx} ({file_name}):");
+        string file_name = $"{new string(field_name)}_{formation.index:D2}";
+        _logger.Info($"Formation {file_name}:");
 
         byte[] filepath = Encoding.UTF8.GetBytes($"host0:/ffx/master/jppc/battle/btl/{file_name}/{file_name}.bin");
 
@@ -482,6 +482,28 @@ public unsafe partial class CaptureModule : FhModule {
         bool in_grace = group->grace / 2 >= rolls_so_far;
         if (in_grace) _logger.Info( "    In grace period");
 
+        if (Battle.btl->walked_dist <= 10.0f) return 0;
+
+        // Prep weights for all of the formations
+        int total_weight = group->total_weight;
+        int[] weights = new int[group->formation_count];
+
+        for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
+            BtlBinFormation formation = group->formations[formation_idx];
+
+            weights[formation_idx] = formation.weight;
+
+            int extra_weight = get_extra_weight_for_formation(field, formation);
+
+            if (extra_weight == -1) {
+                weights[formation_idx] = 0;
+                total_weight -= formation.weight;
+            } else {
+                weights[formation_idx] += extra_weight;
+                total_weight += extra_weight;
+            }
+        }
+
         for (; 10.0f < Battle.btl->walked_dist; Battle.btl->walked_dist -= 10.0f) {
             if (in_grace) continue;
 
@@ -503,26 +525,6 @@ public unsafe partial class CaptureModule : FhModule {
 
             int formation_rng = _brnd(1);
             int iVar7 = 0;
-
-            int total_weight = group->total_weight;
-            int[] weights = new int[group->formation_count];
-
-            // Prep weights for all of the formations
-            for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
-                BtlBinFormation formation = group->formations[formation_idx];
-
-                weights[formation_idx] = formation.weight;
-
-                int extra_weight = get_extra_weight_for_formation(field, formation_idx);
-
-                if (extra_weight == -1) {
-                    weights[formation_idx] = 0;
-                    total_weight -= formation.weight;
-                } else {
-                    weights[formation_idx] += extra_weight;
-                    total_weight += extra_weight;
-                }
-            }
 
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                 iVar7 += weights[formation_idx] / 16;
