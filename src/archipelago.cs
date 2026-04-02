@@ -69,20 +69,22 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static string LastSeed = "";
     public static Dictionary<string, string> SeedToServer = new();
     private class ArchipelagoGlobalState {
-        public string                     LastVersion   { get; set; }
-        public FhLangId?                  VoiceLanguage { get; set; }
-        public FhLangId?                  TextLanguage  { get; set; }
-        public int                        FontSize      { get; set; }
-        public string                     LastSeed      { get; set; }
-        public Dictionary<string, string> SeedToServer  { get; set; }
+        public string                     LastVersion     { get; set; }
+        public FhLangId?                  VoiceLanguage   { get; set; }
+        public FhLangId?                  TextLanguage    { get; set; }
+        public int                        FontSize        { get; set; }
+        public string                     LastSeed        { get; set; }
+        public Dictionary<string, string> SeedToServer    { get; set; }
+        public bool                       ShowRecentItems { get; set; }
 
         public ArchipelagoGlobalState() {
-            this.LastVersion   = ArchipelagoFFXModule.Version.ToString();
-            this.VoiceLanguage = ArchipelagoFFXModule.VoiceLanguage;
-            this.TextLanguage  = ArchipelagoFFXModule.TextLanguage;
-            this.FontSize      = ArchipelagoGUI.font_size;
-            this.LastSeed      = ArchipelagoFFXModule.LastSeed;
-            this.SeedToServer  = ArchipelagoFFXModule.SeedToServer;
+            this.LastVersion     = ArchipelagoFFXModule.Version.ToString();
+            this.VoiceLanguage   = ArchipelagoFFXModule.VoiceLanguage;
+            this.TextLanguage    = ArchipelagoFFXModule.TextLanguage;
+            this.FontSize        = ArchipelagoGUI.font_size;
+            this.LastSeed        = ArchipelagoFFXModule.LastSeed;
+            this.SeedToServer    = ArchipelagoFFXModule.SeedToServer;
+            this.ShowRecentItems = RecentItemsModule.show_recent_items;
         }
     }
 
@@ -556,6 +558,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             ArchipelagoGUI.text_lang            = TextLanguage.HasValue  ? (byte)TextLanguage.Value  : (byte)0xFF;
             ArchipelagoGUI.font_size            = loaded_state.FontSize;
             LastSeed                            = loaded_state.LastSeed;
+
+            RecentItemsModule.show_recent_items = loaded_state.ShowRecentItems;
 
             var loaded_seed_ids = loaded_seeds.Select(seed => seed.Options.SeedId);
             foreach ((string id, string lastServer) in loaded_state.SeedToServer) {

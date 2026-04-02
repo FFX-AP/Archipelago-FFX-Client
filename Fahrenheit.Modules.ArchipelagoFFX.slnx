@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Fahrenheit.Modules.ArchipelagoFFX.csproj" />
+  <Project Path="fh-mods-csr/Fahrenheit.Mods.CSR.csproj" />
 </Solution>
