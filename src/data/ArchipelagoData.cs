@@ -97,7 +97,14 @@ public static class ArchipelagoData {
         PartyMembers,
         Pilgrimage,
         PartyMembersAndAeons,
-        Nemesis
+        Nemesis,
+    }
+
+    public enum CaptureRequirement {
+        None = 0,
+        Area,
+        Species,
+        Original,
     }
 
     public static RegionEnum[] pilgrimageRegions = [

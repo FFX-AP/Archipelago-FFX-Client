@@ -299,7 +299,7 @@ public unsafe partial class CaptureModule : FhModule {
         }
     }
 
-    private int get_monster_capture_count_for_id(int monster_id) {
+    private int get_monster_arena_idx(int monster_id) {
         byte[] filename = Encoding.UTF8.GetBytes($"host0:/ffx/master/jppc/battle/mon/_m{monster_id:D3}/m{monster_id:D3}.bin");
 
         fixed (byte* filename_ptr = &filename[0]) {
@@ -323,13 +323,180 @@ public unsafe partial class CaptureModule : FhModule {
             // Invalid idx
             // ushort so we only have to check >= 512, not the < 0 case
             if (mon_stats->monster_arena_idx >= 512 || mon_stats->monster_arena_idx == 0xFF) return -1;
-
-            int capture_count = save_data->monsters_captured[mon_stats->monster_arena_idx];
+            int arena_idx = mon_stats->monster_arena_idx;
 
             NativeMemory.Free(file);
 
-            return capture_count;
+            return arena_idx;
         }
+    }
+
+    private static readonly int[] species_capture_requirements = [
+        3, // Raldo
+        3, // Bunyip
+        3, // Murussu
+        3, // Mafdet
+        3, // Shred
+
+        4, // Gandarewa
+        4, // Aerouge
+        4, // Imp
+
+        3, // Dingo
+        3, // Mi'ihen Fang
+        3, // Garm
+        3, // Snow Wolf
+        3, // Sand Wolf
+        3, // Skoll
+        3, // Bandersnatch
+
+        3, // Water Flan
+        3, // Thunder Flan
+        3, // Snow Flan
+        3, // Ice Flan
+        3, // Flame Flan
+        3, // Dark Flan
+
+        3, // Dinonix
+        3, // Ipiria
+        3, // Raptor
+        3, // Melusine
+        3, // Iguion
+        3, // Yowie
+
+        5, // Condor
+        5, // Simurgh
+        5, // Alcyone
+
+        4, // Killer Bee
+        4, // Bite Bug
+        4, // Wasp
+        4, // Nebiros
+
+        4, // Floating Eye
+        4, // Buer
+        4, // Evil Eye
+        4, // Ahriman
+
+        1, // Ragora
+        1, // Grat
+
+        1, // Garuda
+        1, // Zu
+
+        1, // Sand Worm
+
+        0, // Unused
+
+        1, // Ghost
+
+        1, // Achelous
+        1, // Maelspike
+
+        5, // Dualhorn
+        5, // Valaha
+        5, // Grendel
+
+        5, // Vouivre
+        5, // Lamashtu
+        5, // Kusariqqu
+        5, // Mushussu
+        5, // Nidhogg
+
+        1, // Malboro
+        1, // Great Malboro
+
+        1, // Ogre
+        1, // Bashura
+
+        0, // Unused
+
+        1, // Splasher
+
+        3, // Yellow Element
+        3, // White Element
+        3, // Red Element
+        3, // Gold Element
+        3, // Blue Element
+        3, // Dark Element
+        3, // Black Element
+
+        1, // Epaaj
+
+        1, // Behemoth
+        1, // Behemoth King
+
+        1, // Chimera
+        1, // Chimera Brain
+
+        1, // Coeurl
+        1, // Master Coeurl
+
+        1, // Demonolith
+
+        10, // Iron Giant
+        10, // Gemini (Sword)
+        10, // Gemini (Club)
+
+        1, // Basilisk
+        1, // Anacondaur
+
+        1, // Adamantoise
+
+        1, // Varuna
+
+        1, // Ochu
+        1, // Mandragora
+
+        5, // Bomb
+        5, // Grenade
+
+        1, // Qactuar
+        1, // Cactuar
+
+        1, // Larva
+
+        1, // Barbatos
+
+        5, // Funguar
+        5, // Thorn
+        5, // Exoray
+
+        1, // Xiphos
+
+        5, // Puroboros
+
+        1, // Spirit
+
+        1, // Wraith
+
+        1, // Tonberry
+        1, // MastertTonberry
+
+        3, // Zaurus
+
+        3, // Halma
+
+        4, // Floating Death
+
+        1, // Machea
+    ];
+
+    private int get_monster_capture_requirement(int monster_arena_idx) {
+        return ArchipelagoFFXModule.seed.Options.CaptureRequirement switch {
+            ArchipelagoData.CaptureRequirement.None     => 0,
+            ArchipelagoData.CaptureRequirement.Area     => 1,
+            ArchipelagoData.CaptureRequirement.Species  => species_capture_requirements[monster_arena_idx],
+            ArchipelagoData.CaptureRequirement.Original => 10,
+            _ => throw new NotImplementedException(),
+        };
+    }
+
+    private int get_monster_captures_left(int monster_arena_idx) {
+        int capture_count = save_data->monsters_captured[monster_arena_idx];
+        int capture_req = get_monster_capture_requirement(monster_arena_idx);
+
+        return int.Max(0, capture_req - capture_count);
     }
 
     private int get_extra_weight_for_formation(BtlBinField* field, BtlBinFormation formation) {
@@ -344,7 +511,7 @@ public unsafe partial class CaptureModule : FhModule {
 
         byte[] filepath = Encoding.UTF8.GetBytes($"host0:/ffx/master/jppc/battle/btl/{file_name}/{file_name}.bin");
 
-        int extra_weight = 0;
+        float extra_weight = 0.0f;
 
         fixed (byte* filepath_ptr = &filepath[0]) {
             void* open_result = _sceOpen(filepath_ptr, 1);
@@ -370,12 +537,14 @@ public unsafe partial class CaptureModule : FhModule {
                     mon_ids.Add((short)(mon_id & 0xFFF));
                 }
 
-                int[] captured = new int[mon_ids.Count];
+                float[] weight_mults = new float[mon_ids.Count];
                 string[] mon_strings = new string[mon_ids.Count];
 
                 for (int i = 0; i < mon_ids.Count; i++) {
-                    captured[i] = get_monster_capture_count_for_id(mon_ids[i]);
-                    mon_strings[i] = captured[i] != -1 ? $"m{mon_ids[i]:D3}: {captured[i]}/10" : $"m{mon_ids[i]:D3}: uncapturable";
+                    int arena_idx = get_monster_arena_idx(mon_ids[i]);
+                    weight_mults[i] = (float)get_monster_captures_left(arena_idx)/get_monster_capture_requirement(arena_idx);
+                    int capture_count = save_data->monsters_captured[arena_idx];
+                    mon_strings[i] = arena_idx != -1 ? $"m{mon_ids[i]:D3}: {capture_count}/10" : $"m{mon_ids[i]:D3}: uncapturable";
                 }
 
                 _logger.Info("    Monsters:");
@@ -384,25 +553,27 @@ public unsafe partial class CaptureModule : FhModule {
                     _logger.Info($"      {mon_string}");
                 }
 
-                foreach (int captured_count in captured) {
-                    if (captured_count != -1) {
-                        extra_weight += 10 - captured_count;
-                    }
+                bool all_captured = true;
+                foreach (float mult in weight_mults) {
+                    extra_weight += ArchipelagoFFXModule.seed.Options.EncounterWeighting * mult;
+                    if (mult > 0.0f) all_captured = false;
                 }
 
-                foreach (short mon_id in mon_ids) {
-                    if (mon_id == 202) { // Magic Urn
-                        extra_weight = -1;
-                        break;
-                    }
+                if (all_captured) {
+                    extra_weight = -2;
+                }
+
+                // Magic Urn
+                if (mon_ids.Contains(202)) {
+                    extra_weight = -1;
                 }
             }
 
             NativeMemory.Free(file);
         }
 
-        _logger.Info($"  Increasing formation weight by {extra_weight}...");
-        return extra_weight;
+        _logger.Info($"  Increasing formation weight by {(int)extra_weight}...");
+        return (int)extra_weight;
     }
 
     private int h_MsBattleEncountExe(int field_id, int group_idx, float walked_delta) {
@@ -484,6 +655,7 @@ public unsafe partial class CaptureModule : FhModule {
 
         if (Battle.btl->walked_dist <= 10.0f) return 0;
 
+
         // Prep weights for all of the formations
         int total_weight = group->total_weight;
         int[] weights = new int[group->formation_count];
@@ -491,13 +663,17 @@ public unsafe partial class CaptureModule : FhModule {
         for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
             BtlBinFormation formation = group->formations[formation_idx];
 
-            weights[formation_idx] = formation.weight;
+            weights[formation_idx] = formation.weight / 17;
 
             int extra_weight = get_extra_weight_for_formation(field, formation);
 
             if (extra_weight == -1) {
                 weights[formation_idx] = 0;
-                total_weight -= formation.weight;
+                total_weight -= formation.weight / 17;
+            } else if (extra_weight == -2) {
+                int old_weight = weights[formation_idx];
+                weights[formation_idx] = 1;
+                total_weight -= int.Max(0, old_weight - 1);
             } else {
                 weights[formation_idx] += extra_weight;
                 total_weight += extra_weight;
@@ -527,7 +703,7 @@ public unsafe partial class CaptureModule : FhModule {
             int iVar7 = 0;
 
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
-                iVar7 += weights[formation_idx] / 16;
+                iVar7 += weights[formation_idx];
                 if (!(formation_rng < iVar7)) continue;
 
                 _logger.Info($"    Rolled Formation #{formation_idx}!");

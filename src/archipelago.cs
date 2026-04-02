@@ -117,64 +117,55 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public record Location(string location_name, int location_id, uint item_id, string item_name, string player_name);
     public struct ArchipelagoSeedOptions {
-        [JsonInclude]
-        public string          PlayerName;
-        [JsonInclude]
-        public string          SeedId;
-        [JsonInclude]
-        public GoalRequirement GoalRequirement;
-        [JsonInclude]
-        public int             RequiredPartyMembers;
-        [JsonInclude]
-        public int             RequiredPrimers;
-        [JsonInclude]
-        public int             APMultiplier;
-        [JsonInclude]
-        public int             AlwaysSensor;
-        [JsonInclude]
-        public int             AlwaysCapture;
-        [JsonInclude]
-        public int             CaptureDamage;
-        [JsonInclude]
-        public int             SkipContestOfAeons;
-        [JsonInclude]
-        public int             OverdriveModes;
+        [JsonInclude] public string PlayerName;
+        [JsonInclude] public string SeedId;
+
+        [JsonInclude] public GoalRequirement GoalRequirement;
+        [JsonInclude] public int RequiredPartyMembers;
+        [JsonInclude] public int RequiredPrimers;
+
+        [JsonInclude] public int APMultiplier;
+        [JsonInclude] public int AlwaysSensor;
+
+        [JsonInclude] public CaptureRequirement CaptureRequirement;
+        [JsonInclude] public int AlwaysCapture;
+        [JsonInclude] public int CaptureDamage;
+        [JsonInclude] public int EncounterWeighting;
+
+        [JsonInclude] public int SkipContestOfAeons;
+        [JsonInclude] public int OverdriveModes;
 
         public ArchipelagoSeedOptions() {
             PlayerName           = "";
             SeedId               = "";
+
             GoalRequirement      = GoalRequirement.None;
             RequiredPartyMembers = 1;
             RequiredPrimers      = 0;
+
             APMultiplier         = 1;
             AlwaysSensor         = 0;
+
+            CaptureRequirement   = CaptureRequirement.None;
             AlwaysCapture        = 0;
             CaptureDamage        = 0;
+            EncounterWeighting   = 0;
+
             SkipContestOfAeons   = 0;
             OverdriveModes       = 0;
         }
     }
     public struct ArchipelagoSeedLocations {
-        [JsonInclude]
-        public List<uint>      StartingItems;
-        [JsonInclude]
-        public List<Location>  Treasure;
-        [JsonInclude]
-        public List<Location>  Boss;
-        [JsonInclude]
-        public List<Location>  PartyMember;
-        [JsonInclude]
-        public List<Location>  Overdrive;
-        [JsonInclude]
-        public List<Location>  OverdriveMode;
-        [JsonInclude]
-        public List<Location>  Other;
-        [JsonInclude]
-        public List<Location>  Recruit;
-        [JsonInclude]
-        public List<Location>  SphereGrid;
-        [JsonInclude]
-        public List<Location>  Capture;
+        [JsonInclude] public List<uint>      StartingItems;
+        [JsonInclude] public List<Location>  Treasure;
+        [JsonInclude] public List<Location>  Boss;
+        [JsonInclude] public List<Location>  PartyMember;
+        [JsonInclude] public List<Location>  Overdrive;
+        [JsonInclude] public List<Location>  OverdriveMode;
+        [JsonInclude] public List<Location>  Other;
+        [JsonInclude] public List<Location>  Recruit;
+        [JsonInclude] public List<Location>  SphereGrid;
+        [JsonInclude] public List<Location>  Capture;
 
         public ArchipelagoSeedLocations() {
             StartingItems = [];
