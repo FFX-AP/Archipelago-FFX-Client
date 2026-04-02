@@ -523,12 +523,12 @@ public unsafe partial class CaptureModule : FhModule {
 
             _logger.Info("    Encounter!");
 
-            int formation_rng = _brnd(1);
+            int formation_rng = _brnd(1) % total_weight;
             int iVar7 = 0;
 
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                 iVar7 += weights[formation_idx] / 16;
-                if (!(formation_rng % total_weight < iVar7)) continue;
+                if (!(formation_rng < iVar7)) continue;
 
                 _logger.Info($"    Rolled Formation #{formation_idx}!");
 
