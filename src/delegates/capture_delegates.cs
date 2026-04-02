@@ -93,7 +93,7 @@ public unsafe partial class CaptureModule : FhModule {
     public const nint __addr_Sg_FadeInW = 0x42cc20;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void* sceOpen(char* p1, int p2);
+    public delegate void* sceOpen(byte* p1, int p2);
     public const nint __addr_sceOpen = 0x22fbe0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

@@ -10,6 +10,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
+
 using static Fahrenheit.FFX.Globals;
 using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
 using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
@@ -297,6 +299,112 @@ public unsafe partial class CaptureModule : FhModule {
         }
     }
 
+    private int get_monster_capture_count_for_id(int monster_id) {
+        byte[] filename = Encoding.UTF8.GetBytes($"host0:/ffx/master/jppc/battle/mon/_m{monster_id:D3}/m{monster_id:D3}.bin");
+
+        fixed (byte* filename_ptr = &filename[0]) {
+            void* filestream = _sceOpen(filename_ptr, 1);
+
+            if (filestream is null) {
+                _logger.Info("Failed to open monster file");
+                return -1;
+            }
+
+            int filesize = _sceLseek(filestream, 0, 2);
+            _sceLseek(filestream, 0, 0);
+
+            void* file = NativeMemory.Alloc((nuint)filesize);
+            _sceRead(filestream, file, filesize);
+            _sceClose(filestream);
+
+            int stats_offset = *(int*)((int)file + 0xC);
+            MonStats* mon_stats = (MonStats*)((int)file + stats_offset);
+
+            // Invalid idx
+            // ushort so we only have to check >= 512, not the < 0 case
+            if (mon_stats->monster_arena_idx >= 512 || mon_stats->monster_arena_idx == 0xFF) return -1;
+
+            int capture_count = save_data->monsters_captured[mon_stats->monster_arena_idx];
+
+            NativeMemory.Free(file);
+
+            return capture_count;
+        }
+    }
+
+    private int get_extra_weight_for_formation(BtlBinField* field, int formation_idx) {
+        char[] field_name = new char[6];
+
+        for (int i = 0; i < 6; i++) {
+            field_name[i] = (char)field->name[i];
+        }
+
+        string file_name = $"{new string(field_name)}_{formation_idx:D2}";
+        _logger.Info($"Formation #{formation_idx} ({file_name}):");
+
+        byte[] filepath = Encoding.UTF8.GetBytes($"host0:/ffx/master/jppc/battle/btl/{file_name}/{file_name}.bin");
+
+        int extra_weight = 0;
+
+        fixed (byte* filepath_ptr = &filepath[0]) {
+            void* open_result = _sceOpen(filepath_ptr, 1);
+
+            if (open_result is null) return 0;
+
+            int file_size = _sceLseek(open_result, 0, 2);
+            _sceLseek(open_result, 0, 0);
+
+            void* file = NativeMemory.Alloc((nuint)file_size);
+            _sceRead(open_result, file, file_size);
+            _sceClose(open_result);
+
+            int chunk_ptr = *(int*)((nint)file + 0xC);
+            if (chunk_ptr != 0) {
+                short* mon_ids_ptr = (short*)((nint)file + chunk_ptr + 0xC);
+                List<short> mon_ids = new(8);
+
+                for (int i = 0; i < 8; i++) {
+                    short mon_id = mon_ids_ptr[i];
+                    if (mon_id == -1) continue;
+
+                    mon_ids.Add((short)(mon_id & 0xFFF));
+                }
+
+                int[] captured = new int[mon_ids.Count];
+                string[] mon_strings = new string[mon_ids.Count];
+
+                for (int i = 0; i < mon_ids.Count; i++) {
+                    captured[i] = get_monster_capture_count_for_id(mon_ids[i]);
+                    mon_strings[i] = captured[i] != -1 ? $"m{mon_ids[i]:D3}: {captured[i]}/10" : $"m{mon_ids[i]:D3}: uncapturable";
+                }
+
+                _logger.Info("    Monsters:");
+
+                foreach (string mon_string in mon_strings) {
+                    _logger.Info($"      {mon_string}");
+                }
+
+                foreach (int captured_count in captured) {
+                    if (captured_count != -1) {
+                        extra_weight += 10 - captured_count;
+                    }
+                }
+
+                foreach (short mon_id in mon_ids) {
+                    if (mon_id == 202) { // Magic Urn
+                        extra_weight = -1;
+                        break;
+                    }
+                }
+            }
+
+            NativeMemory.Free(file);
+        }
+
+        _logger.Info($"  Increasing formation weight by {extra_weight}...");
+        return extra_weight;
+    }
+
     private int h_MsBattleEncountExe(int field_id, int group_idx, float walked_delta) {
         if (walked_delta <= 0.0f) return 0;
         _logger.Info($"MsBattleEncountExe(0x{field_id:X}, {group_idx}, {walked_delta})");
@@ -396,58 +504,32 @@ public unsafe partial class CaptureModule : FhModule {
             int formation_rng = _brnd(1);
             int iVar7 = 0;
 
+            int total_weight = group->total_weight;
+            int[] weights = new int[group->formation_count];
+
+            // Prep weights for all of the formations
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                 BtlBinFormation formation = group->formations[formation_idx];
 
-                iVar7 += formation.weight / 16;
-                if (!(formation_rng % group->total_weight < iVar7)) continue;
+                weights[formation_idx] = formation.weight;
 
-                char[] field_name = new char[6];
+                int extra_weight = get_extra_weight_for_formation(field, formation_idx);
 
-                for (int i = 0; i < 6; i++) {
-                    field_name[i] = (char)field->name[i];
+                if (extra_weight == -1) {
+                    weights[formation_idx] = 0;
+                    total_weight -= formation.weight;
+                } else {
+                    weights[formation_idx] += extra_weight;
+                    total_weight += extra_weight;
                 }
+            }
 
-                string file_name = $"{new string(field_name)}_{formation_idx:D2}";
-                _logger.Info($"    Rolled Formation #{formation_idx} ({file_name})!");
+            for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
+                iVar7 += weights[formation_idx] / 16;
+                if (!(formation_rng % total_weight < iVar7)) continue;
 
-                string filepath = $"host0:/ffx/master/jppc/battle/btl/{file_name}/{file_name}.bin";
-                char[] filepath_c = filepath.ToCharArray();
+                _logger.Info($"    Rolled Formation #{formation_idx}!");
 
-                _logger.Info($"      Filepath: {filepath}");
-
-                fixed (char* filepath_ptr = &filepath_c[0]) {
-                    void* open_result = _sceOpen(filepath_ptr, 1);
-
-                    _logger.Info($"        open_result: {(nint)open_result:X8}");
-
-                    if (open_result is null) goto IGNORE_FILE;
-
-                    int file_size = _sceLseek(open_result, 0, 2);
-                    _sceLseek(open_result, 0, 0);
-
-                    void* file = NativeMemory.Alloc((nuint)file_size);
-                    _sceRead(open_result, file, file_size);
-
-                    int chunk_ptr = *(int*)((nint)file + 0xC);
-                    if (chunk_ptr != 0) {
-                        short* mon_ids_ptr = (short*)((nint)file + chunk_ptr + 0x8);
-                        List<string> mon_ids = new(8);
-
-                        for (int i = 0; i < 8; i++) {
-                            short mon_id = mon_ids_ptr[i];
-                            if (mon_id == -1) continue;
-
-                            mon_ids.Add($"{mon_id:X4}");
-                        }
-
-                        _logger.Info($"      Monsters: {string.Join(", ", mon_ids)}");
-                    }
-
-                    _sceClose(open_result);
-                }
-
-IGNORE_FILE:
                 if (*(byte*)((nint)Battle.btl + 0x27) == 0) {
                     *(byte*)((nint)Battle.btl + 0x12) = 1;
                 } else {
