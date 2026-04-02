@@ -507,7 +507,6 @@ public unsafe partial class CaptureModule : FhModule {
         }
 
         string file_name = $"{new string(field_name)}_{formation.index:D2}";
-        _logger.Info($"Formation {file_name}:");
 
         byte[] filepath = Encoding.UTF8.GetBytes($"host0:/ffx/master/jppc/battle/btl/{file_name}/{file_name}.bin");
 
@@ -538,19 +537,11 @@ public unsafe partial class CaptureModule : FhModule {
                 }
 
                 float[] weight_mults = new float[mon_ids.Count];
-                string[] mon_strings = new string[mon_ids.Count];
 
                 for (int i = 0; i < mon_ids.Count; i++) {
                     int arena_idx = get_monster_arena_idx(mon_ids[i]);
                     weight_mults[i] = (float)get_monster_captures_left(arena_idx)/get_monster_capture_requirement(arena_idx);
                     int capture_count = save_data->monsters_captured[arena_idx];
-                    mon_strings[i] = arena_idx != -1 ? $"m{mon_ids[i]:D3}: {capture_count}/10" : $"m{mon_ids[i]:D3}: uncapturable";
-                }
-
-                _logger.Info("    Monsters:");
-
-                foreach (string mon_string in mon_strings) {
-                    _logger.Info($"      {mon_string}");
                 }
 
                 bool all_captured = true;
@@ -571,15 +562,10 @@ public unsafe partial class CaptureModule : FhModule {
 
             NativeMemory.Free(file);
         }
-
-        _logger.Info($"  Increasing formation weight by {(int)extra_weight}...");
         return (int)extra_weight;
     }
 
     private int h_MsBattleEncountExe(int field_id, int group_idx, float walked_delta) {
-        if (walked_delta <= 0.0f) return 0;
-        _logger.Info($"MsBattleEncountExe(0x{field_id:X}, {group_idx}, {walked_delta})");
-
         // Globals
         int* g_keybattle = FhUtil.ptr_at<int>(0xD2CA24);
         int* g_keydown_R = FhUtil.ptr_at<int>(0xD2CA20);
@@ -632,13 +618,7 @@ public unsafe partial class CaptureModule : FhModule {
 
         BtlBinGroup* group = _MsBtlListGroup(field_idx, group_idx);
 
-        _logger.Info( "  Group:");
-        _logger.Info($"    formation_count: {group->formation_count}");
-        _logger.Info($"    battlefield: {group->battlefield:X}");
-        _logger.Info($"    grace: {group->grace}");
-        _logger.Info($"    total_weight: {group->total_weight}");
-
-        if (group->grace == 0 || group->total_weight == 0) return 0;
+        if (group->grace == 0 || group->total_weight == 0 || group->formation_count == 0) return 0;
 
         Battle.btl->walked_dist += walked_delta;
         Battle.btl->walked_dist_total += walked_delta;
@@ -646,39 +626,9 @@ public unsafe partial class CaptureModule : FhModule {
 
         int rolls_so_far = (int)(Battle.btl->walked_dist_total / 10.0f);
 
-        _logger.Info($"  rolls_so_far: {rolls_so_far}");
-        _logger.Info($"  rolls_to_do: {(int)(Battle.btl->walked_dist / 10.0f)}");
-        _logger.Info( "  Rolls:");
-
         bool in_grace = group->grace / 2 >= rolls_so_far;
-        if (in_grace) _logger.Info( "    In grace period");
 
         if (Battle.btl->walked_dist <= 10.0f) return 0;
-
-
-        // Prep weights for all of the formations
-        int total_weight = group->total_weight;
-        int[] weights = new int[group->formation_count];
-
-        for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
-            BtlBinFormation formation = group->formations[formation_idx];
-
-            weights[formation_idx] = formation.weight / 17;
-
-            int extra_weight = get_extra_weight_for_formation(field, formation);
-
-            if (extra_weight == -1) {
-                weights[formation_idx] = 0;
-                total_weight -= formation.weight / 17;
-            } else if (extra_weight == -2) {
-                int old_weight = weights[formation_idx];
-                weights[formation_idx] = 1;
-                total_weight -= int.Max(0, old_weight - 1);
-            } else {
-                weights[formation_idx] += extra_weight;
-                total_weight += extra_weight;
-            }
-        }
 
         for (; 10.0f < Battle.btl->walked_dist; Battle.btl->walked_dist -= 10.0f) {
             if (in_grace) continue;
@@ -687,26 +637,39 @@ public unsafe partial class CaptureModule : FhModule {
             *(float*)((nint)Battle.btl + 0x110) *= 256.0f - encounter_chance;
             *(float*)((nint)Battle.btl + 0x114) *= 256.0f;
 
-            _logger.Info($"    encounter_chance: {encounter_chance}");
-            // _logger.Info($"    new btl__0x110: {*(float*)((nint)Battle.btl + 0x110)}");
-            // _logger.Info($"    new btl__0x114: {*(float*)((nint)Battle.btl + 0x114)}");
+            if ((_brnd(0) & 0xFF) >= encounter_chance) continue;
 
-            if ((_brnd(0) & 0xFF) >= encounter_chance) {
-                _logger.Info("    No encounter!");
-                _logger.Info("");
-                continue;
+            // We have to prepare weights first
+            int total_weight = group->total_weight;
+            int[] weights = new int[group->formation_count];
+
+            for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
+                BtlBinFormation formation = group->formations[formation_idx];
+
+                weights[formation_idx] = formation.weight / 17;
+
+                int extra_weight = get_extra_weight_for_formation(field, formation);
+
+                if (extra_weight == -1) {
+                    weights[formation_idx] = 0;
+                    total_weight -= formation.weight / 17;
+                } else if (extra_weight == -2) {
+                    int old_weight = weights[formation_idx];
+                    weights[formation_idx] = 1;
+                    total_weight -= int.Max(0, old_weight - 1);
+                } else {
+                    weights[formation_idx] += extra_weight;
+                    total_weight += extra_weight;
+                }
             }
 
-            _logger.Info("    Encounter!");
-
+            // Let's figure out which formation we should encounter!
             int formation_rng = _brnd(1) % total_weight;
             int iVar7 = 0;
 
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                 iVar7 += weights[formation_idx];
                 if (!(formation_rng < iVar7)) continue;
-
-                _logger.Info($"    Rolled Formation #{formation_idx}!");
 
                 if (*(byte*)((nint)Battle.btl + 0x27) == 0) {
                     *(byte*)((nint)Battle.btl + 0x12) = 1;
@@ -719,8 +682,6 @@ public unsafe partial class CaptureModule : FhModule {
                 Battle.btl->group_idx = (byte)group_idx;
                 Battle.btl->formation_idx = (byte)formation_idx;
                 _ResetEncountExe(1);
-
-                _logger.Info("  MsBattleEncountExe returning...");
 
                 return -1;
             }
