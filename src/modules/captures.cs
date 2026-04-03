@@ -646,6 +646,7 @@ public unsafe partial class CaptureModule : FhModule {
             // We have to prepare weights first
             int total_weight = group->total_weight;
             int[] weights = new int[group->formation_count];
+            bool all_complete = true;
 
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                 BtlBinFormation formation = group->formations[formation_idx];
@@ -669,6 +670,17 @@ public unsafe partial class CaptureModule : FhModule {
                 } else {
                     weights[formation_idx] += extra_weight;
                     total_weight += extra_weight;
+                    all_complete = false;
+                }
+            }
+
+            // Adjust weights if all formations met their requirements
+            if (all_complete)  {
+                total_weight = group->total_weight;
+
+                for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
+                    BtlBinFormation formation = group->formations[formation_idx];
+                    weights[formation_idx] = formation.weight;
                 }
             }
 
