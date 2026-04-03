@@ -650,6 +650,11 @@ public unsafe partial class CaptureModule : FhModule {
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                 BtlBinFormation formation = group->formations[formation_idx];
 
+                if (formation.weight == 0) {
+                    weights[formation_idx] = 0;
+                    continue;
+                }
+
                 weights[formation_idx] = formation.weight / 17;
 
                 int extra_weight = get_extra_weight_for_formation(field, formation);
