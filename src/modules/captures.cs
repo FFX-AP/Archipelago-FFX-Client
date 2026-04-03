@@ -540,8 +540,12 @@ public unsafe partial class CaptureModule : FhModule {
 
                 for (int i = 0; i < mon_ids.Count; i++) {
                     int arena_idx = get_monster_arena_idx(mon_ids[i]);
-                    weight_mults[i] = (float)get_monster_captures_left(arena_idx)/get_monster_capture_requirement(arena_idx);
-                    int capture_count = save_data->monsters_captured[arena_idx];
+
+                    if (arena_idx == -1) {
+                        weight_mults[i] = 0.0f;
+                    } else {
+                        weight_mults[i] = (float)get_monster_captures_left(arena_idx)/get_monster_capture_requirement(arena_idx);
+                    }
                 }
 
                 bool all_captured = true;
