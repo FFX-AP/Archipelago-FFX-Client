@@ -1,5 +1,6 @@
 ﻿using Archipelago.MultiClient.Net.Enums;
 using Fahrenheit.Atel;
+using Fahrenheit.Events;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
@@ -328,7 +329,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         ArchipelagoFFXModule.mod_context = mod_context;
         ArchipelagoFFXModule.global_state_file = global_state_file;
 
-
+        FhApi.Events.Common.GameLoop.PreUpdate.subscribe(pre_update);
 
         // Initialize Archipelago Client
 
@@ -592,7 +593,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         return true;
     }
 
-    public override void pre_update() {
+    public void pre_update(UpdateLoopEventArgs args) {
         // Update Archipelago Client
         FFXArchipelagoClient.update();
         if (last_story_progress != Globals.save_data->story_progress) {

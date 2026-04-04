@@ -1,9 +1,9 @@
-﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha08">
+﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha09">
 
 	<!-- ASSEMBLY BASIC PROPERTIES -->
     <PropertyGroup>
 	    <Version>0.7.0-alpha</Version>
-		<FahrenheitVersion>v1.0.0-alpha08</FahrenheitVersion>
+		<FahrenheitVersion>v1.0.0-alpha09</FahrenheitVersion>
     </PropertyGroup>
 
 	<!-- ASSEMBLY ADDITIONAL PROPERTIES -->
@@ -28,6 +28,9 @@
     <!-- PACKAGE REFERENCES -->
 	<ItemGroup>
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Update="Fahrenheit" Version="1.0.0-alpha09" />
 	</ItemGroup>
 
 	<PropertyGroup>
