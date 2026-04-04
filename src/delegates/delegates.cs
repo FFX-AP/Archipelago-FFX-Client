@@ -478,30 +478,7 @@ public static unsafe class delegates {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void MsBattleExe(uint param_1, int field_idx, int group_idx, int formation_idx);
     public const nint __addr_MsBattleExe = 0x3810F0;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate bool MsMonsterCapture(int target_id, int arena_idx);
-    public const nint __addr_MsMonsterCapture = 0x390B80;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate void MsCalcCommand(AttackCue* param_1, int param_2);
-    public const nint __addr_MsCalcCommand = 0x3893A0;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate int MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4);
-    public const nint __addr_MsDamageCheckDeath = 0x38C800;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate Command* MsGetCommand(int chr_id, int unused, int quit_on_idx, AttackCommandInfo* param_4, uint* param_5);
-    public const nint __addr_MsGetCommand = 0x38CF10;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate uint FUN_0078d100(Chr* chr);
-    public const nint __addr_FUN_0078d100 = 0x38D100;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate uint FUN_0078bb30(int param_1, byte* param_2, byte* param_3, Command* param_4, uint param_5, uint* param_6, int* param_7);
-    public const nint __addr_FUN_0078bb30 = 0x38bb30;
+  
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void TkMsGetRomItem(uint param_1, int* param_2);
@@ -535,15 +512,7 @@ public static unsafe class delegates {
 
     // Initializes monster data pointers
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FUN_00783bb0(byte mon_id);
-    public static int __addr_FUN_00783bb0 = 0x00383bb0;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate Chr* MsGetMon(byte mon_idx);
-    public static int __addr_MsGetMon = 0x00395ab0;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate Chr* MsGetChr(uint chr_id);
+    public delegate Chr* MsGetChr(uint chr_id);
     public const nint __addr_MsGetChr = 0x394030;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

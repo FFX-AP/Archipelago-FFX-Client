@@ -2,10 +2,8 @@
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
-using Archipelago.MultiClient.Net.MessageLog.Parts;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
-using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 using System;
@@ -23,7 +21,7 @@ public static class FFXArchipelagoClient {
     public static          bool                  local_locations_updated = false;
     public static          bool                  remote_locations_updated = false;
     public static          string?               SeedId = null;
-    
+
     public static PlayerInfo? active_player => current_session?.Players.ActivePlayer;
     private static bool is_disconnecting = false;
     public static bool is_connected => current_session is not null && !is_disconnecting;
@@ -38,7 +36,7 @@ public static class FFXArchipelagoClient {
             session = ArchipelagoSessionFactory.CreateSession(server);
             connectHandlers(session);
             var roomInfoPacket = await session.ConnectAsync();
-            
+
             login_result = await session.LoginAsync("Final Fantasy X", user, ItemsHandlingFlags.RemoteItems, Version.Parse("0.6.0"), password: password, requestSlotData: true);
         }
         catch (Exception e) {
@@ -100,6 +98,8 @@ public static class FFXArchipelagoClient {
         session.Socket.SocketOpened += Socket_SocketOpened;
         session.Socket.SocketClosed += Socket_SocketClosed;
         session.Locations.CheckedLocationsUpdated += Locations_CheckedLocationsUpdated;
+
+        session.MessageLog.OnMessageReceived += RecentItemsModule.post_item_message;
     }
 
     private static void Locations_CheckedLocationsUpdated(System.Collections.ObjectModel.ReadOnlyCollection<long> newCheckedLocations) {
@@ -252,13 +252,13 @@ public unsafe static void connectHandlers() {
     public enum ArchipelagoLocationType: int {
         Treasure      = 0x1000,
         Boss          = 0x2000,
-        PartyMember   = 0x3000,
-        Overdrive     = 0x4000,
+        Overdrive     = 0x3000,
         OverdriveMode = 0x5000,
         Other         = 0x6000,
         Recruit       = 0x7000,
         SphereGrid    = 0x8000,
         Capture       = 0x9000,
+        PartyMember   = 0xF000,
     }
 
     public static bool sendLocation(long locationId, ArchipelagoLocationType locationType) {

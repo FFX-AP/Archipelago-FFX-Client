@@ -1,4 +1,4 @@
-﻿using Fahrenheit;
+﻿using Archipelago.MultiClient.Net.Enums;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using Archipelago.MultiClient.Net.Enums;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 
@@ -98,7 +97,14 @@ public static class ArchipelagoData {
         PartyMembers,
         Pilgrimage,
         PartyMembersAndAeons,
-        Nemesis
+        Nemesis,
+    }
+
+    public enum CaptureRequirement {
+        None = 0,
+        Area,
+        Species,
+        Original,
     }
 
     public static RegionEnum[] pilgrimageRegions = [
@@ -888,8 +894,7 @@ public static class ArchipelagoData {
                         }
                     }
                 } } },
-                { 2385, new() {visit_complete = true, next_story_progress = 2920, next_room_id = 208, next_entrance = 1, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Bevelle visit 1 complete"); } } },
-                { 2945, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 208, next_entrance = 1, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Bevelle visit 2 complete"); } } },
+                { 2385, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 208, next_entrance = 1, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Bevelle complete"); } } },
             } } },
         {RegionEnum.CalmLands, new(){ story_progress = 2385, room_id = 223, entrance = 0, airship_destination_index = 15,
             savedata = [
@@ -1070,7 +1075,7 @@ public static class ArchipelagoData {
         // Auron solo
         {"lchb07_00", () => ArchipelagoFFXModule.set_party([PlySaveId.PC_AURON], true, false) },
         // Yenke and Biran. Can only target Kimahri and scale on his stats.
-        {"mtgz01_10", () => ArchipelagoFFXModule.set_party([PlySaveId.PC_KIMAHRI], true, false) },
+        {"mtgz01_10", () => ArchipelagoFFXModule.set_party([PlySaveId.PC_KIMAHRI], true, true) },
 
         // Tutorials
         // Will softlock without Lulu
@@ -1510,4 +1515,34 @@ public static class ArchipelagoData {
         "Aeon Customization: EVA +1: 1x Speed Sphere",
         "Aeon Customization: ACC +1: 1x Speed Sphere",
         ];
+
+    public static Dictionary<uint, string> overdrive_names = new Dictionary<uint, string>()
+    {
+        {PlayerCommandId.PCOM_SPIRAL_CUT,       "Swordplay: Spiral Cut"     },
+        {PlayerCommandId.PCOM_SLICE_AND_DICE,   "Swordplay: Slice & Dice"   },
+        {PlayerCommandId.PCOM_ENERGY_RAIN,      "Swordplay: Energy Rain"    },
+        {PlayerCommandId.PCOM_BLITZ_ACE,        "Swordplay: Blitz Ace"      },
+        {PlayerCommandId.PCOM_SHOOTING_STAR,    "Bushido: Shooting Star"    },
+        {PlayerCommandId.PCOM_DRAGON_FANG,      "Bushido: Dragon Fang"      },
+        {PlayerCommandId.PCOM_BANISHING_BLADE,  "Bushido: Banishing Blade"  },
+        {PlayerCommandId.PCOM_TORNADO,          "Bushido: Tornado"          },
+        {PlayerCommandId.PCOM_JUMP,             "Ronso Rage: Jump"          },
+        {PlayerCommandId.PCOM_FIRE_BREATH,      "Ronso Rage: Fire Breath"   },
+        {PlayerCommandId.PCOM_SEED_CANNON,      "Ronso Rage: Seed Cannon"   },
+        {PlayerCommandId.PCOM_SELF_DESTRUCT,    "Ronso Rage: Self-Destruct" },
+        {PlayerCommandId.PCOM_THRUST_KICK,      "Ronso Rage: Thrust Kick"   },
+        {PlayerCommandId.PCOM_STONE_BREATH,     "Ronso Rage: Stone Breath"  },
+        {PlayerCommandId.PCOM_AQUA_BREATH,      "Ronso Rage: Aqua Breath"   },
+        {PlayerCommandId.PCOM_DOOM,             "Ronso Rage: Doom"          },
+        {PlayerCommandId.PCOM_WHITE_WIND,       "Ronso Rage: White Wind"    },
+        {PlayerCommandId.PCOM_BAD_BREATH,       "Ronso Rage: Bad Breath"    },
+        {PlayerCommandId.PCOM_MIGHTY_GUARD,     "Ronso Rage: Might Guard"   },
+        {PlayerCommandId.PCOM_NOVA,             "Ronso Rage: Nova"          },
+        {PlayerCommandId.PCOM_ELEMENT_REELS,    "Slots: Element Reels"      },
+        {PlayerCommandId.PCOM_ATTACK_REELS,     "Slots: Attack Reels"       },
+        {PlayerCommandId.PCOM_STATUS_REELS,     "Slots: Status Reels"       },
+        {PlayerCommandId.PCOM_AUROCHS_REELS,    "Slots: Aurochs Reels"      },
+        {PlayerCommandId.PCOM_REQUIEM,          "Overdrive: Requiem"        },
+        {PlayerCommandId.PCOM_ENERGY_BLAST,     "Overdrive: Energy Blast"   },
+    };
 }

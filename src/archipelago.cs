@@ -1,5 +1,6 @@
 ﻿using Archipelago.MultiClient.Net.Enums;
 using Fahrenheit.Atel;
+using Fahrenheit.Events;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 using Fahrenheit.Modules.ArchipelagoFFX.Client;
@@ -69,20 +70,22 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static string LastSeed = "";
     public static Dictionary<string, string> SeedToServer = new();
     private class ArchipelagoGlobalState {
-        public string                     LastVersion   { get; set; }
-        public FhLangId?                  VoiceLanguage { get; set; }
-        public FhLangId?                  TextLanguage  { get; set; }
-        public int                        FontSize      { get; set; }
-        public string                     LastSeed      { get; set; }
-        public Dictionary<string, string> SeedToServer  { get; set; }
+        public string                     LastVersion     { get; set; }
+        public FhLangId?                  VoiceLanguage   { get; set; }
+        public FhLangId?                  TextLanguage    { get; set; }
+        public int                        FontSize        { get; set; }
+        public string                     LastSeed        { get; set; }
+        public Dictionary<string, string> SeedToServer    { get; set; }
+        public bool                       ShowRecentItems { get; set; }
 
         public ArchipelagoGlobalState() {
-            this.LastVersion   = ArchipelagoFFXModule.Version.ToString();
-            this.VoiceLanguage = ArchipelagoFFXModule.VoiceLanguage;
-            this.TextLanguage  = ArchipelagoFFXModule.TextLanguage;
-            this.FontSize      = ArchipelagoGUI.font_size;
-            this.LastSeed      = ArchipelagoFFXModule.LastSeed;
-            this.SeedToServer  = ArchipelagoFFXModule.SeedToServer;
+            this.LastVersion     = ArchipelagoFFXModule.Version.ToString();
+            this.VoiceLanguage   = ArchipelagoFFXModule.VoiceLanguage;
+            this.TextLanguage    = ArchipelagoFFXModule.TextLanguage;
+            this.FontSize        = ArchipelagoGUI.font_size;
+            this.LastSeed        = ArchipelagoFFXModule.LastSeed;
+            this.SeedToServer    = ArchipelagoFFXModule.SeedToServer;
+            this.ShowRecentItems = RecentItemsModule.show_recent_items;
         }
     }
 
@@ -115,61 +118,55 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public record Location(string location_name, int location_id, uint item_id, string item_name, string player_name);
     public struct ArchipelagoSeedOptions {
-        [JsonInclude]
-        public string          PlayerName;
-        [JsonInclude]
-        public string          SeedId;
-        [JsonInclude]
-        public GoalRequirement GoalRequirement;
-        [JsonInclude]
-        public int             RequiredPartyMembers;
-        [JsonInclude]
-        public int             RequiredPrimers;
-        [JsonInclude]
-        public int             APMultiplier;
-        [JsonInclude]
-        public int             AlwaysSensor;
-        [JsonInclude]
-        public int             AlwaysCapture;
-        [JsonInclude]
-        public int             CaptureDamage;
-        [JsonInclude]
-        public int             SkipContestOfAeons;
+        [JsonInclude] public string PlayerName;
+        [JsonInclude] public string SeedId;
+
+        [JsonInclude] public GoalRequirement GoalRequirement;
+        [JsonInclude] public int RequiredPartyMembers;
+        [JsonInclude] public int RequiredPrimers;
+
+        [JsonInclude] public int APMultiplier;
+        [JsonInclude] public int AlwaysSensor;
+
+        [JsonInclude] public CaptureRequirement CaptureRequirement;
+        [JsonInclude] public int AlwaysCapture;
+        [JsonInclude] public int CaptureDamage;
+        [JsonInclude] public int EncounterWeighting;
+
+        [JsonInclude] public int SkipContestOfAeons;
+        [JsonInclude] public int OverdriveModes;
 
         public ArchipelagoSeedOptions() {
             PlayerName           = "";
             SeedId               = "";
+
             GoalRequirement      = GoalRequirement.None;
             RequiredPartyMembers = 1;
             RequiredPrimers      = 0;
+
             APMultiplier         = 1;
             AlwaysSensor         = 0;
+
+            CaptureRequirement   = CaptureRequirement.None;
             AlwaysCapture        = 0;
             CaptureDamage        = 0;
+            EncounterWeighting   = 0;
+
             SkipContestOfAeons   = 0;
+            OverdriveModes       = 0;
         }
     }
     public struct ArchipelagoSeedLocations {
-        [JsonInclude]
-        public List<uint>      StartingItems;
-        [JsonInclude]
-        public List<Location>  Treasure;
-        [JsonInclude]
-        public List<Location>  Boss;
-        [JsonInclude]
-        public List<Location>  PartyMember;
-        [JsonInclude]
-        public List<Location>  Overdrive;
-        [JsonInclude]
-        public List<Location>  OverdriveMode;
-        [JsonInclude]
-        public List<Location>  Other;
-        [JsonInclude]
-        public List<Location>  Recruit;
-        [JsonInclude]
-        public List<Location>  SphereGrid;
-        [JsonInclude]
-        public List<Location>  Capture;
+        [JsonInclude] public List<uint>      StartingItems;
+        [JsonInclude] public List<Location>  Treasure;
+        [JsonInclude] public List<Location>  Boss;
+        [JsonInclude] public List<Location>  PartyMember;
+        [JsonInclude] public List<Location>  Overdrive;
+        [JsonInclude] public List<Location>  OverdriveMode;
+        [JsonInclude] public List<Location>  Other;
+        [JsonInclude] public List<Location>  Recruit;
+        [JsonInclude] public List<Location>  SphereGrid;
+        [JsonInclude] public List<Location>  Capture;
 
         public ArchipelagoSeedLocations() {
             StartingItems = [];
@@ -323,7 +320,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         ArchipelagoFFXModule.mod_context = mod_context;
         ArchipelagoFFXModule.global_state_file = global_state_file;
 
-
+        FhApi.Events.Common.GameLoop.PreUpdate.subscribe(pre_update);
 
         // Initialize Archipelago Client
 
@@ -471,7 +468,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Error(message);
                 return;
-            } else if (save_version < new SemVer(0, 6, 0, "alpha")) {
+            } else if (save_version < new SemVer(0, 7, 0, "alpha")) {
                 string message = "Incompatible version. Returning to main menu";
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Info(message);
@@ -528,6 +525,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                         else
                             FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + i] = 0;
                     }
+                    FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_TIDUS_OVERDRIVE"] = save_data->tidus_limit_uses;
                 }
 
                 loaded_state.celestial_level.CopyTo(celestial_level, 0);
@@ -552,6 +550,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             ArchipelagoGUI.text_lang            = TextLanguage.HasValue  ? (byte)TextLanguage.Value  : (byte)0xFF;
             ArchipelagoGUI.font_size            = loaded_state.FontSize;
             LastSeed                            = loaded_state.LastSeed;
+
+            RecentItemsModule.show_recent_items = loaded_state.ShowRecentItems;
 
             var loaded_seed_ids = loaded_seeds.Select(seed => seed.Options.SeedId);
             foreach ((string id, string lastServer) in loaded_state.SeedToServer) {
@@ -584,7 +584,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         return true;
     }
 
-    public override void pre_update() {
+    public void pre_update(UpdateLoopEventArgs args) {
         // Update Archipelago Client
         FFXArchipelagoClient.update();
         if (last_story_progress != Globals.save_data->story_progress) {

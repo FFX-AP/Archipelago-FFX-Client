@@ -1,9 +1,9 @@
-﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha08">
+﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha09">
 
 	<!-- ASSEMBLY BASIC PROPERTIES -->
     <PropertyGroup>
-	    <Version>0.6.1-alpha</Version>
-		<FahrenheitVersion>v1.0.0-alpha08</FahrenheitVersion>
+	    <Version>0.7.0-alpha</Version>
+		<FahrenheitVersion>v1.0.0-alpha09</FahrenheitVersion>
     </PropertyGroup>
 
 	<!-- ASSEMBLY ADDITIONAL PROPERTIES -->
@@ -14,6 +14,11 @@
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
 	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="fh-mods-csr\**" />
+		<EmbeddedResource Remove="fh-mods-csr\**" />
+		<None Remove="fh-mods-csr\**" />
+	</ItemGroup>
 
 	<!-- SHARED FILE LINKS -->
 	<ItemGroup>
@@ -24,14 +29,23 @@
 	<ItemGroup>
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
 	</ItemGroup>
-	
+	<ItemGroup>
+	  <PackageReference Update="Fahrenheit" Version="1.0.0-alpha09" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<fhcsrName>fhcsr</fhcsrName>
+		<fhcsrPath>$(ProjectDir)fh-mods-csr/</fhcsrPath>
+		<fhcsrProject>$(fhcsrPath)Fahrenheit.Mods.CSR.csproj</fhcsrProject>
+	</PropertyGroup>
+
 	<!-- BUILD EVENTS -->
 	<Target Name="ReplaceProperties" BeforeTargets="Publish">
-        <PropertyGroup>
-            <File>archipelago-ffx.manifest.json</File>
-        </PropertyGroup>
-        <WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="UTF-8" />
-    </Target>
+		<PropertyGroup>
+			<File>archipelago-ffx.manifest.json</File>
+		</PropertyGroup>
+		<WriteLinesToFile File="$(PublishDir)/$(File)" Lines="$([System.IO.File]::ReadAllText($(PublishDir)/$(File)).Replace('{Version}','$(Version)'))" Overwrite="true" Encoding="UTF-8" />
+	</Target>
 
 	<Target Name="DownloadFahrenheitRelease" AfterTargets="Publish">
 		<PropertyGroup>
@@ -52,30 +66,25 @@
 		<Message Text="Cleanup unused Fahrenheit mods..." />
 		<RemoveDir Directories="$(PublishDir)fahrenheit\mods" />
 		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(AssemblyName)" />
+		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(fhcsrName)" />
 	</Target>
 
 	<Target Name="CopyAssets" AfterTargets="Publish">
 		<PropertyGroup>
 			<AssetsDir>$(ProjectDir)assets\</AssetsDir>
-            <LoadOrderFile>loadorder</LoadOrderFile>
+			<LoadOrderFile>loadorder</LoadOrderFile>
 			<LoadOrder>$(AssetsDir)$(LoadOrderFile)</LoadOrder>
-            <StartGameFile>start_game.bat</StartGameFile>
+			<StartGameFile>start_game.bat</StartGameFile>
 			<StartGame>$(AssetsDir)$(StartGameFile)</StartGame>
 			<AssetDestination>$(PublishDir)fahrenheit\mods\$(AssemblyName)</AssetDestination>
 		</PropertyGroup>
 		<ItemGroup>
-			<AssetFiles Include="$(LoadOrder); $(StartGame)"/>
+			<AssetFiles Include="$(LoadOrder); $(StartGame)" />
 		</ItemGroup>
 		<Message Text="Copy solution assets..." />
-		<Exec Condition ="'$(OS)' == 'Windows_NT'"
-			  Command="powershell -Command &quot;robocopy '$(AssetsDir)' '$(AssetDestination)' /MIR /R:0 /W:0 /XF '$(LoadOrder)' /XF '$(StartGame)'" 
-			  ContinueOnError="true" IgnoreExitCode="true" />
-		<Exec Condition="'$(OS)' == 'Unix'"
-			  Command="rsync -acu --delete '$(AssetsDir)/' '$(AssetDestination)' --exclude='$(LoadOrderFile)' --exclude='$(StartGameFile)'"
-			  ContinueOnError="true" IgnoreExitCode="true" />
-		<Copy SourceFiles="@(AssetFiles)"
-			  DestinationFiles="$(PublishDir)fahrenheit\mods\$(LoadOrderFile); $(PublishDir)fahrenheit\$(StartGameFile)"
-			  ContinueOnError="true" />
+		<Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -Command &quot;robocopy '$(AssetsDir)' '$(AssetDestination)' /MIR /R:0 /W:0 /XF '$(LoadOrder)' /XF '$(StartGame)'" ContinueOnError="true" IgnoreExitCode="true" />
+		<Exec Condition="'$(OS)' == 'Unix'" Command="rsync -acu --delete '$(AssetsDir)/' '$(AssetDestination)' --exclude='$(LoadOrderFile)' --exclude='$(StartGameFile)'" ContinueOnError="true" IgnoreExitCode="true" />
+		<Copy SourceFiles="@(AssetFiles)" DestinationFiles="$(PublishDir)fahrenheit\mods\$(LoadOrderFile); $(PublishDir)fahrenheit\$(StartGameFile)" ContinueOnError="true" />
 	</Target>
 
 	<Target Name="MoveFilesToFinalDestination" AfterTargets="Publish">
@@ -86,4 +95,9 @@
 		<Move SourceFiles="@(ProjectFiles)" DestinationFolder="$(PublishDir)fahrenheit\mods\$(AssemblyName)\" />
 	</Target>
 
+  <Target Name="PublishCSR" AfterTargets="Publish">
+		<Message Text="Publish fh-mods-csr" />
+		<MSBuild Projects="$(fhcsrProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(fhcsrName);Configuration=$(Configuration)" Targets="Build" />
+  </Target>
+  
 </Project>
