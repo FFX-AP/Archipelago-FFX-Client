@@ -570,6 +570,10 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     private int h_MsBattleEncountExe(int field_id, int group_idx, float walked_delta) {
+        if (ArchipelagoFFXModule.seed.Options.CaptureRequirement == 0 || ArchipelagoFFXModule.seed.Options.EncounterWeighting == 0) {
+            return _MsBattleEncountExe.orig_fptr(field_id, group_idx, walked_delta);
+        }
+
         // Globals
         int* g_keybattle = FhUtil.ptr_at<int>(0xD2CA24);
         int* g_keydown_R = FhUtil.ptr_at<int>(0xD2CA20);
