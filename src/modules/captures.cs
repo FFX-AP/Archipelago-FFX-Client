@@ -692,6 +692,12 @@ public unsafe partial class CaptureModule : FhModule {
             int formation_rng = _brnd(1) % total_weight;
             int iVar7 = 0;
 
+            _logger.Debug( "Encounter!");
+            _logger.Debug($"  Requirements complete: {all_complete}");
+            _logger.Debug($"  Total weight: {total_weight}");
+            _logger.Debug($"  Weights: {String.Join(", ", weights)}");
+            _logger.Debug($"  Formation RNG: {formation_rng}");
+
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                 iVar7 += weights[formation_idx];
                 if (!(formation_rng < iVar7)) continue;
