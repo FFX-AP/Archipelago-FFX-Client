@@ -295,94 +295,97 @@ public class ToastModule : FhModule {
 
         List<LinkedListNode<Toast>> nodes_to_remove = [];
 
-        var toast_node = _toast_queue.First;
-        for (int toast_idx = 0; toast_idx < _toast_queue.Count; toast_idx++) {
-            Toast toast = toast_node!.Value;
+        // Modifying _toast_queue here could cause an AccessViolationException, so we lock it.
+        lock (_toast_queue) {
+            var toast_node = _toast_queue.First;
+            for (int toast_idx = 0; toast_idx < _toast_queue.Count; toast_idx++) {
+                Toast toast = toast_node!.Value;
 
-            Vector2 toast_size;
-            float phase_t;
+                Vector2 toast_size;
+                float phase_t;
 
-            switch (toast.phase) {
-                case Toast.ToastPhase.QUEUED:
-                    // This is a horrible way of making sure appearing toasts don't jump around.
-                    //TODO: Figure out an actual way to fix said issue in lieu of allowing only one toast to appear at a time.
-                    if (toasts_shown < _MAX_TOASTS_SHOWN && (toast_node.Next is null || toast_node.Next.Value.phase > Toast.ToastPhase.APPEARING)) {
-                        toast.increment_phase();
-                    }
-                    break;
+                switch (toast.phase) {
+                    case Toast.ToastPhase.QUEUED:
+                        // This is a horrible way of making sure appearing toasts don't jump around.
+                        //TODO: Figure out an actual way to fix said issue in lieu of allowing only one toast to appear at a time.
+                        if (toasts_shown < _MAX_TOASTS_SHOWN && (toast_node.Next is null || toast_node.Next.Value.phase > Toast.ToastPhase.APPEARING)) {
+                            toast.increment_phase();
+                        }
+                        break;
 
-                case Toast.ToastPhase.APPEARING:
-                    toast_size = toast.get_size();
-                    phase_t = toast.get_phase_t();
+                    case Toast.ToastPhase.APPEARING:
+                        toast_size = toast.get_size();
+                        phase_t = toast.get_phase_t();
 
-                    toast.pos = new(
-                        io.DisplaySize.X - toast_margin - toast_size.X,
-                        float.Lerp(-toast_size.Y, base_y + toast_margin, phase_t)
-                    );
+                        toast.pos = new(
+                            io.DisplaySize.X - toast_margin - toast_size.X,
+                            float.Lerp(-toast_size.Y, base_y + toast_margin, phase_t)
+                        );
 
-                    render_toast(toast);
+                        render_toast(toast);
 
-                    if (phase_t == 1.0f) {
-                        toast.increment_phase();
-                    }
+                        if (phase_t == 1.0f) {
+                            toast.increment_phase();
+                        }
 
-                    base_y += toast.pos.Value.Y + toast_size.Y;
+                        base_y += toast.pos.Value.Y + toast_size.Y;
 
-                    break;
+                        break;
 
-                case Toast.ToastPhase.SHOWN:
-                    toast_size = toast.get_size();
-                    phase_t = toast.get_phase_t();
+                    case Toast.ToastPhase.SHOWN:
+                        toast_size = toast.get_size();
+                        phase_t = toast.get_phase_t();
 
-                    toast.pos = new(
-                        io.DisplaySize.X - toast_margin - toast_size.X,
-                        base_y + toast_margin
-                    );
+                        toast.pos = new(
+                            io.DisplaySize.X - toast_margin - toast_size.X,
+                            base_y + toast_margin
+                        );
 
-                    if (phase_t == 1.0f) {
-                        toast.increment_phase();
-                    }
+                        if (phase_t == 1.0f) {
+                            toast.increment_phase();
+                        }
 
-                    render_toast(toast);
+                        render_toast(toast);
 
-                    base_y += toast_margin + toast_size.Y;
-                    break;
+                        base_y += toast_margin + toast_size.Y;
+                        break;
 
-                case Toast.ToastPhase.DISAPPEARING:
-                    toast_size = toast.get_size();
-                    phase_t = toast.get_phase_t();
+                    case Toast.ToastPhase.DISAPPEARING:
+                        toast_size = toast.get_size();
+                        phase_t = toast.get_phase_t();
 
-                    toast.pos = new(
-                        float.Lerp(io.DisplaySize.X - toast_margin - toast_size.X, io.DisplaySize.X, phase_t),
-                        base_y + toast_margin
-                    );
+                        toast.pos = new(
+                            float.Lerp(io.DisplaySize.X - toast_margin - toast_size.X, io.DisplaySize.X, phase_t),
+                            base_y + toast_margin
+                        );
 
-                    if (phase_t == 1.0f) {
-                        toast.increment_phase();
-                    }
+                        if (phase_t == 1.0f) {
+                            toast.increment_phase();
+                        }
 
-                    ImGui.PushStyleVar(ImGuiStyleVar.Alpha, toast.get_alpha(phase_t));
+                        ImGui.PushStyleVar(ImGuiStyleVar.Alpha, toast.get_alpha(phase_t));
 
-                    render_toast(toast);
+                        render_toast(toast);
 
-                    ImGui.PopStyleVar();
+                        ImGui.PopStyleVar();
 
-                    base_y += toast_margin + toast_size.Y;
-                    break;
+                        base_y += toast_margin + toast_size.Y;
+                        break;
 
-                case Toast.ToastPhase.DONE:
-                    nodes_to_remove.Add(toast_node);
-                    break;
+                    case Toast.ToastPhase.DONE:
+                        nodes_to_remove.Add(toast_node);
+                        break;
+                }
+
+                toast_node = toast_node!.Next;
             }
 
-            toast_node = toast_node!.Next;
-        }
+            ImGui.PopFont();
+            ImGui.End();
 
-        ImGui.PopFont();
-        ImGui.End();
-
-        foreach (var node in nodes_to_remove) {
-            _toast_queue.Remove(node);
+            foreach (var node in nodes_to_remove) {
+                _toast_queue.Remove(node);
+            }
         }
     }
 
