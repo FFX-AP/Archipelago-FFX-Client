@@ -187,6 +187,7 @@ public class ToastModule : FhModule {
         }
     }
 
+    private readonly System.Threading.Lock _toast_queue_lock = new();
     private readonly LinkedList<Toast> _toast_queue = [];
 
     private FhModContext? _mod_context;
@@ -200,7 +201,9 @@ public class ToastModule : FhModule {
     }
 
     public void queue_toast(Toast new_toast) {
-        _toast_queue.AddFirst(new_toast);
+        lock (_toast_queue_lock) {
+            _toast_queue.AddFirst(new_toast);
+        }
     }
 
 #if DEBUG
@@ -218,171 +221,176 @@ public class ToastModule : FhModule {
             return;
         }
 
-        var toast_node = _toast_queue.First;
-        for (int i = 0; i < _toast_queue.Count; i++) {
-            Toast toast = toast_node!.Value;
+        lock (_toast_queue_lock) {
+            var toast_node = _toast_queue.First;
+            for (int i = 0; i < _toast_queue.Count; i++) {
+                Toast toast = toast_node!.Value;
 
-            ImGui.SeparatorText($"Toast {i}");
-            ImGui.Indent();
+                ImGui.SeparatorText($"Toast {i}");
+                ImGui.Indent();
 
-            ImGui.Text($"Phase: {toast.phase}");
+                ImGui.Text($"Phase: {toast.phase}");
 
-            if (toast.phase is Toast.ToastPhase.APPEARING or Toast.ToastPhase.SHOWN or Toast.ToastPhase.DISAPPEARING) {
-                ImGui.Text($"Phase T: {toast.get_phase_t()}");
+                if (toast.phase is Toast.ToastPhase.APPEARING or Toast.ToastPhase.SHOWN or Toast.ToastPhase.DISAPPEARING) {
+                    ImGui.Text($"Phase T: {toast.get_phase_t()}");
 
-                Vector2 toast_size = toast.get_size();
-                ImGui.Text($"Size: ({toast_size.X}, {toast_size.Y})");
+                    Vector2 toast_size = toast.get_size();
+                    ImGui.Text($"Size: ({toast_size.X}, {toast_size.Y})");
 
-                if (toast.pos.HasValue) {
-                    ImGui.Text($"Position: ({toast.pos.Value.X}, {toast.pos.Value.Y})");
+                    if (toast.pos.HasValue) {
+                        ImGui.Text($"Position: ({toast.pos.Value.X}, {toast.pos.Value.Y})");
+                    }
                 }
+
+                ImGui.Unindent();
+
+                toast_node = toast_node!.Next;
             }
-
-            ImGui.Unindent();
-
-            toast_node = toast_node!.Next;
         }
+
 
         ImGui.End();
     }
 #endif
 
     public override void render_imgui() {
+        lock (_toast_queue_lock) {
 #if DEBUG
-        render_debug();
+            render_debug();
 
-        if (ImGui.IsKeyPressed(ImGuiKey.Apostrophe)) {
-            queue_toast(new(
-                [
-                    new(new(1.0f, 1.0f, 0.6f, 1.0f), $"My Debug Toast {spawned_debug_toasts}"),
-                ],
+            if (ImGui.IsKeyPressed(ImGuiKey.Apostrophe)) {
+                queue_toast(new(
+                    [
+                        new(new(1.0f, 1.0f, 0.6f, 1.0f), $"My Debug Toast {spawned_debug_toasts}"),
+                    ],
 
-                [
-                    new(new(1.0f), $"My Debug Toast is very cool {spawned_debug_toasts}"),
-                ]
-            ));
-            spawned_debug_toasts += 1;
-        }
+                    [
+                        new(new(1.0f), $"My Debug Toast is very cool {spawned_debug_toasts}"),
+                    ]
+                ));
+                spawned_debug_toasts += 1;
+            }
 #endif
 
-        // Set up Archipelago's font size
-        int font_size = ArchipelagoGUI.font_size;
-        if (font_size == -1) font_size = (int)ImGui.GetFontSize();
-        ImGui.PushFont(null, font_size);
+            // Set up Archipelago's font size
+            int font_size = ArchipelagoGUI.font_size;
+            if (font_size == -1) font_size = (int)ImGui.GetFontSize();
+            ImGui.PushFont(null, font_size);
 
-        ImGuiWindowFlags window_flags =
-            ImGuiWindowFlags.NoBackground
-          | ImGuiWindowFlags.NoBringToFrontOnFocus
-          | ImGuiWindowFlags.NoDecoration
-          | ImGuiWindowFlags.NoDocking
-          | ImGuiWindowFlags.NoFocusOnAppearing
-          | ImGuiWindowFlags.NoInputs
-          | ImGuiWindowFlags.NoMove
-          | ImGuiWindowFlags.NoScrollbar;
+            ImGuiWindowFlags window_flags =
+                ImGuiWindowFlags.NoBackground
+              | ImGuiWindowFlags.NoBringToFrontOnFocus
+              | ImGuiWindowFlags.NoDecoration
+              | ImGuiWindowFlags.NoDocking
+              | ImGuiWindowFlags.NoFocusOnAppearing
+              | ImGuiWindowFlags.NoInputs
+              | ImGuiWindowFlags.NoMove
+              | ImGuiWindowFlags.NoScrollbar;
 
-        var io = ImGui.GetIO();
+            var io = ImGui.GetIO();
 
-        ImGui.SetNextWindowSize(io.DisplaySize);
-        ImGui.SetNextWindowPos(new Vector2());
+            ImGui.SetNextWindowSize(io.DisplaySize);
+            ImGui.SetNextWindowPos(new Vector2());
 
-        if (!ImGui.Begin("Toasts", window_flags)) {
-            ImGui.PopFont();
-            ImGui.End();
-            return;
-        }
-
-        float base_y = 0;
-
-        List<LinkedListNode<Toast>> nodes_to_remove = [];
-
-        var toast_node = _toast_queue.First;
-        for (int toast_idx = 0; toast_idx < _toast_queue.Count; toast_idx++) {
-            Toast toast = toast_node!.Value;
-
-            Vector2 toast_size;
-            float phase_t;
-
-            switch (toast.phase) {
-                case Toast.ToastPhase.QUEUED:
-                    // This is a horrible way of making sure appearing toasts don't jump around.
-                    //TODO: Figure out an actual way to fix said issue in lieu of allowing only one toast to appear at a time.
-                    if (toasts_shown < _MAX_TOASTS_SHOWN && (toast_node.Next is null || toast_node.Next.Value.phase > Toast.ToastPhase.APPEARING)) {
-                        toast.increment_phase();
-                    }
-                    break;
-
-                case Toast.ToastPhase.APPEARING:
-                    toast_size = toast.get_size();
-                    phase_t = toast.get_phase_t();
-
-                    toast.pos = new(
-                        io.DisplaySize.X - toast_margin - toast_size.X,
-                        float.Lerp(-toast_size.Y, base_y + toast_margin, phase_t)
-                    );
-
-                    render_toast(toast);
-
-                    if (phase_t == 1.0f) {
-                        toast.increment_phase();
-                    }
-
-                    base_y += toast.pos.Value.Y + toast_size.Y;
-
-                    break;
-
-                case Toast.ToastPhase.SHOWN:
-                    toast_size = toast.get_size();
-                    phase_t = toast.get_phase_t();
-
-                    toast.pos = new(
-                        io.DisplaySize.X - toast_margin - toast_size.X,
-                        base_y + toast_margin
-                    );
-
-                    if (phase_t == 1.0f) {
-                        toast.increment_phase();
-                    }
-
-                    render_toast(toast);
-
-                    base_y += toast_margin + toast_size.Y;
-                    break;
-
-                case Toast.ToastPhase.DISAPPEARING:
-                    toast_size = toast.get_size();
-                    phase_t = toast.get_phase_t();
-
-                    toast.pos = new(
-                        float.Lerp(io.DisplaySize.X - toast_margin - toast_size.X, io.DisplaySize.X, phase_t),
-                        base_y + toast_margin
-                    );
-
-                    if (phase_t == 1.0f) {
-                        toast.increment_phase();
-                    }
-
-                    ImGui.PushStyleVar(ImGuiStyleVar.Alpha, toast.get_alpha(phase_t));
-
-                    render_toast(toast);
-
-                    ImGui.PopStyleVar();
-
-                    base_y += toast_margin + toast_size.Y;
-                    break;
-
-                case Toast.ToastPhase.DONE:
-                    nodes_to_remove.Add(toast_node);
-                    break;
+            if (!ImGui.Begin("Toasts", window_flags)) {
+                ImGui.PopFont();
+                ImGui.End();
+                return;
             }
 
-            toast_node = toast_node!.Next;
-        }
+            float base_y = 0;
 
-        ImGui.PopFont();
-        ImGui.End();
+            List<LinkedListNode<Toast>> nodes_to_remove = [];
 
-        foreach (var node in nodes_to_remove) {
-            _toast_queue.Remove(node);
+            var toast_node = _toast_queue.First;
+            for (int toast_idx = 0; toast_idx < _toast_queue.Count; toast_idx++) {
+                Toast toast = toast_node!.Value;
+
+                Vector2 toast_size;
+                float phase_t;
+
+                switch (toast.phase) {
+                    case Toast.ToastPhase.QUEUED:
+                        // This is a horrible way of making sure appearing toasts don't jump around.
+                        //TODO: Figure out an actual way to fix said issue in lieu of allowing only one toast to appear at a time.
+                        if (toasts_shown < _MAX_TOASTS_SHOWN && (toast_node.Next is null || toast_node.Next.Value.phase > Toast.ToastPhase.APPEARING)) {
+                            toast.increment_phase();
+                        }
+                        break;
+
+                    case Toast.ToastPhase.APPEARING:
+                        toast_size = toast.get_size();
+                        phase_t = toast.get_phase_t();
+
+                        toast.pos = new(
+                            io.DisplaySize.X - toast_margin - toast_size.X,
+                            float.Lerp(-toast_size.Y, base_y + toast_margin, phase_t)
+                        );
+
+                        render_toast(toast);
+
+                        if (phase_t == 1.0f) {
+                            toast.increment_phase();
+                        }
+
+                        base_y += toast.pos.Value.Y + toast_size.Y;
+
+                        break;
+
+                    case Toast.ToastPhase.SHOWN:
+                        toast_size = toast.get_size();
+                        phase_t = toast.get_phase_t();
+
+                        toast.pos = new(
+                            io.DisplaySize.X - toast_margin - toast_size.X,
+                            base_y + toast_margin
+                        );
+
+                        if (phase_t == 1.0f) {
+                            toast.increment_phase();
+                        }
+
+                        render_toast(toast);
+
+                        base_y += toast_margin + toast_size.Y;
+                        break;
+
+                    case Toast.ToastPhase.DISAPPEARING:
+                        toast_size = toast.get_size();
+                        phase_t = toast.get_phase_t();
+
+                        toast.pos = new(
+                            float.Lerp(io.DisplaySize.X - toast_margin - toast_size.X, io.DisplaySize.X, phase_t),
+                            base_y + toast_margin
+                        );
+
+                        if (phase_t == 1.0f) {
+                            toast.increment_phase();
+                        }
+
+                        ImGui.PushStyleVar(ImGuiStyleVar.Alpha, toast.get_alpha(phase_t));
+
+                        render_toast(toast);
+
+                        ImGui.PopStyleVar();
+
+                        base_y += toast_margin + toast_size.Y;
+                        break;
+
+                    case Toast.ToastPhase.DONE:
+                        nodes_to_remove.Add(toast_node);
+                        break;
+                }
+
+                toast_node = toast_node!.Next;
+            }
+
+            ImGui.PopFont();
+            ImGui.End();
+
+            foreach (var node in nodes_to_remove) {
+                _toast_queue.Remove(node);
+            }
         }
     }
 
