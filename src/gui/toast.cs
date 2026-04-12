@@ -402,7 +402,8 @@ public class ToastModule : FhModule {
           | ImGuiWindowFlags.NoFocusOnAppearing
           | ImGuiWindowFlags.NoInputs
           | ImGuiWindowFlags.NoMove
-          | ImGuiWindowFlags.NoScrollbar;
+          | ImGuiWindowFlags.NoScrollbar
+          | ImGuiWindowFlags.NoSavedSettings;
 
         ImGui.SetNextWindowPos(toast.pos!.Value);
         ImGui.SetNextWindowSize(toast.get_size());
