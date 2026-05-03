@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+
 namespace Fahrenheit.Modules.ArchipelagoFFX.Client;
 public static class FFXArchipelagoClient {
     public static readonly System.Threading.Lock client_lock = new();
@@ -21,6 +23,8 @@ public static class FFXArchipelagoClient {
     public static          bool                  local_locations_updated = false;
     public static          bool                  remote_locations_updated = false;
     public static          string?               SeedId = null;
+
+    public static DeathLinkService? death_link;
 
     public static PlayerInfo? active_player => current_session?.Players.ActivePlayer;
     private static bool is_disconnecting = false;
@@ -79,6 +83,7 @@ public static class FFXArchipelagoClient {
         }
         current_server = server;
         current_session = session;
+        death_link = current_session.CreateDeathLinkService();
     }
 
     public static void disconnect(ArchipelagoSession? session = null) {
@@ -100,6 +105,7 @@ public static class FFXArchipelagoClient {
         session.Locations.CheckedLocationsUpdated += Locations_CheckedLocationsUpdated;
 
         session.MessageLog.OnMessageReceived += RecentItemsModule.post_item_message;
+        death_link?.OnDeathLinkReceived += DeathLinkModule.post_deathlink;
     }
 
     private static void Locations_CheckedLocationsUpdated(System.Collections.ObjectModel.ReadOnlyCollection<long> newCheckedLocations) {
@@ -128,6 +134,7 @@ public static class FFXArchipelagoClient {
         ArchipelagoGUI.add_log_message([($"Disconnected from server ({reason})", Color.Red)]);
         lock (client_lock) {
             current_session = null;
+            death_link = null;
             SeedId = null;
             current_server = null;
             is_disconnecting = false;
