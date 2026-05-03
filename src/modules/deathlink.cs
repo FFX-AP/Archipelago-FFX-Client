@@ -48,13 +48,37 @@ public unsafe partial class DeathLinkModule : FhModule {
         _MsGetBattleEndStatus = new(this, GAME, __addr_MsGetBattleEndStatus, _h_MsGetBattleEndStatus);
     }
 
-    public void set_enabled(bool value) {
-        _deathlink_enabled = value;
+    public static bool get_enabled() {
+        return _this._deathlink_enabled;
+    }
 
-        if (!_deathlink_enabled) {
+    public static void set_enabled(bool value) {
+        _this._deathlink_enabled = value;
+
+        if (!_this._deathlink_enabled) {
             // Clear remaining deathlinks
-            _deathlinks_queued = 0;
+            _this._deathlinks_queued = 0;
         }
+    }
+
+    public static string get_type() {
+        return _this.deathlink_type switch {
+            DeathLinkType.DOOM => "Doom",
+            DeathLinkType.ONE_HP => "One HP",
+            DeathLinkType.LOW_HP => "Low HP",
+            DeathLinkType.BAD_BREATH => "Bad Breath",
+            _ => throw new NotImplementedException($"Unknown deathlink type: {(int)_this.deathlink_type}"),
+        };
+    }
+
+    public static void set_type(string type) {
+        _this.deathlink_type = type switch {
+            "Doom" => DeathLinkType.DOOM,
+            "One HP" => DeathLinkType.ONE_HP,
+            "Low HP" => DeathLinkType.LOW_HP,
+            "Bad Breath" => DeathLinkType.BAD_BREATH,
+            _ => throw new NotImplementedException($"Unknown deathlink type: {type}"),
+        };
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {

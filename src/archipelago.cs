@@ -99,6 +99,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int[]                                     celestial_level         { get; set; }
         public HashSet<long>                             local_checked_locations { get; set; }
         public int                                       received_items          { get; set; }
+        public bool                                      enable_deathlink        { get; set; }
+        public string                                    deathlink_type          { get; set; }
 
         public bool skip_state_updates { get; set; }
 
@@ -113,6 +115,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             this.skip_state_updates      = ArchipelagoFFXModule.skip_state_updates;
             this.local_checked_locations = FFXArchipelagoClient.local_checked_locations;
             this.received_items          = FFXArchipelagoClient.received_items;
+            this.enable_deathlink        = DeathLinkModule.get_enabled();
+            this.deathlink_type          = DeathLinkModule.get_type();
         }
     }
 
@@ -536,6 +540,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 FFXArchipelagoClient.received_items = loaded_state.received_items;
                 skip_state_updates = loaded_state.skip_state_updates;
             }
+
+            DeathLinkModule.set_enabled(loaded_state.enable_deathlink);
+            DeathLinkModule.set_type(loaded_state.deathlink_type);
         }
     }
     public static bool load_global_state() {

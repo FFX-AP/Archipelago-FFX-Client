@@ -1083,6 +1083,36 @@ public unsafe static class ArchipelagoGUI {
             ArchipelagoFFXModule.TextLanguage = text_lang != 0xFF ? (FhLangId)text_lang : null;
             ArchipelagoFFXModule.save_global_state();
         }
+
+        ImGui.SeparatorText("Save-Local Settings");
+        ImGui.Indent();
+
+        //TODO: Fix this condition to only pass when in-game
+        if (selected_seed == 0) {
+            ImGui.Text("Please load a save to display these settings.");
+            ImGui.Unindent();
+            return;
+        }
+
+        bool deathlink = DeathLinkModule.get_enabled();
+        ImGui.Checkbox("Enable Deathlink", ref deathlink);
+        DeathLinkModule.set_enabled(deathlink);
+
+        string deathlink_type = DeathLinkModule.get_type();
+        if (ImGui.BeginCombo("Deathlink Type", deathlink_type)) {
+            string[] types = [ "Doom", "One HP", "Low HP", "Bad Breath" ];
+
+            foreach (string type in types) {
+                if (ImGui.Selectable(type, type == deathlink_type)) {
+                    deathlink_type = type;
+                }
+            }
+
+            ImGui.EndCombo();
+        }
+        DeathLinkModule.set_type(deathlink_type);
+
+        ImGui.Unindent();
     }
 
     private static void render_client() {
