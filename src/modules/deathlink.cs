@@ -117,6 +117,28 @@ public unsafe partial class DeathLinkModule : FhModule {
                     chr->ram.hp = chr->ram.max_hp / 2;
                 }
                 break;
+
+            case DeathLinkType.BAD_BREATH:
+                for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
+                    Chr* chr = Globals.Battle.player_characters + chr_id;
+
+                    // Bad Breath normally applies:
+                    // - 150% Poison
+                    // - 80% Confusion
+                    // - 30% Berserk
+                    // - 100% Silence (3 turns)
+                    // - 100% Darkness (3 turns)
+                    // - 130% Slow (3 turns)
+                    // Confusion and Berserk feel bad, so we don't apply those.
+                    chr->ram.status_suffer |= StatusPermanentFlags.POISON;
+                    chr->ram.status_suffer_turns_left.silence = 3;
+                    chr->ram.status_suffer_turns_left.darkness = 3;
+                    chr->ram.status_suffer_turns_left.slow = 3;
+                }
+                break;
+
+            default:
+                throw new NotImplementedException($"Unknown deathlink type: {(int)deathlink_type}");
         }
 
         //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
