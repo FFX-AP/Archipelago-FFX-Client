@@ -185,17 +185,17 @@ public unsafe partial class DeathLinkModule : FhModule {
     private uint _h_MsGetBattleEndStatus() {
         uint battle_end_type = _MsGetBattleEndStatus.orig_fptr();
 
-        if (battle_end_type != 1 || Globals.Battle.btl->battle_state != 0x17) {
-            return battle_end_type;
-        }
-
-        _logger.Info("Post Game Over");
-
         if (!_send_deathlink_on_gameover) {
             _send_deathlink_on_gameover = true;
 
             return battle_end_type;
         }
+
+        if (battle_end_type != 1 || Globals.Battle.btl->battle_state != 0x17) {
+            return battle_end_type;
+        }
+
+        _logger.Info("Post Game Over");
 
         _logger.Info("  Sending death link...");
 
