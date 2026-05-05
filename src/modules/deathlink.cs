@@ -89,22 +89,17 @@ public unsafe partial class DeathLinkModule : FhModule {
         _this._deathlinks_queued += 1;
     }
 
+    public static void debug_apply_deathlink() {
+        _this._applyDeathlink();
+    }
+
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return _toasts_handle.try_get_module(out _toasts)
             && _MsBattleExe.hook()
             && _MsGetBattleEndStatus.hook();
     }
 
-    private void _h_MsBattleExe(uint p1, int field_idx, int group_idx, int formation_idx) {
-        _MsBattleExe.orig_fptr(p1, field_idx, group_idx, formation_idx);
-
-        // Post Battle Start
-        _logger.Info("Post Battle Start");
-
-        if (!_deathlink_enabled || _deathlinks_queued == 0) return;
-
-        _logger.Info("  Applying death link...");
-
+    private void _applyDeathlink() {
         switch (deathlink_type) {
             case DeathLinkType.DOOM:
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
@@ -124,7 +119,7 @@ public unsafe partial class DeathLinkModule : FhModule {
             case DeathLinkType.LOW_HP:
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
                     Chr* chr = Globals.Battle.player_characters + chr_id;
-                    chr->ram.hp = chr->ram.max_hp / 2;
+                    chr->ram.hp = Math.Min(chr->ram.hp, chr->ram.max_hp / 2 - chr->ram.max_hp % 2);
                 }
                 break;
 
@@ -150,6 +145,27 @@ public unsafe partial class DeathLinkModule : FhModule {
             default:
                 throw new NotImplementedException($"Unknown deathlink type: {(int)deathlink_type}");
         }
+    }
+
+    private void _h_MsBattleExe(uint p1, int field_idx, int group_idx, int formation_idx) {
+        _MsBattleExe.orig_fptr(p1, field_idx, group_idx, formation_idx);
+
+        // Post Battle Start
+        _logger.Info("Post Battle Start");
+
+        _logger.Info($"  Memory initialized? {Globals.Battle.player_characters != null}");
+
+        if (Globals.Battle.player_characters == null) return;
+
+        _logger.Info($"  Tidus HP? {Globals.Battle.player_characters->ram.hp}");
+
+        if (!_deathlink_enabled || _deathlinks_queued == 0) return;
+
+        _logger.Info("  Applying death link...");
+
+        _applyDeathlink();
+
+        _logger.Info($"  Tidus HP? {Globals.Battle.player_characters->ram.hp}");
 
         //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
 

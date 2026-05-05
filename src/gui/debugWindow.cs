@@ -1118,6 +1118,10 @@ public unsafe static class ArchipelagoGUI {
         if (ImGui.Button("Receive Debug Deathlink")) {
             DeathLinkModule.debug_add_queued();
         }
+
+        if (ImGui.Button("Apply Deathlink")) {
+            DeathLinkModule.debug_apply_deathlink();
+        }
 #endif
 
         ImGui.Unindent();
