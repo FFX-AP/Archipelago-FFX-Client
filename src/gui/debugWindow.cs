@@ -1098,6 +1098,8 @@ public unsafe static class ArchipelagoGUI {
         ImGui.Checkbox("Enable Deathlink", ref deathlink);
         DeathLinkModule.set_enabled(deathlink);
 
+        ImGui.Text($"Deathlinks Queued: {DeathLinkModule.get_deathlinks_queued()}");
+
         string deathlink_type = DeathLinkModule.get_type();
         if (ImGui.BeginCombo("Deathlink Type", deathlink_type)) {
             string[] types = [ "Doom", "One HP", "Low HP", "Bad Breath" ];

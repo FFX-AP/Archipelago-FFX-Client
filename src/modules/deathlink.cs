@@ -81,6 +81,10 @@ public unsafe partial class DeathLinkModule : FhModule {
         };
     }
 
+    public static uint get_deathlinks_queued() {
+        return _this._deathlinks_queued;
+    }
+
     public static void debug_add_queued() {
         _this._deathlinks_queued += 1;
     }
