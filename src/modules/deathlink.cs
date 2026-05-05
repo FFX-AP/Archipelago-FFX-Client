@@ -90,7 +90,9 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return _toasts_handle.try_get_module(out _toasts);
+        return _toasts_handle.try_get_module(out _toasts)
+            && _MsBattleExe.hook()
+            && _MsGetBattleEndStatus.hook();
     }
 
     private void _h_MsBattleExe(uint p1, int field_idx, int group_idx, int formation_idx) {
