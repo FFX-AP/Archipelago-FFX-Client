@@ -1088,11 +1088,11 @@ public unsafe static class ArchipelagoGUI {
         ImGui.Indent();
 
         //TODO: Fix this condition to only pass when in-game
-        if (selected_seed == 0) {
-            ImGui.Text("Please load a save to display these settings.");
-            ImGui.Unindent();
-            return;
-        }
+        //if (selected_seed == 0) {
+        //    ImGui.Text("Please load a save to display these settings.");
+        //    ImGui.Unindent();
+        //    return;
+        //}
 
         bool deathlink = DeathLinkModule.get_enabled();
         ImGui.Checkbox("Enable Deathlink", ref deathlink);
