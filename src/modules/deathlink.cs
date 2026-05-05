@@ -81,6 +81,10 @@ public unsafe partial class DeathLinkModule : FhModule {
         };
     }
 
+    public static void debug_add_queued() {
+        _this._deathlinks_queued += 1;
+    }
+
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return _toasts_handle.try_get_module(out _toasts);
     }
