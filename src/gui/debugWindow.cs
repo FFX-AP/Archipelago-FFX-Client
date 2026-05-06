@@ -1102,9 +1102,14 @@ public unsafe static class ArchipelagoGUI {
 
         string deathlink_type = DeathLinkModule.get_type();
         if (ImGui.BeginCombo("Deathlink Type", deathlink_type)) {
-            string[] types = [ "Doom", "One HP", "Low HP", "Bad Breath" ];
+            DeathLinkModule.DeathLinkType[] types = Enum.GetValues<DeathLinkModule.DeathLinkType>();
+            string[] type_names = new string[types.Length];
 
-            foreach (string type in types) {
+            for (int i = 0; i < types.Length; i++) {
+                type_names[i] = DeathLinkModule.get_type_name(types[i]);
+            }
+
+            foreach (string type in type_names) {
                 if (ImGui.Selectable(type, type == deathlink_type)) {
                     deathlink_type = type;
                 }

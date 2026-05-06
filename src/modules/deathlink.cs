@@ -67,7 +67,11 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     public static string get_type() {
-        return _this.deathlink_type switch {
+        return get_type_name(_this.deathlink_type);
+    }
+
+    public static string get_type_name(DeathLinkType type) {
+        return type switch {
             DeathLinkType.DOOM_STRICT => "Doom (1 turn)",
             DeathLinkType.DOOM_LENIENT => "Doom (3 turns)",
             DeathLinkType.ONE_HP => "One HP",
@@ -175,9 +179,11 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     private void _h_MsBtlReadManage() {
+        int old_state = Globals.Battle.btl->battle_state;
+
         _MsBtlReadManage.orig_fptr();
 
-        if (Globals.Battle.btl->battle_state != 13) return;
+        if (Globals.Battle.btl->battle_state != 13 || old_state == Globals.Battle.btl->battle_state) return;
 
         // Post Battle Start
         _logger.Info("Post Battle Start");
