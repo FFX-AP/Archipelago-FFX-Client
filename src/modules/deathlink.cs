@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
@@ -15,10 +17,12 @@ namespace Fahrenheit.Modules.ArchipelagoFFX;
 [FhLoad(FhGameId.FFX)]
 public unsafe partial class DeathLinkModule : FhModule {
     public enum DeathLinkType {
-        DOOM,
+        DOOM_STRICT,
+        DOOM_LENIENT,
         ONE_HP,
         LOW_HP,
         BAD_BREATH,
+        RANDOM,
     }
 
     public static readonly Vector4 DEATHLINK_COLOR = new(0.8f, 0.05f, 0.05f, 1.0f);
@@ -31,8 +35,9 @@ public unsafe partial class DeathLinkModule : FhModule {
     private ToastModule? _toasts;
 
     private readonly Random _deathlink_message_rng = new();
+    private readonly Random _deathlink_type_rng = new();
 
-    public DeathLinkType deathlink_type = DeathLinkType.DOOM;
+    public DeathLinkType deathlink_type = DeathLinkType.DOOM_STRICT;
     private bool _deathlink_enabled;
     private uint _deathlinks_queued;
     private bool _send_deathlink_on_gameover = true;
@@ -63,20 +68,24 @@ public unsafe partial class DeathLinkModule : FhModule {
 
     public static string get_type() {
         return _this.deathlink_type switch {
-            DeathLinkType.DOOM => "Doom",
+            DeathLinkType.DOOM_STRICT => "Doom (1 turn)",
+            DeathLinkType.DOOM_LENIENT => "Doom (3 turns)",
             DeathLinkType.ONE_HP => "One HP",
             DeathLinkType.LOW_HP => "Low HP",
             DeathLinkType.BAD_BREATH => "Bad Breath",
+            DeathLinkType.RANDOM => "Random",
             _ => throw new NotImplementedException($"Unknown deathlink type: {(int)_this.deathlink_type}"),
         };
     }
 
     public static void set_type(string type) {
         _this.deathlink_type = type switch {
-            "Doom" => DeathLinkType.DOOM,
+            "Doom (1 turn)" => DeathLinkType.DOOM_STRICT,
+            "Doom (3 turns)" => DeathLinkType.DOOM_LENIENT,
             "One HP" => DeathLinkType.ONE_HP,
             "Low HP" => DeathLinkType.LOW_HP,
             "Bad Breath" => DeathLinkType.BAD_BREATH,
+            "Random" => DeathLinkType.RANDOM,
             _ => throw new NotImplementedException($"Unknown deathlink type: {type}"),
         };
     }
@@ -100,12 +109,28 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     private void _applyDeathlink() {
+        DeathLinkType type = deathlink_type;
+
+        if (type == DeathLinkType.RANDOM) {
+            DeathLinkType[] types = Enum.GetValues<DeathLinkType>();
+            if (types.Length < 2) {
+                throw new Exception("The DeathLinkType enum is missing variants.");
+            }
+
+            type = types[_deathlink_type_rng.Next(types.Length - 2)];
+        }
+
         switch (deathlink_type) {
-            case DeathLinkType.DOOM:
+            case DeathLinkType.DOOM_STRICT:
+            case DeathLinkType.DOOM_LENIENT:
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
                     Chr* chr = Globals.Battle.player_characters + chr_id;
                     chr->ram.status_suffer_extra |= StatusExtraFlags.DOOM;
-                    chr->ram.doom_counter = 1;
+                    chr->ram.doom_counter = deathlink_type switch {
+                        DeathLinkType.DOOM_STRICT => 2,
+                        DeathLinkType.DOOM_LENIENT => 4,
+                        _ => throw new NotImplementedException($"Unknown doom deathlink type: {deathlink_type}"),
+                    };
                 }
                 break;
 
@@ -333,7 +358,7 @@ public unsafe partial class DeathLinkModule : FhModule {
 
     private string _get_backup_deathlink_received_text(string source_player) {
         string message_id = "deathlink.received_backup_message." + deathlink_type switch {
-            DeathLinkType.DOOM => "doom",
+            DeathLinkType.DOOM_STRICT or DeathLinkType.DOOM_LENIENT => "doom",
             DeathLinkType.ONE_HP => "one_hp",
             DeathLinkType.LOW_HP => "low_hp",
             DeathLinkType.BAD_BREATH => "bad_breath",
