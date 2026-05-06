@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 
@@ -16,7 +17,12 @@ namespace Fahrenheit.Modules.ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe partial class DeathLinkModule : FhModule {
-    public enum DeathLinkType {
+    public enum DeathLinkSendType {
+        GameOver,
+        KO,
+    }
+
+    public enum DeathLinkReceiveType {
         DOOM_STRICT,
         DOOM_LENIENT,
         ONE_HP,
@@ -37,10 +43,11 @@ public unsafe partial class DeathLinkModule : FhModule {
     private readonly Random _deathlink_message_rng = new();
     private readonly Random _deathlink_type_rng = new();
 
-    public DeathLinkType deathlink_type = DeathLinkType.DOOM_STRICT;
+    public DeathLinkSendType deathlink_send_type = DeathLinkSendType.GameOver;
+    public DeathLinkReceiveType deathlink_receive_type = DeathLinkReceiveType.DOOM_STRICT;
     private bool _deathlink_enabled;
     private uint _deathlinks_queued;
-    private bool _send_deathlink_on_gameover = true;
+    private bool deathlink_grace = false;
 
     public DeathLinkModule() {
         _this = this;
@@ -49,8 +56,9 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         const string GAME = "FFX.exe";
 
-        _MsGetBattleEndStatus = new(this, GAME, __addr_MsGetBattleEndStatus, _h_MsGetBattleEndStatus);
         _MsBtlReadManage = new(this, GAME, __addr_MsBtlReadManage, _h_MsBtlReadManage);
+        _MsDamageCheckDeath = new(this, GAME, __addr_MsDamageCheckDeath, _h_MsDamageCheckDeath);
+        _MsGetBattleEndStatus = new(this, GAME, __addr_MsGetBattleEndStatus, _h_MsGetBattleEndStatus);
     }
 
     public static bool get_enabled() {
@@ -66,30 +74,50 @@ public unsafe partial class DeathLinkModule : FhModule {
         }
     }
 
-    public static string get_type() {
-        return get_type_name(_this.deathlink_type);
+    public static string get_send_type() {
+        return get_send_type_name(_this.deathlink_send_type);
     }
 
-    public static string get_type_name(DeathLinkType type) {
-        return type switch {
-            DeathLinkType.DOOM_STRICT => "Doom (1 turn)",
-            DeathLinkType.DOOM_LENIENT => "Doom (3 turns)",
-            DeathLinkType.ONE_HP => "One HP",
-            DeathLinkType.LOW_HP => "Low HP",
-            DeathLinkType.BAD_BREATH => "Bad Breath",
-            DeathLinkType.RANDOM => "Random",
-            _ => throw new NotImplementedException($"Unknown deathlink type: {(int)_this.deathlink_type}"),
+    public static string get_send_type_name(DeathLinkSendType send_type) {
+        return send_type switch {
+            DeathLinkSendType.GameOver => "Game Over",
+            DeathLinkSendType.KO => "KO",
+            _ => throw new NotImplementedException($"Unknown deathlink type: {(int)_this.deathlink_receive_type}"),
         };
     }
 
-    public static void set_type(string type) {
-        _this.deathlink_type = type switch {
-            "Doom (1 turn)" => DeathLinkType.DOOM_STRICT,
-            "Doom (3 turns)" => DeathLinkType.DOOM_LENIENT,
-            "One HP" => DeathLinkType.ONE_HP,
-            "Low HP" => DeathLinkType.LOW_HP,
-            "Bad Breath" => DeathLinkType.BAD_BREATH,
-            "Random" => DeathLinkType.RANDOM,
+    public static void set_send_type(string type) {
+        _this.deathlink_send_type = type switch {
+            "Game Over" => DeathLinkSendType.GameOver,
+            "KO" => DeathLinkSendType.KO,
+            _ => throw new NotImplementedException($"Unknown deathlink type: {type}"),
+        };
+    }
+
+    public static string get_receive_type() {
+        return get_receive_type_name(_this.deathlink_receive_type);
+    }
+
+    public static string get_receive_type_name(DeathLinkReceiveType receive_type) {
+        return receive_type switch {
+            DeathLinkReceiveType.DOOM_STRICT => "Doom (1 turn)",
+            DeathLinkReceiveType.DOOM_LENIENT => "Doom (3 turns)",
+            DeathLinkReceiveType.ONE_HP => "One HP",
+            DeathLinkReceiveType.LOW_HP => "Low HP",
+            DeathLinkReceiveType.BAD_BREATH => "Bad Breath",
+            DeathLinkReceiveType.RANDOM => "Random",
+            _ => throw new NotImplementedException($"Unknown deathlink type: {(int)_this.deathlink_receive_type}"),
+        };
+    }
+
+    public static void set_receive_type(string type) {
+        _this.deathlink_receive_type = type switch {
+            "Doom (1 turn)" => DeathLinkReceiveType.DOOM_STRICT,
+            "Doom (3 turns)" => DeathLinkReceiveType.DOOM_LENIENT,
+            "One HP" => DeathLinkReceiveType.ONE_HP,
+            "Low HP" => DeathLinkReceiveType.LOW_HP,
+            "Bad Breath" => DeathLinkReceiveType.BAD_BREATH,
+            "Random" => DeathLinkReceiveType.RANDOM,
             _ => throw new NotImplementedException($"Unknown deathlink type: {type}"),
         };
     }
@@ -108,51 +136,52 @@ public unsafe partial class DeathLinkModule : FhModule {
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return _toasts_handle.try_get_module(out _toasts)
-            && _MsGetBattleEndStatus.hook()
-            && _MsBtlReadManage.hook();
+            && _MsBtlReadManage.hook()
+            && _MsDamageCheckDeath.hook()
+            && _MsGetBattleEndStatus.hook();
     }
 
     private void _applyDeathlink() {
-        DeathLinkType type = deathlink_type;
+        DeathLinkReceiveType receive_type = deathlink_receive_type;
 
-        if (type == DeathLinkType.RANDOM) {
-            DeathLinkType[] types = Enum.GetValues<DeathLinkType>();
+        if (receive_type == DeathLinkReceiveType.RANDOM) {
+            DeathLinkReceiveType[] types = Enum.GetValues<DeathLinkReceiveType>();
             if (types.Length < 2) {
                 throw new Exception("The DeathLinkType enum is missing variants.");
             }
 
-            type = types[_deathlink_type_rng.Next(types.Length - 2)];
+            receive_type = types[_deathlink_type_rng.Next(types.Length - 2)];
         }
 
-        switch (deathlink_type) {
-            case DeathLinkType.DOOM_STRICT:
-            case DeathLinkType.DOOM_LENIENT:
+        switch (receive_type) {
+            case DeathLinkReceiveType.DOOM_STRICT:
+            case DeathLinkReceiveType.DOOM_LENIENT:
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
                     Chr* chr = Globals.Battle.player_characters + chr_id;
                     chr->ram.status_suffer_extra |= StatusExtraFlags.DOOM;
-                    chr->ram.doom_counter = deathlink_type switch {
-                        DeathLinkType.DOOM_STRICT => 2,
-                        DeathLinkType.DOOM_LENIENT => 4,
-                        _ => throw new NotImplementedException($"Unknown doom deathlink type: {deathlink_type}"),
+                    chr->ram.doom_counter = deathlink_receive_type switch {
+                        DeathLinkReceiveType.DOOM_STRICT => 2,
+                        DeathLinkReceiveType.DOOM_LENIENT => 4,
+                        _ => throw new NotImplementedException($"Unknown doom deathlink type: {deathlink_receive_type}"),
                     };
                 }
                 break;
 
-            case DeathLinkType.ONE_HP:
+            case DeathLinkReceiveType.ONE_HP:
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
                     Chr* chr = Globals.Battle.player_characters + chr_id;
                     chr->ram.hp = 1;
                 }
                 break;
 
-            case DeathLinkType.LOW_HP:
+            case DeathLinkReceiveType.LOW_HP:
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
                     Chr* chr = Globals.Battle.player_characters + chr_id;
                     chr->ram.hp = Math.Min(chr->ram.hp, chr->ram.max_hp / 2 - ((chr->ram.max_hp % 2) ^ 1));
                 }
                 break;
 
-            case DeathLinkType.BAD_BREATH:
+            case DeathLinkReceiveType.BAD_BREATH:
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
                     Chr* chr = Globals.Battle.player_characters + chr_id;
 
@@ -172,10 +201,10 @@ public unsafe partial class DeathLinkModule : FhModule {
                 break;
 
             default:
-                throw new NotImplementedException($"Unknown deathlink type: {(int)deathlink_type}");
+                throw new NotImplementedException($"Unknown deathlink type: {(int)deathlink_receive_type}");
         }
 
-        _send_deathlink_on_gameover = false;
+        deathlink_grace = true;
     }
 
     private void _h_MsBtlReadManage() {
@@ -188,7 +217,7 @@ public unsafe partial class DeathLinkModule : FhModule {
         // Post Battle Start
         _logger.Info("Post Battle Start");
 
-        _send_deathlink_on_gameover = true;
+        deathlink_grace = false;
 
         _logger.Info($"  Memory initialized? {Globals.Battle.player_characters != null}");
 
@@ -214,12 +243,48 @@ public unsafe partial class DeathLinkModule : FhModule {
         _logger.Info("  Done!");
     }
 
+    private int _h_MsDamageCheckDeath(int attacker_id, int target_id, int p3, int targetting_self) {
+        int result = _MsDamageCheckDeath.orig_fptr(attacker_id, target_id, p3, targetting_self);
+
+        if (result == 0 || target_id > PlySaveId.PC_MAGUS3) {
+            return result;
+        }
+
+        _logger.Info("Post KO");
+
+        if (deathlink_send_type != DeathLinkSendType.KO || deathlink_grace) {
+            return result;
+        }
+
+        _logger.Info("  Sending deathlink...");
+
+        string player = FFXArchipelagoClient.active_player?.Alias ?? "Someone";
+
+        Chr* target = _MsGetChr(target_id);
+        byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(target->ram.name, null, null, FhEncodingFlags.IMPLICIT_END)];
+        FhEncoding.decode(target->ram.name, decoded, null, null, FhEncodingFlags.IMPLICIT_END);
+        string target_name = Encoding.UTF8.GetString(decoded);
+
+        string message = _get_deathlink_send_text($"{player}'s {target_name}");
+
+        FFXArchipelagoClient.death_link?.SendDeathLink(new(player, message));
+
+        ToastModule.Toast deathlink_toast = new(
+            [
+                new(DEATHLINK_COLOR, "Deathlink sent!"),
+            ],
+            [
+                new(new(1f), message),
+            ]
+        );
+
+        _toasts!.queue_toast(deathlink_toast);
+
+        return result;
+    }
+
     private uint _h_MsGetBattleEndStatus() {
         uint battle_end_type = _MsGetBattleEndStatus.orig_fptr();
-
-        if (!_send_deathlink_on_gameover) {
-            return battle_end_type;
-        }
 
         if (battle_end_type != 1 || Globals.Battle.btl->battle_state != 0x17) {
             return battle_end_type;
@@ -227,7 +292,11 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         _logger.Info("Post Game Over");
 
-        _logger.Info("  Sending death link...");
+        if (deathlink_send_type != DeathLinkSendType.GameOver || deathlink_grace) {
+            return battle_end_type;
+        }
+
+        _logger.Info("  Sending deathlink...");
 
         string player = FFXArchipelagoClient.active_player?.Alias ?? "Someone";
         string message = _get_deathlink_send_text(player);
@@ -362,12 +431,12 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     private string _get_backup_deathlink_received_text(string source_player) {
-        string message_id = "deathlink.received_backup_message." + deathlink_type switch {
-            DeathLinkType.DOOM_STRICT or DeathLinkType.DOOM_LENIENT => "doom",
-            DeathLinkType.ONE_HP => "one_hp",
-            DeathLinkType.LOW_HP => "low_hp",
-            DeathLinkType.BAD_BREATH => "bad_breath",
-            DeathLinkType.RANDOM => "random",
+        string message_id = "deathlink.received_backup_message." + deathlink_receive_type switch {
+            DeathLinkReceiveType.DOOM_STRICT or DeathLinkReceiveType.DOOM_LENIENT => "doom",
+            DeathLinkReceiveType.ONE_HP => "one_hp",
+            DeathLinkReceiveType.LOW_HP => "low_hp",
+            DeathLinkReceiveType.BAD_BREATH => "bad_breath",
+            DeathLinkReceiveType.RANDOM => "random",
             _ => "generic",
         };
 

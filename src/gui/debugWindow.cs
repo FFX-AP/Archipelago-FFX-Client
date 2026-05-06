@@ -1087,12 +1087,11 @@ public unsafe static class ArchipelagoGUI {
         ImGui.SeparatorText("Save-Local Settings");
         ImGui.Indent();
 
-        //TODO: Fix this condition to only pass when in-game
-        //if (selected_seed == 0) {
-        //    ImGui.Text("Please load a save to display these settings.");
-        //    ImGui.Unindent();
-        //    return;
-        //}
+        if (ArchipelagoFFXModule.seed.Options.SeedId is null) {
+            ImGui.Text("Please load a save to display these settings.");
+            ImGui.Unindent();
+            return;
+        }
 
         bool deathlink = DeathLinkModule.get_enabled();
         ImGui.Checkbox("Enable Deathlink", ref deathlink);
@@ -1100,24 +1099,43 @@ public unsafe static class ArchipelagoGUI {
 
         ImGui.Text($"Deathlinks Queued: {DeathLinkModule.get_deathlinks_queued()}");
 
-        string deathlink_type = DeathLinkModule.get_type();
-        if (ImGui.BeginCombo("Deathlink Type", deathlink_type)) {
-            DeathLinkModule.DeathLinkType[] types = Enum.GetValues<DeathLinkModule.DeathLinkType>();
+        string deathlink_send_type = DeathLinkModule.get_send_type();
+        if (ImGui.BeginCombo("Deathlink Send Type", deathlink_send_type)) {
+            DeathLinkModule.DeathLinkSendType[] types = Enum.GetValues<DeathLinkModule.DeathLinkSendType>();
             string[] type_names = new string[types.Length];
 
             for (int i = 0; i < types.Length; i++) {
-                type_names[i] = DeathLinkModule.get_type_name(types[i]);
+                type_names[i] = DeathLinkModule.get_send_type_name(types[i]);
             }
 
             foreach (string type in type_names) {
-                if (ImGui.Selectable(type, type == deathlink_type)) {
-                    deathlink_type = type;
+                if (ImGui.Selectable(type, type == deathlink_send_type)) {
+                    deathlink_send_type = type;
                 }
             }
 
             ImGui.EndCombo();
         }
-        DeathLinkModule.set_type(deathlink_type);
+        DeathLinkModule.set_send_type(deathlink_send_type);
+
+        string deathlink_receive_type = DeathLinkModule.get_receive_type();
+        if (ImGui.BeginCombo("Deathlink Receive Type", deathlink_receive_type)) {
+            DeathLinkModule.DeathLinkReceiveType[] types = Enum.GetValues<DeathLinkModule.DeathLinkReceiveType>();
+            string[] type_names = new string[types.Length];
+
+            for (int i = 0; i < types.Length; i++) {
+                type_names[i] = DeathLinkModule.get_receive_type_name(types[i]);
+            }
+
+            foreach (string type in type_names) {
+                if (ImGui.Selectable(type, type == deathlink_receive_type)) {
+                    deathlink_receive_type = type;
+                }
+            }
+
+            ImGui.EndCombo();
+        }
+        DeathLinkModule.set_receive_type(deathlink_receive_type);
 
 #if DEBUG
         if (ImGui.Button("Receive Debug Deathlink")) {
