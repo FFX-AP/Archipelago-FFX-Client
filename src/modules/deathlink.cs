@@ -365,6 +365,7 @@ public unsafe partial class DeathLinkModule : FhModule {
             DeathLinkType.ONE_HP => "one_hp",
             DeathLinkType.LOW_HP => "low_hp",
             DeathLinkType.BAD_BREATH => "bad_breath",
+            DeathLinkType.RANDOM => "random",
             _ => "generic",
         };
 
