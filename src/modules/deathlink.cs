@@ -25,7 +25,7 @@ public unsafe partial class DeathLinkModule : FhModule {
         RANDOM,
     }
 
-    public static readonly Vector4 DEATHLINK_COLOR = new(0.8f, 0.05f, 0.05f, 1.0f);
+    public static readonly Vector4 DEATHLINK_COLOR = new(1.0f, 0.18f, 0.21f, 1.0f);
 
     // This is annoying but necessary for now because `FFXArchipelagoClient` wants everything to be static
     //TODO: Remove this once it's no longer necessary
