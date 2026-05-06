@@ -49,8 +49,8 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         const string GAME = "FFX.exe";
 
-        _MsBattleExe = new(this, GAME, delegates.__addr_MsBattleExe, _h_MsBattleExe);
         _MsGetBattleEndStatus = new(this, GAME, __addr_MsGetBattleEndStatus, _h_MsGetBattleEndStatus);
+        _MsBtlReadManage = new(this, GAME, __addr_MsBtlReadManage, _h_MsBtlReadManage);
     }
 
     public static bool get_enabled() {
@@ -104,8 +104,8 @@ public unsafe partial class DeathLinkModule : FhModule {
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return _toasts_handle.try_get_module(out _toasts)
-            && _MsBattleExe.hook()
-            && _MsGetBattleEndStatus.hook();
+            && _MsGetBattleEndStatus.hook()
+            && _MsBtlReadManage.hook();
     }
 
     private void _applyDeathlink() {
@@ -170,49 +170,52 @@ public unsafe partial class DeathLinkModule : FhModule {
             default:
                 throw new NotImplementedException($"Unknown deathlink type: {(int)deathlink_type}");
         }
+
+        _send_deathlink_on_gameover = false;
     }
 
-    private void _h_MsBattleExe(uint p1, int field_idx, int group_idx, int formation_idx) {
-        _MsBattleExe.orig_fptr(p1, field_idx, group_idx, formation_idx);
+    private void _h_MsBtlReadManage() {
+        _MsBtlReadManage.orig_fptr();
 
-        // Post Battle Start
-        _logger.Info("Post Battle Start");
+        if (Globals.Battle.btl->battle_state == 13) {
+            // Post Battle Start
+            _logger.Info("Post Battle Start");
 
-        _logger.Info($"  Memory initialized? {Globals.Battle.player_characters != null}");
+            _send_deathlink_on_gameover = true;
 
-        if (Globals.Battle.player_characters == null) return;
+            _logger.Info($"  Memory initialized? {Globals.Battle.player_characters != null}");
 
-        _logger.Info($"  Tidus HP? {Globals.Battle.player_characters->ram.hp}");
+            if (Globals.Battle.player_characters == null) return;
 
-        if (!_deathlink_enabled || _deathlinks_queued == 0) return;
+            _logger.Info($"  Tidus HP? {Globals.Battle.player_characters->ram.hp}");
 
-        _logger.Info("  Applying death link...");
+            if (!_deathlink_enabled || _deathlinks_queued == 0) return;
 
-        _applyDeathlink();
+            _logger.Info("  Applying death link...");
 
-        _logger.Info($"  Tidus HP? {Globals.Battle.player_characters->ram.hp}");
+            _applyDeathlink();
 
-        //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
+            _logger.Info($"  Tidus HP? {Globals.Battle.player_characters->ram.hp}");
 
-        _logger.Info("  Disabling Escape and Flee...");
+            //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
 
-        for (int chr_id = 0; chr_id <= PlySaveId.PC_SEYMOUR; chr_id++) {
-            _set_command_disabled(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
-            _set_command_disabled(chr_id, PlayerCommandId.PCOM_FLEE, 1);
+            _logger.Info("  Disabling Escape and Flee...");
+
+            for (int chr_id = 0; chr_id <= PlySaveId.PC_SEYMOUR; chr_id++) {
+                _set_command_disabled(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
+                _set_command_disabled(chr_id, PlayerCommandId.PCOM_FLEE, 1);
+            }
+
+            _deathlinks_queued -= 1;
+
+            _logger.Info("  Done!");
         }
-
-        _deathlinks_queued -= 1;
-        _send_deathlink_on_gameover = false;
-
-        _logger.Info("  Done!");
     }
 
     private uint _h_MsGetBattleEndStatus() {
         uint battle_end_type = _MsGetBattleEndStatus.orig_fptr();
 
         if (!_send_deathlink_on_gameover) {
-            _send_deathlink_on_gameover = true;
-
             return battle_end_type;
         }
 
