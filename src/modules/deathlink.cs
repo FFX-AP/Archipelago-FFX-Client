@@ -187,15 +187,11 @@ public unsafe partial class DeathLinkModule : FhModule {
 
             if (Globals.Battle.player_characters == null) return;
 
-            _logger.Info($"  Tidus HP? {Globals.Battle.player_characters->ram.hp}");
-
             if (!_deathlink_enabled || _deathlinks_queued == 0) return;
 
             _logger.Info("  Applying death link...");
 
             _applyDeathlink();
-
-            _logger.Info($"  Tidus HP? {Globals.Battle.player_characters->ram.hp}");
 
             //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
 
