@@ -177,35 +177,35 @@ public unsafe partial class DeathLinkModule : FhModule {
     private void _h_MsBtlReadManage() {
         _MsBtlReadManage.orig_fptr();
 
-        if (Globals.Battle.btl->battle_state == 13) {
-            // Post Battle Start
-            _logger.Info("Post Battle Start");
+        if (Globals.Battle.btl->battle_state != 13) return;
 
-            _send_deathlink_on_gameover = true;
+        // Post Battle Start
+        _logger.Info("Post Battle Start");
 
-            _logger.Info($"  Memory initialized? {Globals.Battle.player_characters != null}");
+        _send_deathlink_on_gameover = true;
 
-            if (Globals.Battle.player_characters == null) return;
+        _logger.Info($"  Memory initialized? {Globals.Battle.player_characters != null}");
 
-            if (!_deathlink_enabled || _deathlinks_queued == 0) return;
+        if (Globals.Battle.player_characters == null) return;
 
-            _logger.Info("  Applying death link...");
+        if (!_deathlink_enabled || _deathlinks_queued == 0) return;
 
-            _applyDeathlink();
+        _logger.Info("  Applying death link...");
 
-            //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
+        _applyDeathlink();
 
-            _logger.Info("  Disabling Escape and Flee...");
+        //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
 
-            for (int chr_id = 0; chr_id <= PlySaveId.PC_SEYMOUR; chr_id++) {
-                _set_command_disabled(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
-                _set_command_disabled(chr_id, PlayerCommandId.PCOM_FLEE, 1);
-            }
+        _logger.Info("  Disabling Escape and Flee...");
 
-            _deathlinks_queued -= 1;
-
-            _logger.Info("  Done!");
+        for (int chr_id = 0; chr_id <= PlySaveId.PC_SEYMOUR; chr_id++) {
+            _set_command_disabled(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
+            _set_command_disabled(chr_id, PlayerCommandId.PCOM_FLEE, 1);
         }
+
+        _deathlinks_queued -= 1;
+
+        _logger.Info("  Done!");
     }
 
     private uint _h_MsGetBattleEndStatus() {
