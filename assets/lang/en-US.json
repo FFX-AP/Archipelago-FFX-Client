@@ -151,8 +151,8 @@
   "deathlink.sent_message.dark_mindy": "{0} faced calamity.",
   "deathlink.sent_message.dark_cindy": "{0} was flattened.",
 
-  "deathlink.sent_message.generic.0": "{0} died.",
-  "deathlink.sent_message.generic.1": "{0} perished.",
+  "deathlink.sent_message.generic.0": "{0} visited the Farplane.",
+  "deathlink.sent_message.generic.1": "{0} made Yuna dance.",
   "deathlink.sent_message.generic.2": "{0} should've thought ahead.",
   "deathlink.sent_message.generic.3": "{0} didn't see it coming.",
   "deathlink.sent_message.generic.4": "{0} ran out of backup plans.",
