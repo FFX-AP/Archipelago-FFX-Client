@@ -17,6 +17,7 @@ using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 using Color = Archipelago.MultiClient.Net.Models.Color;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX.GUI;
+
 public unsafe static class ArchipelagoGUI {
     public delegate void OnRenderDelegate();
 
@@ -192,7 +193,18 @@ public unsafe static class ArchipelagoGUI {
             float frameHeight = ImGui.GetFrameHeight();
             Vector2 windowPos = ImGui.GetWindowPos();
             float windowBorderSize = ImGui.GetStyle().WindowBorderSize;
-            if (shiori_image != null) ImGui.GetForegroundDrawList().AddImage(shiori_image.TextureRef, windowPos + new Vector2(windowBorderSize), new(windowPos.X + frameHeight - windowBorderSize, windowPos.Y + frameHeight - windowBorderSize));
+            //if (shiori_image != null) ImGui.GetForegroundDrawList().AddImage(shiori_image.TextureRef, windowPos + new Vector2(windowBorderSize), new(windowPos.X + frameHeight - windowBorderSize, windowPos.Y + frameHeight - windowBorderSize));
+            if (shiori_image?.try_use(out ImTextureRef texture_ref, out _) ?? false) {
+                ImGui.GetForegroundDrawList()
+                     .AddImage(
+                          texture_ref,
+                          windowPos + new Vector2(windowBorderSize),
+                          new(
+                              windowPos.X + frameHeight - windowBorderSize,
+                              windowPos.Y + frameHeight - windowBorderSize
+                          )
+                      );
+            }
 
             //Span<byte> tidus_name = new Span<byte>(Globals.save_data->character_names[0].raw, 20);
             //byte[] tidus_decoded = new byte[FhEncoding.compute_decode_buffer_size(tidus_name)];
@@ -210,9 +222,9 @@ public unsafe static class ArchipelagoGUI {
                 soundtrack_callback(save_data->soundtrack_type ? 1 : 0);
             }
 
-            ImGui.InputScalarN("frontline? (0x1FC5)", ImGuiDataType.U8, Globals.Battle.btl->__0x1FC5,  7);
-            ImGui.InputScalarN("frontline? (0x1FCC)", ImGuiDataType.U8, Globals.Battle.btl->__0x1FCC,  7);
-            ImGui.InputScalarN("backline? (0x1FD3)" , ImGuiDataType.U8, Globals.Battle.btl->__0x1FD3, 17);
+            ImGui.InputScalarN("frontline? (0x1FC5)", ImGuiDataType.U8, Globals.Battle.btl->__0x1FC5, 7);
+            ImGui.InputScalarN("frontline? (0x1FCC)", ImGuiDataType.U8, Globals.Battle.btl->__0x1FCC, 7);
+            ImGui.InputScalarN("backline? (0x1FD3)", ImGuiDataType.U8, Globals.Battle.btl->__0x1FD3, 17);
 
 
 
@@ -501,7 +513,7 @@ public unsafe static class ArchipelagoGUI {
             float shortestDistance = 20;
             for (int i = 0; i < 1024; i++) {
                 float distance = (new Vector2(Globals.SphereGrid.lpamng->nodes[i].x, Globals.SphereGrid.lpamng->nodes[i].y) - truePos).Length();
-                if (distance < shortestDistance){
+                if (distance < shortestDistance) {
                     closestNodeIndex = i;
                     shortestDistance = distance;
                 }
@@ -600,7 +612,7 @@ public unsafe static class ArchipelagoGUI {
             ImGui.Text($"Clicked node: {clickedNodeIndex}, pos: ({clickedNode->x}, {clickedNode->y}), type: {(NodeType)clickedNode->node_type}");
             NodeType[] typeArray = Enum.GetValues<NodeType>();
             if (ImGui.BeginListBox("Node type")) {
-                for (int i = 0; i < typeArray.Length-1; i++) {
+                for (int i = 0; i < typeArray.Length - 1; i++) {
                     bool is_selected = (typeArray[i] == clickedNode->node_type);
                     if (ImGui.Selectable($"{typeArray[i]}")) {
                         clickedNode->node_type = typeArray[i];
@@ -650,8 +662,7 @@ public unsafe static class ArchipelagoGUI {
                 _ = FFXArchipelagoClient.Connect(client_input_address, client_input_name, client_input_password);
                 //FFXArchipelagoClient.Connect(client_input_address, client_input_name, client_input_password);
             }
-        }
-        else {
+        } else {
             ImGui.Text($"Connected as {FFXArchipelagoClient.active_player?.Name}");
             if (ImGui.Button("Disconnect")) {
                 FFXArchipelagoClient.disconnect();
@@ -714,8 +725,7 @@ public unsafe static class ArchipelagoGUI {
                                 ImGui.SameLine();
                                 ImGui.TextUnformatted(word);
                                 remaining_width -= word_width;
-                            }
-                            else {
+                            } else {
                                 ImGui.TextUnformatted(word);
                                 remaining_width = wrap_width - word_width;
                             }
@@ -732,8 +742,7 @@ public unsafe static class ArchipelagoGUI {
             if (client_log_updated) {
                 ImGui.SetScrollHereY();
                 client_log_updated = false;
-            }
-            else {
+            } else {
                 //ImGui.SetScrollY(curr_scroll * ImGui.GetScrollMaxY());
             }
             //ImGui.TextWrapped(string.Join("\n", client_log));
@@ -762,8 +771,7 @@ public unsafe static class ArchipelagoGUI {
             if (!client_input_command.StartsWith("/")) {
                 // Say
                 FFXArchipelagoClient.SayAsync(client_input_command);
-            }
-            else {
+            } else {
                 // Client-side command
                 string[] cmd = client_input_command.Split(" ");
 
@@ -956,8 +964,7 @@ public unsafe static class ArchipelagoGUI {
 
         if (Globals.Battle.btl->battle_state != 0) {
             ImGui.Text($"Battle Name: {Marshal.PtrToStringAnsi((nint)FhUtil.ptr_at<char>(0xD2C25A))}");
-        }
-        else {
+        } else {
 #if DEBUG
             fixed (uint* battle_input = &LaunchBattleInput) {
                 uint p_step = 1;
@@ -1041,7 +1048,7 @@ public unsafe static class ArchipelagoGUI {
                 ImGui.Text($"{id_to_character[character.Key]}");
                 // Strikethrough if locked
                 Vector2 text_size = ImGui.CalcTextSize($"{id_to_character[character.Key]}");
-                if (locked_characters[character.Key]) ImGui.AddLine(ImGui.GetWindowDrawList(), text_start + new Vector2(0, text_size.Y*0.75f), text_start + new Vector2(text_size.X, text_size.Y*0.75f), ImGui.GetColorU32(ImGuiCol.Text));
+                if (locked_characters[character.Key]) ImGui.AddLine(ImGui.GetWindowDrawList(), text_start + new Vector2(0, text_size.Y * 0.75f), text_start + new Vector2(text_size.X, text_size.Y * 0.75f), ImGui.GetColorU32(ImGuiCol.Text));
                 ImGui.PopStyleColor();
             }
             ImGui.EndTable();
@@ -1091,8 +1098,16 @@ public unsafe static class ArchipelagoGUI {
         ImGuiStylePtr style = ImGui.GetStyle();
 
         if (ImGui.Begin("Archipelago###Archipelago.GUI")) {
-            if (shiori_image != null || (shiori_file != null && FhApi.Resources.load_png_from_disk(shiori_file.FullName, out shiori_image))) {
-                ImGui.GetWindowDrawList().AddImage(shiori_image.TextureRef, ImGui.GetWindowPos(), ImGui.GetWindowPos() + ImGui.GetWindowSize(), 0x55555555);
+            if (shiori_file != null) {
+                if (shiori_image == null) {
+                    shiori_image = new(shiori_file!.FullName, FhTextureType.PNG);
+                }
+
+                FhApi.Resources.load_texture_from_disk(shiori_image);
+
+                if (shiori_image.try_use(out ImTextureRef texture_ref, out _)) {
+                    ImGui.GetWindowDrawList().AddImage(texture_ref, ImGui.GetWindowPos(), ImGui.GetWindowPos() + ImGui.GetWindowSize(), 0x55555555);
+                }
             }
             if (ImGui.BeginTabBar("TabBar###Archipelago.GUI.TabBar")) {
                 if (ImGui.BeginTabItem("Main###Archipelago.GUI.TabBar.Main")) {
@@ -1115,8 +1130,7 @@ public unsafe static class ArchipelagoGUI {
                     ImGui.SeparatorText("Other");
                     if (other_inventory.Count == 0) {
                         ImGui.Text("Empty");
-                    }
-                    else {
+                    } else {
                         foreach ((uint item_id, int amount) in other_inventory) {
                             string item_name = get_other_item_name(item_id);
                             ImGui.Text($"{item_name}: {amount}");
