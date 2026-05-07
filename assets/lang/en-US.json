@@ -65,8 +65,7 @@
 
 
   "deathlink.received_backup_message.doom": "{0}'s death dooms you.",
-  "deathlink.received_backup_message.one_hp": "You feel inclined to follow in {0}'s footsteps.",
-  "deathlink.received_backup_message.low_hp": "{0}'s death pains you.",
+  "deathlink.received_backup_message.grave_hp": "You feel inclined to follow in {0}'s footsteps.",
   "deathlink.received_backup_message.bad_breath": "{0}'s death leaves a bad taste in your mouth.",
   "deathlink.received_backup_message.random": "{0}'s death twists your fate.",
   "deathlink.received_backup_message.generic": "You are touched by {0}'s death.",
