@@ -1,8 +1,6 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -37,6 +35,8 @@ public unsafe partial class DeathLinkModule : FhModule {
     //TODO: Remove this once it's no longer necessary
     private static DeathLinkModule _this;
 
+    private static ArchipelagoFFXModule.NativeCustomString _deathlink_announcement;
+
     private readonly FhModuleHandle<ToastModule> _toasts_handle;
     private ToastModule? _toasts;
 
@@ -51,6 +51,8 @@ public unsafe partial class DeathLinkModule : FhModule {
 
     public DeathLinkModule() {
         _this = this;
+
+        _deathlink_announcement = new("Deathlink!");
 
         _toasts_handle = new(this);
 
@@ -230,6 +232,7 @@ public unsafe partial class DeathLinkModule : FhModule {
         _applyDeathlink();
 
         //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
+        _MsMessageCueRegist(MessageCueType.FH_CUSTOM, (int)_deathlink_announcement.encoded, 0, 27, 35);
 
         _logger.Info("  Disabling Escape and Flee...");
 

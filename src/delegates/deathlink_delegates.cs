@@ -27,6 +27,10 @@ public unsafe partial class DeathLinkModule {
     public delegate int MsDamageCheckDeath(int attacker_id, int target_id, int p3, int targetting_self);
     public const nint __addr_MsDamageCheckDeath = 0x38c800;
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate int MsMessageCueRegist(MessageCueType type, int arg1, int arg2, byte p4, byte p5);
+    public const nint __addr_MsMessageCueRegist = 0x39cff0;
+
     // Method Handles
     private FhMethodHandle<MsGetBattleEndStatus> _MsGetBattleEndStatus;
     private FhMethodHandle<MsBtlReadManage> _MsBtlReadManage;
@@ -35,4 +39,5 @@ public unsafe partial class DeathLinkModule {
     // Function library
     private FUN_0079b480 _set_command_disabled = FhUtil.get_fptr<FUN_0079b480>(__addr_FUN_0079b480);
     private MsGetChr _MsGetChr = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
+    private MsMessageCueRegist _MsMessageCueRegist = FhUtil.get_fptr<MsMessageCueRegist>(__addr_MsMessageCueRegist);
 }
