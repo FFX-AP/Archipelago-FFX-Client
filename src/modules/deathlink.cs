@@ -170,7 +170,7 @@ public unsafe partial class DeathLinkModule : FhModule {
             case DeathLinkReceiveType.GRAVE_HP:
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
                     Chr* chr = Globals.Battle.player_characters + chr_id;
-                    chr->ram.hp = Math.Min(_deathlink_grave_hp_rng.Next(1, 10), chr->ram.max_hp);
+                    chr->ram.hp = Math.Min(_deathlink_grave_hp_rng.Next(1, 10), Math.Min(chr->ram.hp, chr->ram.max_hp));
                 }
                 break;
 
