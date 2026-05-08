@@ -1187,16 +1187,26 @@ public unsafe partial class ArchipelagoFFXModule {
             AtelOp.PUSHII  .build(0x0022),
             AtelOp.CALL    .build(0x023C),
 
+            // else jump to jAD8 (DCED)
+            AtelOp.LAND    .build(),
+            AtelOp.LAND    .build(),
+            AtelOp.POPXNCJMP.build(0x0AD8),
+
             // Custom.isGoalUnlocked
             AtelOp.CALL .build((ushort)CustomCallTarget.IS_GOAL_UNLOCKED),
 
-            // then jump to jAD7 (D7B3)
-            AtelOp.LAND    .build(),
-            AtelOp.LAND    .build(),
-            AtelOp.LAND    .build(),
+            // if Custom.isGoalUnlocked() jump to jAD7 (D7B3)
             AtelOp.POPXCJMP.build(0x0AD7),
 
-            // else jump to jAD8 (DCED)
+            // display customStrings[2]
+            .. atelDisplayFieldString(1, 0x8002, 256, 224, 4, 0, 0),
+
+            // call Common.waitForText [0084h](boxIndex=1 [01h], p2=1 [01h]);
+            AtelOp.PUSHII  .build(0x0001),
+            AtelOp.PUSHII  .build(0x0001),
+            AtelOp.CALLPOPA.build(0x0084),
+
+            // jump to jAD8 (DCED)
             AtelOp.JMP     .build(0x0AD8),
 
         ]).SelectMany(x => x.to_bytes()).ToArray(),
