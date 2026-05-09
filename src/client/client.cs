@@ -84,6 +84,7 @@ public static class FFXArchipelagoClient {
         current_server = server;
         current_session = session;
         death_link = current_session.CreateDeathLinkService();
+        death_link.OnDeathLinkReceived += DeathLinkModule.post_deathlink;
     }
 
     public static void disconnect(ArchipelagoSession? session = null) {
@@ -105,7 +106,6 @@ public static class FFXArchipelagoClient {
         session.Locations.CheckedLocationsUpdated += Locations_CheckedLocationsUpdated;
 
         session.MessageLog.OnMessageReceived += RecentItemsModule.post_item_message;
-        death_link?.OnDeathLinkReceived += DeathLinkModule.post_deathlink;
     }
 
     private static void Locations_CheckedLocationsUpdated(System.Collections.ObjectModel.ReadOnlyCollection<long> newCheckedLocations) {
