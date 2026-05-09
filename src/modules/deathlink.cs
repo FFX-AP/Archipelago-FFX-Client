@@ -74,6 +74,12 @@ public unsafe partial class DeathLinkModule : FhModule {
             // Clear remaining deathlinks
             _this._deathlinks_queued = 0;
         }
+
+        if (_this._deathlink_enabled) {
+            FFXArchipelagoClient.death_link?.EnableDeathLink();
+        } else {
+            FFXArchipelagoClient.death_link?.DisableDeathLink();
+        }
     }
 
     public static string get_send_type() {
