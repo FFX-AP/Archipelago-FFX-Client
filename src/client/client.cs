@@ -168,17 +168,21 @@ public static class FFXArchipelagoClient {
                     ArchipelagoFFXModule.logger.Debug($"Sent: {string.Join(",", local_only)}");
                 }
                 local_locations_updated = false;
-                
-                if (current_session.DataStorage.GetClientStatus() != ArchipelagoClientState.ClientGoal) {
-                    bool has_goaled = ArchipelagoFFXModule.seed.Options.Goal switch {
-                        ArchipelagoData.Goal.YuYevon => local_checked_locations.Contains(42 | (long)ArchipelagoLocationType.Boss),
-                        ArchipelagoData.Goal.Nemesis => local_checked_locations.Contains(83 | (long)ArchipelagoLocationType.Boss),
-                        _ => false,
-                    };
-                    if (has_goaled) {
-                        current_session.SetGoalAchieved();
+
+                current_session.DataStorage.GetClientStatusAsync().ContinueWith(status => {
+                    lock (client_lock) {
+                        if (status.Result != ArchipelagoClientState.ClientGoal) {
+                            bool has_goaled = ArchipelagoFFXModule.seed.Options.Goal switch {
+                                ArchipelagoData.Goal.YuYevon => local_checked_locations.Contains(42 | (long)ArchipelagoLocationType.Boss),
+                                ArchipelagoData.Goal.Nemesis => local_checked_locations.Contains(83 | (long)ArchipelagoLocationType.Boss),
+                                _ => false,
+                            };
+                            if (has_goaled) {
+                                current_session.SetGoalAchieved();
+                            }
+                        }
                     }
-                }
+                });
             }
 
             if (remote_locations_updated) {
