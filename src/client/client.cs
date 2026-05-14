@@ -171,7 +171,7 @@ public static class FFXArchipelagoClient {
 
                 current_session.DataStorage.GetClientStatusAsync().ContinueWith(status => {
                     lock (client_lock) {
-                        if (status.Result != ArchipelagoClientState.ClientGoal) {
+                        if (status.Result != ArchipelagoClientState.ClientGoal && is_connected) {
                             bool has_goaled = ArchipelagoFFXModule.seed.Options.Goal switch {
                                 ArchipelagoData.Goal.YuYevon => local_checked_locations.Contains(42 | (long)ArchipelagoLocationType.Boss),
                                 ArchipelagoData.Goal.Nemesis => local_checked_locations.Contains(83 | (long)ArchipelagoLocationType.Boss),
