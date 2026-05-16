@@ -252,7 +252,7 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         _logger.Info("Post KO");
 
-        if (deathlink_send_type != DeathLinkSendType.KO || deathlink_grace) {
+        if (!_deathlink_enabled || deathlink_send_type != DeathLinkSendType.KO || deathlink_grace) {
             return result;
         }
 
@@ -286,7 +286,7 @@ public unsafe partial class DeathLinkModule : FhModule {
     private uint _h_MsGetBattleEndStatus() {
         uint battle_end_type = _MsGetBattleEndStatus.orig_fptr();
 
-        if (battle_end_type != 1 || Globals.Battle.btl->battle_state != 0x17) {
+        if (!_deathlink_enabled || battle_end_type != 1 || Globals.Battle.btl->battle_state != 0x17) {
             return battle_end_type;
         }
 
