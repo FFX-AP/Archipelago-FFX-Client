@@ -1108,16 +1108,10 @@ public unsafe static class ArchipelagoGUI {
 
         string deathlink_send_type = DeathLinkModule.get_send_type();
         if (ImGui.BeginCombo("Deathlink Send Type", deathlink_send_type)) {
-            DeathLinkModule.DeathLinkSendType[] types = Enum.GetValues<DeathLinkModule.DeathLinkSendType>();
-            string[] type_names = new string[types.Length];
-
-            for (int i = 0; i < types.Length; i++) {
-                type_names[i] = DeathLinkModule.get_send_type_name(types[i]);
-            }
-
-            foreach (string type in type_names) {
-                if (ImGui.Selectable(type, type == deathlink_send_type)) {
-                    deathlink_send_type = type;
+            foreach (DeathLinkModule.DeathLinkSendType type in Enum.GetValues<DeathLinkModule.DeathLinkSendType>()) {
+                string type_name = DeathLinkModule.get_send_type_name(type);
+                if (ImGui.Selectable(type_name, type_name == deathlink_send_type)) {
+                    deathlink_send_type = type_name;
                 }
             }
 
@@ -1127,16 +1121,10 @@ public unsafe static class ArchipelagoGUI {
 
         string deathlink_receive_type = DeathLinkModule.get_receive_type();
         if (ImGui.BeginCombo("Deathlink Receive Type", deathlink_receive_type)) {
-            DeathLinkModule.DeathLinkReceiveType[] types = Enum.GetValues<DeathLinkModule.DeathLinkReceiveType>();
-            string[] type_names = new string[types.Length];
-
-            for (int i = 0; i < types.Length; i++) {
-                type_names[i] = DeathLinkModule.get_receive_type_name(types[i]);
-            }
-
-            foreach (string type in type_names) {
-                if (ImGui.Selectable(type, type == deathlink_receive_type)) {
-                    deathlink_receive_type = type;
+            foreach (DeathLinkModule.DeathLinkReceiveType type in Enum.GetValues<DeathLinkModule.DeathLinkReceiveType>()) {
+                string type_name = DeathLinkModule.get_receive_type_name(type);
+                if (ImGui.Selectable(type_name, type_name == deathlink_receive_type)) {
+                    deathlink_receive_type = type_name;
                 }
             }
 

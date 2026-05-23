@@ -76,9 +76,9 @@ public unsafe partial class DeathLinkModule : FhModule {
         }
 
         if (_this._deathlink_enabled) {
-            FFXArchipelagoClient.death_link?.EnableDeathLink();
+            FFXArchipelagoClient.current_death_link?.EnableDeathLink();
         } else {
-            FFXArchipelagoClient.death_link?.DisableDeathLink();
+            FFXArchipelagoClient.current_death_link?.DisableDeathLink();
         }
     }
 
@@ -228,7 +228,6 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         _applyDeathlink();
 
-        //TODO: Add an MsMessageCueRegist call here with a custom message type once Fahrenheit supports that
         _MsMessageCueRegist(MessageCueType.FH_CUSTOM, (int)_deathlink_announcement.encoded, 0, 27, 35);
 
         _logger.Info("  Disabling Escape and Flee...");
@@ -267,7 +266,7 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         string message = _get_deathlink_send_text($"{player}'s {target_name}");
 
-        FFXArchipelagoClient.death_link?.SendDeathLink(new(player, message));
+        FFXArchipelagoClient.current_death_link?.SendDeathLink(new(player, message));
 
         ToastModule.Toast deathlink_toast = new(
             [
@@ -301,7 +300,7 @@ public unsafe partial class DeathLinkModule : FhModule {
         string player = FFXArchipelagoClient.active_player?.Alias ?? "Someone";
         string message = _get_deathlink_send_text(player);
 
-        FFXArchipelagoClient.death_link?.SendDeathLink(new(player, message));
+        FFXArchipelagoClient.current_death_link?.SendDeathLink(new(player, message));
 
         ToastModule.Toast deathlink_toast = new(
             [

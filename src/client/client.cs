@@ -24,7 +24,7 @@ public static class FFXArchipelagoClient {
     public static          bool                  remote_locations_updated = false;
     public static          string?               SeedId = null;
 
-    public static DeathLinkService? death_link;
+    public static DeathLinkService? current_death_link;
 
     public static PlayerInfo? active_player => current_session?.Players.ActivePlayer;
     private static bool is_disconnecting = false;
@@ -34,11 +34,14 @@ public static class FFXArchipelagoClient {
         ArchipelagoFFXModule.logger.Debug("Connect");
         LoginResult? login_result = new LoginFailure("");
         ArchipelagoSession? session = null;
+        DeathLinkService? death_link = null;
+
         if (is_disconnecting) return;
 
         try {
             session = ArchipelagoSessionFactory.CreateSession(server);
-            connectHandlers(session);
+            death_link = session.CreateDeathLinkService();
+            connectHandlers(session, death_link);
             var roomInfoPacket = await session.ConnectAsync();
 
             login_result = await session.LoginAsync("Final Fantasy X", user, ItemsHandlingFlags.RemoteItems, Version.Parse("0.6.0"), password: password, requestSlotData: true);
@@ -83,8 +86,7 @@ public static class FFXArchipelagoClient {
         }
         current_server = server;
         current_session = session;
-        death_link = current_session.CreateDeathLinkService();
-        death_link.OnDeathLinkReceived += DeathLinkModule.post_deathlink;
+        current_death_link = death_link;
     }
 
     public static void disconnect(ArchipelagoSession? session = null) {
@@ -97,7 +99,7 @@ public static class FFXArchipelagoClient {
         }
     }
 
-    private static void connectHandlers(ArchipelagoSession session) {
+    private static void connectHandlers(ArchipelagoSession session, DeathLinkService death_link) {
         ArchipelagoFFXModule.logger.Debug("connectHandlers");
         session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
         session.Socket.ErrorReceived += Socket_ErrorReceived;
@@ -106,6 +108,8 @@ public static class FFXArchipelagoClient {
         session.Locations.CheckedLocationsUpdated += Locations_CheckedLocationsUpdated;
 
         session.MessageLog.OnMessageReceived += RecentItemsModule.post_item_message;
+
+        death_link.OnDeathLinkReceived += DeathLinkModule.post_deathlink;
     }
 
     private static void Locations_CheckedLocationsUpdated(System.Collections.ObjectModel.ReadOnlyCollection<long> newCheckedLocations) {
@@ -134,7 +138,7 @@ public static class FFXArchipelagoClient {
         ArchipelagoGUI.add_log_message([($"Disconnected from server ({reason})", Color.Red)]);
         lock (client_lock) {
             current_session = null;
-            death_link = null;
+            current_death_link = null;
             SeedId = null;
             current_server = null;
             is_disconnecting = false;
