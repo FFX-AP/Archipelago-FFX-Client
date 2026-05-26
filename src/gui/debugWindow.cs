@@ -112,7 +112,6 @@ public unsafe static class ArchipelagoGUI {
     }
 
     private static string cluster_file_name = "/FFX_Data/GameData/PS3Data/map/hiku/hiku22/2d/tex/D3D11/0_11_132_16_12.dds.phyre";
-    private static PTexture2DBase* loaded_texture2d = null;
     private static ImTextureRef? loaded_image;
 
     //private static void render_clusters() {

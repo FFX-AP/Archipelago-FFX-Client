@@ -3628,22 +3628,6 @@ public unsafe partial class ArchipelagoFFXModule {
         return cluster;
     }
 
-    public static PTexture2DBase* getTextureFromCluster(PCluster* cluster) {
-
-        FixedClusterData data = new();
-        data._0x14 = *(nint*)cluster + 0x1c;
-        data._0x18 = *(nint*)data._0x14 != data._0x14 ? *(nint*)data._0x14 : 0;
-        data._0x1c = (nint)FhUtil.ptr_at<nint>(0x008a3738); // PTexture2DBase vftable?
-        _FUN_0065ee30(&data);
-        if (data._0x0c == 0) {
-            return null;
-        }
-
-        PTexture2DBase* _this = (PTexture2DBase*)(data._0x00 + data._0x10);
-        return _this;
-
-    }
-
 
     // Voice related
     //public static nint h_FMOD_EventSystem_load(nint param_1, nint file_path, nint param_3, nint param_4) {
