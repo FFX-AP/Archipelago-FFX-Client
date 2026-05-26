@@ -105,11 +105,11 @@ public unsafe partial class ArchipelagoFFXModule {
     private static FhMethodHandle<FUN_007993f0> _FUN_007993f0;
 
     private static MsGetChr _MsGetChr;
-    private static FhCall.MsGetComData _MsGetComData;
-    private static FhCall.MsGetCommandUse _MsGetCommandUse;
-    private static FhCall.MsGetCommandMP _MsGetCommandMP;
-    private static FhCall.MsGetRamChrMonster _MsGetRamChrMonster;
-    private static FhCall.TODrawCrossBoxXYWHC2 _TODrawCrossBoxXYWHC2;
+    private static FFX.FhCall.MsGetComData _MsGetComData;
+    private static FFX.FhCall.MsGetCommandUse _MsGetCommandUse;
+    private static FFX.FhCall.MsGetCommandMP _MsGetCommandMP;
+    private static FFX.FhCall.MsGetRamChrMonster _MsGetRamChrMonster;
+    private static FFX.FhCall.TODrawCrossBoxXYWHC2 _TODrawCrossBoxXYWHC2;
 
 
     private static FhMethodHandle<TkMenuAppearMainCmdWindow> _TkMenuAppearMainCmdWindow;
@@ -127,11 +127,11 @@ public unsafe partial class ArchipelagoFFXModule {
     private static readFile _readFile;
     private static FhMethodHandle<FUN_0070aec0> _FUN_0070aec0;
 
-    private static FhCall.ChN_ReadSystemMGRP _ChN_ReadSystemMGRP;
+    private static FFX.FhCall.ChN_ReadSystemMGRP _ChN_ReadSystemMGRP;
     private static Common_loadModel _Common_loadModel;
     private static Common_0043 _Common_0043;
     private static Common_linkFieldToBattleActor _Common_linkFieldToBattleActor;
-    private static FhCall.SndSepPlay _SndSepPlay;
+    private static FFX.FhCall.SndSepPlay _SndSepPlay;
 
 
     public static MsGetExcelData _MsGetExcelData;
@@ -165,7 +165,7 @@ public unsafe partial class ArchipelagoFFXModule {
     private static MsImportantName _MsImportantName;
     private static CT_RetInt_0065 _CT_RetInt_0065;
     private static CT_RetInt_006A _CT_RetInt_006A;
-    private static FhCall.MsBtlGetInit _MsBtlGetInit;
+    private static FFX.FhCall.MsBtlGetInit _MsBtlGetInit;
     private static AtelGetMesWinWork _AtelGetMesWinWork;
     private static FUN_008b8910 _FUN_008b8910; // setMessageWindowVariableType? (0: text*, 1: int)
     private static FUN_008bda20 _FUN_008bda20; // getMenuText
@@ -288,11 +288,11 @@ public unsafe partial class ArchipelagoFFXModule {
 
 
         _MsGetChr             = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
-        _MsGetComData         = FhUtil.get_fptr<FhCall.MsGetComData>(FhCall.__addr_MsGetComData);
-        _MsGetCommandUse      = FhUtil.get_fptr<FhCall.MsGetCommandUse>(FhCall.__addr_MsGetCommandUse);
-        _MsGetCommandMP       = FhUtil.get_fptr<FhCall.MsGetCommandMP>(FhCall.__addr_MsGetCommandMP);
-        _MsGetRamChrMonster   = FhUtil.get_fptr<FhCall.MsGetRamChrMonster>(FhCall.__addr_MsGetRamChrMonster);
-        _TODrawCrossBoxXYWHC2 = FhUtil.get_fptr<FhCall.TODrawCrossBoxXYWHC2>(FhCall.__addr_TODrawCrossBoxXYWHC2);
+        _MsGetComData         = FhUtil.get_fptr<FFX.FhCall.MsGetComData>(FFX.FhCall.__addr_MsGetComData);
+        _MsGetCommandUse      = FhUtil.get_fptr<FFX.FhCall.MsGetCommandUse>(FFX.FhCall.__addr_MsGetCommandUse);
+        _MsGetCommandMP       = FhUtil.get_fptr<FFX.FhCall.MsGetCommandMP>(FFX.FhCall.__addr_MsGetCommandMP);
+        _MsGetRamChrMonster   = FhUtil.get_fptr<FFX.FhCall.MsGetRamChrMonster>(FFX.FhCall.__addr_MsGetRamChrMonster);
+        _TODrawCrossBoxXYWHC2 = FhUtil.get_fptr<FFX.FhCall.TODrawCrossBoxXYWHC2>(FFX.FhCall.__addr_TODrawCrossBoxXYWHC2);
 
         _eiAbmParaGet = new FhMethodHandle<eiAbmParaGet>(this, game, __addr_eiAbmParaGet, h_eiAbmParaGet);
         _MsSetSaveParam = new FhMethodHandle<MsSetSaveParam>(this, game, __addr_MsSetSaveParam, h_MsSetSaveParam);
@@ -310,13 +310,13 @@ public unsafe partial class ArchipelagoFFXModule {
         _FUN_0070aec0 = new FhMethodHandle<FUN_0070aec0>(this, game, 0x0030aec0, h_FUN_0070aec0);
 
 
-        _ChN_ReadSystemMGRP = FhUtil.get_fptr<FhCall.ChN_ReadSystemMGRP>(FhCall.__addr_ChN_ReadSystemMGRP);
+        _ChN_ReadSystemMGRP = FhUtil.get_fptr<FFX.FhCall.ChN_ReadSystemMGRP>(FFX.FhCall.__addr_ChN_ReadSystemMGRP);
 
         _Common_loadModel = FhUtil.get_fptr<Common_loadModel>(0x0045ce70);
         _Common_0043 = FhUtil.get_fptr<Common_0043>(0x0045c810);
         _Common_linkFieldToBattleActor = FhUtil.get_fptr<Common_linkFieldToBattleActor>(0x0045ca00);
 
-        _SndSepPlay = FhUtil.get_fptr<FhCall.SndSepPlay>(FhCall.__addr_SndSepPlay);
+        _SndSepPlay = FhUtil.get_fptr<FFX.FhCall.SndSepPlay>(FFX.FhCall.__addr_SndSepPlay);
 
 
         _Map_800F = new FhMethodHandle<Map_800F>(this, game, 0x0051b1a0, h_Map_800F);
@@ -338,7 +338,7 @@ public unsafe partial class ArchipelagoFFXModule {
         _MsImportantName = FhUtil.get_fptr<MsImportantName>(__addr_MsImportantName);
         _CT_RetInt_0065 = FhUtil.get_fptr<CT_RetInt_0065>(__addr_CT_RetInt_0065);
         _CT_RetInt_006A = FhUtil.get_fptr<CT_RetInt_006A>(__addr_CT_RetInt_006A);
-        _MsBtlGetInit = FhUtil.get_fptr<FhCall.MsBtlGetInit>(FhCall.__addr_MsBtlGetInit);
+        _MsBtlGetInit = FhUtil.get_fptr<FFX.FhCall.MsBtlGetInit>(FFX.FhCall.__addr_MsBtlGetInit);
         _AtelGetMesWinWork = FhUtil.get_fptr<AtelGetMesWinWork>(__addr_AtelGetMesWinWork);
         _FUN_008b8910 = FhUtil.get_fptr<FUN_008b8910>(__addr_FUN_008b8910);
         _FUN_008bda20 = FhUtil.get_fptr<FUN_008bda20>(__addr_FUN_008bda20);

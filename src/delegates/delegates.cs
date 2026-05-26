@@ -3,7 +3,6 @@ using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using TerraFX.Interop.DirectX;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 public static unsafe class delegates {
@@ -234,7 +233,7 @@ public static unsafe class delegates {
         [FieldOffset(0x1c)] public uint            width;
         [FieldOffset(0x20)] public uint            height;
         [FieldOffset(0x24)] public int             num_buffers; //??
-        [FieldOffset(0x28)] public ID3D11Resource* buffer;
+        //[FieldOffset(0x28)] public ID3D11Resource* buffer;
         [FieldOffset(0x70)] public int             isBound;
 
     }
@@ -750,5 +749,6 @@ public static unsafe class delegates {
     public delegate bool FUN_008d5720(uint gear_id, int param_2);
     public static int __addr_FUN_008d5720 = 0x004d5720;
 
-    
+
+
 }
