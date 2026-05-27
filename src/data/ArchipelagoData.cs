@@ -809,6 +809,10 @@ public static class ArchipelagoData {
                 { 1210, new() {visit_complete = true, next_story_progress = 1310, next_room_id = 243, next_entrance = 1, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Guadosalam visit complete"); } } },
             } } },
         {RegionEnum.ThunderPlains, new(){ story_progress = 1210, room_id = 140, entrance = 0, airship_destination_index = 10,
+            savedata = [
+                new ArchipelagoRegionSaveData(0x03F8, 1, [0]),
+                new ArchipelagoRegionSaveData(0x03F1, 3, [0]) //save_data->progression_flags_thunder_plains
+            ],
             story_checks = {
                 { 1375, new() {visit_complete = true, next_story_progress = 3210, next_room_id = 263, next_entrance = 2, return_to_airship = true, check_delegate = (r) => {ArchipelagoFFXModule.logger.Info("Thunder Plains visit complete"); } } },
             } } },
