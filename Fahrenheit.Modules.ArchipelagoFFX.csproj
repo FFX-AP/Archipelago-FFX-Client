@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha10">
 
 	<!-- ASSEMBLY BASIC PROPERTIES -->
-  <PropertyGroup>
-	  <Version>0.8.0-alpha</Version>
+	<PropertyGroup>
+		<Version>0.8.0-alpha</Version>
 		<FahrenheitVersion>v1.0.0-alpha10</FahrenheitVersion>
-  </PropertyGroup>
+	</PropertyGroup>
 
 	<!-- ASSEMBLY ADDITIONAL PROPERTIES -->
 	<PropertyGroup>
@@ -92,9 +92,9 @@
 		<Move SourceFiles="@(ProjectFiles)" DestinationFolder="$(PublishDir)fahrenheit\mods\$(AssemblyName)\" />
 	</Target>
 
-  <Target Name="PublishCSR" AfterTargets="Publish">
+	<Target Name="PublishCSR" AfterTargets="Publish">
 		<Message Text="Publish fh-mods-csr" />
 		<MSBuild Projects="$(fhcsrProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(fhcsrName);Configuration=$(Configuration)" Targets="Build" />
-  </Target>
+	</Target>
   
 </Project>

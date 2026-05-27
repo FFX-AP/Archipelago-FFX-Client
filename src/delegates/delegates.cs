@@ -718,7 +718,4 @@ public static unsafe class delegates {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate bool FUN_008d5720(uint gear_id, int param_2);
     public static int __addr_FUN_008d5720 = 0x004d5720;
-
-
-
 }
