@@ -1,3 +1,11 @@
 [submodule "fh-mods-csr"]
 	path = fh-mods-csr
 	url = https://github.com/FFX-AP/fh-mods-csr.git
+[submodule "custom-character"]
+	path = custom-character
+	url = https://github.com/Rurusachi/custom-character
+	branch = Archipelago
+[submodule "playable-seymour-mod"]
+	path = playable-seymour-mod
+	url = https://github.com/Rurusachi/playable-seymour-mod
+	branch = Archipelago

@@ -18,6 +18,14 @@
 		<Compile Remove="fh-mods-csr\**" />
 		<EmbeddedResource Remove="fh-mods-csr\**" />
 		<None Remove="fh-mods-csr\**" />
+		
+		<Compile Remove="custom-character\**" />
+		<EmbeddedResource Remove="custom-character\**" />
+		<None Remove="custom-character\**" />
+		
+		<Compile Remove="playable-seymour-mod\**" />
+		<EmbeddedResource Remove="playable-seymour-mod\**" />
+		<None Remove="playable-seymour-mod\**" />
 	</ItemGroup>
 
 	<!-- SHARED FILE LINKS -->
@@ -34,6 +42,14 @@
 		<fhcsrName>fhcsr</fhcsrName>
 		<fhcsrPath>$(ProjectDir)fh-mods-csr/</fhcsrPath>
 		<fhcsrProject>$(fhcsrPath)Fahrenheit.Mods.CSR.csproj</fhcsrProject>
+
+		<customCharacterName>custom-character</customCharacterName>
+		<customCharacterPath>$(ProjectDir)custom-character/</customCharacterPath>
+		<customCharacterProject>$(customCharacterPath)Fahrenheit.Mods.custom-character.csproj</customCharacterProject>
+
+		<playableSeymourName>playable-seymour</playableSeymourName>
+		<playableSeymourPath>$(ProjectDir)playable-seymour-mod/seymour/</playableSeymourPath>
+		<playableSeymourProject>$(playableSeymourPath)Fahrenheit.Mods.playable-seymour.csproj</playableSeymourProject>
 	</PropertyGroup>
 
 	<!-- BUILD EVENTS -->
@@ -64,6 +80,8 @@
 		<RemoveDir Directories="$(PublishDir)fahrenheit\mods" />
 		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(AssemblyName)" />
 		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(fhcsrName)" />
+		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(customCharacterName)" />
+		<MakeDir Directories="$(PublishDir)fahrenheit\mods\$(playableSeymourName)" />
 	</Target>
 
 	<Target Name="CopyAssets" AfterTargets="Publish">
@@ -95,6 +113,16 @@
 	<Target Name="PublishCSR" AfterTargets="Publish">
 		<Message Text="Publish fh-mods-csr" />
 		<MSBuild Projects="$(fhcsrProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(fhcsrName);Configuration=$(Configuration)" Targets="Build" />
+	</Target>
+
+	<Target Name="PublishCustomCharacter" AfterTargets="Publish">
+		<Message Text="Publish custom-character" />
+		<MSBuild Projects="$(customCharacterProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(customCharacterName);Configuration=$(Configuration)" Targets="Build" />
+	</Target>
+
+	<Target Name="PublishPlayableSeymour" AfterTargets="Publish">
+		<Message Text="Publish playable-seymour" />
+		<MSBuild Projects="$(playableSeymourProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(playableSeymourName);Configuration=$(Configuration)" Targets="Build" />
 	</Target>
   
 </Project>
