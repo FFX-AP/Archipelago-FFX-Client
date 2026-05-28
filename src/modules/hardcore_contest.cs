@@ -1,10 +1,11 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
+using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe partial class HardcoreDreamsEndModule : FhModule {
