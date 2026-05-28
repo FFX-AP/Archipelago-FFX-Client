@@ -1088,6 +1088,59 @@ public unsafe static class ArchipelagoGUI {
             ArchipelagoFFXModule.TextLanguage = text_lang != 0xFF ? (FhLangId)text_lang : null;
             ArchipelagoFFXModule.save_global_state();
         }
+
+        ImGui.SeparatorText("Save-Local Settings");
+        ImGui.Indent();
+
+        if (ArchipelagoFFXModule.seed.Options.SeedId is null) {
+            ImGui.Text("Please load a save to display these settings.");
+            ImGui.Unindent();
+            return;
+        }
+
+        bool deathlink = DeathLinkModule.get_enabled();
+        ImGui.Checkbox("Enable Deathlink", ref deathlink);
+        DeathLinkModule.set_enabled(deathlink);
+
+        ImGui.Text($"Deathlinks Queued: {DeathLinkModule.get_deathlinks_queued()}");
+
+        string deathlink_send_type = DeathLinkModule.get_send_type();
+        if (ImGui.BeginCombo("Deathlink Send Type", deathlink_send_type)) {
+            foreach (DeathLinkModule.DeathLinkSendType type in Enum.GetValues<DeathLinkModule.DeathLinkSendType>()) {
+                string type_name = DeathLinkModule.get_send_type_name(type);
+                if (ImGui.Selectable(type_name, type_name == deathlink_send_type)) {
+                    deathlink_send_type = type_name;
+                }
+            }
+
+            ImGui.EndCombo();
+        }
+        DeathLinkModule.set_send_type(deathlink_send_type);
+
+        string deathlink_receive_type = DeathLinkModule.get_receive_type();
+        if (ImGui.BeginCombo("Deathlink Receive Type", deathlink_receive_type)) {
+            foreach (DeathLinkModule.DeathLinkReceiveType type in Enum.GetValues<DeathLinkModule.DeathLinkReceiveType>()) {
+                string type_name = DeathLinkModule.get_receive_type_name(type);
+                if (ImGui.Selectable(type_name, type_name == deathlink_receive_type)) {
+                    deathlink_receive_type = type_name;
+                }
+            }
+
+            ImGui.EndCombo();
+        }
+        DeathLinkModule.set_receive_type(deathlink_receive_type);
+
+#if DEBUG
+        if (ImGui.Button("Receive Debug Deathlink")) {
+            DeathLinkModule.debug_add_queued();
+        }
+
+        if (ImGui.Button("Apply Deathlink")) {
+            DeathLinkModule.debug_apply_deathlink();
+        }
+#endif
+
+        ImGui.Unindent();
     }
 
     private static void render_client() {
