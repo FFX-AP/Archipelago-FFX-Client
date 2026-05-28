@@ -1164,6 +1164,52 @@ public unsafe partial class ArchipelagoFFXModule {
             AtelOp.RET     .build(      ),
 
         ]).SelectMany(x => x.to_bytes()).ToArray(),
+
+        // Check Nemesis requirements
+        ((AtelInst[])[ // C
+            
+            // !!!(MonsterArenaOriginalCreationUnlockFlags[0] & 128 [80h])
+            AtelOp.PUSHII   .build(0x0000),
+            AtelOp.PUSHAR   .build(0x000C),
+            AtelOp.PUSHII   .build(0x0080),
+            AtelOp.AND      .build(),
+            AtelOp.NOT      .build(),
+            AtelOp.NOT      .build(),
+            AtelOp.NOT      .build(),
+
+            // (priv175A5 >= 13 [0Dh])
+            AtelOp.PUSHV   .build(0x001F),
+            AtelOp.PUSHII  .build(0x000D),
+            AtelOp.GTE     .build(),
+
+            // Common.?checkMultipleMonsterArenaUnlocks [023Ch](from=Creation #1 defeated [0300h], next=34 [22h])
+            AtelOp.PUSHII  .build(0x0300),
+            AtelOp.PUSHII  .build(0x0022),
+            AtelOp.CALL    .build(0x023C),
+
+            // else jump to jAD8 (DCED)
+            AtelOp.LAND    .build(),
+            AtelOp.LAND    .build(),
+            AtelOp.POPXNCJMP.build(0x0AD8),
+
+            // Custom.isGoalUnlocked
+            AtelOp.CALL .build((ushort)CustomCallTarget.IS_GOAL_UNLOCKED),
+
+            // if Custom.isGoalUnlocked() jump to jAD7 (D7B3)
+            AtelOp.POPXCJMP.build(0x0AD7),
+
+            // display customStrings[2]
+            .. atelDisplayFieldString(1, 0x8002, 256, 224, 4, 0, 0),
+
+            // call Common.waitForText [0084h](boxIndex=1 [01h], p2=1 [01h]);
+            AtelOp.PUSHII  .build(0x0001),
+            AtelOp.PUSHII  .build(0x0001),
+            AtelOp.CALLPOPA.build(0x0084),
+
+            // jump to jAD8 (DCED)
+            AtelOp.JMP     .build(0x0AD8),
+
+        ]).SelectMany(x => x.to_bytes()).ToArray(),
     };
 
     private static readonly AtelInst[] save_sphere_load_model = [
@@ -1510,7 +1556,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 logger.Debug($"atel_event_setup: Inject Cid talk hook");
                 set(code_ptr, 0x4DC5, [
                     AtelOp.PUSHII  .build(0x0000),
-                    AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(0002) = jump to customScripts[0]
+                    AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(0000) = jump to customScripts[0]
                 ]);
                 break;
             case "hiku0500":
@@ -1530,6 +1576,10 @@ public unsafe partial class ArchipelagoFFXModule {
                         AtelOp.CALLPOPA.build((ushort)CustomCallTarget.LOCK_ALL_AEONS),
                         AtelOp.JMP.build(0x0003),
                         ]);
+                } else {
+                    set(code_ptr, 0x58FA, [
+                        AtelOp.CALL.build((ushort)CustomCallTarget.CHECK_UNLOCKED_AEONS),
+                        ]);
                 }
 
                 set(code_ptr, 0x5972, [
@@ -1543,7 +1593,6 @@ public unsafe partial class ArchipelagoFFXModule {
                     AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(A) = jump to customScripts[A]
                     ]);
                 break;
-
             case "luca0400":
                 logger.Debug($"atel_event_setup: Wait longer");
                 set(code_ptr, 0x68F9, [
@@ -1557,13 +1606,15 @@ public unsafe partial class ArchipelagoFFXModule {
                     ]);
                 break;
             case "sins0900":
-                // Tower falling down
-                Globals.Atel.current_controller->worker(0xD)->table_jump[0] = 0x1951;
-                AtelBasicWorker* _0xd = Globals.Atel.current_controller->worker(0xD);
-                set(code_ptr, 0x1947, [
-                    AtelOp.PUSHII  .build(0x0003),
-                    AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(3) = jump to customScripts[3]
-                    ]);
+                // Check requirements if Yu Yevon is goal (Tower falling down)
+                if (seed.Options.Goal == Goal.YuYevon) {
+                    Globals.Atel.current_controller->worker(0xD)->table_jump[0] = 0x1951;
+                    AtelBasicWorker* _0xd = Globals.Atel.current_controller->worker(0xD);
+                    set(code_ptr, 0x1947, [
+                        AtelOp.PUSHII  .build(0x0003),
+                        AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(3) = jump to customScripts[3]
+                        ]);
+                }
 
                 // Look up at tower
                 //set(code_ptr, 0x1761, [
@@ -1977,6 +2028,16 @@ public unsafe partial class ArchipelagoFFXModule {
                     AtelOp.PUSHII  .build(14),
                     AtelOp.CALLPOPA.build((ushort)CustomCallTarget.SEND_PARTY_MEMBER_LOCATION),
                     ]);
+                break;
+            case "nagi0700":
+                // Check requirements if Nemesis is goal
+                if (seed.Options.Goal == Goal.Nemesis) {
+                    Globals.Atel.current_controller->worker(0x02)->table_jump[0xAD7] = 0xD7B3;
+                    set(code_ptr, 0xD78F, [
+                        AtelOp.PUSHII  .build(0x000C),
+                        AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP),
+                        ]);
+                }
                 break;
 
         }
@@ -3832,6 +3893,7 @@ public unsafe partial class ArchipelagoFFXModule {
         LIGHTNING_DODGING,
         JECHT_SPHERE,
         KICKED_BLITZBALL_AWAY,
+        CHECK_UNLOCKED_AEONS,
     }
 
     static AtelCallTarget[] customNameSpace = {
@@ -3869,6 +3931,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_LightningDodging)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_JechtSphere)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_KickedBlitzballAway)},
+        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_CheckUnlockedAeons)},
     };
     static GCHandle customNameSpaceHandle = GCHandle.Alloc(customNameSpace, GCHandleType.Pinned);
 
@@ -4459,8 +4522,7 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static int CT_RetInt_KickedBlitzballAway(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
-    {
+    public static int CT_RetInt_KickedBlitzballAway(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         byte* table = (byte*)work->table_event_data;
         table[0x0008] = 1;
 
@@ -4481,5 +4543,31 @@ public unsafe partial class ArchipelagoFFXModule {
             }
         }
         return 1;
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int CT_RetInt_CheckUnlockedAeons(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
+        uint aeon_bitfield = work->table_priv_data[0];
+
+        logger.Info($"aeon_bitfield: {aeon_bitfield}");
+
+        uint temp = aeon_bitfield;
+        for (int i = 0; i < PlySaveId.PC_DUMMY; i++) {
+            logger.Info($"{id_to_character[i]}: {(temp & 1) == 1}");
+            temp >>= 1;
+        }
+
+        if (aeon_bitfield != 0) {
+            return 1;
+        }
+
+        if (!FFXArchipelagoClient.local_checked_locations.Contains(41 | (long)FFXArchipelagoClient.ArchipelagoLocationType.Boss)) {
+            if (ArchipelagoFFXModule.item_locations.boss.TryGetValue(41, out var item)) {
+                if (FFXArchipelagoClient.sendLocation(41, FFXArchipelagoClient.ArchipelagoLocationType.Boss)) {
+                    ArchipelagoFFXModule.obtain_item(item.id);
+                }
+            }
+        }
+        return 0;
     }
 }
