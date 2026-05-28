@@ -3506,6 +3506,15 @@ public unsafe partial class ArchipelagoFFXModule {
 
         Chr* chr = _MsGetChr(chr_id);
 
+        // Seymour softlocks when using Spare Change/Bribe/Provoke/Threaten/Grenades
+        if (chr_id == PlySaveId.PC_SEYMOUR) {
+            chr->ram.abilities.has_spare_change = false;
+            chr->ram.abilities.has_bribe        = false;
+            chr->ram.abilities.has_provoke      = false;
+            chr->ram.abilities.has_threaten     = false;
+            chr->ram.abilities.has_use          = false;
+        }
+
         if (seed.Options.AlwaysSensor == 1) {
             chr->ram.auto_ability_effects.has_sensor = true;
         }
@@ -3614,87 +3623,6 @@ public unsafe partial class ArchipelagoFFXModule {
         _TkMenuAppearMainCmdWindow.orig_fptr(param_1, param_2);
         save_data->story_progress = progress;
     }
-
-    //private static void h_FUN_0065ee30(FixedClusterData* data) {
-    //    _FUN_0065ee30.orig_fptr(data);
-    //
-    //    //if (data->_0x0c != 0) {
-    //    //    logger.Debug($"Data exists {(uint)data}");
-    //    //
-    //    //    nint* _this = (nint*)(data->_0x00 + data->_0x10);
-    //    //
-    //    //    var g_mainTexString = Marshal.StringToHGlobalAnsi("g_mainTex");
-    //    //    var g_widthSizeString = Marshal.StringToHGlobalAnsi("g_widthSize");
-    //    //    var g_heightSizeString = Marshal.StringToHGlobalAnsi("g_heightSize");
-    //    //
-    //    //    var g_mainTex    = h_FUN_0056cd50(*_this, g_mainTexString);
-    //    //    var g_widthSize  = h_FUN_0056cd50(*_this, g_widthSizeString);
-    //    //    var g_heightSize = h_FUN_0056cd50(*_this, g_heightSizeString);
-    //    //
-    //    //    if (g_mainTex != null) {
-    //    //        logger.Debug($"g_mainTex exists {*g_mainTex}");
-    //    //        if (g_widthSize != null) {
-    //    //            logger.Debug($"g_widthSize exists {*g_widthSize}");
-    //    //            if (g_heightSize != null) {
-    //    //                logger.Debug($"g_heightSize exists {*g_heightSize}");
-    //    //                if (_this[1] != 0) {
-    //    //                    nint* _this2 = (nint*)_this[1];
-    //    //                    byte[] widthBytes = new byte[g_widthSize->size];
-    //    //                    for (int i = 0; i < widthBytes.Length; i++) {
-    //    //                        widthBytes[i] = *(byte*)(_this2 + g_widthSize->offset + i);
-    //    //                    }
-    //    //                    logger.Debug("Copied width");
-    //    //                    //FhModule.some_image_tex = g_mainTex;
-    //    //                    //FhModule.some_image_dimensions.X = g_widthSize;
-    //    //                    //FhModule.some_image_dimensions.Y = g_heightSize;
-    //    //                }
-    //    //            }
-    //    //        }
-    //    //    }
-    //    //
-    //    //    Marshal.FreeHGlobal(g_mainTexString);
-    //    //    Marshal.FreeHGlobal(g_widthSizeString);
-    //    //    Marshal.FreeHGlobal(g_heightSizeString);
-    //    //}
-    //}
-
-    public static List<nint> loaded_clusters = [];
-    public static delegates.PCluster* loadCluster(string file) {
-        //var filePath = Marshal.StringToHGlobalAnsi("/FFX_Data/GameData/PS3Data/map/hiku/hiku22/2d/tex/D3D11/0_11_132_16_12.dds.phyre");
-        if (file == "") return null;
-        var filePath = Marshal.StringToHGlobalAnsi(file);
-        nint clusterManager = FhUtil.get_at<nint>(0x008cca44);
-        delegates.PCluster* cluster = _ClusterManager_loadPCluster(clusterManager, filePath);
-        Marshal.FreeHGlobal(filePath);
-        if (cluster == null) return null;
-        loaded_clusters.Add((nint)cluster);
-
-        int fixedClusterResult = _Phyre_PFramework_PApplication_FixupClusters(cluster, 1);
-        if (fixedClusterResult != 0) return null;
-
-        return cluster;
-    }
-
-    public static void releaseCluster(delegates.PCluster* cluster) {
-        nint clusterManager = FhUtil.get_at<nint>(0x008cca44); //var clusterManager = getClusterManager();
-        _ClusterManager_releasePCluster(clusterManager, cluster);
-
-    }
-
-    public static delegates.PCluster* getCluster(string file) {
-        //var filePath = Marshal.StringToHGlobalAnsi("/FFX_Data/GameData/PS3Data/map/hiku/hiku22/2d/tex/D3D11/0_11_132_16_12.dds.phyre");
-        if (file == "") return null;
-        var filePath = Marshal.StringToHGlobalAnsi(file);
-        nint unifiedFilePath = (nint)NativeMemory.AllocZeroed(0x100);
-        _fiosUnifyFilename(filePath, unifiedFilePath, 0x100);
-        nint clusterManager = FhUtil.get_at<nint>(0x008cca44);
-        delegates.PCluster* cluster = _ClusterManager_getPClusterByName(clusterManager, unifiedFilePath);
-        Marshal.FreeHGlobal(filePath);
-        Marshal.FreeHGlobal(unifiedFilePath);
-
-        return cluster;
-    }
-
 
     // Voice related
     //public static nint h_FMOD_EventSystem_load(nint param_1, nint file_path, nint param_3, nint param_4) {
