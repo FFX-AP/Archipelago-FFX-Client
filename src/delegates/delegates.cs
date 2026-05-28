@@ -3,7 +3,6 @@ using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using TerraFX.Interop.DirectX;
 
 namespace Fahrenheit.Modules.ArchipelagoFFX;
 public static unsafe class delegates {
@@ -224,36 +223,6 @@ public static unsafe class delegates {
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     public delegate void FUN_00656c90(int param_1, int param_2, char* fileName);
-
-    [StructLayout(LayoutKind.Explicit, Pack = 4, Size = 0x74)]
-    public struct PTexture2DBase {
-        [FieldOffset(0x00)] public nint            unknown1;
-        [FieldOffset(0x0c)] public nint            unknown2;
-        [FieldOffset(0x10)] public int             mipCount;
-        [FieldOffset(0x14)] public int             flags;
-        [FieldOffset(0x1c)] public uint            width;
-        [FieldOffset(0x20)] public uint            height;
-        [FieldOffset(0x24)] public int             num_buffers; //??
-        [FieldOffset(0x28)] public ID3D11Resource* buffer;
-        [FieldOffset(0x70)] public int             isBound;
-
-    }
-
-    [StructLayout(LayoutKind.Explicit, Pack = 4, Size = 0x800)]
-    public struct PhyFMVPlayerManager {
-        [FieldOffset(0x38c)] public PTexture2DBase fmv_texture1;
-        [FieldOffset(0x400)] public PTexture2DBase fmv_texture2;
-        [FieldOffset(0x474)] public PTexture2DBase fmv_texture3;
-        [FieldOffset(0x4f0)] public nint                           fmv_path;
-
-        [FieldOffset(0x6e4)] public byte                           _0x6e4;
-        [FieldOffset(0x6fc)] public byte                           _0x6fc;
-        [FieldOffset(0x6fd)] public byte                           _0x6fd;
-    }
-
-    [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-    public delegate int PhyFMVPlayerManager_initialize(PhyFMVPlayerManager* phyFMVPlayerManager, int movie_id, byte zero, byte param_3);
-    public const    nint __addr_PhyFMVPlayerManager_initialize = 0x002d9db0;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate bool graphicInitFMVPlayer(int movie_id, int param_2);
@@ -749,6 +718,4 @@ public static unsafe class delegates {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate bool FUN_008d5720(uint gear_id, int param_2);
     public static int __addr_FUN_008d5720 = 0x004d5720;
-
-    
 }
