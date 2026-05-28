@@ -147,7 +147,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude] public int EncounterWeighting;
 
         [JsonInclude] public int SkipContestOfAeons;
-        [JsonInclude] public bool HardcoreDreamsEnd;
+        [JsonInclude] public int HardcoreDreamsEnd;
 
         [JsonInclude] public int OverdriveModes;
 
@@ -168,7 +168,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             CaptureDamage        = 0;
             EncounterWeighting   = 0;
 
-            HardcoreDreamsEnd    = false;
+            HardcoreDreamsEnd    = 0;
             SkipContestOfAeons   = 0;
 
             OverdriveModes       = 0;
@@ -283,8 +283,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                     throw new ArgumentNullException("apffx file is null");
                 }
             }
-            catch {
-                logger.Warning($"Failed to load {file.Name}");
+            catch (Exception e) {
+                logger.Warning($"Failed to load {file.Name} - {e.Message}");
             }
         }
     }
@@ -327,7 +327,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         initalize_states();
         seed = loaded_seed;
         ap_multiplier = seed.Options.APMultiplier;
-        HardcoreDreamsEndModule.set_enabled(seed.Options.HardcoreDreamsEnd);
+        HardcoreDreamsEndModule.set_enabled(seed.Options.HardcoreDreamsEnd != 0);
         item_locations = new ArchipelagoLocations(seed.Locations);
         ArchipelagoGUI.selected_seed = loaded_seeds.FindIndex(x => x.Options.SeedId == seed.Options.SeedId);
         LastSeed = seed.Options.SeedId;
