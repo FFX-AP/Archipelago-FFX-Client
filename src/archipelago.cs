@@ -127,6 +127,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude] public string PlayerName;
         [JsonInclude] public string SeedId;
 
+        [JsonInclude] public Goal            Goal;
         [JsonInclude] public GoalRequirement GoalRequirement;
         [JsonInclude] public int RequiredPartyMembers;
         [JsonInclude] public int RequiredPrimers;
@@ -146,6 +147,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             PlayerName           = "";
             SeedId               = "";
 
+            Goal                 = Goal.YuYevon;
             GoalRequirement      = GoalRequirement.None;
             RequiredPartyMembers = 1;
             RequiredPrimers      = 0;
