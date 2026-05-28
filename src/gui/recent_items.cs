@@ -10,12 +10,12 @@ using Archipelago.MultiClient.Net.Models;
 
 using Fahrenheit;
 using Fahrenheit.FFX;
-using Fahrenheit.Modules.ArchipelagoFFX;
-using Fahrenheit.Modules.ArchipelagoFFX.GUI;
+using ArchipelagoFFX;
+using ArchipelagoFFX.GUI;
 
 using Hexa.NET.ImGui;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX.GUI;
+namespace ArchipelagoFFX.GUI;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe class RecentItemsModule : FhModule {

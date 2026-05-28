@@ -1,9 +1,12 @@
 ﻿using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using System.Runtime.InteropServices;
-using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+using Fahrenheit;
+
+using static ArchipelagoFFX.delegates;
+
+namespace ArchipelagoFFX;
 
 public unsafe partial class OverdriveModule {
     //TODO: Remove these once FhCall is more up-to-date
@@ -190,7 +193,7 @@ public unsafe partial class OverdriveModule {
     private readonly FhMethodHandle<MsSetRamChrAbility> _MsSetRamChrAbility;
     private readonly FhMethodHandle<MsLimitTidusLearn> _MsLimitTidusLearn;
     private readonly FhMethodHandle<MsAfterDamageProcess> _MsAfterDamageProcess;
-    private readonly FhMethodHandle<CT_RetInt> _ret_doesChrKnowCommand;
+    private readonly FhMethodHandle<delegates.CT_RetInt> _ret_doesChrKnowCommand;
     private readonly FhMethodHandle<MsSetSaveCommandWithPrefix> _MsSetSaveCommandWithPrefix;
     private readonly FhMethodHandle<TOBtlDrawLearningMessageWindow> _TOBtlDrawLearningMessageWindow;
 

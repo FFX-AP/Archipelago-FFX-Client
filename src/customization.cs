@@ -4,64 +4,67 @@ using Fahrenheit.FFX;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+using Fahrenheit;
+
+using static ArchipelagoFFX.delegates;
+
+namespace ArchipelagoFFX;
 
 public unsafe partial class ArchipelagoFFXModule {
 
     // Customization
-    public static FhMethodHandle<PrepareMenuList> _PrepareMenuList;
-    public static FhMethodHandle<UpdateGearCustomizationMenuState> _UpdateGearCustomizationMenuState;
-    public static FhMethodHandle<UpdateAeonCustomizationMenuState> _UpdateAeonCustomizationMenuState;
-    public static FhMethodHandle<DrawGearCustomizationMenu> _DrawGearCustomizationMenu;
-    public static FhMethodHandle<DrawAeonCustomizationMenu> _DrawAeonCustomizationMenu;
-    public static MsGetRomKaizou _MsGetRomKaizou;
-    public static MsGetRomAbility _MsGetRomAbility;
-    public static MsGetRomSummonGrow _MsGetRomSummonGrow;
-    public static TkMn2GetSummonGrowMax _TkMn2GetSummonGrowMax;
-    public static TkMenuGetCurrentSummon _TkMenuGetCurrentSummon;
-    public static MsGetSaveCommand _MsGetSaveCommand;
+    public static FhMethodHandle<delegates.PrepareMenuList> _PrepareMenuList;
+    public static FhMethodHandle<delegates.UpdateGearCustomizationMenuState> _UpdateGearCustomizationMenuState;
+    public static FhMethodHandle<delegates.UpdateAeonCustomizationMenuState> _UpdateAeonCustomizationMenuState;
+    public static FhMethodHandle<delegates.DrawGearCustomizationMenu> _DrawGearCustomizationMenu;
+    public static FhMethodHandle<delegates.DrawAeonCustomizationMenu> _DrawAeonCustomizationMenu;
+    public static delegates.MsGetRomKaizou _MsGetRomKaizou;
+    public static delegates.MsGetRomAbility _MsGetRomAbility;
+    public static delegates.MsGetRomSummonGrow _MsGetRomSummonGrow;
+    public static delegates.TkMn2GetSummonGrowMax _TkMn2GetSummonGrowMax;
+    public static delegates.TkMenuGetCurrentSummon _TkMenuGetCurrentSummon;
+    public static delegates.MsGetSaveCommand _MsGetSaveCommand;
 
-    public static FUN_008c1c70 _FUN_008c1c70;
-    public static TODrawMenuPlateXYWHType _TODrawMenuPlateXYWHType;
-    public static FUN_008f8bb0 _FUN_008f8bb0;
-    public static TODrawScissorXYWH _TODrawScissorXYWH;
-    public static FUN_008d5d20 _FUN_008d5d20;
-    public static FUN_008c0f40 _FUN_008c0f40;
-    public static FUN_008c1350_DrawScissor512x416 _FUN_008c1350_DrawScissor512x416;
-    public static FUN_008d5dc0 _FUN_008d5dc0;
-    public static DrawCrossMenuScrollParts _DrawCrossMenuScrollParts;
-    public static FUN_008d6630 _FUN_008d6630;
+    public static delegates.FUN_008c1c70 _FUN_008c1c70;
+    public static delegates.TODrawMenuPlateXYWHType _TODrawMenuPlateXYWHType;
+    public static delegates.FUN_008f8bb0 _FUN_008f8bb0;
+    public static delegates.TODrawScissorXYWH _TODrawScissorXYWH;
+    public static delegates.FUN_008d5d20 _FUN_008d5d20;
+    public static delegates.FUN_008c0f40 _FUN_008c0f40;
+    public static delegates.FUN_008c1350_DrawScissor512x416 _FUN_008c1350_DrawScissor512x416;
+    public static delegates.FUN_008d5dc0 _FUN_008d5dc0;
+    public static delegates.DrawCrossMenuScrollParts _DrawCrossMenuScrollParts;
+    public static delegates.FUN_008d6630 _FUN_008d6630;
 
-    public static TkVU1SyncPath _TkVU1SyncPath;
-    public static FUN_008e71d0 _FUN_008e71d0;
-    public static FUN_008ff490 _FUN_008ff490;
-    public static FUN_008cd960 _FUN_008cd960;
-    public static FUN_008cd9f0 _FUN_008cd9f0;
-    public static ToGetCrossExtMesFontWidth _ToGetCrossExtMesFontWidth;
-    public static FUN_008bee80 _FUN_008bee80;
+    public static delegates.TkVU1SyncPath _TkVU1SyncPath;
+    public static delegates.FUN_008e71d0 _FUN_008e71d0;
+    public static delegates.FUN_008ff490 _FUN_008ff490;
+    public static delegates.FUN_008cd960 _FUN_008cd960;
+    public static delegates.FUN_008cd9f0 _FUN_008cd9f0;
+    public static delegates.ToGetCrossExtMesFontWidth _ToGetCrossExtMesFontWidth;
+    public static delegates.FUN_008bee80 _FUN_008bee80;
 
-    public static TOMkpShapeXYWHUV _TOMkpShapeXYWHUV;
-    public static TOMkpCrossExtMesFontLClut _TOMkpCrossExtMesFontLClut;
-    public static FUN_008d48e0 _FUN_008d48e0;
-    public static FUN_008d4140 _FUN_008d4140;
-    public static TkMn2DrawKickSyncPacket _TkMn2DrawKickSyncPacket;
-
-
-    public static TkMenuMainAllocWindow _TkMenuMainAllocWindow;
-    public static TkMenuMainRegistWindow _TkMenuMainRegistWindow;
+    public static delegates.TOMkpShapeXYWHUV _TOMkpShapeXYWHUV;
+    public static delegates.TOMkpCrossExtMesFontLClut _TOMkpCrossExtMesFontLClut;
+    public static delegates.FUN_008d48e0 _FUN_008d48e0;
+    public static delegates.FUN_008d4140 _FUN_008d4140;
+    public static delegates.TkMn2DrawKickSyncPacket _TkMn2DrawKickSyncPacket;
 
 
-    public static FUN_008e33a0 _FUN_008e33a0;
-    public static FUN_008b4460 _FUN_008b4460;
-    public static FUN_008e2de0 _FUN_008e2de0;
-    public static MsSetSaveParamAll _MsSetSaveParamAll;
-    public static MsSetWeaponName _MsSetWeaponName;
-    public static FUN_008c2c40 _FUN_008c2c40;
-    public static TkMn2DrawCrossCursor _TkMn2DrawCrossCursor;
+    public static delegates.TkMenuMainAllocWindow _TkMenuMainAllocWindow;
+    public static delegates.TkMenuMainRegistWindow _TkMenuMainRegistWindow;
 
-    public static FhMethodHandle<FUN_008d5720> _FUN_008d5720;
+
+    public static delegates.FUN_008e33a0 _FUN_008e33a0;
+    public static delegates.FUN_008b4460 _FUN_008b4460;
+    public static delegates.FUN_008e2de0 _FUN_008e2de0;
+    public static delegates.MsSetSaveParamAll _MsSetSaveParamAll;
+    public static delegates.MsSetWeaponName _MsSetWeaponName;
+    public static delegates.FUN_008c2c40 _FUN_008c2c40;
+    public static delegates.TkMn2DrawCrossCursor _TkMn2DrawCrossCursor;
+
+    public static FhMethodHandle<delegates.FUN_008d5720> _FUN_008d5720;
 
     // Customization-related
     private static int selected_gear_slot = 0;
@@ -71,7 +74,7 @@ public unsafe partial class ArchipelagoFFXModule {
     public void PrepareMenuList_InitList() {
         // Init list
         ushort* _DAT_01597330 = FhUtil.ptr_at<ushort>(0x1197330);
-        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        delegates.CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
 
         for (int i = 0; i < 0x200; i++) {
             menu_list_iter[i].a_ability_id = 0;
@@ -94,7 +97,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
-    public void h_PrepareMenuList(MenuListEnum menu_list_id, Equipment* gear)
+    public void h_PrepareMenuList(delegates.MenuListEnum menu_list_id, Equipment* gear)
     {
         logger.Info($"{menu_list_id}");
 
@@ -102,7 +105,7 @@ public unsafe partial class ArchipelagoFFXModule {
         uint[] ability_group_idxs = new uint[4];
         uint[] ability_group_levels = new uint[4];
 
-        if (menu_list_id == MenuListEnum.GEAR_CUSTOMIZATION) {
+        if (menu_list_id == delegates.MenuListEnum.GEAR_CUSTOMIZATION) {
             // Modify kaizou.bin
             int num_customizations;
             CustomizationRecipe* customizations = _MsGetRomKaizou(&num_customizations);
@@ -124,7 +127,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
             // Init list
             PrepareMenuList_InitList();
-            CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+            delegates.CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
             uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
 
 
@@ -176,10 +179,10 @@ public unsafe partial class ArchipelagoFFXModule {
                             continue;
                         }
                         else {
-                            CustomizationStatusEnum status = CustomizationStatusEnum.GEAR_AVAILABLE;
+                            delegates.CustomizationStatusEnum status = delegates.CustomizationStatusEnum.GEAR_AVAILABLE;
                             if (num_abilities == 0) {
                                 if (item_count < customization.item_cost) {
-                                    status = CustomizationStatusEnum.GEAR_NOT_ENOUGH_ITEMS;
+                                    status = delegates.CustomizationStatusEnum.GEAR_NOT_ENOUGH_ITEMS;
                                 }
                             }
                             else {
@@ -187,7 +190,7 @@ public unsafe partial class ArchipelagoFFXModule {
                                     if (ability_group_idxs[i] == a_ability->group_idx) {
                                         if (a_ability->group_level < ability_group_levels[i]) {
                                             // Same group, lower level
-                                            status = CustomizationStatusEnum.GEAR_CONFLICTING;
+                                            status = delegates.CustomizationStatusEnum.GEAR_CONFLICTING;
                                         }
                                         //if (a_ability->group_level == ability_group_levels[i]) {
                                         //    status = a_ability->international_bonus_idx != ability_international_bonuses[i] ? CustomizationStatusEnum.GEAR_CONFLICTING : CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
@@ -196,19 +199,19 @@ public unsafe partial class ArchipelagoFFXModule {
                                         {
                                             if (a_ability->international_bonus_idx == ability_international_bonuses[i])
                                             {
-                                                status = CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
+                                                status = delegates.CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
                                             } else if (selected_gear_slot != i)
                                             {
-                                                status = CustomizationStatusEnum.GEAR_CONFLICTING;
+                                                status = delegates.CustomizationStatusEnum.GEAR_CONFLICTING;
                                             }
                                         }
                                     }
                                     if (has_ribbon && a_ability->international_bonus_idx == 0xFE) {
-                                        status = CustomizationStatusEnum.GEAR_CONFLICTING;
+                                        status = delegates.CustomizationStatusEnum.GEAR_CONFLICTING;
                                     }
                                 }
-                                if (status == CustomizationStatusEnum.GEAR_AVAILABLE && item_count < customization.item_cost) {
-                                    status = CustomizationStatusEnum.GEAR_NOT_ENOUGH_ITEMS;
+                                if (status == delegates.CustomizationStatusEnum.GEAR_AVAILABLE && item_count < customization.item_cost) {
+                                    status = delegates.CustomizationStatusEnum.GEAR_NOT_ENOUGH_ITEMS;
                                 }
                             }
                             //if (gear->abilities[gear->slot_count - 1] != 0xff && gear->abilities[gear->slot_count - 1] != 0) {
@@ -224,7 +227,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 }
                 for (int i = 0; i < skipped; i++) {
                     // ????
-                    menu_list_iter->status = (CustomizationStatusEnum)0x11;
+                    menu_list_iter->status = (delegates.CustomizationStatusEnum)0x11;
                     menu_list_iter->a_ability_id = 0;
                     menu_list_iter->customization_id = 0xFF;
                     menu_list_iter++;
@@ -235,7 +238,7 @@ public unsafe partial class ArchipelagoFFXModule {
             // Set length
             PrepareMenuList_SetLength(added, skipped);
         }
-        else if (menu_list_id == MenuListEnum.AEON_ABILITIES) {
+        else if (menu_list_id == delegates.MenuListEnum.AEON_ABILITIES) {
             // TODO: Modify sum_grow.bin
             int num_customizations;
             CustomizationRecipe* customizations = _MsGetRomSummonGrow(&num_customizations);
@@ -258,7 +261,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
             // Init list
             PrepareMenuList_InitList();
-            CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+            delegates.CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
             uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
 
             byte current_summon = _TkMenuGetCurrentSummon();
@@ -280,18 +283,18 @@ public unsafe partial class ArchipelagoFFXModule {
                             menu_list_iter->a_ability_id = auto_ability_id;
                             menu_list_iter->customization_id = customization_id;
                             if (item_count < customization.item_cost) {
-                                menu_list_iter->status = CustomizationStatusEnum.AEON_NOT_ENOUGH_ITEMS;
+                                menu_list_iter->status = delegates.CustomizationStatusEnum.AEON_NOT_ENOUGH_ITEMS;
                             } else if (((int)customization.target_gear_type & (1 << (current_summon - 8))) == 0 && !has_key_item) {
                                 // Never reached because both conditions are always false: Bit is set for all Aeons (always 0x7F) and key item is unused.
-                                menu_list_iter->status = CustomizationStatusEnum.AEON_CANNOT_LEARN_WITHOUT_KEY;
+                                menu_list_iter->status = delegates.CustomizationStatusEnum.AEON_CANNOT_LEARN_WITHOUT_KEY;
                             } else {
-                                menu_list_iter->status = CustomizationStatusEnum.AEON_AVAILABLE;
+                                menu_list_iter->status = delegates.CustomizationStatusEnum.AEON_AVAILABLE;
                             }
                         }
                     } else {
                         menu_list_iter->a_ability_id = auto_ability_id;
                         menu_list_iter->customization_id = customization_id;
-                        menu_list_iter->status = CustomizationStatusEnum.AEON_ALREADY_LEARNED;
+                        menu_list_iter->status = delegates.CustomizationStatusEnum.AEON_ALREADY_LEARNED;
                     }
                     menu_list_iter++;
                     added++;
@@ -442,7 +445,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 case 0xd:
                     TkWindow* AbilitySelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F4); // PTR_0186a9f4
                     TkWindow* GearSelectionWindow    = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
-                    CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+                    delegates.CustomizationMenuList* menu_list = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
 
 
                     short selected_ability = AbilitySelectionWindow->selected_index;
@@ -541,7 +544,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     break;
             }
         }
-        
+
 
 
         if (*state != pre_state) {
@@ -552,7 +555,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
                 TkWindow* DAT_0186a9f4 = (TkWindow*)FhUtil.get_at<uint>(0x0146A9F4);
                 short selected_idx = DAT_0186a9f4->selected_index;
-                CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+                delegates.CustomizationMenuList* menu_list = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
                 int num_customizations;
                 CustomizationRecipe* customizations = _MsGetRomKaizou(&num_customizations);
                 byte customization_id = menu_list[selected_idx].customization_id;
@@ -594,7 +597,7 @@ public unsafe partial class ArchipelagoFFXModule {
             if (pre_state == 0x15) {
                 TkWindow* DAT_0186a568 = (TkWindow*)FhUtil.get_at<uint>(0x0146a568);
                 short selected_idx = DAT_0186a568->selected_index;
-                CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+                delegates.CustomizationMenuList* menu_list = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
                 byte customization_id = menu_list[selected_idx].customization_id;
                 int num_customizations;
                 CustomizationRecipe* customizations = _MsGetRomSummonGrow(&num_customizations);
@@ -633,7 +636,7 @@ public unsafe partial class ArchipelagoFFXModule {
         uint current_summon = _TkMenuGetCurrentSummon();
 
 
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        delegates.CustomizationMenuList* menu_list = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
         short selected_idx = window->selected_index;
         Vector2 pos_1;
         Vector2 pos_2;
@@ -766,7 +769,7 @@ public unsafe partial class ArchipelagoFFXModule {
             pos.Y -= (float)(new Vector2(0, 70f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
         }
 
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        delegates.CustomizationMenuList* menu_list = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
         short menu_length = window->num_items;
         for (int i = -1; i < 10; i++) {
             int curr_index = menu_offset + i;
@@ -789,7 +792,7 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     public void DrawGearCustomizationMenu_reimplement(TkWindow* window) {
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        delegates.CustomizationMenuList* menu_list = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
         short selected_idx = window->selected_index;
         Vector2 pos_1;
         Vector2 pos_2;
@@ -885,7 +888,7 @@ public unsafe partial class ArchipelagoFFXModule {
             pos.Y -= (float)(new Vector2(0, 75f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
         }
 
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        delegates.CustomizationMenuList* menu_list = FhUtil.ptr_at<delegates.CustomizationMenuList>(0x1197730);
         short menu_length = window->num_items;
         for (int i = -1; i < 10; i++) {
             int curr_index = menu_offset + i;

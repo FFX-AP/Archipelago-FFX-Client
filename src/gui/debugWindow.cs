@@ -1,7 +1,7 @@
 ﻿using Archipelago.MultiClient.Net.Enums;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
-using Fahrenheit.Modules.ArchipelagoFFX.Client;
+
 using Hexa.NET.ImGui;
 using System;
 using System.Collections.Generic;
@@ -9,13 +9,18 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+
+using ArchipelagoFFX.Client;
+
+using Fahrenheit;
+
 using static Fahrenheit.FFX.Globals;
-using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
-using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoFFXModule;
-using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
+using static ArchipelagoFFX.ArchipelagoData;
+using static ArchipelagoFFX.ArchipelagoFFXModule;
+using static ArchipelagoFFX.delegates;
 using Color = Archipelago.MultiClient.Net.Models.Color;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX.GUI;
+namespace ArchipelagoFFX.GUI;
 
 public unsafe static class ArchipelagoGUI {
     public delegate void OnRenderDelegate();
@@ -216,7 +221,7 @@ public unsafe static class ArchipelagoGUI {
             //    }
             //}
             if (ImGui.Checkbox($"Original soundtrack?", &save_data->soundtrack_type)) {
-                var soundtrack_callback = FhUtil.get_fptr<FUN_008cc120>(__addr_FUN_008cc120);
+                var soundtrack_callback = FhUtil.get_fptr<delegates.FUN_008cc120>(__addr_FUN_008cc120);
                 soundtrack_callback(save_data->soundtrack_type ? 1 : 0);
             }
 
@@ -640,7 +645,7 @@ public unsafe static class ArchipelagoGUI {
         if (seed.Options.SeedId is null && !FFXArchipelagoClient.is_connected) {
             string[] seedNames = [.. ArchipelagoFFXModule.loaded_seeds.Select(x => x.Name)];
             if (ImGui.Combo("Selected seed", ref selected_seed, seedNames, seedNames.Length)) {
-                ArchipelagoSeed seed = ArchipelagoFFXModule.loaded_seeds[selected_seed];
+                ArchipelagoFFXModule.ArchipelagoSeed seed = ArchipelagoFFXModule.loaded_seeds[selected_seed];
                 client_input_name = seed.Options.PlayerName;
                 if (ArchipelagoFFXModule.SeedToServer.TryGetValue(seed.Options.SeedId, out string? server)) {
                     client_input_address = server;
@@ -775,8 +780,8 @@ public unsafe static class ArchipelagoGUI {
 
                 Action fn = cmd switch {
                     ["/resetregion", string regionString] => () => {
-                        RegionEnum region = stringToRegion(regionString);
-                        if (region != RegionEnum.None) {
+                        ArchipelagoData.RegionEnum region = stringToRegion(regionString);
+                        if (region != ArchipelagoData.RegionEnum.None) {
                             ArchipelagoFFXModule.region_states[region].story_progress = region_starting_state[region].story_progress;
                             ArchipelagoFFXModule.region_states[region].room_id        = region_starting_state[region].room_id;
                             ArchipelagoFFXModule.region_states[region].entrance       = region_starting_state[region].entrance;
@@ -819,12 +824,12 @@ public unsafe static class ArchipelagoGUI {
                     }
                     ,
                     ["/setregion", string regionString, string progressString, string mapString, string entranceString] => () => {
-                        RegionEnum region = stringToRegion(regionString);
-                        if (region != RegionEnum.None) {
+                        ArchipelagoData.RegionEnum region = stringToRegion(regionString);
+                        if (region != ArchipelagoData.RegionEnum.None) {
                             if (ushort.TryParse(progressString, out ushort progress)) {
                                 if (ushort.TryParse(mapString, out ushort map)) {
                                     if (ushort.TryParse(entranceString, out ushort entrance)) {
-                                        ArchipelagoRegion r = ArchipelagoFFXModule.region_states[region];
+                                        ArchipelagoData.ArchipelagoRegion r = ArchipelagoFFXModule.region_states[region];
                                         r.story_progress = progress;
                                         r.room_id = map;
                                         r.entrance = entrance;
@@ -931,7 +936,7 @@ public unsafe static class ArchipelagoGUI {
         ImGui.Text($"Current room: {Globals.save_data->current_room_id} ({Marshal.PtrToStringAnsi((nint)ArchipelagoFFXModule.get_event_name(*(uint*)Globals.event_id))!})");
         ImGui.Text($"Current region: {ArchipelagoFFXModule.current_region}");
         ImGui.Text($"Current story progress: {Globals.save_data->story_progress}");
-        if (ArchipelagoFFXModule.current_region != RegionEnum.None) {
+        if (ArchipelagoFFXModule.current_region != ArchipelagoData.RegionEnum.None) {
             foreach (var data in ArchipelagoFFXModule.region_states[current_region].savedata) {
                 ImGui.Text($"{data.offset}: {string.Join(" ", data.bytes.Select(b => b.ToString()).ToArray())}");
             }

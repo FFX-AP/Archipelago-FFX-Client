@@ -2,8 +2,7 @@
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.FFX.Ids;
-using Fahrenheit.Modules.ArchipelagoFFX.Client;
-using Fahrenheit.Modules.ArchipelagoFFX.GUI;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +10,20 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using static Fahrenheit.FFX.Globals;
-using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
-using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
-using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
-using Color = Archipelago.MultiClient.Net.Models.Color;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+using ArchipelagoFFX.Client;
+using ArchipelagoFFX.GUI;
+
+using Fahrenheit;
+
+using static Fahrenheit.FFX.Globals;
+using static ArchipelagoFFX.ArchipelagoData;
+using static ArchipelagoFFX.Client.FFXArchipelagoClient;
+using static ArchipelagoFFX.delegates;
+using Color = Archipelago.MultiClient.Net.Models.Color;
+using FhCall = Fahrenheit.FFX.FhCall;
+
+namespace ArchipelagoFFX;
 public unsafe partial class ArchipelagoFFXModule {
 
     public static int* takara_pointer => FhUtil.ptr_at<int>(0xD35FEC);
@@ -25,24 +31,24 @@ public unsafe partial class ArchipelagoFFXModule {
 
 
     // AtelEventSetUp
-    private static FhMethodHandle<AtelEventSetUp> _AtelEventSetUp;
+    private static FhMethodHandle<delegates.AtelEventSetUp> _AtelEventSetUp;
 
-    public static char* get_event_name(uint event_id) => FhUtil.get_fptr<AtelGetEventName>(0x4796e0)(event_id);
-    public static int atel_stack_pop(int* param_1, AtelStack* atelStack) => FhUtil.get_fptr<AtelStackPop>(0x0046de90)(param_1, atelStack);
+    public static char* get_event_name(uint event_id) => FhUtil.get_fptr<delegates.AtelGetEventName>(0x4796e0)(event_id);
+    public static int atel_stack_pop(int* param_1, AtelStack* atelStack) => FhUtil.get_fptr<delegates.AtelStackPop>(0x0046de90)(param_1, atelStack);
 
-    private static FhMethodHandle<Common_obtainTreasureInit> _Common_obtainTreasureInit;
-    private static FhMethodHandle<Common_obtainTreasureSilentlyInit> _Common_obtainTreasureSilentlyInit;
-    private static FhMethodHandle<CT_RetInt_01B6> _Common_isBrotherhoodUnpoweredRetInt;
-    private static FhMethodHandle<Common_upgradeBrotherhoodRetInt> _Common_upgradeBrotherhoodRetInt;
-    private static FhMethodHandle<Common_obtainBrotherhoodRetInt> _Common_obtainBrotherhoodRetInt;
+    private static FhMethodHandle<delegates.Common_obtainTreasureInit> _Common_obtainTreasureInit;
+    private static FhMethodHandle<delegates.Common_obtainTreasureSilentlyInit> _Common_obtainTreasureSilentlyInit;
+    private static FhMethodHandle<delegates.CT_RetInt_01B6> _Common_isBrotherhoodUnpoweredRetInt;
+    private static FhMethodHandle<delegates.Common_upgradeBrotherhoodRetInt> _Common_upgradeBrotherhoodRetInt;
+    private static FhMethodHandle<delegates.Common_obtainBrotherhoodRetInt> _Common_obtainBrotherhoodRetInt;
     //private static FhMethodHandle<Common_grantCelestialUpgrade> _Common_grantCelestialUpgrade;
-    private static FhMethodHandle<Common_setPrimerCollected> _Common_setPrimerCollected;
-    private static FhMethodHandle<Common_transitionToMap> _Common_transitionToMap;
-    private static FhMethodHandle<Common_warpToMap> _Common_warpToMap;
+    private static FhMethodHandle<delegates.Common_setPrimerCollected> _Common_setPrimerCollected;
+    private static FhMethodHandle<delegates.Common_transitionToMap> _Common_transitionToMap;
+    private static FhMethodHandle<delegates.Common_warpToMap> _Common_warpToMap;
 
-    private static FhMethodHandle<TkSetLegendAbility> _TkSetLegendAbility;
+    private static FhMethodHandle<delegates.TkSetLegendAbility> _TkSetLegendAbility;
 
-    private static FhMethodHandle<SgEvent_showModularMenuInit> _SgEvent_showModularMenuInit;
+    private static FhMethodHandle<delegates.SgEvent_showModularMenuInit> _SgEvent_showModularMenuInit;
 
     //private static FhMethodHandle<Common_playFieldVoiceLineInit> _Common_playFieldVoiceLineInit;
     //private static FhMethodHandle<Common_playFieldVoiceLineExec> _Common_playFieldVoiceLineExec;
@@ -50,188 +56,188 @@ public unsafe partial class ArchipelagoFFXModule {
 
 
 
-    private static Common_playFieldVoiceLineInit _Common_playFieldVoiceLineInit;
-    private static Common_playFieldVoiceLineExec _Common_playFieldVoiceLineExec;
-    private static Common_playFieldVoiceLineResultInt _Common_playFieldVoiceLineResultInt;
+    private static delegates.Common_playFieldVoiceLineInit _Common_playFieldVoiceLineInit;
+    private static delegates.Common_playFieldVoiceLineExec _Common_playFieldVoiceLineExec;
+    private static delegates.Common_playFieldVoiceLineResultInt _Common_playFieldVoiceLineResultInt;
 
-    private static Common_00D6Init _Common_00D6Init;
-    private static Common_00D6Exec _Common_00D6Exec;
-    private static Common_00D6ResultInt _Common_00D6ResultInt;
+    private static delegates.Common_00D6Init _Common_00D6Init;
+    private static delegates.Common_00D6Exec _Common_00D6Exec;
+    private static delegates.Common_00D6ResultInt _Common_00D6ResultInt;
 
 
     // Common.01D1Init
-    private static Common_01D1Init _Common_01D1Init;
+    private static delegates.Common_01D1Init _Common_01D1Init;
     // Common.01D1Exec
-    private static Common_01D1Exec _Common_01D1Exec;
+    private static delegates.Common_01D1Exec _Common_01D1Exec;
 
-    private static FhMethodHandle<Common_addPartyMember> _Common_addPartyMember;
-    private static FhMethodHandle<Common_removePartyMember> _Common_removePartyMember;
-    private static FhMethodHandle<Common_removePartyMemberLongTerm> _Common_removePartyMemberLongTerm;
-    private static FhMethodHandle<Common_setWeaponInvisible> _Common_setWeaponVisibilty;
-    private static FhMethodHandle<Common_putPartyMemberInSlot> _Common_putPartyMemberInSlot;
+    private static FhMethodHandle<delegates.Common_addPartyMember> _Common_addPartyMember;
+    private static FhMethodHandle<delegates.Common_removePartyMember> _Common_removePartyMember;
+    private static FhMethodHandle<delegates.Common_removePartyMemberLongTerm> _Common_removePartyMemberLongTerm;
+    private static FhMethodHandle<delegates.Common_setWeaponInvisible> _Common_setWeaponVisibilty;
+    private static FhMethodHandle<delegates.Common_putPartyMemberInSlot> _Common_putPartyMemberInSlot;
 
-    private static FhMethodHandle<Common_pushParty> _Common_pushParty;
-    private static FhMethodHandle<Common_popParty> _Common_popParty;
+    private static FhMethodHandle<delegates.Common_pushParty> _Common_pushParty;
+    private static FhMethodHandle<delegates.Common_popParty> _Common_popParty;
 
     // getCurrentPartySlots
-    private static FhMethodHandle<MsGetSavePartyMember> _MsGetSavePartyMember;
+    private static FhMethodHandle<delegates.MsGetSavePartyMember> _MsGetSavePartyMember;
 
     // Battle releated
-    private static MsBtlListGroup _MsBtlListGroup;
-    private static FhMethodHandle<MsBattleExe> _MsBattleExe;
+    private static delegates.MsBtlListGroup _MsBtlListGroup;
+    private static FhMethodHandle<delegates.MsBattleExe> _MsBattleExe;
 
 
-    public static MsBattleLabelExe _MsBattleLabelExe;
-    private static FhMethodHandle<FUN_00791820> _FUN_00791820;
+    public static delegates.MsBattleLabelExe _MsBattleLabelExe;
+    private static FhMethodHandle<delegates.FUN_00791820> _FUN_00791820;
 
-    private static FhMethodHandle<MsBtlGetPos> _MsBtlGetPos;
+    private static FhMethodHandle<delegates.MsBtlGetPos> _MsBtlGetPos;
 
-    private static FhMethodHandle<MsBtlReadSetScene> _MsBtlReadSetScene;
+    private static FhMethodHandle<delegates.MsBtlReadSetScene> _MsBtlReadSetScene;
 
     // giveItem
-    private static FhMethodHandle<FUN_007905a0> _FUN_007905a0;
+    private static FhMethodHandle<delegates.FUN_007905a0> _FUN_007905a0;
     // giveKeyItem
     // takeGil
 
 
     // readFromBin
-    private static FhMethodHandle<FUN_007ab890> _FUN_007ab890;
+    private static FhMethodHandle<delegates.FUN_007ab890> _FUN_007ab890;
 
     // getWeaponName
-    private static FhMethodHandle<FUN_007a0d10> _FUN_007a0d10;
+    private static FhMethodHandle<delegates.FUN_007a0d10> _FUN_007a0d10;
     // getWeaponModel
-    private static FhMethodHandle<FUN_007a0c70> _FUN_007a0c70;
+    private static FhMethodHandle<delegates.FUN_007a0c70> _FUN_007a0c70;
     // obtainTreasureCleanup
-    private static FhMethodHandle<FUN_007993f0> _FUN_007993f0;
+    private static FhMethodHandle<delegates.FUN_007993f0> _FUN_007993f0;
 
-    private static MsGetChr _MsGetChr;
-    private static FFX.FhCall.MsGetComData _MsGetComData;
-    private static FFX.FhCall.MsGetCommandUse _MsGetCommandUse;
-    private static FFX.FhCall.MsGetCommandMP _MsGetCommandMP;
-    private static FFX.FhCall.MsGetRamChrMonster _MsGetRamChrMonster;
-    private static FFX.FhCall.TODrawCrossBoxXYWHC2 _TODrawCrossBoxXYWHC2;
+    private static delegates.MsGetChr _MsGetChr;
+    private static FhCall.MsGetComData _MsGetComData;
+    private static FhCall.MsGetCommandUse _MsGetCommandUse;
+    private static FhCall.MsGetCommandMP _MsGetCommandMP;
+    private static FhCall.MsGetRamChrMonster _MsGetRamChrMonster;
+    private static FhCall.TODrawCrossBoxXYWHC2 _TODrawCrossBoxXYWHC2;
 
 
-    private static FhMethodHandle<TkMenuAppearMainCmdWindow> _TkMenuAppearMainCmdWindow;
+    private static FhMethodHandle<delegates.TkMenuAppearMainCmdWindow> _TkMenuAppearMainCmdWindow;
 
     // Sphere Grid Experiment
-    private static FhMethodHandle<eiAbmParaGet>     _eiAbmParaGet;
-    private static FhMethodHandle<MsSetSaveParam>   _MsSetSaveParam;
-    private static FhMethodHandle<MsSetRamChrParam> _MsSetRamChrParam;
-    private static FhMethodHandle<FUN_00a48910>     _FUN_00a48910;
+    private static FhMethodHandle<delegates.eiAbmParaGet>     _eiAbmParaGet;
+    private static FhMethodHandle<delegates.MsSetSaveParam>   _MsSetSaveParam;
+    private static FhMethodHandle<delegates.MsSetRamChrParam> _MsSetRamChrParam;
+    private static FhMethodHandle<delegates.FUN_00a48910>     _FUN_00a48910;
 
-    private static FhMethodHandle<MsApUp> _MsApUp;
-
-
-    private static FhMethodHandle<openFile> _openFile;
-    private static readFile _readFile;
-    private static FhMethodHandle<FUN_0070aec0> _FUN_0070aec0;
-
-    private static FFX.FhCall.ChN_ReadSystemMGRP _ChN_ReadSystemMGRP;
-    private static Common_loadModel _Common_loadModel;
-    private static Common_0043 _Common_0043;
-    private static Common_linkFieldToBattleActor _Common_linkFieldToBattleActor;
-    private static FFX.FhCall.SndSepPlay _SndSepPlay;
+    private static FhMethodHandle<delegates.MsApUp> _MsApUp;
 
 
-    public static MsGetExcelData _MsGetExcelData;
+    private static FhMethodHandle<delegates.openFile> _openFile;
+    private static delegates.readFile _readFile;
+    private static FhMethodHandle<delegates.FUN_0070aec0> _FUN_0070aec0;
 
-    private static FhMethodHandle<Map_800F> _Map_800F;
+    private static FhCall.ChN_ReadSystemMGRP _ChN_ReadSystemMGRP;
+    private static delegates.Common_loadModel _Common_loadModel;
+    private static delegates.Common_0043 _Common_0043;
+    private static delegates.Common_linkFieldToBattleActor _Common_linkFieldToBattleActor;
+    private static FhCall.SndSepPlay _SndSepPlay;
 
-    private static FhMethodHandle<FUN_0086bec0> _FUN_0086bec0;
-    private static FhMethodHandle<FUN_0086bea0> _FUN_0086bea0;
 
-    private static FhMethodHandle<graphicInitFMVPlayer> _graphicInitFMVPlayer;
+    public static delegates.MsGetExcelData _MsGetExcelData;
 
-    private static FhMethodHandle<FUN_00656c90> _FUN_00656c90;
-    private static FUN_0065ee30 _FUN_0065ee30;
-    private static ClusterManager_loadPCluster _ClusterManager_loadPCluster;
-    private static Phyre_PFramework_PApplication_FixupClusters _Phyre_PFramework_PApplication_FixupClusters;
-    private static ClusterManager_releasePCluster _ClusterManager_releasePCluster;
-    private static ClusterManager_getPClusterByName _ClusterManager_getPClusterByName;
-    private static fiosUnifyFilename _fiosUnifyFilename;
+    private static FhMethodHandle<delegates.Map_800F> _Map_800F;
+
+    private static FhMethodHandle<delegates.FUN_0086bec0> _FUN_0086bec0;
+    private static FhMethodHandle<delegates.FUN_0086bea0> _FUN_0086bea0;
+
+    private static FhMethodHandle<delegates.graphicInitFMVPlayer> _graphicInitFMVPlayer;
+
+    private static FhMethodHandle<delegates.FUN_00656c90> _FUN_00656c90;
+    private static delegates.FUN_0065ee30 _FUN_0065ee30;
+    private static delegates.ClusterManager_loadPCluster _ClusterManager_loadPCluster;
+    private static delegates.Phyre_PFramework_PApplication_FixupClusters _Phyre_PFramework_PApplication_FixupClusters;
+    private static delegates.ClusterManager_releasePCluster _ClusterManager_releasePCluster;
+    private static delegates.ClusterManager_getPClusterByName _ClusterManager_getPClusterByName;
+    private static delegates.fiosUnifyFilename _fiosUnifyFilename;
 
 
     // ObtainTreasure related
-    private static FhMethodHandle<TkMsImportantSet> _TkMsImportantSet;
-    private static MsPayGIL _MsPayGIL;
-    private static SndSepPlaySimple _SndSepPlaySimple;
-    private static MsGetSaveWeapon _MsGetSaveWeapon;
-    private static FUN_007ab930 _FUN_007ab930; // giveWeapon?
-    private static AtelGetCurCtrlWork _AtelGetCurCtrlWork;
-    private static MsFieldItemGet _MsFieldItemGet;
-    private static TkMsGetRomItem _TkMsGetRomItem;
-    private static MsSaveItemUse _MsSaveItemUse;
-    private static MsImportantName _MsImportantName;
-    private static CT_RetInt_0065 _CT_RetInt_0065;
-    private static CT_RetInt_006A _CT_RetInt_006A;
-    private static FFX.FhCall.MsBtlGetInit _MsBtlGetInit;
-    private static AtelGetMesWinWork _AtelGetMesWinWork;
-    private static FUN_008b8910 _FUN_008b8910; // setMessageWindowVariableType? (0: text*, 1: int)
-    private static FUN_008bda20 _FUN_008bda20; // getMenuText
-    private static FUN_008b8930 _FUN_008b8930; // setMessageWindowVariable
-    private static FUN_0086a0c0 _FUN_0086a0c0;
+    private static FhMethodHandle<delegates.TkMsImportantSet> _TkMsImportantSet;
+    private static delegates.MsPayGIL _MsPayGIL;
+    private static delegates.SndSepPlaySimple _SndSepPlaySimple;
+    private static delegates.MsGetSaveWeapon _MsGetSaveWeapon;
+    private static delegates.FUN_007ab930 _FUN_007ab930; // giveWeapon?
+    private static delegates.AtelGetCurCtrlWork _AtelGetCurCtrlWork;
+    private static delegates.MsFieldItemGet _MsFieldItemGet;
+    private static delegates.TkMsGetRomItem _TkMsGetRomItem;
+    private static delegates.MsSaveItemUse _MsSaveItemUse;
+    private static delegates.MsImportantName _MsImportantName;
+    private static delegates.CT_RetInt_0065 _CT_RetInt_0065;
+    private static delegates.CT_RetInt_006A _CT_RetInt_006A;
+    private static FhCall.MsBtlGetInit _MsBtlGetInit;
+    private static delegates.AtelGetMesWinWork _AtelGetMesWinWork;
+    private static delegates.FUN_008b8910 _FUN_008b8910; // setMessageWindowVariableType? (0: text*, 1: int)
+    private static delegates.FUN_008bda20 _FUN_008bda20; // getMenuText
+    private static delegates.FUN_008b8930 _FUN_008b8930; // setMessageWindowVariable
+    private static delegates.FUN_0086a0c0 _FUN_0086a0c0;
 
 
     // Voice related
-    private static FhMethodHandle<FmodVoice_dataChange> _FmodVoice_dataChange;
-    private static FMOD_EventSystem_load _FMOD_EventSystem_load;
+    private static FhMethodHandle<delegates.FmodVoice_dataChange> _FmodVoice_dataChange;
+    private static delegates.FMOD_EventSystem_load _FMOD_EventSystem_load;
 
-    private static FhMethodHandle<FfxFmod_soundInit_setLang> _FfxFmod_soundInit_setLang;
-    private static FhMethodHandle<LocalizationManager_Initialize> _LocalizationManager_Initialize;
-    public static LocalizationManager_GetInstance _LocalizationManager_GetInstance;
-    public static FfxFmod_soundInit _FfxFmod_soundInit;
-    public static FmodVoice_initList _FmodVoice_initList;
+    private static FhMethodHandle<delegates.FfxFmod_soundInit_setLang> _FfxFmod_soundInit_setLang;
+    private static FhMethodHandle<delegates.LocalizationManager_Initialize> _LocalizationManager_Initialize;
+    public static delegates.LocalizationManager_GetInstance _LocalizationManager_GetInstance;
+    public static delegates.FfxFmod_soundInit _FfxFmod_soundInit;
+    public static delegates.FmodVoice_initList _FmodVoice_initList;
 
 
     // Custom namespace
-    private static FhMethodHandle<AtelInitTotal> _AtelInitTotal;
-    public static void AtelSetUpCallFunc(int id, nint nameSpacePtr) => FhUtil.get_fptr<AtelSetUpCallFunc>(__addr_AtelSetUpCallFunc)(id, nameSpacePtr);
+    private static FhMethodHandle<delegates.AtelInitTotal> _AtelInitTotal;
+    public static void AtelSetUpCallFunc(int id, nint nameSpacePtr) => FhUtil.get_fptr<delegates.AtelSetUpCallFunc>(__addr_AtelSetUpCallFunc)(id, nameSpacePtr);
 
     // Airship menu related
-    public static FUN_00867370 _FUN_00867370;
-    public static FUN_008671d0 _FUN_008671d0;
-    public static Map_show2DLayerResultInt _Map_show2DLayerResultInt;
-    public static Map_hide2DLayerResultInt _Map_hide2DLayerResultInt;
+    public static delegates.FUN_00867370 _FUN_00867370;
+    public static delegates.FUN_008671d0 _FUN_008671d0;
+    public static delegates.Map_show2DLayerResultInt _Map_show2DLayerResultInt;
+    public static delegates.Map_hide2DLayerResultInt _Map_hide2DLayerResultInt;
 
     // Drawing
-    public static TOMkpCrossExtMesFontLClutTypeRGBA _TOMkpCrossExtMesFontLClutTypeRGBA;
-    public static ToMakeBtlEasyFont _ToMakeBtlEasyFont;
+    public static delegates.TOMkpCrossExtMesFontLClutTypeRGBA _TOMkpCrossExtMesFontLClutTypeRGBA;
+    public static delegates.ToMakeBtlEasyFont _ToMakeBtlEasyFont;
 
     public void init_hooks() {
         const string game = "FFX.exe";
 
-        _AtelEventSetUp = new FhMethodHandle<AtelEventSetUp>(this, game, __addr_AtelEventSetUp, h_AtelEventSetUp);
+        _AtelEventSetUp = new FhMethodHandle<delegates.AtelEventSetUp>(this, game, __addr_AtelEventSetUp, h_AtelEventSetUp);
 
-        _Common_obtainTreasureInit = new FhMethodHandle<Common_obtainTreasureInit>(this, game, __addr_Common_obtainTreasureInit, h_Common_obtainTreasureInit);
+        _Common_obtainTreasureInit = new FhMethodHandle<delegates.Common_obtainTreasureInit>(this, game, __addr_Common_obtainTreasureInit, h_Common_obtainTreasureInit);
 
-        _Common_obtainTreasureSilentlyInit = new FhMethodHandle<Common_obtainTreasureSilentlyInit>(this, game, __addr_Common_obtainTreasureSilentlyInit, h_Common_obtainTreasureSilentlyInit);
+        _Common_obtainTreasureSilentlyInit = new FhMethodHandle<delegates.Common_obtainTreasureSilentlyInit>(this, game, __addr_Common_obtainTreasureSilentlyInit, h_Common_obtainTreasureSilentlyInit);
 
-        _Common_isBrotherhoodUnpoweredRetInt = new FhMethodHandle<CT_RetInt_01B6>(this, game, __addr_CT_RetInt_01B6, h_Common_isBrotherhoodUnpoweredRetInt);
-        _Common_upgradeBrotherhoodRetInt = new FhMethodHandle<Common_upgradeBrotherhoodRetInt>(this, game, __addr_CT_RetInt_01B7, h_Common_upgradeBrotherhoodRetInt);
-        _Common_obtainBrotherhoodRetInt = new FhMethodHandle<Common_obtainBrotherhoodRetInt>(this, game, __addr_Common_obtainBrotherhoodRetInt, h_Common_obtainBrotherhoodRetInt);
+        _Common_isBrotherhoodUnpoweredRetInt = new FhMethodHandle<delegates.CT_RetInt_01B6>(this, game, __addr_CT_RetInt_01B6, h_Common_isBrotherhoodUnpoweredRetInt);
+        _Common_upgradeBrotherhoodRetInt = new FhMethodHandle<delegates.Common_upgradeBrotherhoodRetInt>(this, game, __addr_CT_RetInt_01B7, h_Common_upgradeBrotherhoodRetInt);
+        _Common_obtainBrotherhoodRetInt = new FhMethodHandle<delegates.Common_obtainBrotherhoodRetInt>(this, game, __addr_Common_obtainBrotherhoodRetInt, h_Common_obtainBrotherhoodRetInt);
 
-        _TkSetLegendAbility = new FhMethodHandle<TkSetLegendAbility>(this, game, __addr_TkSetLegendAbility, h_TkSetLegendAbility);
+        _TkSetLegendAbility = new FhMethodHandle<delegates.TkSetLegendAbility>(this, game, __addr_TkSetLegendAbility, h_TkSetLegendAbility);
 
-        _Common_setPrimerCollected = new FhMethodHandle<Common_setPrimerCollected>(this, game, __addr_Common_setPrimerCollected, h_Common_setPrimerCollected);
+        _Common_setPrimerCollected = new FhMethodHandle<delegates.Common_setPrimerCollected>(this, game, __addr_Common_setPrimerCollected, h_Common_setPrimerCollected);
 
-        _Common_transitionToMap = new FhMethodHandle<Common_transitionToMap>(this, game, __addr_Common_transitionToMap, h_Common_transitionToMap);
-        _Common_warpToMap = new FhMethodHandle<Common_warpToMap>(this, game, __addr_Common_warpToMap, h_Common_warpToMap);
+        _Common_transitionToMap = new FhMethodHandle<delegates.Common_transitionToMap>(this, game, __addr_Common_transitionToMap, h_Common_transitionToMap);
+        _Common_warpToMap = new FhMethodHandle<delegates.Common_warpToMap>(this, game, __addr_Common_warpToMap, h_Common_warpToMap);
 
-        _SgEvent_showModularMenuInit = new FhMethodHandle<SgEvent_showModularMenuInit>(this, game, __addr_SgEvent_showModularMenuInit, h_SgEvent_showModularMenuInit);
+        _SgEvent_showModularMenuInit = new FhMethodHandle<delegates.SgEvent_showModularMenuInit>(this, game, __addr_SgEvent_showModularMenuInit, h_SgEvent_showModularMenuInit);
 
 
         //_Common_playFieldVoiceLineInit = new FhMethodHandle<Common_playFieldVoiceLineInit>(this, game, h_Common_playFieldVoiceLineInit, offset: 0x0045cb70);
         //_Common_playFieldVoiceLineExec = new FhMethodHandle<Common_playFieldVoiceLineExec>(this, game, h_Common_playFieldVoiceLineExec, offset: 0x0045cd30);
         //_Common_playFieldVoiceLineResultInt = new FhMethodHandle<Common_playFieldVoiceLineResultInt>(this, game, h_Common_playFieldVoiceLineResultInt, offset: 0x0045d150);
 
-        _Common_playFieldVoiceLineInit      = FhUtil.get_fptr<Common_playFieldVoiceLineInit>     (__addr_Common_playFieldVoiceLineInit     );
-        _Common_playFieldVoiceLineExec      = FhUtil.get_fptr<Common_playFieldVoiceLineExec>     (__addr_Common_playFieldVoiceLineExec     );
-        _Common_playFieldVoiceLineResultInt = FhUtil.get_fptr<Common_playFieldVoiceLineResultInt>(__addr_Common_playFieldVoiceLineResultInt);
+        _Common_playFieldVoiceLineInit      = FhUtil.get_fptr<delegates.Common_playFieldVoiceLineInit>     (__addr_Common_playFieldVoiceLineInit     );
+        _Common_playFieldVoiceLineExec      = FhUtil.get_fptr<delegates.Common_playFieldVoiceLineExec>     (__addr_Common_playFieldVoiceLineExec     );
+        _Common_playFieldVoiceLineResultInt = FhUtil.get_fptr<delegates.Common_playFieldVoiceLineResultInt>(__addr_Common_playFieldVoiceLineResultInt);
 
-        _Common_00D6Init      = FhUtil.get_fptr<Common_00D6Init>     (__addr_Common_00D6Init     );
-        _Common_00D6Exec      = FhUtil.get_fptr<Common_00D6Exec>     (__addr_Common_00D6Exec     );
-        _Common_00D6ResultInt = FhUtil.get_fptr<Common_00D6ResultInt>(__addr_Common_00D6ResultInt);
+        _Common_00D6Init      = FhUtil.get_fptr<delegates.Common_00D6Init>     (__addr_Common_00D6Init     );
+        _Common_00D6Exec      = FhUtil.get_fptr<delegates.Common_00D6Exec>     (__addr_Common_00D6Exec     );
+        _Common_00D6ResultInt = FhUtil.get_fptr<delegates.Common_00D6ResultInt>(__addr_Common_00D6ResultInt);
 
 
 
@@ -241,129 +247,129 @@ public unsafe partial class ArchipelagoFFXModule {
         //_FUN_0085fdb0 = new FhMethodHandle<FUN_0085fdb0>(this, game, h_after_voiceline_exec, offset: 0x0045fdb0);
 
         // Common.01D1Init
-        _Common_01D1Init = FhUtil.get_fptr<Common_01D1Init>(__addr_Common_01D1Init);
+        _Common_01D1Init = FhUtil.get_fptr<delegates.Common_01D1Init>(__addr_Common_01D1Init);
         // Common.01D1Exec
-        _Common_01D1Exec = FhUtil.get_fptr<Common_01D1Exec>(__addr_Common_01D1Exec);
+        _Common_01D1Exec = FhUtil.get_fptr<delegates.Common_01D1Exec>(__addr_Common_01D1Exec);
 
 
 
 
-        _Common_addPartyMember = new FhMethodHandle<Common_addPartyMember>(this, game, 0x0045b5a0, h_Common_addPartyMember);
-        _Common_removePartyMember = new FhMethodHandle<Common_removePartyMember>(this, game, 0x0045b6c0, h_Common_removePartyMember);
-        _Common_removePartyMemberLongTerm = new FhMethodHandle<Common_removePartyMemberLongTerm>(this, game, 0x0045aaf0, h_Common_removePartyMemberLongTerm);
-        _Common_setWeaponVisibilty = new FhMethodHandle<Common_setWeaponInvisible>(this, game, 0x00456770, h_Common_setWeaponInvisible);
-        _Common_putPartyMemberInSlot = new FhMethodHandle<Common_putPartyMemberInSlot>(this, game, 0x0045bc90, h_Common_putPartyMemberInSlot);
+        _Common_addPartyMember = new FhMethodHandle<delegates.Common_addPartyMember>(this, game, 0x0045b5a0, h_Common_addPartyMember);
+        _Common_removePartyMember = new FhMethodHandle<delegates.Common_removePartyMember>(this, game, 0x0045b6c0, h_Common_removePartyMember);
+        _Common_removePartyMemberLongTerm = new FhMethodHandle<delegates.Common_removePartyMemberLongTerm>(this, game, 0x0045aaf0, h_Common_removePartyMemberLongTerm);
+        _Common_setWeaponVisibilty = new FhMethodHandle<delegates.Common_setWeaponInvisible>(this, game, 0x00456770, h_Common_setWeaponInvisible);
+        _Common_putPartyMemberInSlot = new FhMethodHandle<delegates.Common_putPartyMemberInSlot>(this, game, 0x0045bc90, h_Common_putPartyMemberInSlot);
 
 
-        _Common_pushParty = new FhMethodHandle<Common_pushParty>(this, game, 0x0045b350, h_Common_pushParty);
-        _Common_popParty = new FhMethodHandle<Common_popParty>(this, game, 0x0045b3c0, h_Common_popParty);
+        _Common_pushParty = new FhMethodHandle<delegates.Common_pushParty>(this, game, 0x0045b350, h_Common_pushParty);
+        _Common_popParty = new FhMethodHandle<delegates.Common_popParty>(this, game, 0x0045b3c0, h_Common_popParty);
 
         // getCurrentPartySlots
-        _MsGetSavePartyMember = new FhMethodHandle<MsGetSavePartyMember>(this, game, __addr_MsGetSavePartyMember, h_MsGetSavePartyMember);
+        _MsGetSavePartyMember = new FhMethodHandle<delegates.MsGetSavePartyMember>(this, game, __addr_MsGetSavePartyMember, h_MsGetSavePartyMember);
 
 
-        _MsBtlListGroup = FhUtil.get_fptr<MsBtlListGroup>(__addr_MsBtlListGroup);
-        _MsBattleExe = new FhMethodHandle<MsBattleExe>(this, game, __addr_MsBattleExe, h_MsBattleExe);
-        _MsBattleLabelExe = FhUtil.get_fptr<MsBattleLabelExe>(__addr_MsBattleLabelExe);
-        _FUN_00791820 = new FhMethodHandle<FUN_00791820>(this, game, 0x00391820, h_FUN_00791820);
+        _MsBtlListGroup = FhUtil.get_fptr<delegates.MsBtlListGroup>(__addr_MsBtlListGroup);
+        _MsBattleExe = new FhMethodHandle<delegates.MsBattleExe>(this, game, __addr_MsBattleExe, h_MsBattleExe);
+        _MsBattleLabelExe = FhUtil.get_fptr<delegates.MsBattleLabelExe>(__addr_MsBattleLabelExe);
+        _FUN_00791820 = new FhMethodHandle<delegates.FUN_00791820>(this, game, 0x00391820, h_FUN_00791820);
 
-        _MsBtlGetPos = new FhMethodHandle<MsBtlGetPos>(this, game, 0x003ac000, h_MsBtlGetPos);
+        _MsBtlGetPos = new FhMethodHandle<delegates.MsBtlGetPos>(this, game, 0x003ac000, h_MsBtlGetPos);
 
-        _MsBtlReadSetScene = new FhMethodHandle<MsBtlReadSetScene>(this, game, 0x00383ed0, h_MsBtlReadSetScene);
+        _MsBtlReadSetScene = new FhMethodHandle<delegates.MsBtlReadSetScene>(this, game, 0x00383ed0, h_MsBtlReadSetScene);
 
         // giveItem
-        _FUN_007905a0 = new FhMethodHandle<FUN_007905a0>(this, game, 0x003905a0, h_give_item);
+        _FUN_007905a0 = new FhMethodHandle<delegates.FUN_007905a0>(this, game, 0x003905a0, h_give_item);
 
 
 
         // readFromBin
-        _FUN_007ab890 = new FhMethodHandle<FUN_007ab890>(this, game, 0x003ab890, h_read_from_bin);
+        _FUN_007ab890 = new FhMethodHandle<delegates.FUN_007ab890>(this, game, 0x003ab890, h_read_from_bin);
 
         // getWeaponName
-        _FUN_007a0d10 = new FhMethodHandle<FUN_007a0d10>(this, game, 0x003a0d10, h_get_weapon_name);
+        _FUN_007a0d10 = new FhMethodHandle<delegates.FUN_007a0d10>(this, game, 0x003a0d10, h_get_weapon_name);
         // getWeaponModel
-        _FUN_007a0c70 = new FhMethodHandle<FUN_007a0c70>(this, game, 0x003a0c70, h_get_weapon_model);
+        _FUN_007a0c70 = new FhMethodHandle<delegates.FUN_007a0c70>(this, game, 0x003a0c70, h_get_weapon_model);
         // obtainTreasureCleanup
-        _FUN_007993f0 = new FhMethodHandle<FUN_007993f0>(this, game, 0x003993f0, h_obtain_treasure_cleanup);
+        _FUN_007993f0 = new FhMethodHandle<delegates.FUN_007993f0>(this, game, 0x003993f0, h_obtain_treasure_cleanup);
 
 
-        _MsGetChr             = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
-        _MsGetComData         = FhUtil.get_fptr<FFX.FhCall.MsGetComData>(FFX.FhCall.__addr_MsGetComData);
-        _MsGetCommandUse      = FhUtil.get_fptr<FFX.FhCall.MsGetCommandUse>(FFX.FhCall.__addr_MsGetCommandUse);
-        _MsGetCommandMP       = FhUtil.get_fptr<FFX.FhCall.MsGetCommandMP>(FFX.FhCall.__addr_MsGetCommandMP);
-        _MsGetRamChrMonster   = FhUtil.get_fptr<FFX.FhCall.MsGetRamChrMonster>(FFX.FhCall.__addr_MsGetRamChrMonster);
-        _TODrawCrossBoxXYWHC2 = FhUtil.get_fptr<FFX.FhCall.TODrawCrossBoxXYWHC2>(FFX.FhCall.__addr_TODrawCrossBoxXYWHC2);
+        _MsGetChr             = FhUtil.get_fptr<delegates.MsGetChr>(__addr_MsGetChr);
+        _MsGetComData         = FhUtil.get_fptr<FhCall.MsGetComData>(FhCall.__addr_MsGetComData);
+        _MsGetCommandUse      = FhUtil.get_fptr<FhCall.MsGetCommandUse>(FhCall.__addr_MsGetCommandUse);
+        _MsGetCommandMP       = FhUtil.get_fptr<FhCall.MsGetCommandMP>(FhCall.__addr_MsGetCommandMP);
+        _MsGetRamChrMonster   = FhUtil.get_fptr<FhCall.MsGetRamChrMonster>(FhCall.__addr_MsGetRamChrMonster);
+        _TODrawCrossBoxXYWHC2 = FhUtil.get_fptr<FhCall.TODrawCrossBoxXYWHC2>(FhCall.__addr_TODrawCrossBoxXYWHC2);
 
-        _eiAbmParaGet = new FhMethodHandle<eiAbmParaGet>(this, game, __addr_eiAbmParaGet, h_eiAbmParaGet);
-        _MsSetSaveParam = new FhMethodHandle<MsSetSaveParam>(this, game, __addr_MsSetSaveParam, h_MsSetSaveParam);
-        _MsSetRamChrParam = new FhMethodHandle<MsSetRamChrParam>(this, game, __addr_MsSetRamChrParam, h_MsSetRamChrParam);
-        _FUN_00a48910 = new FhMethodHandle<FUN_00a48910>(this, game, 0x00648910, h_FUN_00a48910);
+        _eiAbmParaGet = new FhMethodHandle<delegates.eiAbmParaGet>(this, game, __addr_eiAbmParaGet, h_eiAbmParaGet);
+        _MsSetSaveParam = new FhMethodHandle<delegates.MsSetSaveParam>(this, game, __addr_MsSetSaveParam, h_MsSetSaveParam);
+        _MsSetRamChrParam = new FhMethodHandle<delegates.MsSetRamChrParam>(this, game, __addr_MsSetRamChrParam, h_MsSetRamChrParam);
+        _FUN_00a48910 = new FhMethodHandle<delegates.FUN_00a48910>(this, game, 0x00648910, h_FUN_00a48910);
 
-        _MsApUp = new FhMethodHandle<MsApUp>(this, game, 0x00398a10, h_MsApUp);
+        _MsApUp = new FhMethodHandle<delegates.MsApUp>(this, game, 0x00398a10, h_MsApUp);
 
         //delegate* unmanaged[Thiscall]<nint, nint, bool, bool> ph_openFile = &h_openFile;
         //openFile p_openFile = (x, y, z) => d_openFile(ph_openFile, x, y, z);
         //openFile temp = Marshal.GetDelegateForFunctionPointer<openFile>((nint)ph_openFile);
-        _openFile = new FhMethodHandle<openFile>(this, game, 0x00208100, h_openFile);
-        _readFile = FhUtil.get_fptr<readFile>(0x00208250);
+        _openFile = new FhMethodHandle<delegates.openFile>(this, game, 0x00208100, h_openFile);
+        _readFile = FhUtil.get_fptr<delegates.readFile>(0x00208250);
 
-        _FUN_0070aec0 = new FhMethodHandle<FUN_0070aec0>(this, game, 0x0030aec0, h_FUN_0070aec0);
-
-
-        _ChN_ReadSystemMGRP = FhUtil.get_fptr<FFX.FhCall.ChN_ReadSystemMGRP>(FFX.FhCall.__addr_ChN_ReadSystemMGRP);
-
-        _Common_loadModel = FhUtil.get_fptr<Common_loadModel>(0x0045ce70);
-        _Common_0043 = FhUtil.get_fptr<Common_0043>(0x0045c810);
-        _Common_linkFieldToBattleActor = FhUtil.get_fptr<Common_linkFieldToBattleActor>(0x0045ca00);
-
-        _SndSepPlay = FhUtil.get_fptr<FFX.FhCall.SndSepPlay>(FFX.FhCall.__addr_SndSepPlay);
+        _FUN_0070aec0 = new FhMethodHandle<delegates.FUN_0070aec0>(this, game, 0x0030aec0, h_FUN_0070aec0);
 
 
-        _Map_800F = new FhMethodHandle<Map_800F>(this, game, 0x0051b1a0, h_Map_800F);
+        _ChN_ReadSystemMGRP = FhUtil.get_fptr<FhCall.ChN_ReadSystemMGRP>(FhCall.__addr_ChN_ReadSystemMGRP);
+
+        _Common_loadModel = FhUtil.get_fptr<delegates.Common_loadModel>(0x0045ce70);
+        _Common_0043 = FhUtil.get_fptr<delegates.Common_0043>(0x0045c810);
+        _Common_linkFieldToBattleActor = FhUtil.get_fptr<delegates.Common_linkFieldToBattleActor>(0x0045ca00);
+
+        _SndSepPlay = FhUtil.get_fptr<FhCall.SndSepPlay>(FhCall.__addr_SndSepPlay);
 
 
-        _MsGetExcelData = FhUtil.get_fptr<MsGetExcelData>(__addr_MsGetExcelData);
+        _Map_800F = new FhMethodHandle<delegates.Map_800F>(this, game, 0x0051b1a0, h_Map_800F);
+
+
+        _MsGetExcelData = FhUtil.get_fptr<delegates.MsGetExcelData>(__addr_MsGetExcelData);
 
 
         // obtainTreasure related
-        _TkMsImportantSet = new FhMethodHandle<TkMsImportantSet>(this, game, __addr_TkMsImportantSet, h_TkMsImportantSet);
-        _MsPayGIL = FhUtil.get_fptr<MsPayGIL>(__addr_MsPayGIL); // takeGil
-        _SndSepPlaySimple = FhUtil.get_fptr<SndSepPlaySimple>(__addr_SndSepPlaySimple);
-        _MsGetSaveWeapon = FhUtil.get_fptr<MsGetSaveWeapon>(__addr_MsGetSaveWeapon);
-        _FUN_007ab930 = FhUtil.get_fptr<FUN_007ab930>(0x003ab930); // giveWeapon
-        _AtelGetCurCtrlWork = FhUtil.get_fptr<AtelGetCurCtrlWork>(__addr_AtelGetCurCtrlWork);
-        _MsFieldItemGet = FhUtil.get_fptr<MsFieldItemGet>(__addr_MsFieldItemGet);
-        _TkMsGetRomItem = FhUtil.get_fptr<TkMsGetRomItem>(__addr_TkMsGetRomItem);
-        _MsSaveItemUse = FhUtil.get_fptr<MsSaveItemUse>(__addr_MsSaveItemUse);
-        _MsImportantName = FhUtil.get_fptr<MsImportantName>(__addr_MsImportantName);
-        _CT_RetInt_0065 = FhUtil.get_fptr<CT_RetInt_0065>(__addr_CT_RetInt_0065);
-        _CT_RetInt_006A = FhUtil.get_fptr<CT_RetInt_006A>(__addr_CT_RetInt_006A);
-        _MsBtlGetInit = FhUtil.get_fptr<FFX.FhCall.MsBtlGetInit>(FFX.FhCall.__addr_MsBtlGetInit);
-        _AtelGetMesWinWork = FhUtil.get_fptr<AtelGetMesWinWork>(__addr_AtelGetMesWinWork);
-        _FUN_008b8910 = FhUtil.get_fptr<FUN_008b8910>(__addr_FUN_008b8910);
-        _FUN_008bda20 = FhUtil.get_fptr<FUN_008bda20>(__addr_FUN_008bda20);
-        _FUN_008b8930 = FhUtil.get_fptr<FUN_008b8930>(__addr_FUN_008b8930);
-        _FUN_0086a0c0 = FhUtil.get_fptr<FUN_0086a0c0>(__addr_FUN_0086a0c0);
+        _TkMsImportantSet = new FhMethodHandle<delegates.TkMsImportantSet>(this, game, __addr_TkMsImportantSet, h_TkMsImportantSet);
+        _MsPayGIL = FhUtil.get_fptr<delegates.MsPayGIL>(__addr_MsPayGIL); // takeGil
+        _SndSepPlaySimple = FhUtil.get_fptr<delegates.SndSepPlaySimple>(__addr_SndSepPlaySimple);
+        _MsGetSaveWeapon = FhUtil.get_fptr<delegates.MsGetSaveWeapon>(__addr_MsGetSaveWeapon);
+        _FUN_007ab930 = FhUtil.get_fptr<delegates.FUN_007ab930>(0x003ab930); // giveWeapon
+        _AtelGetCurCtrlWork = FhUtil.get_fptr<delegates.AtelGetCurCtrlWork>(__addr_AtelGetCurCtrlWork);
+        _MsFieldItemGet = FhUtil.get_fptr<delegates.MsFieldItemGet>(__addr_MsFieldItemGet);
+        _TkMsGetRomItem = FhUtil.get_fptr<delegates.TkMsGetRomItem>(__addr_TkMsGetRomItem);
+        _MsSaveItemUse = FhUtil.get_fptr<delegates.MsSaveItemUse>(__addr_MsSaveItemUse);
+        _MsImportantName = FhUtil.get_fptr<delegates.MsImportantName>(__addr_MsImportantName);
+        _CT_RetInt_0065 = FhUtil.get_fptr<delegates.CT_RetInt_0065>(__addr_CT_RetInt_0065);
+        _CT_RetInt_006A = FhUtil.get_fptr<delegates.CT_RetInt_006A>(__addr_CT_RetInt_006A);
+        _MsBtlGetInit = FhUtil.get_fptr<FhCall.MsBtlGetInit>(FhCall.__addr_MsBtlGetInit);
+        _AtelGetMesWinWork = FhUtil.get_fptr<delegates.AtelGetMesWinWork>(__addr_AtelGetMesWinWork);
+        _FUN_008b8910 = FhUtil.get_fptr<delegates.FUN_008b8910>(__addr_FUN_008b8910);
+        _FUN_008bda20 = FhUtil.get_fptr<delegates.FUN_008bda20>(__addr_FUN_008bda20);
+        _FUN_008b8930 = FhUtil.get_fptr<delegates.FUN_008b8930>(__addr_FUN_008b8930);
+        _FUN_0086a0c0 = FhUtil.get_fptr<delegates.FUN_0086a0c0>(__addr_FUN_0086a0c0);
 
 
-        _FUN_0086bec0 = new FhMethodHandle<FUN_0086bec0>(this, game, 0x0046bec0, h_FUN_0086bec0);
-        _FUN_0086bea0 = new FhMethodHandle<FUN_0086bea0>(this, game, 0x0046bea0, h_FUN_0086bea0);
+        _FUN_0086bec0 = new FhMethodHandle<delegates.FUN_0086bec0>(this, game, 0x0046bec0, h_FUN_0086bec0);
+        _FUN_0086bea0 = new FhMethodHandle<delegates.FUN_0086bea0>(this, game, 0x0046bea0, h_FUN_0086bea0);
 
 
-        _FUN_00656c90 = new FhMethodHandle<FUN_00656c90>(this, game, 0x00256c90, h_FUN_00656c90);
+        _FUN_00656c90 = new FhMethodHandle<delegates.FUN_00656c90>(this, game, 0x00256c90, h_FUN_00656c90);
 
-        _TkMenuAppearMainCmdWindow = new FhMethodHandle<TkMenuAppearMainCmdWindow>(this, game, __addr_TkMenuAppearMainCmdWindow, h_TkMenuAppearMainCmdWindow);
+        _TkMenuAppearMainCmdWindow = new FhMethodHandle<delegates.TkMenuAppearMainCmdWindow>(this, game, __addr_TkMenuAppearMainCmdWindow, h_TkMenuAppearMainCmdWindow);
 
         // For loading texture from game
-        _FUN_0065ee30 = FhUtil.get_fptr<FUN_0065ee30>(__addr_ClusterManager_FUN_0065ee30);
-        _ClusterManager_loadPCluster = FhUtil.get_fptr<ClusterManager_loadPCluster>(__addr_ClusterManager_loadPCluster);
-        _Phyre_PFramework_PApplication_FixupClusters = FhUtil.get_fptr<Phyre_PFramework_PApplication_FixupClusters>(__addr_Phyre_PFramework_PApplication_FixupClusters);
-        _ClusterManager_releasePCluster = FhUtil.get_fptr<ClusterManager_releasePCluster>(__addr_ClusterManager_releasePCluster);
-        _ClusterManager_getPClusterByName = FhUtil.get_fptr<ClusterManager_getPClusterByName>(__addr_ClusterManager_getPClusterByName);
-        _fiosUnifyFilename = FhUtil.get_fptr<fiosUnifyFilename>(__addr_fiosUnifyFilename);
+        _FUN_0065ee30 = FhUtil.get_fptr<delegates.FUN_0065ee30>(__addr_ClusterManager_FUN_0065ee30);
+        _ClusterManager_loadPCluster = FhUtil.get_fptr<delegates.ClusterManager_loadPCluster>(__addr_ClusterManager_loadPCluster);
+        _Phyre_PFramework_PApplication_FixupClusters = FhUtil.get_fptr<delegates.Phyre_PFramework_PApplication_FixupClusters>(__addr_Phyre_PFramework_PApplication_FixupClusters);
+        _ClusterManager_releasePCluster = FhUtil.get_fptr<delegates.ClusterManager_releasePCluster>(__addr_ClusterManager_releasePCluster);
+        _ClusterManager_getPClusterByName = FhUtil.get_fptr<delegates.ClusterManager_getPClusterByName>(__addr_ClusterManager_getPClusterByName);
+        _fiosUnifyFilename = FhUtil.get_fptr<delegates.fiosUnifyFilename>(__addr_fiosUnifyFilename);
 
         // Non-loading FMV
-        _graphicInitFMVPlayer = new FhMethodHandle<graphicInitFMVPlayer>(this, game, __addr_graphicInitFMVPlayer, h_graphicInitFMVPlayer);
+        _graphicInitFMVPlayer = new FhMethodHandle<delegates.graphicInitFMVPlayer>(this, game, __addr_graphicInitFMVPlayer, h_graphicInitFMVPlayer);
 
         foreach (byte[] script in customScripts) {
             customScriptHandles.Add(GCHandle.Alloc(script, GCHandleType.Pinned));
@@ -374,80 +380,80 @@ public unsafe partial class ArchipelagoFFXModule {
         //    customStrings[i] = new CustomString(text);
         //}
 
-        _FmodVoice_dataChange = new FhMethodHandle<FmodVoice_dataChange>(this, game, __addr_FmodVoice_dataChange, h_FmodVoice_dataChange);
+        _FmodVoice_dataChange = new FhMethodHandle<delegates.FmodVoice_dataChange>(this, game, __addr_FmodVoice_dataChange, h_FmodVoice_dataChange);
         var _FMOD_EventSystem_load_pointer = FhUtil.get_at<nint>(__addr_FMOD_EventSystem_load);
-        _FMOD_EventSystem_load = Marshal.GetDelegateForFunctionPointer<FMOD_EventSystem_load>(_FMOD_EventSystem_load_pointer);
+        _FMOD_EventSystem_load = Marshal.GetDelegateForFunctionPointer<delegates.FMOD_EventSystem_load>(_FMOD_EventSystem_load_pointer);
         //_FMOD_EventSystem_load = new FhMethodHandle<FMOD_EventSystem_load>(this, _FMOD_EventSystem_load_pointer, h_FMOD_EventSystem_load);
 
         //_FfxFmod_soundInit_setLang = new FhMethodHandle<FfxFmod_soundInit_setLang>(this, game, __addr_FfxFmod_soundInit_setLang, h_FfxFmod_soundInit_setLang);
 
-        _LocalizationManager_Initialize = new FhMethodHandle<LocalizationManager_Initialize>(this, game, __addr_LocalizationManager_Initialize, h_LocalizationManager_Initialize);
-        _LocalizationManager_GetInstance = FhUtil.get_fptr<LocalizationManager_GetInstance>(__addr_LocalizationManager_GetInstance);
-        _FfxFmod_soundInit = FhUtil.get_fptr<FfxFmod_soundInit>(__addr_FfxFmod_soundInit);
-        _FmodVoice_initList = FhUtil.get_fptr<FmodVoice_initList>(__addr_FmodVoice_initList);
+        _LocalizationManager_Initialize = new FhMethodHandle<delegates.LocalizationManager_Initialize>(this, game, __addr_LocalizationManager_Initialize, h_LocalizationManager_Initialize);
+        _LocalizationManager_GetInstance = FhUtil.get_fptr<delegates.LocalizationManager_GetInstance>(__addr_LocalizationManager_GetInstance);
+        _FfxFmod_soundInit = FhUtil.get_fptr<delegates.FfxFmod_soundInit>(__addr_FfxFmod_soundInit);
+        _FmodVoice_initList = FhUtil.get_fptr<delegates.FmodVoice_initList>(__addr_FmodVoice_initList);
 
 
         // Custom namespace
-        _AtelInitTotal = new FhMethodHandle<AtelInitTotal>(this, game, __addr_AtelInitTotal, h_AtelInitTotal);
+        _AtelInitTotal = new FhMethodHandle<delegates.AtelInitTotal>(this, game, __addr_AtelInitTotal, h_AtelInitTotal);
 
         // Airship
-        _FUN_00867370 = FhUtil.get_fptr<FUN_00867370>(__addr_FUN_00867370);
-        _FUN_008671d0 = FhUtil.get_fptr<FUN_008671d0>(__addr_FUN_008671d0);
-        _Map_show2DLayerResultInt = FhUtil.get_fptr<Map_show2DLayerResultInt>(__addr_Map_show2DLayerResultInt);
-        _Map_hide2DLayerResultInt = FhUtil.get_fptr<Map_hide2DLayerResultInt>(__addr_Map_hide2DLayerResultInt);
+        _FUN_00867370 = FhUtil.get_fptr<delegates.FUN_00867370>(__addr_FUN_00867370);
+        _FUN_008671d0 = FhUtil.get_fptr<delegates.FUN_008671d0>(__addr_FUN_008671d0);
+        _Map_show2DLayerResultInt = FhUtil.get_fptr<delegates.Map_show2DLayerResultInt>(__addr_Map_show2DLayerResultInt);
+        _Map_hide2DLayerResultInt = FhUtil.get_fptr<delegates.Map_hide2DLayerResultInt>(__addr_Map_hide2DLayerResultInt);
 
         // Drawing
-        _TOMkpCrossExtMesFontLClutTypeRGBA = FhUtil.get_fptr<TOMkpCrossExtMesFontLClutTypeRGBA>(__addr_TOMkpCrossExtMesFontLClutTypeRGBA);
-        _ToMakeBtlEasyFont = FhUtil.get_fptr<ToMakeBtlEasyFont>(__addr_ToMakeBtlEasyFont);
+        _TOMkpCrossExtMesFontLClutTypeRGBA = FhUtil.get_fptr<delegates.TOMkpCrossExtMesFontLClutTypeRGBA>(__addr_TOMkpCrossExtMesFontLClutTypeRGBA);
+        _ToMakeBtlEasyFont = FhUtil.get_fptr<delegates.ToMakeBtlEasyFont>(__addr_ToMakeBtlEasyFont);
 
-        _PrepareMenuList = new FhMethodHandle<PrepareMenuList>(this, game, __addr_PrepareMenuList, h_PrepareMenuList);
-        _UpdateGearCustomizationMenuState = new FhMethodHandle<UpdateGearCustomizationMenuState>(this, game, __addr_UpdateGearCustomizationMenuState, h_UpdateGearCustomizationMenuState);
-        _UpdateAeonCustomizationMenuState = new FhMethodHandle<UpdateAeonCustomizationMenuState>(this, game, __addr_UpdateAeonCustomizationMenuState, h_UpdateAeonCustomizationMenuState);
-        _DrawGearCustomizationMenu = new FhMethodHandle<DrawGearCustomizationMenu>(this, game, __addr_DrawGearCustomizationMenu, h_DrawGearCustomizationMenu);
-        _DrawAeonCustomizationMenu = new FhMethodHandle<DrawAeonCustomizationMenu>(this, game, __addr_DrawAeonCustomizationMenu, h_DrawAeonCustomizationMenu);
-        _MsGetRomKaizou = FhUtil.get_fptr<MsGetRomKaizou>(__addr_MsGetRomKaizou);
-        _MsGetRomAbility = FhUtil.get_fptr<MsGetRomAbility>(__addr_MsGetRomAbility);
-        _MsGetRomSummonGrow = FhUtil.get_fptr<MsGetRomSummonGrow>(__addr_MsGetRomSummonGrow);
-        _TkMn2GetSummonGrowMax = FhUtil.get_fptr<TkMn2GetSummonGrowMax>(__addr_TkMn2GetSummonGrowMax);
-        _TkMenuGetCurrentSummon = FhUtil.get_fptr<TkMenuGetCurrentSummon>(__addr_TkMenuGetCurrentSummon);
-        _MsGetSaveCommand = FhUtil.get_fptr<MsGetSaveCommand>(__addr_MsGetSaveCommand);
+        _PrepareMenuList = new FhMethodHandle<delegates.PrepareMenuList>(this, game, __addr_PrepareMenuList, h_PrepareMenuList);
+        _UpdateGearCustomizationMenuState = new FhMethodHandle<delegates.UpdateGearCustomizationMenuState>(this, game, __addr_UpdateGearCustomizationMenuState, h_UpdateGearCustomizationMenuState);
+        _UpdateAeonCustomizationMenuState = new FhMethodHandle<delegates.UpdateAeonCustomizationMenuState>(this, game, __addr_UpdateAeonCustomizationMenuState, h_UpdateAeonCustomizationMenuState);
+        _DrawGearCustomizationMenu = new FhMethodHandle<delegates.DrawGearCustomizationMenu>(this, game, __addr_DrawGearCustomizationMenu, h_DrawGearCustomizationMenu);
+        _DrawAeonCustomizationMenu = new FhMethodHandle<delegates.DrawAeonCustomizationMenu>(this, game, __addr_DrawAeonCustomizationMenu, h_DrawAeonCustomizationMenu);
+        _MsGetRomKaizou = FhUtil.get_fptr<delegates.MsGetRomKaizou>(__addr_MsGetRomKaizou);
+        _MsGetRomAbility = FhUtil.get_fptr<delegates.MsGetRomAbility>(__addr_MsGetRomAbility);
+        _MsGetRomSummonGrow = FhUtil.get_fptr<delegates.MsGetRomSummonGrow>(__addr_MsGetRomSummonGrow);
+        _TkMn2GetSummonGrowMax = FhUtil.get_fptr<delegates.TkMn2GetSummonGrowMax>(__addr_TkMn2GetSummonGrowMax);
+        _TkMenuGetCurrentSummon = FhUtil.get_fptr<delegates.TkMenuGetCurrentSummon>(__addr_TkMenuGetCurrentSummon);
+        _MsGetSaveCommand = FhUtil.get_fptr<delegates.MsGetSaveCommand>(__addr_MsGetSaveCommand);
 
-        _FUN_008c1c70                    = FhUtil.get_fptr<FUN_008c1c70>(__addr_FUN_008c1c70);
-        _TODrawMenuPlateXYWHType         = FhUtil.get_fptr<TODrawMenuPlateXYWHType>(__addr_TODrawMenuPlateXYWHType);
-        _FUN_008f8bb0                    = FhUtil.get_fptr<FUN_008f8bb0>(__addr_FUN_008f8bb0);
-        _TODrawScissorXYWH               = FhUtil.get_fptr<TODrawScissorXYWH>(__addr_TODrawScissorXYWH);
-        _FUN_008d5d20                    = FhUtil.get_fptr<FUN_008d5d20>(__addr_FUN_008d5d20);
-        _FUN_008c0f40                    = FhUtil.get_fptr<FUN_008c0f40>(__addr_FUN_008c0f40);
-        _FUN_008c1350_DrawScissor512x416 = FhUtil.get_fptr<FUN_008c1350_DrawScissor512x416>(__addr_FUN_008c1350_DrawScissor512x416);
-        _FUN_008d5dc0                    = FhUtil.get_fptr<FUN_008d5dc0>(__addr_FUN_008d5dc0);
-        _DrawCrossMenuScrollParts                    = FhUtil.get_fptr<DrawCrossMenuScrollParts>(__addr_DrawCrossMenuScrollParts);
-        _FUN_008d6630                    = FhUtil.get_fptr<FUN_008d6630>(__addr_FUN_008d6630);
+        _FUN_008c1c70                    = FhUtil.get_fptr<delegates.FUN_008c1c70>(__addr_FUN_008c1c70);
+        _TODrawMenuPlateXYWHType         = FhUtil.get_fptr<delegates.TODrawMenuPlateXYWHType>(__addr_TODrawMenuPlateXYWHType);
+        _FUN_008f8bb0                    = FhUtil.get_fptr<delegates.FUN_008f8bb0>(__addr_FUN_008f8bb0);
+        _TODrawScissorXYWH               = FhUtil.get_fptr<delegates.TODrawScissorXYWH>(__addr_TODrawScissorXYWH);
+        _FUN_008d5d20                    = FhUtil.get_fptr<delegates.FUN_008d5d20>(__addr_FUN_008d5d20);
+        _FUN_008c0f40                    = FhUtil.get_fptr<delegates.FUN_008c0f40>(__addr_FUN_008c0f40);
+        _FUN_008c1350_DrawScissor512x416 = FhUtil.get_fptr<delegates.FUN_008c1350_DrawScissor512x416>(__addr_FUN_008c1350_DrawScissor512x416);
+        _FUN_008d5dc0                    = FhUtil.get_fptr<delegates.FUN_008d5dc0>(__addr_FUN_008d5dc0);
+        _DrawCrossMenuScrollParts                    = FhUtil.get_fptr<delegates.DrawCrossMenuScrollParts>(__addr_DrawCrossMenuScrollParts);
+        _FUN_008d6630                    = FhUtil.get_fptr<delegates.FUN_008d6630>(__addr_FUN_008d6630);
 
-        _TkVU1SyncPath = FhUtil.get_fptr<TkVU1SyncPath>(__addr_TkVU1SyncPath);
-        _FUN_008e71d0 = FhUtil.get_fptr<FUN_008e71d0>(__addr_FUN_008e71d0);
-        _FUN_008ff490 = FhUtil.get_fptr<FUN_008ff490>(__addr_FUN_008ff490);
-        _FUN_008cd960 = FhUtil.get_fptr<FUN_008cd960>(__addr_FUN_008cd960);
-        _FUN_008cd9f0 = FhUtil.get_fptr<FUN_008cd9f0>(__addr_FUN_008cd9f0);
-        _ToGetCrossExtMesFontWidth = FhUtil.get_fptr<ToGetCrossExtMesFontWidth>(__addr_ToGetCrossExtMesFontWidth);
-        _FUN_008bee80 = FhUtil.get_fptr<FUN_008bee80>(__addr_FUN_008bee80);
-        _TOMkpShapeXYWHUV = FhUtil.get_fptr<TOMkpShapeXYWHUV>(__addr_TOMkpShapeXYWHUV);
-        _TOMkpCrossExtMesFontLClut = FhUtil.get_fptr<TOMkpCrossExtMesFontLClut>(__addr_TOMkpCrossExtMesFontLClut);
-        _FUN_008d48e0 = FhUtil.get_fptr<FUN_008d48e0>(__addr_FUN_008d48e0);
-        _FUN_008d4140 = FhUtil.get_fptr<FUN_008d4140>(__addr_FUN_008d4140);
-        _TkMn2DrawKickSyncPacket = FhUtil.get_fptr<TkMn2DrawKickSyncPacket>(__addr_TkMn2DrawKickSyncPacket);
+        _TkVU1SyncPath = FhUtil.get_fptr<delegates.TkVU1SyncPath>(__addr_TkVU1SyncPath);
+        _FUN_008e71d0 = FhUtil.get_fptr<delegates.FUN_008e71d0>(__addr_FUN_008e71d0);
+        _FUN_008ff490 = FhUtil.get_fptr<delegates.FUN_008ff490>(__addr_FUN_008ff490);
+        _FUN_008cd960 = FhUtil.get_fptr<delegates.FUN_008cd960>(__addr_FUN_008cd960);
+        _FUN_008cd9f0 = FhUtil.get_fptr<delegates.FUN_008cd9f0>(__addr_FUN_008cd9f0);
+        _ToGetCrossExtMesFontWidth = FhUtil.get_fptr<delegates.ToGetCrossExtMesFontWidth>(__addr_ToGetCrossExtMesFontWidth);
+        _FUN_008bee80 = FhUtil.get_fptr<delegates.FUN_008bee80>(__addr_FUN_008bee80);
+        _TOMkpShapeXYWHUV = FhUtil.get_fptr<delegates.TOMkpShapeXYWHUV>(__addr_TOMkpShapeXYWHUV);
+        _TOMkpCrossExtMesFontLClut = FhUtil.get_fptr<delegates.TOMkpCrossExtMesFontLClut>(__addr_TOMkpCrossExtMesFontLClut);
+        _FUN_008d48e0 = FhUtil.get_fptr<delegates.FUN_008d48e0>(__addr_FUN_008d48e0);
+        _FUN_008d4140 = FhUtil.get_fptr<delegates.FUN_008d4140>(__addr_FUN_008d4140);
+        _TkMn2DrawKickSyncPacket = FhUtil.get_fptr<delegates.TkMn2DrawKickSyncPacket>(__addr_TkMn2DrawKickSyncPacket);
 
-        _TkMenuMainAllocWindow = FhUtil.get_fptr<TkMenuMainAllocWindow>(__addr_TkMenuMainAllocWindow);
-        _TkMenuMainRegistWindow = FhUtil.get_fptr<TkMenuMainRegistWindow>(__addr_TkMenuMainRegistWindow);
+        _TkMenuMainAllocWindow = FhUtil.get_fptr<delegates.TkMenuMainAllocWindow>(__addr_TkMenuMainAllocWindow);
+        _TkMenuMainRegistWindow = FhUtil.get_fptr<delegates.TkMenuMainRegistWindow>(__addr_TkMenuMainRegistWindow);
 
-        _FUN_008e33a0 = FhUtil.get_fptr<FUN_008e33a0>(__addr_FUN_008e33a0);
-        _FUN_008b4460 = FhUtil.get_fptr<FUN_008b4460>(__addr_FUN_008b4460);
-        _FUN_008e2de0 = FhUtil.get_fptr<FUN_008e2de0>(__addr_FUN_008e2de0);
-        _MsSetSaveParamAll = FhUtil.get_fptr<MsSetSaveParamAll>(__addr_MsSetSaveParamAll);
-        _MsSetWeaponName = FhUtil.get_fptr<MsSetWeaponName>(__addr_MsSetWeaponName);
-        _FUN_008c2c40 = FhUtil.get_fptr<FUN_008c2c40>(__addr_FUN_008c2c40);
-        _TkMn2DrawCrossCursor = FhUtil.get_fptr<TkMn2DrawCrossCursor>(__addr_TkMn2DrawCrossCursor);
+        _FUN_008e33a0 = FhUtil.get_fptr<delegates.FUN_008e33a0>(__addr_FUN_008e33a0);
+        _FUN_008b4460 = FhUtil.get_fptr<delegates.FUN_008b4460>(__addr_FUN_008b4460);
+        _FUN_008e2de0 = FhUtil.get_fptr<delegates.FUN_008e2de0>(__addr_FUN_008e2de0);
+        _MsSetSaveParamAll = FhUtil.get_fptr<delegates.MsSetSaveParamAll>(__addr_MsSetSaveParamAll);
+        _MsSetWeaponName = FhUtil.get_fptr<delegates.MsSetWeaponName>(__addr_MsSetWeaponName);
+        _FUN_008c2c40 = FhUtil.get_fptr<delegates.FUN_008c2c40>(__addr_FUN_008c2c40);
+        _TkMn2DrawCrossCursor = FhUtil.get_fptr<delegates.TkMn2DrawCrossCursor>(__addr_TkMn2DrawCrossCursor);
 
-        _FUN_008d5720 = new FhMethodHandle<FUN_008d5720>(this, game, __addr_FUN_008d5720, h_FUN_008d5720);
+        _FUN_008d5720 = new FhMethodHandle<delegates.FUN_008d5720>(this, game, __addr_FUN_008d5720, h_FUN_008d5720);
     }
 
     public static int ignore_this = 11;
@@ -1540,7 +1546,7 @@ public unsafe partial class ArchipelagoFFXModule {
                                 AtelOp.PUSHII  .build(0),
                             ]);
 
-                foreach ((RegionEnum region, ArchipelagoRegion state) in region_states) {
+                foreach ((ArchipelagoData.RegionEnum region, ArchipelagoData.ArchipelagoRegion state) in region_states) {
                     if (state.airship_destination_index != 99) {
                         uint address = airship_destination_addresses[state.airship_destination_index - 1];
                         set(code_ptr, address, [
@@ -1607,7 +1613,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 break;
             case "sins0900":
                 // Check requirements if Yu Yevon is goal (Tower falling down)
-                if (seed.Options.Goal == Goal.YuYevon) {
+                if (seed.Options.Goal == ArchipelagoData.Goal.YuYevon) {
                     Globals.Atel.current_controller->worker(0xD)->table_jump[0] = 0x1951;
                     AtelBasicWorker* _0xd = Globals.Atel.current_controller->worker(0xD);
                     set(code_ptr, 0x1947, [
@@ -2031,7 +2037,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 break;
             case "nagi0700":
                 // Check requirements if Nemesis is goal
-                if (seed.Options.Goal == Goal.Nemesis) {
+                if (seed.Options.Goal == ArchipelagoData.Goal.Nemesis) {
                     Globals.Atel.current_controller->worker(0x02)->table_jump[0xAD7] = 0xD7B3;
                     set(code_ptr, 0xD78F, [
                         AtelOp.PUSHII  .build(0x000C),
@@ -2400,7 +2406,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
 
         if (item_locations.treasure.TryGetValue(treasure_id, out var item)) {
-            if (FFXArchipelagoClient.sendLocation(treasure_id, ArchipelagoLocationType.Treasure)) {
+            if (FFXArchipelagoClient.sendLocation(treasure_id, FFXArchipelagoClient.ArchipelagoLocationType.Treasure)) {
                 obtain_item(item.id);
 
                 NativeCustomString name = new NativeCustomString(item.id != 0 ? item.name : $"{item.name} to {item.player}", encodingFlags: FhEncodingFlags.IGNORE_EXPRESSIONS);
@@ -2472,7 +2478,7 @@ public unsafe partial class ArchipelagoFFXModule {
         atelStack->push_int(4);
         _CT_RetInt_0065((nint)work, storage, (nint)atelStack);
 
-        TOMesWinWork* mesageWindowWorker = _AtelGetMesWinWork(window_id);
+        delegates.TOMesWinWork* mesageWindowWorker = _AtelGetMesWinWork(window_id);
         mesageWindowWorker->_0x20 = 0;
         mesageWindowWorker->text = message_text;
         mesageWindowWorker->_0xc = message_text;
@@ -2510,7 +2516,7 @@ public unsafe partial class ArchipelagoFFXModule {
         uint weapon_id = 0;
 
         if (item_locations.treasure.TryGetValue(treasure_id, out var item)) {
-            if (FFXArchipelagoClient.sendLocation(treasure_id, ArchipelagoLocationType.Treasure)) {
+            if (FFXArchipelagoClient.sendLocation(treasure_id, FFXArchipelagoClient.ArchipelagoLocationType.Treasure)) {
                 obtain_item(item.id);
             }
         }
@@ -2585,7 +2591,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         int other_id = 37 + level + chr_id * 2;
         if (0 <= chr_id && chr_id <= 6 && item_locations.other.TryGetValue(other_id, out var item)) {
-            if (FFXArchipelagoClient.sendLocation(other_id, ArchipelagoLocationType.Other)) {
+            if (FFXArchipelagoClient.sendLocation(other_id, FFXArchipelagoClient.ArchipelagoLocationType.Other)) {
                 obtain_item(item.id);
             }
             return level;
@@ -2600,7 +2606,7 @@ public unsafe partial class ArchipelagoFFXModule {
         logger.Debug($"set_primer_collected: Al Bhed Primer {primer + 1}");
 
         if (item_locations.other.TryGetValue(primer + 1, out var item)) {
-            if (FFXArchipelagoClient.sendLocation(primer + 1, ArchipelagoLocationType.Other)) {
+            if (FFXArchipelagoClient.sendLocation(primer + 1, FFXArchipelagoClient.ArchipelagoLocationType.Other)) {
                 obtain_item(item.id);
             }
             atelStack->pop_int();
@@ -2617,11 +2623,11 @@ public unsafe partial class ArchipelagoFFXModule {
         logger.Info($"Update region state");
 
         // Update region state
-        if (current_region != RegionEnum.None && region_states.TryGetValue(current_region, out ArchipelagoData.ArchipelagoRegion? current_state)) {
+        if (current_region != ArchipelagoData.RegionEnum.None && region_states.TryGetValue(current_region, out ArchipelagoData.ArchipelagoRegion? current_state)) {
             current_state = region_states[current_region];
 
             for (int i = 0; i < current_state.savedata.Length; i++) {
-                ref ArchipelagoRegionSaveData data = ref current_state.savedata[i];
+                ref ArchipelagoData.ArchipelagoRegionSaveData data = ref current_state.savedata[i];
                 new Span<byte>((byte*)((int)save_data + data.offset), data.size).CopyTo(data.bytes);
             }
 
@@ -2635,7 +2641,7 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     private static void restore_region_state(ref int map, ref int entrance) {
-        ArchipelagoRegion current_state = region_states[current_region];
+        ArchipelagoData.ArchipelagoRegion current_state = region_states[current_region];
         save_data->story_progress = current_state.story_progress;
         map      = current_state.room_id;
         entrance = (byte)current_state.entrance;
@@ -2665,7 +2671,7 @@ public unsafe partial class ArchipelagoFFXModule {
             save_data->saved_current_spawnpoint = 0;
             if (id_to_regions.Contains(next_map)) {
                 var regions = id_to_regions[next_map];
-                RegionEnum region = regions.Any(r => current_region == r) ? current_region : regions.Last();
+                ArchipelagoData.RegionEnum region = regions.Any(r => current_region == r) ? current_region : regions.Last();
                 current_region = region;
 
                 restore_region_state(ref next_map, ref next_entrance);
@@ -2675,7 +2681,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
             // New Game
             if (save_data->current_room_id == 0 && next_map == 132) {
-                current_region = RegionEnum.DreamZanarkand;
+                current_region = ArchipelagoData.RegionEnum.DreamZanarkand;
                 FFXArchipelagoClient.local_checked_locations.Clear();
                 FFXArchipelagoClient.received_items = 0;
                 FFXArchipelagoClient.remote_locations_updated = true;
@@ -2698,7 +2704,7 @@ public unsafe partial class ArchipelagoFFXModule {
             }
 
             var regions = id_to_regions[next_map];
-            RegionEnum region = regions.Any(r => current_region == r) ? current_region : regions.Last();
+            ArchipelagoData.RegionEnum region = regions.Any(r => current_region == r) ? current_region : regions.Last();
 
             if (current_region != region) {
                 next_map = 382;
@@ -2724,7 +2730,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 seed = default;
             }
             if (next_map == 382) update_region_state(current_map, current_entrance); // Airship Menu
-            current_region = RegionEnum.None;
+            current_region = ArchipelagoData.RegionEnum.None;
             skip_state_updates = false;
         }
         return true;
@@ -2969,7 +2975,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     if (encounterToLocationDict.TryGetValue(encounter_name!, out int[]? boss_locations)) {
                         foreach (int location_id in boss_locations) {
                             // Sending all locations even if they don't exist
-                            if (sendLocation(location_id, ArchipelagoLocationType.Boss) && item_locations.boss.TryGetValue(location_id, out var item)) {
+                            if (sendLocation(location_id, FFXArchipelagoClient.ArchipelagoLocationType.Boss) && item_locations.boss.TryGetValue(location_id, out var item)) {
                                 ArchipelagoFFXModule.obtain_item(item.id);
                             }
                         }
@@ -3354,8 +3360,8 @@ public unsafe partial class ArchipelagoFFXModule {
             case 0xE:
                 // Region Unlock
                 item_id &= 0xff;
-                logger.Debug($"Region: {(RegionEnum)item_id}");
-                region_is_unlocked[(RegionEnum)item_id] = true;
+                logger.Debug($"Region: {(ArchipelagoData.RegionEnum)item_id}");
+                region_is_unlocked[(ArchipelagoData.RegionEnum)item_id] = true;
                 break;
             case 0xF:
                 // Party Member
@@ -3369,10 +3375,10 @@ public unsafe partial class ArchipelagoFFXModule {
                 }
                 save_party();
                 reset_party();
-                if (seed.Options.GoalRequirement == GoalRequirement.PartyMembers || seed.Options.GoalRequirement == GoalRequirement.PartyMembersAndAeons) {
+                if (seed.Options.GoalRequirement == ArchipelagoData.GoalRequirement.PartyMembers || seed.Options.GoalRequirement == ArchipelagoData.GoalRequirement.PartyMembersAndAeons) {
                     int num_unlocked;
                     int num_required;
-                    if (seed.Options.GoalRequirement == GoalRequirement.PartyMembers) {
+                    if (seed.Options.GoalRequirement == ArchipelagoData.GoalRequirement.PartyMembers) {
                         num_unlocked = unlocked_characters.Where(x => x.Key < 8 && x.Value).Count();
                         num_required = Math.Min(seed.Options.RequiredPartyMembers, 8);
                     } else {
@@ -3653,12 +3659,12 @@ public unsafe partial class ArchipelagoFFXModule {
     //}
 
     public static List<nint> loaded_clusters = [];
-    public static PCluster* loadCluster(string file) {
+    public static delegates.PCluster* loadCluster(string file) {
         //var filePath = Marshal.StringToHGlobalAnsi("/FFX_Data/GameData/PS3Data/map/hiku/hiku22/2d/tex/D3D11/0_11_132_16_12.dds.phyre");
         if (file == "") return null;
         var filePath = Marshal.StringToHGlobalAnsi(file);
         nint clusterManager = FhUtil.get_at<nint>(0x008cca44);
-        PCluster* cluster = _ClusterManager_loadPCluster(clusterManager, filePath);
+        delegates.PCluster* cluster = _ClusterManager_loadPCluster(clusterManager, filePath);
         Marshal.FreeHGlobal(filePath);
         if (cluster == null) return null;
         loaded_clusters.Add((nint)cluster);
@@ -3669,20 +3675,20 @@ public unsafe partial class ArchipelagoFFXModule {
         return cluster;
     }
 
-    public static void releaseCluster(PCluster* cluster) {
+    public static void releaseCluster(delegates.PCluster* cluster) {
         nint clusterManager = FhUtil.get_at<nint>(0x008cca44); //var clusterManager = getClusterManager();
         _ClusterManager_releasePCluster(clusterManager, cluster);
 
     }
 
-    public static PCluster* getCluster(string file) {
+    public static delegates.PCluster* getCluster(string file) {
         //var filePath = Marshal.StringToHGlobalAnsi("/FFX_Data/GameData/PS3Data/map/hiku/hiku22/2d/tex/D3D11/0_11_132_16_12.dds.phyre");
         if (file == "") return null;
         var filePath = Marshal.StringToHGlobalAnsi(file);
         nint unifiedFilePath = (nint)NativeMemory.AllocZeroed(0x100);
         _fiosUnifyFilename(filePath, unifiedFilePath, 0x100);
         nint clusterManager = FhUtil.get_at<nint>(0x008cca44);
-        PCluster* cluster = _ClusterManager_getPClusterByName(clusterManager, unifiedFilePath);
+        delegates.PCluster* cluster = _ClusterManager_getPClusterByName(clusterManager, unifiedFilePath);
         Marshal.FreeHGlobal(filePath);
         Marshal.FreeHGlobal(unifiedFilePath);
 
@@ -3705,7 +3711,7 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     // Unsure if there are side effects
-    public static void h_LocalizationManager_Initialize(FFXLocalizationManager* localizationManager) {
+    public static void h_LocalizationManager_Initialize(delegates.FFXLocalizationManager* localizationManager) {
         _LocalizationManager_Initialize.orig_fptr(localizationManager);
         if (TextLanguage.HasValue) {
             logger.Debug($"Text: {TextLanguage.Value}");
@@ -3735,7 +3741,7 @@ public unsafe partial class ArchipelagoFFXModule {
             if (load_result == 0) {
                 int* piVar5 = *(int**)bank;
                 if (piVar5 != null) {
-                    FMOD_Bank_Post_Load _FMOD_Bank_Post_Load = Marshal.GetDelegateForFunctionPointer<FMOD_Bank_Post_Load>(*(nint*)(*piVar5 + 8));
+                    delegates.FMOD_Bank_Post_Load _FMOD_Bank_Post_Load = Marshal.GetDelegateForFunctionPointer<delegates.FMOD_Bank_Post_Load>(*(nint*)(*piVar5 + 8));
 
                     nint s_voice = Marshal.StringToHGlobalAnsi("voice");
                     load_result = _FMOD_Bank_Post_Load((nint)piVar5, s_voice, 0, *(int*)(FmodVoice + 0xc) + bank_index*4);
@@ -3796,39 +3802,39 @@ public unsafe partial class ArchipelagoFFXModule {
         return $"Unnamed item ({item_id})";
     }
 
-    private static Dictionary<int, CT_Exec>     cached_CT_Execs     = new();
-    private static Dictionary<int, CT_RetInt>   cached_CT_RetInts   = new();
-    private static Dictionary<int, CT_RetFloat> cached_CT_RetFloats = new();
-    public static CT_Exec get_CT_Exec(int id) {
+    private static Dictionary<int, delegates.CT_Exec>     cached_CT_Execs     = new();
+    private static Dictionary<int, delegates.CT_RetInt>   cached_CT_RetInts   = new();
+    private static Dictionary<int, delegates.CT_RetFloat> cached_CT_RetFloats = new();
+    public static delegates.CT_Exec get_CT_Exec(int id) {
         if (cached_CT_Execs.TryGetValue(id, out var result)) {
             return result;
         }
         AtelCallTargetNamespace nmsp = (AtelCallTargetNamespace)(id >> 0xC);
         AtelCallTarget* internal_ct = nmsp.get_internal() + (id & 0xFFF);
 
-        CT_Exec ct = Marshal.GetDelegateForFunctionPointer<CT_Exec>(internal_ct->ret_float_func);
+        delegates.CT_Exec ct = Marshal.GetDelegateForFunctionPointer<delegates.CT_Exec>(internal_ct->ret_float_func);
         cached_CT_Execs[id] = ct;
         return ct;
     }
-    public static CT_RetInt get_CT_RetInt(int id) {
+    public static delegates.CT_RetInt get_CT_RetInt(int id) {
         if (cached_CT_RetInts.TryGetValue(id, out var result)) {
             return result;
         }
         AtelCallTargetNamespace nmsp = (AtelCallTargetNamespace)(id >> 0xC);
         AtelCallTarget* internal_ct = nmsp.get_internal() + (id & 0xFFF);
 
-        CT_RetInt ct = Marshal.GetDelegateForFunctionPointer<CT_RetInt>(internal_ct->ret_float_func);
+        delegates.CT_RetInt ct = Marshal.GetDelegateForFunctionPointer<delegates.CT_RetInt>(internal_ct->ret_float_func);
         cached_CT_RetInts[id] = ct;
         return ct;
     }
-    public static CT_RetFloat get_CT_RetFloat(int id) {
+    public static delegates.CT_RetFloat get_CT_RetFloat(int id) {
         if (cached_CT_RetFloats.TryGetValue(id, out var result)) {
             return result;
         }
         AtelCallTargetNamespace nmsp = (AtelCallTargetNamespace)(id >> 0xC);
         AtelCallTarget* internal_ct = nmsp.get_internal() + (id & 0xFFF);
 
-        CT_RetFloat ct = Marshal.GetDelegateForFunctionPointer<CT_RetFloat>(internal_ct->ret_float_func);
+        delegates.CT_RetFloat ct = Marshal.GetDelegateForFunctionPointer<delegates.CT_RetFloat>(internal_ct->ret_float_func);
         cached_CT_RetFloats[id] = ct;
         return ct;
     }
@@ -3964,17 +3970,17 @@ public unsafe partial class ArchipelagoFFXModule {
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static int CT_RetInt_IsOtherLocationChecked(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         int other_id = atelStack->pop_int();
-        logger.Debug($"IsOtherLocationChecked: {other_id | (long)ArchipelagoLocationType.Other}");
+        logger.Debug($"IsOtherLocationChecked: {other_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Other}");
 
-        return local_checked_locations.Contains(other_id | (long)ArchipelagoLocationType.Other) ? 1 : 0;
+        return local_checked_locations.Contains(other_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Other) ? 1 : 0;
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static int CT_RetInt_IsTreasureLocationChecked(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         int other_id = atelStack->pop_int();
-        logger.Debug($"IsTreasureLocationChecked: {other_id | (long)ArchipelagoLocationType.Treasure}");
+        logger.Debug($"IsTreasureLocationChecked: {other_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure}");
 
-        return local_checked_locations.Contains(other_id | (long)ArchipelagoLocationType.Treasure) ? 1 : 0;
+        return local_checked_locations.Contains(other_id | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure) ? 1 : 0;
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -4260,11 +4266,11 @@ public unsafe partial class ArchipelagoFFXModule {
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static int CT_RetInt_TransitionToRegion(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
-        RegionEnum region = (RegionEnum)atelStack->pop_int();
+        ArchipelagoData.RegionEnum region = (ArchipelagoData.RegionEnum)atelStack->pop_int();
 
-        if (current_region != RegionEnum.None) {
+        if (current_region != ArchipelagoData.RegionEnum.None) {
             update_region_state();
-            current_region = RegionEnum.None;
+            current_region = ArchipelagoData.RegionEnum.None;
             skip_state_updates = false;
         }
 
@@ -4373,32 +4379,32 @@ public unsafe partial class ArchipelagoFFXModule {
         bool primer_requirement = false;
 
         switch (seed.Options.GoalRequirement) {
-            case GoalRequirement.None:
+            case ArchipelagoData.GoalRequirement.None:
                 goal_requirement = true;
                 break;
-            case GoalRequirement.PartyMembers:
+            case ArchipelagoData.GoalRequirement.PartyMembers:
                 if (unlocked_characters.Where(x => x.Key < 8 && x.Value).Count() >= Math.Min(seed.Options.RequiredPartyMembers, 8))
                     goal_requirement = true;
                 //if (unlocked_characters.All(c => c.Value)) {
                 //    return 1;
                 //}
                 break;
-            case GoalRequirement.PartyMembersAndAeons:
+            case ArchipelagoData.GoalRequirement.PartyMembersAndAeons:
                 if (unlocked_characters.Where(x => x.Key < 16 && x.Value).Count() >= seed.Options.RequiredPartyMembers)
                     goal_requirement = true;
                 break;
-            case GoalRequirement.Pilgrimage:
-                if (local_checked_locations.Contains(8 | (long)ArchipelagoLocationType.PartyMember) &&
-                    local_checked_locations.Contains(9 | (long)ArchipelagoLocationType.PartyMember) &&
-                    local_checked_locations.Contains(10 | (long)ArchipelagoLocationType.PartyMember) &&
-                    local_checked_locations.Contains(11 | (long)ArchipelagoLocationType.PartyMember) &&
-                    local_checked_locations.Contains(12 | (long)ArchipelagoLocationType.PartyMember) &&
-                    local_checked_locations.Contains(37 | (long)ArchipelagoLocationType.Boss)) {
+            case ArchipelagoData.GoalRequirement.Pilgrimage:
+                if (local_checked_locations.Contains(8 | (long)FFXArchipelagoClient.ArchipelagoLocationType.PartyMember) &&
+                    local_checked_locations.Contains(9 | (long)FFXArchipelagoClient.ArchipelagoLocationType.PartyMember) &&
+                    local_checked_locations.Contains(10 | (long)FFXArchipelagoClient.ArchipelagoLocationType.PartyMember) &&
+                    local_checked_locations.Contains(11 | (long)FFXArchipelagoClient.ArchipelagoLocationType.PartyMember) &&
+                    local_checked_locations.Contains(12 | (long)FFXArchipelagoClient.ArchipelagoLocationType.PartyMember) &&
+                    local_checked_locations.Contains(37 | (long)FFXArchipelagoClient.ArchipelagoLocationType.Boss)) {
                     goal_requirement = true;
                 }
                 break;
-            case GoalRequirement.Nemesis:
-                if (local_checked_locations.Contains(83 | (long)ArchipelagoLocationType.Boss)) {
+            case ArchipelagoData.GoalRequirement.Nemesis:
+                if (local_checked_locations.Contains(83 | (long)FFXArchipelagoClient.ArchipelagoLocationType.Boss)) {
                     goal_requirement = true;
                 }
                 break;

@@ -1,9 +1,12 @@
 ﻿using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using System.Runtime.InteropServices;
-using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+using Fahrenheit;
+
+using static ArchipelagoFFX.delegates;
+
+namespace ArchipelagoFFX;
 
 public unsafe partial class CaptureModule : FhModule {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -112,7 +115,7 @@ public unsafe partial class CaptureModule : FhModule {
     private readonly FhMethodHandle<MsMonsterCapture> _MsMonsterCapture;
     private readonly FhMethodHandle<FUN_00783bb0> _FUN_00783bb0;
     private readonly FhMethodHandle<AtelEventSetUp> _AtelEventSetUp;
-    private readonly FhMethodHandle<CT_RetInt> _ret_hasKeyItem;
+    private readonly FhMethodHandle<delegates.CT_RetInt> _ret_hasKeyItem;
     private readonly FhMethodHandle<MsDamageCheckDeath> _MsDamageCheckDeath;
     private readonly FhMethodHandle<MsSetSaveParam> _MsSetSaveParam;
     private readonly FhMethodHandle<MsSetRamChrParam> _MsSetRamChrParam;

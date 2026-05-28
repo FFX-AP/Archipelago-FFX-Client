@@ -5,7 +5,7 @@ using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
 using Fahrenheit.FFX;
-using Fahrenheit.Modules.ArchipelagoFFX.GUI;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,9 @@ using System.Threading.Tasks;
 
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX.Client;
+using ArchipelagoFFX.GUI;
+
+namespace ArchipelagoFFX.Client;
 public static class FFXArchipelagoClient {
     public static readonly System.Threading.Lock client_lock = new();
     public static          ArchipelagoSession?   current_session;
