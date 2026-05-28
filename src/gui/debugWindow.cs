@@ -1098,6 +1098,10 @@ public unsafe static class ArchipelagoGUI {
             return;
         }
 
+        bool hardcore_contest = HardcoreDreamsEndModule.get_enabled();
+        ImGui.Checkbox("Enable Hardcore Dream's End", ref hardcore_contest);
+        HardcoreDreamsEndModule.set_enabled(hardcore_contest);
+
         bool deathlink = DeathLinkModule.get_enabled();
         ImGui.Checkbox("Enable Deathlink", ref deathlink);
         DeathLinkModule.set_enabled(deathlink);

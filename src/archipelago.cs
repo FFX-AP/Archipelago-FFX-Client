@@ -90,35 +90,37 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     }
 
     private class ArchipelagoState {
-        public string                                    SeedId                  { get; set; }
-        public Dictionary<RegionEnum, ArchipelagoRegion> region_states           { get; set; }
-        public Dictionary<RegionEnum, bool>              region_is_unlocked      { get; set; }
-        public Dictionary<int,        bool>              unlocked_characters     { get; set; }
-        public SortedDictionary<uint, int >              excess_inventory        { get; set; }
-        public SortedDictionary<uint, int >              other_inventory         { get; set; }
-        public int[]                                     celestial_level         { get; set; }
-        public HashSet<long>                             local_checked_locations { get; set; }
-        public int                                       received_items          { get; set; }
-        public bool                                      enable_deathlink        { get; set; }
-        public string                                    deathlink_send_type     { get; set; }
-        public string                                    deathlink_receive_type  { get; set; }
+        public string                                    SeedId                     { get; set; }
+        public Dictionary<RegionEnum, ArchipelagoRegion> region_states              { get; set; }
+        public Dictionary<RegionEnum, bool>              region_is_unlocked         { get; set; }
+        public Dictionary<int,        bool>              unlocked_characters        { get; set; }
+        public SortedDictionary<uint, int >              excess_inventory           { get; set; }
+        public SortedDictionary<uint, int >              other_inventory            { get; set; }
+        public int[]                                     celestial_level            { get; set; }
+        public HashSet<long>                             local_checked_locations    { get; set; }
+        public int                                       received_items             { get; set; }
+        public bool                                      enable_hardcore_dreams_end { get; set; }
+        public bool                                      enable_deathlink           { get; set; }
+        public string                                    deathlink_send_type        { get; set; }
+        public string                                    deathlink_receive_type     { get; set; }
 
         public bool skip_state_updates { get; set; }
 
         public ArchipelagoState() {
-            this.SeedId                  = ArchipelagoFFXModule.seed.Options.SeedId;
-            this.region_states           = ArchipelagoFFXModule.region_states;
-            this.region_is_unlocked      = ArchipelagoFFXModule.region_is_unlocked;
-            this.unlocked_characters     = ArchipelagoFFXModule.unlocked_characters;
-            this.excess_inventory        = ArchipelagoFFXModule.excess_inventory;
-            this.other_inventory         = ArchipelagoFFXModule.other_inventory;
-            this.celestial_level         = ArchipelagoFFXModule.celestial_level;
-            this.skip_state_updates      = ArchipelagoFFXModule.skip_state_updates;
-            this.local_checked_locations = FFXArchipelagoClient.local_checked_locations;
-            this.received_items          = FFXArchipelagoClient.received_items;
-            this.enable_deathlink        = DeathLinkModule.get_enabled();
-            this.deathlink_send_type     = DeathLinkModule.get_send_type();
-            this.deathlink_receive_type  = DeathLinkModule.get_receive_type();
+            this.SeedId                     = ArchipelagoFFXModule.seed.Options.SeedId;
+            this.region_states              = ArchipelagoFFXModule.region_states;
+            this.region_is_unlocked         = ArchipelagoFFXModule.region_is_unlocked;
+            this.unlocked_characters        = ArchipelagoFFXModule.unlocked_characters;
+            this.excess_inventory           = ArchipelagoFFXModule.excess_inventory;
+            this.other_inventory            = ArchipelagoFFXModule.other_inventory;
+            this.celestial_level            = ArchipelagoFFXModule.celestial_level;
+            this.skip_state_updates         = ArchipelagoFFXModule.skip_state_updates;
+            this.local_checked_locations    = FFXArchipelagoClient.local_checked_locations;
+            this.received_items             = FFXArchipelagoClient.received_items;
+            this.enable_hardcore_dreams_end = HardcoreDreamsEndModule.get_enabled();
+            this.enable_deathlink           = DeathLinkModule.get_enabled();
+            this.deathlink_send_type        = DeathLinkModule.get_send_type();
+            this.deathlink_receive_type     = DeathLinkModule.get_receive_type();
         }
     }
 
@@ -141,6 +143,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude] public int EncounterWeighting;
 
         [JsonInclude] public int SkipContestOfAeons;
+        [JsonInclude] public bool HardcoreDreamsEnd;
+
         [JsonInclude] public int OverdriveModes;
 
         public ArchipelagoSeedOptions() {
@@ -160,7 +164,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             CaptureDamage        = 0;
             EncounterWeighting   = 0;
 
-            SkipContestOfAeons   = 0;
+            HardcoreDreamsEnd = false;
+            SkipContestOfAeons     = 0;
+
             OverdriveModes       = 0;
         }
     }
@@ -317,6 +323,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         initalize_states();
         seed = loaded_seed;
         ap_multiplier = seed.Options.APMultiplier;
+        HardcoreDreamsEndModule.set_enabled(seed.Options.HardcoreDreamsEnd);
         item_locations = new ArchipelagoLocations(seed.Locations);
         ArchipelagoGUI.selected_seed = loaded_seeds.FindIndex(x => x.Options.SeedId == seed.Options.SeedId);
         LastSeed = seed.Options.SeedId;
@@ -544,6 +551,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 FFXArchipelagoClient.received_items = loaded_state.received_items;
                 skip_state_updates = loaded_state.skip_state_updates;
             }
+
+            HardcoreDreamsEndModule.set_enabled(loaded_state.enable_hardcore_dreams_end);
 
             DeathLinkModule.set_enabled(loaded_state.enable_deathlink);
             DeathLinkModule.set_send_type(loaded_state.deathlink_send_type);
