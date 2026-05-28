@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using TerraFX.Interop.DirectX;
 using static Fahrenheit.FFX.Globals;
 using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
 using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoFFXModule;
@@ -113,65 +112,64 @@ public unsafe static class ArchipelagoGUI {
     }
 
     private static string cluster_file_name = "/FFX_Data/GameData/PS3Data/map/hiku/hiku22/2d/tex/D3D11/0_11_132_16_12.dds.phyre";
-    private static PTexture2DBase* loaded_texture2d = null;
     private static ImTextureRef? loaded_image;
 
-    private static void render_clusters() {
-        if (ImGui.Begin("Archipelago###Archipelago.Clusters.GUI")) {
-            ImGui.InputText("fileName", ref cluster_file_name, 256);
-            if (ImGui.Button("Load cluster by name")) {
-                PCluster* cluster = ArchipelagoFFXModule.loadCluster(cluster_file_name);
-                if (cluster != null) {
-                    loaded_texture2d = getTextureFromCluster(cluster);
-                    if (loaded_image != null) {
-                        ((ID3D11ShaderResourceView*)loaded_image.Value.TexID.Handle)->Release();
-                        loaded_image = null;
-                    }
-                }
-            }
-            if (ImGui.Button("Get cluster by name")) {
-                PCluster* cluster = ArchipelagoFFXModule.getCluster(cluster_file_name);
-                if (cluster != null) {
-                    loaded_texture2d = getTextureFromCluster(cluster);
-                    if (loaded_image != null) {
-                        ((ID3D11ShaderResourceView*)loaded_image.Value.TexID.Handle)->Release();
-                        loaded_image = null;
-                    }
-                }
-            }
-            if (ImGui.Button("Unload cluster by name")) {
-                PCluster* cluster = getCluster(cluster_file_name);
-                if (cluster != null) {
-                    loaded_clusters.Remove((nint)cluster);
-                    loaded_texture2d = null;
-                    if (loaded_image != null) {
-                        ((ID3D11ShaderResourceView*)loaded_image.Value.TexID.Handle)->Release();
-                        loaded_image = null;
-                    }
-                    releaseCluster(cluster);
-                }
-            }
-            if (ImGui.Button("Unload all clusters")) {
-                loaded_texture2d = null;
-                if (loaded_image != null) {
-                    ((ID3D11ShaderResourceView*)loaded_image.Value.TexID.Handle)->Release();
-                    loaded_image = null;
-                }
-                foreach (nint cluster in loaded_clusters) {
-                    releaseCluster((PCluster*)cluster);
-                }
-                loaded_clusters.Clear();
-            }
+    //private static void render_clusters() {
+    //    if (ImGui.Begin("Archipelago###Archipelago.Clusters.GUI")) {
+    //        ImGui.InputText("fileName", ref cluster_file_name, 256);
+    //        if (ImGui.Button("Load cluster by name")) {
+    //            PCluster* cluster = ArchipelagoFFXModule.loadCluster(cluster_file_name);
+    //            if (cluster != null) {
+    //                loaded_texture2d = getTextureFromCluster(cluster);
+    //                if (loaded_image != null) {
+    //                    ((ID3D11ShaderResourceView*)loaded_image.Value.TexID.Handle)->Release();
+    //                    loaded_image = null;
+    //                }
+    //            }
+    //        }
+    //        if (ImGui.Button("Get cluster by name")) {
+    //            PCluster* cluster = ArchipelagoFFXModule.getCluster(cluster_file_name);
+    //            if (cluster != null) {
+    //                loaded_texture2d = getTextureFromCluster(cluster);
+    //                if (loaded_image != null) {
+    //                    ((ID3D11ShaderResourceView*)loaded_image.Value.TexID.Handle)->Release();
+    //                    loaded_image = null;
+    //                }
+    //            }
+    //        }
+    //        if (ImGui.Button("Unload cluster by name")) {
+    //            PCluster* cluster = getCluster(cluster_file_name);
+    //            if (cluster != null) {
+    //                loaded_clusters.Remove((nint)cluster);
+    //                loaded_texture2d = null;
+    //                if (loaded_image != null) {
+    //                    ((ID3D11ShaderResourceView*)loaded_image.Value.TexID.Handle)->Release();
+    //                    loaded_image = null;
+    //                }
+    //                releaseCluster(cluster);
+    //            }
+    //        }
+    //        if (ImGui.Button("Unload all clusters")) {
+    //            loaded_texture2d = null;
+    //            if (loaded_image != null) {
+    //                ((ID3D11ShaderResourceView*)loaded_image.Value.TexID.Handle)->Release();
+    //                loaded_image = null;
+    //            }
+    //            foreach (nint cluster in loaded_clusters) {
+    //                releaseCluster((PCluster*)cluster);
+    //            }
+    //            loaded_clusters.Clear();
+    //        }
 
-            //if (loaded_texture2d != null && loaded_image == null) {
-            //    FhApi.Resources.create_srv(loaded_texture2d->buffer, null, out loaded_image);
-            //}
-            if (loaded_image.HasValue) {
-                ImGui.Image(loaded_image.Value, new(loaded_texture2d->width, loaded_texture2d->height), new(0, 1), new(1, 0));
-            }
-        }
-        ImGui.End();
-    }
+    //        //if (loaded_texture2d != null && loaded_image == null) {
+    //        //    FhApi.Resources.create_srv(loaded_texture2d->buffer, null, out loaded_image);
+    //        //}
+    //        if (loaded_image.HasValue) {
+    //            ImGui.Image(loaded_image.Value, new(loaded_texture2d->width, loaded_texture2d->height), new(0, 1), new(1, 0));
+    //        }
+    //    }
+    //    ImGui.End();
+    //}
 
     public static FileInfo?  shiori_file;
     private static FhTexture? shiori_image;
