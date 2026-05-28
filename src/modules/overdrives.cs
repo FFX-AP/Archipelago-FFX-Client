@@ -3,15 +3,20 @@ using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.FFX.Ids;
-using Fahrenheit.Modules.ArchipelagoFFX.Client;
+
 using System.IO;
 using System.Runtime.InteropServices;
-using static Fahrenheit.FFX.Globals;
-using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoFFXModule;
-using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
-using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+using ArchipelagoFFX.Client;
+
+using Fahrenheit;
+
+using static Fahrenheit.FFX.Globals;
+using static ArchipelagoFFX.ArchipelagoFFXModule;
+using static ArchipelagoFFX.Client.FFXArchipelagoClient;
+using static ArchipelagoFFX.delegates;
+
+namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe partial class OverdriveModule : FhModule 
@@ -68,7 +73,7 @@ public unsafe partial class OverdriveModule : FhModule
         _MsSetRamChrAbility = new FhMethodHandle<MsSetRamChrAbility>(this, GAME, __addr_MsSetRamChrAbility, h_MsSetRamChrAbility);
         _MsLimitTidusLearn = new FhMethodHandle<MsLimitTidusLearn>(this, GAME, __addr_MsLimitTidusLearn, h_MsLimitTidusLearn);
         _MsAfterDamageProcess = new FhMethodHandle<MsAfterDamageProcess>(this, GAME, __addr_MsAfterDamageProcess, h_MsAfterDamageProcess);
-        _ret_doesChrKnowCommand = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
+        _ret_doesChrKnowCommand = new FhMethodHandle<delegates.CT_RetInt>(this, GAME, __addr_ret_doesChrKnowCommand, h_ret_doesChrKnowCommand);
         _MsSetSaveCommandWithPrefix = new FhMethodHandle<MsSetSaveCommandWithPrefix>(this, GAME, __addr_MsSetSaveCommandWithPrefix, h_MsSetSaveCommandWithPrefix);
         _TOBtlDrawLearningMessageWindow = new FhMethodHandle<TOBtlDrawLearningMessageWindow>(this, GAME, __addr_TOBtlDrawLearningMessageWindow, h_TOBtlDrawLearningMessageWindow);
     }
@@ -560,7 +565,7 @@ public unsafe partial class OverdriveModule : FhModule
         if (chr_id == PlySaveId.PC_KIMAHRI && 
             com_id is >= PlayerCommandId.PCOM_JUMP and <= PlayerCommandId.PCOM_NOVA)
         {
-            return local_checked_locations.Contains(((com_id - PlayerCommandId.PCOM_SPIRAL_CUT) & 0xFF) | (long)ArchipelagoLocationType.Overdrive) ? 1 : 0;
+            return local_checked_locations.Contains(((com_id - PlayerCommandId.PCOM_SPIRAL_CUT) & 0xFF) | (long)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive) ? 1 : 0;
         }
 
         atelStack->push_int(chr_id);
@@ -593,7 +598,7 @@ public unsafe partial class OverdriveModule : FhModule
         _TOBtlSetMacroCommandType(7, 1, 0);
 
         if (item_locations.overdrive.TryGetValue(com_id - PlayerCommandId.PCOM_SPIRAL_CUT, out var item)) {
-            NativeCustomString custom_text;
+            ArchipelagoFFXModule.NativeCustomString custom_text;
 
             if (item.id != 0) {
                 custom_text = new($"{item.name}");

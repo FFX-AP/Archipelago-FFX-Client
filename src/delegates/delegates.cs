@@ -4,7 +4,7 @@ using Fahrenheit.FFX.Battle;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+namespace ArchipelagoFFX;
 public static unsafe class delegates {
 
 

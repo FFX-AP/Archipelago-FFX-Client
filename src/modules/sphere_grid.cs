@@ -3,13 +3,15 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
+using Fahrenheit;
+
 using Hexa.NET.ImGui;
 
 using Fahrenheit.FFX;
 
 using static Fahrenheit.FFX.Globals;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe class SphereGridQolModule : FhModule {

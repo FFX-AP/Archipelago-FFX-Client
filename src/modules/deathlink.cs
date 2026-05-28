@@ -6,12 +6,14 @@ using System.Text;
 
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 
+using ArchipelagoFFX.Client;
+
+using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
 using Fahrenheit.FFX.Ids;
-using Fahrenheit.Modules.ArchipelagoFFX.Client;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe partial class DeathLinkModule : FhModule {

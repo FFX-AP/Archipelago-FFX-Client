@@ -3,8 +3,6 @@ using Fahrenheit.Atel;
 using Fahrenheit.Events;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
-using Fahrenheit.Modules.ArchipelagoFFX.Client;
-using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 //using Fahrenheit.ImGuiNET;
 using System;
 using System.Collections.Generic;
@@ -18,13 +16,19 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+
+using ArchipelagoFFX.Client;
+using ArchipelagoFFX.GUI;
+
+using Fahrenheit;
+
 using static Fahrenheit.FFX.Globals;
 //using Fahrenheit.Modules.ArchipelagoFFX.GUI;
-using static Fahrenheit.Modules.ArchipelagoFFX.ArchipelagoData;
-using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
+using static ArchipelagoFFX.ArchipelagoData;
+using static ArchipelagoFFX.Client.FFXArchipelagoClient;
 using Color = Archipelago.MultiClient.Net.Models.Color;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe partial class ArchipelagoFFXModule : FhModule {
@@ -37,9 +41,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     private static ushort last_room_id = 0;
     private static ushort last_entrance_id = 0;
 
-    public static RegionEnum current_region = RegionEnum.None;
-    public static Dictionary<RegionEnum, bool> region_is_unlocked = [];
-    public static Dictionary<RegionEnum, ArchipelagoRegion> region_states = [];
+    public static ArchipelagoData.RegionEnum current_region = ArchipelagoData.RegionEnum.None;
+    public static Dictionary<ArchipelagoData.RegionEnum, bool> region_is_unlocked = [];
+    public static Dictionary<ArchipelagoData.RegionEnum, ArchipelagoData.ArchipelagoRegion> region_states = [];
     public static SortedDictionary<uint, int> excess_inventory = [];
     public static SortedDictionary<uint, int> other_inventory = [];
 
@@ -91,8 +95,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     private class ArchipelagoState {
         public string                                    SeedId                  { get; set; }
-        public Dictionary<RegionEnum, ArchipelagoRegion> region_states           { get; set; }
-        public Dictionary<RegionEnum, bool>              region_is_unlocked      { get; set; }
+        public Dictionary<ArchipelagoData.RegionEnum, ArchipelagoData.ArchipelagoRegion> region_states           { get; set; }
+        public Dictionary<ArchipelagoData.RegionEnum, bool>              region_is_unlocked      { get; set; }
         public Dictionary<int,        bool>              unlocked_characters     { get; set; }
         public SortedDictionary<uint, int >              excess_inventory        { get; set; }
         public SortedDictionary<uint, int >              other_inventory         { get; set; }
@@ -127,15 +131,15 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude] public string PlayerName;
         [JsonInclude] public string SeedId;
 
-        [JsonInclude] public Goal            Goal;
-        [JsonInclude] public GoalRequirement GoalRequirement;
+        [JsonInclude] public ArchipelagoData.Goal            Goal;
+        [JsonInclude] public ArchipelagoData.GoalRequirement GoalRequirement;
         [JsonInclude] public int RequiredPartyMembers;
         [JsonInclude] public int RequiredPrimers;
 
         [JsonInclude] public int APMultiplier;
         [JsonInclude] public int AlwaysSensor;
 
-        [JsonInclude] public CaptureRequirement CaptureRequirement;
+        [JsonInclude] public ArchipelagoData.CaptureRequirement CaptureRequirement;
         [JsonInclude] public int AlwaysCapture;
         [JsonInclude] public int CaptureDamage;
         [JsonInclude] public int EncounterWeighting;
@@ -147,15 +151,15 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             PlayerName           = "";
             SeedId               = "";
 
-            Goal                 = Goal.YuYevon;
-            GoalRequirement      = GoalRequirement.None;
+            Goal                 = ArchipelagoData.Goal.YuYevon;
+            GoalRequirement      = ArchipelagoData.GoalRequirement.None;
             RequiredPartyMembers = 1;
             RequiredPrimers      = 0;
 
             APMultiplier         = 1;
             AlwaysSensor         = 0;
 
-            CaptureRequirement   = CaptureRequirement.None;
+            CaptureRequirement   = ArchipelagoData.CaptureRequirement.None;
             AlwaysCapture        = 0;
             CaptureDamage        = 0;
             EncounterWeighting   = 0;
@@ -218,15 +222,15 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         public bool location_to_item(int location, [MaybeNullWhen(false)] out ArchipelagoItem item) {
             var dict = (location & 0xF000) switch {
-                (int)ArchipelagoLocationType.Treasure      => treasure,
-                (int)ArchipelagoLocationType.Boss          => boss,
-                (int)ArchipelagoLocationType.PartyMember   => party_member,
-                (int)ArchipelagoLocationType.Overdrive     => overdrive,
-                (int)ArchipelagoLocationType.OverdriveMode => overdrive_mode,
-                (int)ArchipelagoLocationType.Other         => other,
-                (int)ArchipelagoLocationType.Recruit       => recruit,
-                (int)ArchipelagoLocationType.SphereGrid    => sphere_grid,
-                (int)ArchipelagoLocationType.Capture       => capture,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.Treasure      => treasure,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.Boss          => boss,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.PartyMember   => party_member,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.Overdrive     => overdrive,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.OverdriveMode => overdrive_mode,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.Other         => other,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.Recruit       => recruit,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.SphereGrid    => sphere_grid,
+                (int)FFXArchipelagoClient.ArchipelagoLocationType.Capture       => capture,
                 _ => null,
             };
             item = dict?.GetValueOrDefault(location & 0xFFF);
@@ -345,7 +349,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static void initalize_states() {
         region_is_unlocked.Clear();
         foreach (var region in region_to_ids) {
-            region_is_unlocked.Add(region.Key, region.Key == RegionEnum.DreamZanarkand);
+            region_is_unlocked.Add(region.Key, region.Key == ArchipelagoData.RegionEnum.DreamZanarkand);
         }
         region_states.Clear();
         foreach (var region in region_starting_state) {
@@ -603,8 +607,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             ushort story_progress = Globals.save_data->story_progress;
             _logger.Info($"story_progress changed: {last_story_progress} -> {story_progress}");
 
-            if (current_region != RegionEnum.None) {
-                ArchipelagoRegion region = region_states[current_region];
+            if (current_region != ArchipelagoData.RegionEnum.None) {
+                ArchipelagoData.ArchipelagoRegion region = region_states[current_region];
                 if (region.story_checks.TryGetValue(story_progress, out var storyCheck)) {
                     storyCheck.check_delegate?.Invoke(region);
                     if (storyCheck.return_to_airship) {
