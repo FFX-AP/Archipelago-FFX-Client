@@ -79,8 +79,8 @@ public unsafe partial class ArchipelagoFFXModule {
     // Battle releated
     private static MsBtlListGroup _MsBtlListGroup;
     private static FhMethodHandle<MsBattleExe> _MsBattleExe;
-    
-    
+
+
     public static MsBattleLabelExe _MsBattleLabelExe;
     private static FhMethodHandle<FUN_00791820> _FUN_00791820;
 
@@ -4201,7 +4201,7 @@ public unsafe partial class ArchipelagoFFXModule {
         if (choice == 0) {
             // Chose Kilika->Besaid
             worker->table_event_data[0] = 2; // 2 to cancel
-        } else if (choice == 1) {
+        } else {
             worker->table_event_data[0] = choice; // Replicate the code that we're replacing
         }
 
