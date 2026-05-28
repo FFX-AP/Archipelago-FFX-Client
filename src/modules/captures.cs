@@ -4,7 +4,7 @@ using Archipelago.MultiClient.Net.Enums;
 using Fahrenheit.Atel;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
-using Fahrenheit.Modules.ArchipelagoFFX.Client;
+
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -12,11 +12,15 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-using static Fahrenheit.FFX.Globals;
-using static Fahrenheit.Modules.ArchipelagoFFX.Client.FFXArchipelagoClient;
-using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
+using ArchipelagoFFX.Client;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+using Fahrenheit;
+
+using static Fahrenheit.FFX.Globals;
+using static ArchipelagoFFX.Client.FFXArchipelagoClient;
+using static ArchipelagoFFX.delegates;
+
+namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe partial class CaptureModule : FhModule {
@@ -73,7 +77,7 @@ public unsafe partial class CaptureModule : FhModule {
         _MsMonsterCapture = new FhMethodHandle<MsMonsterCapture>(this, GAME, __addr_MsMonsterCapture, h_MsMonsterCapture);
         _FUN_00783bb0 = new FhMethodHandle<FUN_00783bb0>(this, GAME, __addr_FUN_00783bb0, h_FUN_00783bb0);
         _AtelEventSetUp = new FhMethodHandle<AtelEventSetUp>(this, GAME, __addr_AtelEventSetUp, h_AtelEventSetUp);
-        _ret_hasKeyItem = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_hasKeyItem, h_ret_hasKeyItem);
+        _ret_hasKeyItem = new FhMethodHandle<delegates.CT_RetInt>(this, GAME, __addr_ret_hasKeyItem, h_ret_hasKeyItem);
         _MsDamageCheckDeath = new FhMethodHandle<MsDamageCheckDeath>(this, GAME, __addr_MsDamageCheckDeath, h_MsDamageCheckDeath);
         _MsSetRamChrParam = new FhMethodHandle<MsSetRamChrParam>(this, GAME, __addr_MsSetRamChrParam, h_MsSetRamChrParam);
         _MsSetSaveParam = new FhMethodHandle<MsSetSaveParam>(this, GAME, __addr_MsSetSaveParam, h_MsSetSaveParam);
@@ -119,7 +123,7 @@ public unsafe partial class CaptureModule : FhModule {
 
         // Send AP Location if successfully captured
         if (captured) {
-            if (sendLocation(arena_idx, ArchipelagoLocationType.Capture) && ArchipelagoFFXModule.item_locations.capture.TryGetValue(arena_idx, out var item)) {
+            if (sendLocation(arena_idx, FFXArchipelagoClient.ArchipelagoLocationType.Capture) && ArchipelagoFFXModule.item_locations.capture.TryGetValue(arena_idx, out var item)) {
                 ArchipelagoFFXModule.obtain_item(item.id);
             }
 
@@ -207,7 +211,7 @@ public unsafe partial class CaptureModule : FhModule {
             int item_id = atelStack->pop_int();
 
             if (item_id == 0xA028) {
-                return local_checked_locations.Contains(276 | (long)ArchipelagoLocationType.Treasure) ? 1 : 0;
+                return local_checked_locations.Contains(276 | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure) ? 1 : 0;
             }
             else {
                 atelStack->push_int(item_id);

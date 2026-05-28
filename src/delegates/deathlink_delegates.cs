@@ -1,10 +1,11 @@
 using System.Runtime.InteropServices;
 
+using Fahrenheit;
 using Fahrenheit.FFX.Battle;
 
-using static Fahrenheit.Modules.ArchipelagoFFX.delegates;
+using static ArchipelagoFFX.delegates;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+namespace ArchipelagoFFX;
 
 public unsafe partial class DeathLinkModule {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

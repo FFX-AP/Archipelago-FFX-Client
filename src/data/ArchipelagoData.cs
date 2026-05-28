@@ -1,13 +1,15 @@
 ﻿using Archipelago.MultiClient.Net.Enums;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
-using Fahrenheit.Modules.ArchipelagoFFX.Client;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+using ArchipelagoFFX.Client;
+
+namespace ArchipelagoFFX;
 
 public static class ArchipelagoData {
     public static string[] id_to_character => [

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 
-using Fahrenheit.Modules.ArchipelagoFFX.GUI;
+using ArchipelagoFFX.GUI;
+
+using Fahrenheit;
 
 using Hexa.NET.ImGui;
 
-namespace Fahrenheit.Modules.ArchipelagoFFX;
+namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public class ToastModule : FhModule {
