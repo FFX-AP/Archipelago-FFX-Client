@@ -91,6 +91,10 @@ public static class ArchipelagoData {
             _                                                                                                                      => RegionEnum.None
         };
     }
+    public enum Goal {
+        YuYevon = 0,
+        Nemesis,
+    }
 
     public enum GoalRequirement {
         None = 0,

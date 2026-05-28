@@ -99,6 +99,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public int[]                                     celestial_level         { get; set; }
         public HashSet<long>                             local_checked_locations { get; set; }
         public int                                       received_items          { get; set; }
+        public bool                                      enable_deathlink        { get; set; }
+        public string                                    deathlink_send_type     { get; set; }
+        public string                                    deathlink_receive_type  { get; set; }
 
         public bool skip_state_updates { get; set; }
 
@@ -113,6 +116,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             this.skip_state_updates      = ArchipelagoFFXModule.skip_state_updates;
             this.local_checked_locations = FFXArchipelagoClient.local_checked_locations;
             this.received_items          = FFXArchipelagoClient.received_items;
+            this.enable_deathlink        = DeathLinkModule.get_enabled();
+            this.deathlink_send_type     = DeathLinkModule.get_send_type();
+            this.deathlink_receive_type  = DeathLinkModule.get_receive_type();
         }
     }
 
@@ -121,6 +127,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude] public string PlayerName;
         [JsonInclude] public string SeedId;
 
+        [JsonInclude] public Goal            Goal;
         [JsonInclude] public GoalRequirement GoalRequirement;
         [JsonInclude] public int RequiredPartyMembers;
         [JsonInclude] public int RequiredPrimers;
@@ -140,6 +147,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             PlayerName           = "";
             SeedId               = "";
 
+            Goal                 = Goal.YuYevon;
             GoalRequirement      = GoalRequirement.None;
             RequiredPartyMembers = 1;
             RequiredPrimers      = 0;
@@ -468,7 +476,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Error(message);
                 return;
-            } else if (save_version < new SemVer(0, 7, 0, "alpha")) {
+            } else if (save_version < new SemVer(0, 8, 0, "alpha")) {
                 string message = "Incompatible version. Returning to main menu";
                 ArchipelagoGUI.add_log_message([(message, Color.Red)]);
                 logger.Info(message);
@@ -536,6 +544,10 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 FFXArchipelagoClient.received_items = loaded_state.received_items;
                 skip_state_updates = loaded_state.skip_state_updates;
             }
+
+            DeathLinkModule.set_enabled(loaded_state.enable_deathlink);
+            DeathLinkModule.set_send_type(loaded_state.deathlink_send_type);
+            DeathLinkModule.set_receive_type(loaded_state.deathlink_receive_type);
         }
     }
     public static bool load_global_state() {

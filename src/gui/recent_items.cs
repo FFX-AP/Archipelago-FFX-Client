@@ -15,6 +15,8 @@ using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 
 using Hexa.NET.ImGui;
 
+namespace Fahrenheit.Modules.ArchipelagoFFX.GUI;
+
 [FhLoad(FhGameId.FFX)]
 public unsafe class RecentItemsModule : FhModule {
     private static class Colors {

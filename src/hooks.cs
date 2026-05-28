@@ -105,11 +105,11 @@ public unsafe partial class ArchipelagoFFXModule {
     private static FhMethodHandle<FUN_007993f0> _FUN_007993f0;
 
     private static MsGetChr _MsGetChr;
-    private static FhCall.MsGetComData _MsGetComData;
-    private static FhCall.MsGetCommandUse _MsGetCommandUse;
-    private static FhCall.MsGetCommandMP _MsGetCommandMP;
-    private static FhCall.MsGetRamChrMonster _MsGetRamChrMonster;
-    private static FhCall.TODrawCrossBoxXYWHC2 _TODrawCrossBoxXYWHC2;
+    private static FFX.FhCall.MsGetComData _MsGetComData;
+    private static FFX.FhCall.MsGetCommandUse _MsGetCommandUse;
+    private static FFX.FhCall.MsGetCommandMP _MsGetCommandMP;
+    private static FFX.FhCall.MsGetRamChrMonster _MsGetRamChrMonster;
+    private static FFX.FhCall.TODrawCrossBoxXYWHC2 _TODrawCrossBoxXYWHC2;
 
 
     private static FhMethodHandle<TkMenuAppearMainCmdWindow> _TkMenuAppearMainCmdWindow;
@@ -127,11 +127,11 @@ public unsafe partial class ArchipelagoFFXModule {
     private static readFile _readFile;
     private static FhMethodHandle<FUN_0070aec0> _FUN_0070aec0;
 
-    private static FhCall.ChN_ReadSystemMGRP _ChN_ReadSystemMGRP;
+    private static FFX.FhCall.ChN_ReadSystemMGRP _ChN_ReadSystemMGRP;
     private static Common_loadModel _Common_loadModel;
     private static Common_0043 _Common_0043;
     private static Common_linkFieldToBattleActor _Common_linkFieldToBattleActor;
-    private static FhCall.SndSepPlay _SndSepPlay;
+    private static FFX.FhCall.SndSepPlay _SndSepPlay;
 
 
     public static MsGetExcelData _MsGetExcelData;
@@ -165,7 +165,7 @@ public unsafe partial class ArchipelagoFFXModule {
     private static MsImportantName _MsImportantName;
     private static CT_RetInt_0065 _CT_RetInt_0065;
     private static CT_RetInt_006A _CT_RetInt_006A;
-    private static FhCall.MsBtlGetInit _MsBtlGetInit;
+    private static FFX.FhCall.MsBtlGetInit _MsBtlGetInit;
     private static AtelGetMesWinWork _AtelGetMesWinWork;
     private static FUN_008b8910 _FUN_008b8910; // setMessageWindowVariableType? (0: text*, 1: int)
     private static FUN_008bda20 _FUN_008bda20; // getMenuText
@@ -288,11 +288,11 @@ public unsafe partial class ArchipelagoFFXModule {
 
 
         _MsGetChr             = FhUtil.get_fptr<MsGetChr>(__addr_MsGetChr);
-        _MsGetComData         = FhUtil.get_fptr<FhCall.MsGetComData>(FhCall.__addr_MsGetComData);
-        _MsGetCommandUse      = FhUtil.get_fptr<FhCall.MsGetCommandUse>(FhCall.__addr_MsGetCommandUse);
-        _MsGetCommandMP       = FhUtil.get_fptr<FhCall.MsGetCommandMP>(FhCall.__addr_MsGetCommandMP);
-        _MsGetRamChrMonster   = FhUtil.get_fptr<FhCall.MsGetRamChrMonster>(FhCall.__addr_MsGetRamChrMonster);
-        _TODrawCrossBoxXYWHC2 = FhUtil.get_fptr<FhCall.TODrawCrossBoxXYWHC2>(FhCall.__addr_TODrawCrossBoxXYWHC2);
+        _MsGetComData         = FhUtil.get_fptr<FFX.FhCall.MsGetComData>(FFX.FhCall.__addr_MsGetComData);
+        _MsGetCommandUse      = FhUtil.get_fptr<FFX.FhCall.MsGetCommandUse>(FFX.FhCall.__addr_MsGetCommandUse);
+        _MsGetCommandMP       = FhUtil.get_fptr<FFX.FhCall.MsGetCommandMP>(FFX.FhCall.__addr_MsGetCommandMP);
+        _MsGetRamChrMonster   = FhUtil.get_fptr<FFX.FhCall.MsGetRamChrMonster>(FFX.FhCall.__addr_MsGetRamChrMonster);
+        _TODrawCrossBoxXYWHC2 = FhUtil.get_fptr<FFX.FhCall.TODrawCrossBoxXYWHC2>(FFX.FhCall.__addr_TODrawCrossBoxXYWHC2);
 
         _eiAbmParaGet = new FhMethodHandle<eiAbmParaGet>(this, game, __addr_eiAbmParaGet, h_eiAbmParaGet);
         _MsSetSaveParam = new FhMethodHandle<MsSetSaveParam>(this, game, __addr_MsSetSaveParam, h_MsSetSaveParam);
@@ -310,13 +310,13 @@ public unsafe partial class ArchipelagoFFXModule {
         _FUN_0070aec0 = new FhMethodHandle<FUN_0070aec0>(this, game, 0x0030aec0, h_FUN_0070aec0);
 
 
-        _ChN_ReadSystemMGRP = FhUtil.get_fptr<FhCall.ChN_ReadSystemMGRP>(FhCall.__addr_ChN_ReadSystemMGRP);
+        _ChN_ReadSystemMGRP = FhUtil.get_fptr<FFX.FhCall.ChN_ReadSystemMGRP>(FFX.FhCall.__addr_ChN_ReadSystemMGRP);
 
         _Common_loadModel = FhUtil.get_fptr<Common_loadModel>(0x0045ce70);
         _Common_0043 = FhUtil.get_fptr<Common_0043>(0x0045c810);
         _Common_linkFieldToBattleActor = FhUtil.get_fptr<Common_linkFieldToBattleActor>(0x0045ca00);
 
-        _SndSepPlay = FhUtil.get_fptr<FhCall.SndSepPlay>(FhCall.__addr_SndSepPlay);
+        _SndSepPlay = FhUtil.get_fptr<FFX.FhCall.SndSepPlay>(FFX.FhCall.__addr_SndSepPlay);
 
 
         _Map_800F = new FhMethodHandle<Map_800F>(this, game, 0x0051b1a0, h_Map_800F);
@@ -338,7 +338,7 @@ public unsafe partial class ArchipelagoFFXModule {
         _MsImportantName = FhUtil.get_fptr<MsImportantName>(__addr_MsImportantName);
         _CT_RetInt_0065 = FhUtil.get_fptr<CT_RetInt_0065>(__addr_CT_RetInt_0065);
         _CT_RetInt_006A = FhUtil.get_fptr<CT_RetInt_006A>(__addr_CT_RetInt_006A);
-        _MsBtlGetInit = FhUtil.get_fptr<FhCall.MsBtlGetInit>(FhCall.__addr_MsBtlGetInit);
+        _MsBtlGetInit = FhUtil.get_fptr<FFX.FhCall.MsBtlGetInit>(FFX.FhCall.__addr_MsBtlGetInit);
         _AtelGetMesWinWork = FhUtil.get_fptr<AtelGetMesWinWork>(__addr_AtelGetMesWinWork);
         _FUN_008b8910 = FhUtil.get_fptr<FUN_008b8910>(__addr_FUN_008b8910);
         _FUN_008bda20 = FhUtil.get_fptr<FUN_008bda20>(__addr_FUN_008bda20);
@@ -1164,6 +1164,52 @@ public unsafe partial class ArchipelagoFFXModule {
             AtelOp.RET     .build(      ),
 
         ]).SelectMany(x => x.to_bytes()).ToArray(),
+
+        // Check Nemesis requirements
+        ((AtelInst[])[ // C
+            
+            // !!!(MonsterArenaOriginalCreationUnlockFlags[0] & 128 [80h])
+            AtelOp.PUSHII   .build(0x0000),
+            AtelOp.PUSHAR   .build(0x000C),
+            AtelOp.PUSHII   .build(0x0080),
+            AtelOp.AND      .build(),
+            AtelOp.NOT      .build(),
+            AtelOp.NOT      .build(),
+            AtelOp.NOT      .build(),
+
+            // (priv175A5 >= 13 [0Dh])
+            AtelOp.PUSHV   .build(0x001F),
+            AtelOp.PUSHII  .build(0x000D),
+            AtelOp.GTE     .build(),
+
+            // Common.?checkMultipleMonsterArenaUnlocks [023Ch](from=Creation #1 defeated [0300h], next=34 [22h])
+            AtelOp.PUSHII  .build(0x0300),
+            AtelOp.PUSHII  .build(0x0022),
+            AtelOp.CALL    .build(0x023C),
+
+            // else jump to jAD8 (DCED)
+            AtelOp.LAND    .build(),
+            AtelOp.LAND    .build(),
+            AtelOp.POPXNCJMP.build(0x0AD8),
+
+            // Custom.isGoalUnlocked
+            AtelOp.CALL .build((ushort)CustomCallTarget.IS_GOAL_UNLOCKED),
+
+            // if Custom.isGoalUnlocked() jump to jAD7 (D7B3)
+            AtelOp.POPXCJMP.build(0x0AD7),
+
+            // display customStrings[2]
+            .. atelDisplayFieldString(1, 0x8002, 256, 224, 4, 0, 0),
+
+            // call Common.waitForText [0084h](boxIndex=1 [01h], p2=1 [01h]);
+            AtelOp.PUSHII  .build(0x0001),
+            AtelOp.PUSHII  .build(0x0001),
+            AtelOp.CALLPOPA.build(0x0084),
+
+            // jump to jAD8 (DCED)
+            AtelOp.JMP     .build(0x0AD8),
+
+        ]).SelectMany(x => x.to_bytes()).ToArray(),
     };
 
     private static readonly AtelInst[] save_sphere_load_model = [
@@ -1510,7 +1556,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 logger.Debug($"atel_event_setup: Inject Cid talk hook");
                 set(code_ptr, 0x4DC5, [
                     AtelOp.PUSHII  .build(0x0000),
-                    AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(0002) = jump to customScripts[0]
+                    AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(0000) = jump to customScripts[0]
                 ]);
                 break;
             case "hiku0500":
@@ -1530,6 +1576,10 @@ public unsafe partial class ArchipelagoFFXModule {
                         AtelOp.CALLPOPA.build((ushort)CustomCallTarget.LOCK_ALL_AEONS),
                         AtelOp.JMP.build(0x0003),
                         ]);
+                } else {
+                    set(code_ptr, 0x58FA, [
+                        AtelOp.CALL.build((ushort)CustomCallTarget.CHECK_UNLOCKED_AEONS),
+                        ]);
                 }
 
                 set(code_ptr, 0x5972, [
@@ -1543,7 +1593,6 @@ public unsafe partial class ArchipelagoFFXModule {
                     AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(A) = jump to customScripts[A]
                     ]);
                 break;
-
             case "luca0400":
                 logger.Debug($"atel_event_setup: Wait longer");
                 set(code_ptr, 0x68F9, [
@@ -1557,13 +1606,15 @@ public unsafe partial class ArchipelagoFFXModule {
                     ]);
                 break;
             case "sins0900":
-                // Tower falling down
-                Globals.Atel.current_controller->worker(0xD)->table_jump[0] = 0x1951;
-                AtelBasicWorker* _0xd = Globals.Atel.current_controller->worker(0xD);
-                set(code_ptr, 0x1947, [
-                    AtelOp.PUSHII  .build(0x0003),
-                    AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(3) = jump to customScripts[3]
-                    ]);
+                // Check requirements if Yu Yevon is goal (Tower falling down)
+                if (seed.Options.Goal == Goal.YuYevon) {
+                    Globals.Atel.current_controller->worker(0xD)->table_jump[0] = 0x1951;
+                    AtelBasicWorker* _0xd = Globals.Atel.current_controller->worker(0xD);
+                    set(code_ptr, 0x1947, [
+                        AtelOp.PUSHII  .build(0x0003),
+                        AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP), // Common.Jump(3) = jump to customScripts[3]
+                        ]);
+                }
 
                 // Look up at tower
                 //set(code_ptr, 0x1761, [
@@ -1977,6 +2028,16 @@ public unsafe partial class ArchipelagoFFXModule {
                     AtelOp.PUSHII  .build(14),
                     AtelOp.CALLPOPA.build((ushort)CustomCallTarget.SEND_PARTY_MEMBER_LOCATION),
                     ]);
+                break;
+            case "nagi0700":
+                // Check requirements if Nemesis is goal
+                if (seed.Options.Goal == Goal.Nemesis) {
+                    Globals.Atel.current_controller->worker(0x02)->table_jump[0xAD7] = 0xD7B3;
+                    set(code_ptr, 0xD78F, [
+                        AtelOp.PUSHII  .build(0x000C),
+                        AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP),
+                        ]);
+                }
                 break;
 
         }
@@ -3628,22 +3689,6 @@ public unsafe partial class ArchipelagoFFXModule {
         return cluster;
     }
 
-    public static PTexture2DBase* getTextureFromCluster(PCluster* cluster) {
-
-        FixedClusterData data = new();
-        data._0x14 = *(nint*)cluster + 0x1c;
-        data._0x18 = *(nint*)data._0x14 != data._0x14 ? *(nint*)data._0x14 : 0;
-        data._0x1c = (nint)FhUtil.ptr_at<nint>(0x008a3738); // PTexture2DBase vftable?
-        _FUN_0065ee30(&data);
-        if (data._0x0c == 0) {
-            return null;
-        }
-
-        PTexture2DBase* _this = (PTexture2DBase*)(data._0x00 + data._0x10);
-        return _this;
-
-    }
-
 
     // Voice related
     //public static nint h_FMOD_EventSystem_load(nint param_1, nint file_path, nint param_3, nint param_4) {
@@ -3832,6 +3877,7 @@ public unsafe partial class ArchipelagoFFXModule {
         LIGHTNING_DODGING,
         JECHT_SPHERE,
         KICKED_BLITZBALL_AWAY,
+        CHECK_UNLOCKED_AEONS,
     }
 
     static AtelCallTarget[] customNameSpace = {
@@ -3869,6 +3915,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_LightningDodging)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_JechtSphere)},
         new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_KickedBlitzballAway)},
+        new() { ret_int_func = (nint)(delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)(&CT_RetInt_CheckUnlockedAeons)},
     };
     static GCHandle customNameSpaceHandle = GCHandle.Alloc(customNameSpace, GCHandleType.Pinned);
 
@@ -4459,8 +4506,7 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static int CT_RetInt_KickedBlitzballAway(AtelBasicWorker* work, int* storage, AtelStack* atelStack)
-    {
+    public static int CT_RetInt_KickedBlitzballAway(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         byte* table = (byte*)work->table_event_data;
         table[0x0008] = 1;
 
@@ -4481,5 +4527,31 @@ public unsafe partial class ArchipelagoFFXModule {
             }
         }
         return 1;
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int CT_RetInt_CheckUnlockedAeons(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
+        uint aeon_bitfield = work->table_priv_data[0];
+
+        logger.Info($"aeon_bitfield: {aeon_bitfield}");
+
+        uint temp = aeon_bitfield;
+        for (int i = 0; i < PlySaveId.PC_DUMMY; i++) {
+            logger.Info($"{id_to_character[i]}: {(temp & 1) == 1}");
+            temp >>= 1;
+        }
+
+        if (aeon_bitfield != 0) {
+            return 1;
+        }
+
+        if (!FFXArchipelagoClient.local_checked_locations.Contains(41 | (long)FFXArchipelagoClient.ArchipelagoLocationType.Boss)) {
+            if (ArchipelagoFFXModule.item_locations.boss.TryGetValue(41, out var item)) {
+                if (FFXArchipelagoClient.sendLocation(41, FFXArchipelagoClient.ArchipelagoLocationType.Boss)) {
+                    ArchipelagoFFXModule.obtain_item(item.id);
+                }
+            }
+        }
+        return 0;
     }
 }
