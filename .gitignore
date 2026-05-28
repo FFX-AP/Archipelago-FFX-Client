@@ -8,6 +8,6 @@ obj
 release
 
 # Project assets
-assets/efl
-assets/loadorder
+assets/archipelago
+assets/seymour
 assets/start_game.bat
