@@ -87,18 +87,23 @@
 	<Target Name="CopyAssets" AfterTargets="Publish">
 		<PropertyGroup>
 			<AssetsDir>$(ProjectDir)assets\</AssetsDir>
+			<AssetsAPDir>$(AssetsDir)archipelago\</AssetsAPDir>
+			<AssetsSeymourDir>$(AssetsDir)seymour\</AssetsSeymourDir>
 			<LoadOrderFile>loadorder</LoadOrderFile>
 			<LoadOrder>$(AssetsDir)$(LoadOrderFile)</LoadOrder>
 			<StartGameFile>start_game.bat</StartGameFile>
 			<StartGame>$(AssetsDir)$(StartGameFile)</StartGame>
-			<AssetDestination>$(PublishDir)fahrenheit\mods\$(AssemblyName)</AssetDestination>
+			<AssetAPDestination>$(PublishDir)fahrenheit\mods\$(AssemblyName)</AssetAPDestination>
+			<AssetSeymourDestination>$(PublishDir)fahrenheit\mods\$(playableSeymourName)</AssetSeymourDestination>
 		</PropertyGroup>
 		<ItemGroup>
 			<AssetFiles Include="$(LoadOrder); $(StartGame)" />
 		</ItemGroup>
 		<Message Text="Copy solution assets..." />
-		<Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -Command &quot;robocopy '$(AssetsDir)' '$(AssetDestination)' /MIR /R:0 /W:0 /XF '$(LoadOrder)' /XF '$(StartGame)'" ContinueOnError="true" IgnoreExitCode="true" />
-		<Exec Condition="'$(OS)' == 'Unix'" Command="rsync -acu --delete '$(AssetsDir)/' '$(AssetDestination)' --exclude='$(LoadOrderFile)' --exclude='$(StartGameFile)'" ContinueOnError="true" IgnoreExitCode="true" />
+		<Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -Command &quot;robocopy '$(AssetsAPDir)' '$(AssetAPDestination)' /MIR /R:0 /W:0" ContinueOnError="true" IgnoreExitCode="true" />
+		<Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -Command &quot;robocopy '$(AssetsSeymourDir)' '$(AssetSeymourDestination)' /MIR /R:0 /W:0" ContinueOnError="true" IgnoreExitCode="true" />
+		<Exec Condition="'$(OS)' == 'Unix'" Command="rsync -acu --delete '$(AssetsAPDir)/' '$(AssetAPDestination)'" ContinueOnError="true" IgnoreExitCode="true" />
+		<Exec Condition="'$(OS)' == 'Unix'" Command="rsync -acu --delete '$(AssetsSeymourDir)/' '$(AssetSeymourDestination)'" ContinueOnError="true" IgnoreExitCode="true" />
 		<Copy SourceFiles="@(AssetFiles)" DestinationFiles="$(PublishDir)fahrenheit\mods\$(LoadOrderFile); $(PublishDir)fahrenheit\$(StartGameFile)" ContinueOnError="true" />
 	</Target>
 
