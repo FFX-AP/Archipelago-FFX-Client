@@ -3498,6 +3498,14 @@ public unsafe partial class ArchipelagoFFXModule {
         //    ply.abi_map.has_extract_speed   = true;
         //    ply.abi_map.has_extract_ability = true;
         //}
+
+        // Seymour softlocks when using Spare Change/Bribe/Provoke/Threaten/Grenades
+        ref PlySave ply = ref save_data->ply_saves[PlySaveId.PC_SEYMOUR];
+        ply.abi_map.has_spare_change = false;
+        ply.abi_map.has_bribe = false;
+        ply.abi_map.has_provoke = false;
+        ply.abi_map.has_threaten = false;
+        ply.abi_map.has_use = false;
     }
 
     private static void h_MsSetRamChrParam(uint chr_id) {
