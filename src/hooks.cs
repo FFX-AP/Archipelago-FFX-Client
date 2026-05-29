@@ -3283,13 +3283,31 @@ public unsafe partial class ArchipelagoFFXModule {
                 break;
             case 0x5:
                 // Equipment
-                item_id &= 0xff;
-                UnownedEquipment* weapon_data = (UnownedEquipment*)h_read_from_bin((int)item_id, (short*)(*buki_get_pointer), 0);
+                item_id &= 0xFFF;
+
+                //UnownedEquipment* weapon_data = (UnownedEquipment*)h_read_from_bin((int)item_id, (short*)(*buki_get_pointer), 0);
+                if (!seed.Gear.TryGetValue((int)item_id, out ArchipelagoGear? gear)) {
+                    logger.Error($"Gear {item_id} doesn't exist");
+                    break;
+                }
+
+                UnownedEquipment weapon_data = new(){
+                    flags = gear.flags,
+                    owner = gear.owner,
+                    type = gear.type,
+                    dmg_formula = gear.dmg_formula,
+                    power = gear.power,
+                    crit_bonus = gear.crit_bonus,
+                    slot_count = gear.slot_count,
+                };
+                for (int i = 0; i < 4; i++) {
+                    weapon_data.abilities[i] = i < gear.abilities.Length ? (ushort)(gear.abilities[i] | 0x8000) : (ushort)0xFF;
+                }
+
                 //var data = get_from_bin((int)item_id, (short*)0x12000C00, 0);
-                logger.Debug($"obtain_item: Weapon {(int)weapon_data}");
-                if (weapon_data->is_celestial) {
+                if (weapon_data.is_celestial) {
                     foreach (var equip in Globals.save_data->equipment) {
-                        if (equip.exists && equip.owner == weapon_data->owner && equip.is_celestial) {
+                        if (equip.exists && equip.owner == weapon_data.owner && equip.is_celestial) {
                             // Upgrade celestial
                             if (celestial_level[equip.owner] < 2) {
                                 celestial_level[equip.owner] += 1;
@@ -3298,7 +3316,7 @@ public unsafe partial class ArchipelagoFFXModule {
                             return;
                         }
                     }
-                } else if (weapon_data->is_brotherhood) {
+                } else if (weapon_data.is_brotherhood) {
                     foreach (ref var equip in Globals.save_data->equipment) {
                         if (equip.exists && equip.is_brotherhood) {
                             if (equip.is_hidden) {
@@ -3306,15 +3324,15 @@ public unsafe partial class ArchipelagoFFXModule {
                                 equip.is_hidden = false;
                             } else {
                                 // Upgrade
-                                equip.flags = weapon_data->flags;
-                                equip.owner = weapon_data->owner;
-                                equip.type = weapon_data->type;
-                                equip.dmg_formula = weapon_data->dmg_formula;
-                                equip.power = weapon_data->power;
-                                equip.crit_bonus = weapon_data->crit_bonus;
-                                equip.slot_count = weapon_data->slot_count;
+                                equip.flags = weapon_data.flags;
+                                equip.owner = weapon_data.owner;
+                                equip.type = weapon_data.type;
+                                equip.dmg_formula = weapon_data.dmg_formula;
+                                equip.power = weapon_data.power;
+                                equip.crit_bonus = weapon_data.crit_bonus;
+                                equip.slot_count = weapon_data.slot_count;
                                 for (int i = 0; i < 4; i++) {
-                                    equip.abilities[i] = weapon_data->abilities[i];
+                                    equip.abilities[i] = weapon_data.abilities[i];
                                 }
                             }
                             break;
@@ -3328,23 +3346,23 @@ public unsafe partial class ArchipelagoFFXModule {
                 rewardData.gear_count = 1;
                 Equipment new_weapon = rewardData.gear[0];
                 new_weapon.exists = true;
-                new_weapon.flags = weapon_data->flags;
-                new_weapon.owner = weapon_data->owner;
-                new_weapon.type = weapon_data->type;
+                new_weapon.flags = weapon_data.flags;
+                new_weapon.owner = weapon_data.owner;
+                new_weapon.type = weapon_data.type;
                 new_weapon.equipped_by = 0xff;
-                new_weapon.dmg_formula = weapon_data->dmg_formula;
-                new_weapon.power = weapon_data->power;
-                new_weapon.crit_bonus = weapon_data->crit_bonus;
+                new_weapon.dmg_formula = weapon_data.dmg_formula;
+                new_weapon.power = weapon_data.power;
+                new_weapon.crit_bonus = weapon_data.crit_bonus;
                 count = 0;
                 for (int i = 0; i < 4; i++) {
-                    if (weapon_data->abilities[i] is 0x00 or 0xFF) {
+                    if (weapon_data.abilities[i] is 0x00 or 0xFF) {
                         new_weapon.abilities[i] = 0xff;
                     } else {
-                        new_weapon.abilities[i] = weapon_data->abilities[i];
+                        new_weapon.abilities[i] = weapon_data.abilities[i];
                         count++;
                     }
                 }
-                new_weapon.slot_count = (byte)Math.Max(weapon_data->slot_count, count);
+                new_weapon.slot_count = (byte)Math.Max(weapon_data.slot_count, count);
                 new_weapon.name_id = h_get_weapon_name(&new_weapon);
                 h_get_weapon_model(new_weapon.name_id, new_weapon.owner, 0, &new_weapon.model_id);
                 var result = _FUN_007ab930(&new_weapon); // giveWeapon?
