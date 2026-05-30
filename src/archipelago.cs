@@ -203,11 +203,13 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public string Name { get; set; }
         public ArchipelagoSeedOptions Options { get; set; }
         public ArchipelagoSeedLocations Locations { get; set; }
+        public Dictionary<int, ArchipelagoGear> Gear { get; set; }
 
         public ArchipelagoSeed() {
             this.Name      = ArchipelagoFFXModule.seed.Name;
             this.Options   = ArchipelagoFFXModule.seed.Options;
             this.Locations = ArchipelagoFFXModule.seed.Locations;
+            this.Gear      = ArchipelagoFFXModule.seed.Gear;
         }
     }
     public record ArchipelagoItem(uint id, string name, string player) {
@@ -244,6 +246,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
     }
 
+    public record ArchipelagoGear(int id, byte flags, byte owner, byte type, byte dmg_formula, byte power, byte crit_bonus, byte slot_count, int[] abilities);
+
     public static ArchipelagoSeed seed;
     //public static string SeedId = "";
     public static ArchipelagoLocations item_locations = new(new());
@@ -261,6 +265,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 using ZipArchive apffx = ZipFile.OpenRead(file.FullName);
                 ZipArchiveEntry zippedOptions   = apffx.GetEntry("options.json")!;
                 ZipArchiveEntry zippedLocations = apffx.GetEntry("locations.json")!;
+                ZipArchiveEntry zippedGear      = apffx.GetEntry("gear.json")!;
 
                 if (zippedOptions != null && zippedLocations != null) {
                     using Stream optionsStream         = zippedOptions.Open();
@@ -271,12 +276,18 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                     using StreamReader locationsReader = new StreamReader(locationsStream);
                     string locationsContents           = locationsReader.ReadToEnd();
 
+                    using Stream gearStream            = zippedGear.Open();
+                    using StreamReader gearReader      = new StreamReader(gearStream);
+                    string gearContents                = gearReader.ReadToEnd();
+
                     ArchipelagoSeedOptions   loaded_options   = JsonSerializer.Deserialize<ArchipelagoSeedOptions>(optionsContents)!;
                     ArchipelagoSeedLocations loaded_locations = JsonSerializer.Deserialize<ArchipelagoSeedLocations>(locationsContents)!;
+                    List<ArchipelagoGear>    loaded_gear      = JsonSerializer.Deserialize<List<ArchipelagoGear>>(gearContents)!;
                     loaded_seeds.Add(new ArchipelagoSeed {
                         Name      = file.Name.Replace(".apffx", ""),
                         Options   = loaded_options,
-                        Locations = loaded_locations
+                        Locations = loaded_locations,
+                        Gear      = loaded_gear.ToDictionary(gear => gear.id),
                     });
                 }
                 else {

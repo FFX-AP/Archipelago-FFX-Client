@@ -3283,13 +3283,31 @@ public unsafe partial class ArchipelagoFFXModule {
                 break;
             case 0x5:
                 // Equipment
-                item_id &= 0xff;
-                UnownedEquipment* weapon_data = (UnownedEquipment*)h_read_from_bin((int)item_id, (short*)(*buki_get_pointer), 0);
+                item_id &= 0xFFF;
+
+                //UnownedEquipment* weapon_data = (UnownedEquipment*)h_read_from_bin((int)item_id, (short*)(*buki_get_pointer), 0);
+                if (!seed.Gear.TryGetValue((int)item_id, out ArchipelagoGear? gear)) {
+                    logger.Error($"Gear {item_id} doesn't exist");
+                    break;
+                }
+
+                UnownedEquipment weapon_data = new(){
+                    flags = gear.flags,
+                    owner = gear.owner,
+                    type = gear.type,
+                    dmg_formula = gear.dmg_formula,
+                    power = gear.power,
+                    crit_bonus = gear.crit_bonus,
+                    slot_count = gear.slot_count,
+                };
+                for (int i = 0; i < 4; i++) {
+                    weapon_data.abilities[i] = i < gear.abilities.Length ? (ushort)(gear.abilities[i] | 0x8000) : (ushort)0xFF;
+                }
+
                 //var data = get_from_bin((int)item_id, (short*)0x12000C00, 0);
-                logger.Debug($"obtain_item: Weapon {(int)weapon_data}");
-                if (weapon_data->is_celestial) {
+                if (weapon_data.is_celestial) {
                     foreach (var equip in Globals.save_data->equipment) {
-                        if (equip.exists && equip.owner == weapon_data->owner && equip.is_celestial) {
+                        if (equip.exists && equip.owner == weapon_data.owner && equip.is_celestial) {
                             // Upgrade celestial
                             if (celestial_level[equip.owner] < 2) {
                                 celestial_level[equip.owner] += 1;
@@ -3298,7 +3316,7 @@ public unsafe partial class ArchipelagoFFXModule {
                             return;
                         }
                     }
-                } else if (weapon_data->is_brotherhood) {
+                } else if (weapon_data.is_brotherhood) {
                     foreach (ref var equip in Globals.save_data->equipment) {
                         if (equip.exists && equip.is_brotherhood) {
                             if (equip.is_hidden) {
@@ -3306,15 +3324,15 @@ public unsafe partial class ArchipelagoFFXModule {
                                 equip.is_hidden = false;
                             } else {
                                 // Upgrade
-                                equip.flags = weapon_data->flags;
-                                equip.owner = weapon_data->owner;
-                                equip.type = weapon_data->type;
-                                equip.dmg_formula = weapon_data->dmg_formula;
-                                equip.power = weapon_data->power;
-                                equip.crit_bonus = weapon_data->crit_bonus;
-                                equip.slot_count = weapon_data->slot_count;
+                                equip.flags = weapon_data.flags;
+                                equip.owner = weapon_data.owner;
+                                equip.type = weapon_data.type;
+                                equip.dmg_formula = weapon_data.dmg_formula;
+                                equip.power = weapon_data.power;
+                                equip.crit_bonus = weapon_data.crit_bonus;
+                                equip.slot_count = weapon_data.slot_count;
                                 for (int i = 0; i < 4; i++) {
-                                    equip.abilities[i] = weapon_data->abilities[i];
+                                    equip.abilities[i] = weapon_data.abilities[i];
                                 }
                             }
                             break;
@@ -3328,23 +3346,23 @@ public unsafe partial class ArchipelagoFFXModule {
                 rewardData.gear_count = 1;
                 Equipment new_weapon = rewardData.gear[0];
                 new_weapon.exists = true;
-                new_weapon.flags = weapon_data->flags;
-                new_weapon.owner = weapon_data->owner;
-                new_weapon.type = weapon_data->type;
+                new_weapon.flags = weapon_data.flags;
+                new_weapon.owner = weapon_data.owner;
+                new_weapon.type = weapon_data.type;
                 new_weapon.equipped_by = 0xff;
-                new_weapon.dmg_formula = weapon_data->dmg_formula;
-                new_weapon.power = weapon_data->power;
-                new_weapon.crit_bonus = weapon_data->crit_bonus;
+                new_weapon.dmg_formula = weapon_data.dmg_formula;
+                new_weapon.power = weapon_data.power;
+                new_weapon.crit_bonus = weapon_data.crit_bonus;
                 count = 0;
                 for (int i = 0; i < 4; i++) {
-                    if (weapon_data->abilities[i] is 0x00 or 0xFF) {
+                    if (weapon_data.abilities[i] is 0x00 or 0xFF) {
                         new_weapon.abilities[i] = 0xff;
                     } else {
-                        new_weapon.abilities[i] = weapon_data->abilities[i];
+                        new_weapon.abilities[i] = weapon_data.abilities[i];
                         count++;
                     }
                 }
-                new_weapon.slot_count = (byte)Math.Max(weapon_data->slot_count, count);
+                new_weapon.slot_count = (byte)Math.Max(weapon_data.slot_count, count);
                 new_weapon.name_id = h_get_weapon_name(&new_weapon);
                 h_get_weapon_model(new_weapon.name_id, new_weapon.owner, 0, &new_weapon.model_id);
                 var result = _FUN_007ab930(&new_weapon); // giveWeapon?
@@ -3614,87 +3632,6 @@ public unsafe partial class ArchipelagoFFXModule {
         _TkMenuAppearMainCmdWindow.orig_fptr(param_1, param_2);
         save_data->story_progress = progress;
     }
-
-    //private static void h_FUN_0065ee30(FixedClusterData* data) {
-    //    _FUN_0065ee30.orig_fptr(data);
-    //
-    //    //if (data->_0x0c != 0) {
-    //    //    logger.Debug($"Data exists {(uint)data}");
-    //    //
-    //    //    nint* _this = (nint*)(data->_0x00 + data->_0x10);
-    //    //
-    //    //    var g_mainTexString = Marshal.StringToHGlobalAnsi("g_mainTex");
-    //    //    var g_widthSizeString = Marshal.StringToHGlobalAnsi("g_widthSize");
-    //    //    var g_heightSizeString = Marshal.StringToHGlobalAnsi("g_heightSize");
-    //    //
-    //    //    var g_mainTex    = h_FUN_0056cd50(*_this, g_mainTexString);
-    //    //    var g_widthSize  = h_FUN_0056cd50(*_this, g_widthSizeString);
-    //    //    var g_heightSize = h_FUN_0056cd50(*_this, g_heightSizeString);
-    //    //
-    //    //    if (g_mainTex != null) {
-    //    //        logger.Debug($"g_mainTex exists {*g_mainTex}");
-    //    //        if (g_widthSize != null) {
-    //    //            logger.Debug($"g_widthSize exists {*g_widthSize}");
-    //    //            if (g_heightSize != null) {
-    //    //                logger.Debug($"g_heightSize exists {*g_heightSize}");
-    //    //                if (_this[1] != 0) {
-    //    //                    nint* _this2 = (nint*)_this[1];
-    //    //                    byte[] widthBytes = new byte[g_widthSize->size];
-    //    //                    for (int i = 0; i < widthBytes.Length; i++) {
-    //    //                        widthBytes[i] = *(byte*)(_this2 + g_widthSize->offset + i);
-    //    //                    }
-    //    //                    logger.Debug("Copied width");
-    //    //                    //FhModule.some_image_tex = g_mainTex;
-    //    //                    //FhModule.some_image_dimensions.X = g_widthSize;
-    //    //                    //FhModule.some_image_dimensions.Y = g_heightSize;
-    //    //                }
-    //    //            }
-    //    //        }
-    //    //    }
-    //    //
-    //    //    Marshal.FreeHGlobal(g_mainTexString);
-    //    //    Marshal.FreeHGlobal(g_widthSizeString);
-    //    //    Marshal.FreeHGlobal(g_heightSizeString);
-    //    //}
-    //}
-
-    public static List<nint> loaded_clusters = [];
-    public static delegates.PCluster* loadCluster(string file) {
-        //var filePath = Marshal.StringToHGlobalAnsi("/FFX_Data/GameData/PS3Data/map/hiku/hiku22/2d/tex/D3D11/0_11_132_16_12.dds.phyre");
-        if (file == "") return null;
-        var filePath = Marshal.StringToHGlobalAnsi(file);
-        nint clusterManager = FhUtil.get_at<nint>(0x008cca44);
-        delegates.PCluster* cluster = _ClusterManager_loadPCluster(clusterManager, filePath);
-        Marshal.FreeHGlobal(filePath);
-        if (cluster == null) return null;
-        loaded_clusters.Add((nint)cluster);
-
-        int fixedClusterResult = _Phyre_PFramework_PApplication_FixupClusters(cluster, 1);
-        if (fixedClusterResult != 0) return null;
-
-        return cluster;
-    }
-
-    public static void releaseCluster(delegates.PCluster* cluster) {
-        nint clusterManager = FhUtil.get_at<nint>(0x008cca44); //var clusterManager = getClusterManager();
-        _ClusterManager_releasePCluster(clusterManager, cluster);
-
-    }
-
-    public static delegates.PCluster* getCluster(string file) {
-        //var filePath = Marshal.StringToHGlobalAnsi("/FFX_Data/GameData/PS3Data/map/hiku/hiku22/2d/tex/D3D11/0_11_132_16_12.dds.phyre");
-        if (file == "") return null;
-        var filePath = Marshal.StringToHGlobalAnsi(file);
-        nint unifiedFilePath = (nint)NativeMemory.AllocZeroed(0x100);
-        _fiosUnifyFilename(filePath, unifiedFilePath, 0x100);
-        nint clusterManager = FhUtil.get_at<nint>(0x008cca44);
-        delegates.PCluster* cluster = _ClusterManager_getPClusterByName(clusterManager, unifiedFilePath);
-        Marshal.FreeHGlobal(filePath);
-        Marshal.FreeHGlobal(unifiedFilePath);
-
-        return cluster;
-    }
-
 
     // Voice related
     //public static nint h_FMOD_EventSystem_load(nint param_1, nint file_path, nint param_3, nint param_4) {

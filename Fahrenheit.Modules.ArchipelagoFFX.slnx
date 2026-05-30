@@ -1,4 +1,6 @@
 <Solution>
+  <Project Path="custom-character/Fahrenheit.Mods.custom-character.csproj" />
   <Project Path="Fahrenheit.Modules.ArchipelagoFFX.csproj" />
   <Project Path="fh-mods-csr/Fahrenheit.Mods.CSR.csproj" />
+  <Project Path="playable-seymour-mod/seymour/Fahrenheit.Mods.playable-seymour.csproj" />
 </Solution>
