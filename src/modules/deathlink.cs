@@ -139,7 +139,7 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     public static void debug_apply_deathlink() {
-        _this._applyDeathlink();
+        _this.apply_death_link();
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
@@ -149,7 +149,7 @@ public unsafe partial class DeathLinkModule : FhModule {
             && _MsGetBattleEndStatus.hook();
     }
 
-    private void _applyDeathlink() {
+    private void apply_death_link() {
         DeathLinkReceiveType receive_type = deathlink_receive_type;
 
         if (receive_type == DeathLinkReceiveType.RANDOM) {
@@ -158,7 +158,7 @@ public unsafe partial class DeathLinkModule : FhModule {
                 throw new Exception("The DeathLinkType enum is missing variants.");
             }
 
-            receive_type = types[_deathlink_type_rng.Next(types.Length - 2)];
+            receive_type = types[_deathlink_type_rng.Next(types.Length - 1)];
         }
 
         switch (receive_type) {
@@ -167,10 +167,10 @@ public unsafe partial class DeathLinkModule : FhModule {
                 for (int chr_id = 0; chr_id <= PlySaveId.PC_MAGUS3; chr_id++) {
                     Chr* chr = Globals.Battle.player_characters + chr_id;
                     chr->ram.status_suffer_extra |= StatusExtraFlags.DOOM;
-                    chr->ram.doom_counter = deathlink_receive_type switch {
+                    chr->ram.doom_counter = receive_type switch {
                         DeathLinkReceiveType.DOOM_STRICT => 2,
                         DeathLinkReceiveType.DOOM_LENIENT => 4,
-                        _ => throw new NotImplementedException($"Unknown doom deathlink type: {deathlink_receive_type}"),
+                        _ => throw new NotImplementedException($"Unknown doom deathlink type: {receive_type}"),
                     };
                 }
                 break;
@@ -202,7 +202,7 @@ public unsafe partial class DeathLinkModule : FhModule {
                 break;
 
             default:
-                throw new NotImplementedException($"Unknown deathlink type: {(int)deathlink_receive_type}");
+                throw new NotImplementedException($"Unknown deathlink type: {(int)receive_type}");
         }
 
         deathlink_grace = true;
@@ -228,7 +228,7 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         _logger.Info("  Applying death link...");
 
-        _applyDeathlink();
+        apply_death_link();
 
         _MsMessageCueRegist(MessageCueType.FH_CUSTOM, (int)_deathlink_announcement.encoded, 0, 27, 35);
 
