@@ -3516,14 +3516,6 @@ public unsafe partial class ArchipelagoFFXModule {
         //    ply.abi_map.has_extract_speed   = true;
         //    ply.abi_map.has_extract_ability = true;
         //}
-
-        // Seymour softlocks when using Spare Change/Bribe/Provoke/Threaten/Grenades
-        ref PlySave ply = ref save_data->ply_saves[PlySaveId.PC_SEYMOUR];
-        ply.abi_map.has_spare_change = false;
-        ply.abi_map.has_bribe = false;
-        ply.abi_map.has_provoke = false;
-        ply.abi_map.has_threaten = false;
-        ply.abi_map.has_use = false;
     }
 
     private static void h_MsSetRamChrParam(uint chr_id) {
@@ -3531,15 +3523,6 @@ public unsafe partial class ArchipelagoFFXModule {
         _MsSetRamChrParam.orig_fptr(chr_id);
 
         Chr* chr = _MsGetChr(chr_id);
-
-        // Seymour softlocks when using Spare Change/Bribe/Provoke/Threaten/Grenades
-        if (chr_id == PlySaveId.PC_SEYMOUR) {
-            chr->ram.abilities.has_spare_change = false;
-            chr->ram.abilities.has_bribe        = false;
-            chr->ram.abilities.has_provoke      = false;
-            chr->ram.abilities.has_threaten     = false;
-            chr->ram.abilities.has_use          = false;
-        }
 
         if (seed.Options.AlwaysSensor == 1) {
             chr->ram.auto_ability_effects.has_sensor = true;
