@@ -59,6 +59,7 @@ public unsafe partial class OverdriveModule : FhModule
         [FieldOffset(0x05)] public byte        field6_0x6;
         [FieldOffset(0x07)] public byte        field7_0x7;
         [FieldOffset(0x08)] public short       field8_0x8;
+        [FieldOffset(0x0A)] public short       field10_0xA;
         [FieldOffset(0x0C)] public byte        field12_0xC;
         [FieldOffset(0x10)] public int         field16_0x10;
         [FieldOffset(0x17)] public byte        chr_id__0x17;
@@ -308,7 +309,7 @@ public unsafe partial class OverdriveModule : FhModule
                         _MsMenuCloseTitleWindow(0);
                         target_0x774->field7_0x7 = 0;
                         //_MsMessageCueRegist(0x4, target_0x774->field7_0x7 + 3, target_0x774->field7_0x7 + 1, 0x1b, 0x23);
-                        _MsMessageCueRegist(0x4, target_0x774->field7_0x7 + 3, target_0x774->field7_0x7 + 1, 0x1b, 0x23);
+                        _MsMessageCueRegist(0x4, target_0x774->field10_0xA, target_0x774->field8_0x8, 0x1b, 0x23);
                         if (0 < target_0x774->field8_0x8)
                         {
                             _MsSetStealEffect(target_id, target_0x774->field1_0x1);
