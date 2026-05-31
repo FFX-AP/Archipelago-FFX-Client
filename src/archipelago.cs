@@ -91,17 +91,23 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         FhApi.Events.Common.GameLoop.PreUpdate.subscribe(pre_update);
 
-        // Initialize Archipelago Client
-        initalize_states();
-        //loadSeed();
-        loadSeedList();
-        load_global_state();
-
         return hook()
             && _client_handle.try_get_module(out _client)
             && _gui_handle.try_get_module(out _gui)
             && _hardcore_dreams_end_handle.try_get_module(out _hardcore_dreams_end)
-            && _deathlink_handle.try_get_module(out _deathlink);;
+            && _deathlink_handle.try_get_module(out _deathlink)
+            && post_init();
+    }
+
+    private bool post_init() {
+        // Initialize Archipelago Client
+        initalize_states();
+
+        //loadSeed();
+        loadSeedList();
+        load_global_state();
+
+        return true;
     }
 
     public static FhLangId? VoiceLanguage;
@@ -613,6 +619,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             _deathlink!.set_receive_type(loaded_state.deathlink_receive_type);
         }
     }
+
     public bool load_global_state() {
         try {
             global_state_file.Position = 0;
@@ -650,6 +657,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             return false;
         }
     }
+
     public bool save_global_state() {
         ArchipelagoGlobalState state = new(this);
         global_state_file.Position = 0;
