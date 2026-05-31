@@ -275,7 +275,8 @@ public class ToastModule : FhModule {
 #endif
 
             // Set up Archipelago's font size
-            int font_size = ArchipelagoGUI.font_size;
+            //TODO: Access Archipelago's font size instead of always defaulting
+            int font_size = -1;
             if (font_size == -1) font_size = (int)ImGui.GetFontSize();
             ImGui.PushFont(null, font_size);
 

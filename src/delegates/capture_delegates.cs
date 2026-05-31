@@ -8,7 +8,7 @@ using static ArchipelagoFFX.delegates;
 
 namespace ArchipelagoFFX;
 
-public unsafe partial class CaptureModule : FhModule {
+public unsafe partial class CaptureModule {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate bool MsMonsterCapture(int target_id, int arena_idx);
     private const nint __addr_MsMonsterCapture = 0x390B80;
