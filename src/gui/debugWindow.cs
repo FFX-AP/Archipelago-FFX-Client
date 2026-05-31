@@ -22,6 +22,7 @@ using Color = Archipelago.MultiClient.Net.Models.Color;
 
 namespace ArchipelagoFFX.GUI;
 
+[FhLoad(FhGameId.FFX)]
 public unsafe class ArchipelagoGuiModule : FhModule {
     public const ImGuiKey archipelago_gui_key = ImGuiKey.F8;
     public const ImGuiKey experimental_gui_key = ImGuiKey.F9;

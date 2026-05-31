@@ -23,6 +23,7 @@ using Color = Archipelago.MultiClient.Net.Models.Color;
 using FhCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
+
 public unsafe partial class ArchipelagoFFXModule {
 
     public static int* takara_pointer => FhUtil.ptr_at<int>(0xD35FEC);
