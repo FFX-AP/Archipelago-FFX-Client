@@ -2,7 +2,7 @@
 
 	<!-- ASSEMBLY BASIC PROPERTIES -->
 	<PropertyGroup>
-		<Version>0.8.0-alpha</Version>
+		<Version>0.8.1-alpha</Version>
 		<FahrenheitVersion>v1.0.0-alpha10</FahrenheitVersion>
 	</PropertyGroup>
 
