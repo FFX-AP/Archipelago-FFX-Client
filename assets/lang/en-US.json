@@ -1,0 +1,304 @@
+{
+  "recent_items.name": "Recent Items",
+  "recent_items.desc": "Settings for the Recent Items module.",
+
+
+  "recent_items.filter.name": "Filters",
+  "recent_items.filter.desc": "Filter what is displayed.",
+
+  "recent_items.filter.display_items.name": "Display Items",
+  "recent_items.filter.display_items.desc": "Whether to display recent items.",
+
+  "recent_items.filter.display_only_personal.name": "Display Only Personal",
+  "recent_items.filter.display_only_personal.desc": "Only display items relevant to you.",
+
+  "recent_items.filter.display_locations.name": "Display Locations",
+  "recent_items.filter.display_locations.desc": "Display locations along with the items. Warning: Location names can be very long.",
+
+  "recent_items.filter.item_count.name": "Item Count",
+  "recent.items.filter.item_count.desc": "The amount of recent items to display.",
+
+
+  "recent_items.visuals.name": "Visuals",
+  "recent_items.visuals.desc": "Change how the recent items are displayed.",
+
+  "recent_items.visuals.interpolation.name": "Interpolation",
+  "recent_items.visuals.interpolation.desc": "How the items move from one position to another.",
+
+  "recent_items.visuals.interpolation.values.0.name": "Smooth",
+  "recent_items.visuals.interpolation.values.1.name": "Instant",
+
+  "recent_items.visuals.fade_method.name": "Fade Method",
+  "recent_items.visuals.fade_method.desc": "How items should fade in and out.",
+
+  "recent_items.visuals.fade_method.values.0.name": "Fade",
+  "recent_items.visuals.fade_method.values.1.name": "Slide",
+  "recent_items.visuals.fade_method.values.2.name": "Capture",
+
+  "recent_items.visuals.fade_after.name": "Fade After",
+  "recent_items.visuals.fade_after.desc": "How many seconds should an item be visible for before fading. Set to 0 to show permanently.",
+
+  "recent_items.visuals.background.name": "Background",
+  "recent_items.visuals.background.desc": "Select the type of background to use.",
+
+  "recent_items.visuals.background.values.0.name": "Transparent",
+  "recent_items.visuals.background.values.1.name": "Per Item",
+  "recent_items.visuals.background.values.2.name": "Block",
+
+
+  "recent_items.position.name": "Positioning",
+  "recent_items.position.desc": "Position the items on the screen.",
+
+  "recent_items.position.x.name": "X",
+  "recent_items.position.x.desc": "Horizontal position of the recent items display as a percentage of the window width.",
+
+  "recent_items.position.y.name": "Y",
+  "recent_items.position.y.desc": "Vertical position of the recent items display as a percentage of the window height.",
+
+  "recent_items.position.alignment.name": "Alignment",
+  "recent_items.position.alignment.desc": "Whether to align the items to the left, right, or center of the display.",
+
+  "recent_items.position.alignment.values.0.name": "Left",
+  "recent_items.position.alignment.values.1.name": "Center",
+  "recent_items.position.alignment.values.2.name": "Right",
+
+
+
+  "deathlink.received_backup_message.doom": "{0}'s death dooms you.",
+  "deathlink.received_backup_message.grave_hp": "You feel inclined to follow in {0}'s footsteps.",
+  "deathlink.received_backup_message.bad_breath": "{0}'s death leaves a bad taste in your mouth.",
+  "deathlink.received_backup_message.random": "{0}'s death twists your fate.",
+  "deathlink.received_backup_message.generic": "You are touched by {0}'s death.",
+
+  "deathlink.sent_message.ambush": "{0} was ambushed.",
+
+  "deathlink.sent_message.al_bhed_ship": "{0} drowned.",
+  "deathlink.sent_message.besaid": "{0} failed the tutorial.",
+  "deathlink.sent_message.ss_liki": "{0} got too close to Sin.",
+  "deathlink.sent_message.kilika": "{0} got too many encounters.",
+  "deathlink.sent_message.luca": "{0} challenged Stabby McStabface.",
+  "deathlink.sent_message.miihen_highroad": "{0} isn't good at hiking.",
+  "deathlink.sent_message.mushroom_rock_road": "{0} ate an unidentified mushroom.",
+  "deathlink.sent_message.djose": "{0} skipped all that.",
+  "deathlink.sent_message.moonflow": "{0} went with the flow.",
+  "deathlink.sent_message.thunder_plains": "{0} didn't see it coming.",
+  "deathlink.sent_message.macalania_woods": "{0} was mesmerized by the crystals.",
+  "deathlink.sent_message.macalania_lake": "{0} froze up.",
+  "deathlink.sent_message.macalania_chase": "{0} couldn't get away.",
+  "deathlink.sent_message.bikanel": "{0} got lost among the desert dunes.",
+  "deathlink.sent_message.home": "{0} found Yuna in the afterlife.",
+  "deathlink.sent_message.airship": "{0} fell to the Guado.",
+  "deathlink.sent_message.bevelle": "{0} almost rescued Yuna. Almost.",
+  "deathlink.sent_message.via_purifico": "{0} was purified.",
+  "deathlink.sent_message.highbridge": "{0} left Kimahri behind.",
+  "deathlink.sent_message.calm_lands": "{0} didn't keep calm.",
+  "deathlink.sent_message.cavern_of_the_stolen_fayth": "{0} became a Ghost.",
+  "deathlink.sent_message.gagazet_trail": "{0} perished on the climb.",
+  "deathlink.sent_message.gagazet_cave": "{0} couldn't complete the climb.",
+  "deathlink.sent_message.gagazet_cave_water": "{0} is sleeping with the fishes now.",
+  "deathlink.sent_message.zanarkand_ruins": "{0} faded into pyreflies.",
+  "deathlink.sent_message.zanarkand_dome": "{0} will be remembered.",
+  "deathlink.sent_message.inside_sin_sea": "{0} sunk into sorrow.",
+  "deathlink.sent_message.inside_sin_city": "{0}'s dreams died.",
+  "deathlink.sent_message.omega_ruins": "{0} liked it underground, six feet under.",
+  "deathlink.sent_message.omega_gauntlet": "{0} failed the gauntlet.",
+
+  "deathlink.sent_message.klikk.0": "{0} was sliced to pieces.",
+  "deathlink.sent_message.klikk.1": "{0} didn't get more wood.",
+  "deathlink.sent_message.klikk.2": "{0} decided to go back to bed.",
+
+  "deathlink.sent_message.tros.0": "{0} was torn apart.",
+  "deathlink.sent_message.tros.1": "{0} decided pincer attacks are overrated.",
+  "deathlink.sent_message.tros.2": "{0} missed too many swimming lessons.",
+
+  "deathlink.sent_message.kimahri.0": "{0} failed the test.",
+  "deathlink.sent_message.kimahri.1": "{0} got jumped.",
+  "deathlink.sent_message.kimahri.2": "",
+
+  "deathlink.sent_message.sin_fin.0": "",
+  "deathlink.sent_message.sin_fin.1": "",
+  "deathlink.sent_message.sin_fin.2": "",
+
+  "deathlink.sent_message.sinspawn_echuilles.0": "",
+  "deathlink.sent_message.sinspawn_echuilles.1": "",
+  "deathlink.sent_message.sinspawn_echuilles.2": "",
+
+  "deathlink.sent_message.lord_ochu.0": "{0} couldn't compare to 100 Crusaders.",
+  "deathlink.sent_message.lord_ochu.1": "{0} is not the lord of the woods.",
+  "deathlink.sent_message.lord_ochu.2": "{0} failed to usurp the lord.",
+
+  "deathlink.sent_message.sinspawn_geneaux.0": "{0} forgot to buy Antidotes.",
+  "deathlink.sent_message.sinspawn_geneaux.1": "{0} couldn't pierce the shell.",
+  "deathlink.sent_message.sinspawn_geneaux.2": "{0} wasn't talented enough.",
+
+  "deathlink.sent_message.oblitzerator.0": "{0} couldn't even catch a ball.",
+  "deathlink.sent_message.oblitzerator.1": "{0} forgot about the crane.",
+  "deathlink.sent_message.oblitzerator.2": "{0} let Wakka down.",
+
+  "deathlink.sent_message.chocobo_eater.0": "{0} became chocobo feed.",
+  "deathlink.sent_message.chocobo_eater.1": "{0} was pushed too far.",
+  "deathlink.sent_message.chocobo_eater.2": "{0} was bested by a bowling pin.",
+
+  "deathlink.sent_message.sinspawn_gui.0": "{0} was not prepared.",
+  "deathlink.sent_message.sinspawn_gui.1": "{0} forgot to hit the head",
+  "deathlink.sent_message.sinspawn_gui.2": "{0} failed to recognize the gravity of the situation.",
+
+  "deathlink.sent_message.extractor.0": "{0} sunk into the depths.",
+  "deathlink.sent_message.extractor.1": "{0} is flying among the moonlilies.",
+  "deathlink.sent_message.extractor.2": "{0} went to explore the sunken city.",
+
+  "deathlink.sent_message.spherimorph.0": "{0} failed Black Magic 101.",
+  "deathlink.sent_message.spherimorph.1": "{0} was easily im-pressed.",
+  "deathlink.sent_message.spherimorph.2": "{0} will be remembered.",
+
+  "deathlink.sent_message.crawler.0": "{0} relied on magic too much.",
+  "deathlink.sent_message.crawler.1": "{0} didn't follow the countdown.",
+  "deathlink.sent_message.crawler.2": "",
+
+  "deathlink.sent_message.seymour.0": "{0} was taken care of.",
+  "deathlink.sent_message.seymour.1": "{0} followed the code of the guardian.",
+  "deathlink.sent_message.seymour.2": "{0} felt Seymour's pain.",
+
+  "deathlink.sent_message.wendigo.0": "{0}'s boxing skills were insufficient.",
+  "deathlink.sent_message.wendigo.1": "{0} needs to take boxing lessons.",
+  "deathlink.sent_message.wendigo.2": "",
+
+  "deathlink.sent_message.evrae.0": "{0} tripped on the red carpet.",
+  "deathlink.sent_message.evrae.1": "{0} fell off the airship.",
+  "deathlink.sent_message.evrae.2": "{0} fell to the guardian wyrm.",
+
+  "deathlink.sent_message.evrae_altana.0": "{0} failed to open the gates.",
+  "deathlink.sent_message.evrae_altana.1": "{0} ran out of phoenix downs.",
+  "deathlink.sent_message.evrae_altana.2": "{0} didn't find the exit.",
+
+  "deathlink.sent_message.isaaru.0": "{0}'s pilgrimage is over.",
+  "deathlink.sent_message.isaaru.1": "{0} ran out of aeons.",
+  "deathlink.sent_message.isaaru.2": "",
+
+  "deathlink.sent_message.seymour_natus.0": "{0} was broken.",
+  "deathlink.sent_message.seymour_natus.1": "Death awaited {0}.",
+  "deathlink.sent_message.seymour_natus.2": "{0} sought freedom from this painful life.",
+
+  "deathlink.sent_message.defender_x.0": "{0} took a haymaker to the face.",
+  "deathlink.sent_message.defender_x.1": "{0} was not needed alive.",
+  "deathlink.sent_message.defender_x.2": "{0} was defended against.",
+
+  "deathlink.sent_message.lady_ginnem.0": "{0} failed as a guardian.",
+  "deathlink.sent_message.lady_ginnem.1": "{0} became another farewell.",
+  "deathlink.sent_message.lady_ginnem.2": "{0} was too young.",
+
+  "deathlink.sent_message.biran_and_yenke.0": "{0} was rent asunder.",
+  "deathlink.sent_message.biran_and_yenke.1": "{0} did not win.",
+  "deathlink.sent_message.biran_and_yenke.2": "{0} was shunned by Gagazet.",
+
+  "deathlink.sent_message.seymour_flux.0": "{0} faced total annihilation.",
+  "deathlink.sent_message.seymour_flux.1": "{0} joined the Ronso.",
+  "deathlink.sent_message.seymour_flux.2": "{0}'s meaningless existence ends here.",
+
+  "deathlink.sent_message.sanctuary_keeper.0": "{0} was kept from sanctuary.",
+  "deathlink.sent_message.sanctuary_keeper.1": "{0}'s strength was tested.",
+  "deathlink.sent_message.sanctuary_keeper.2": "{0} couldn't handle the curse.",
+
+  "deathlink.sent_message.spectral_keeper.0": "{0} forgot to move.",
+  "deathlink.sent_message.spectral_keeper.1": "{0} attacked too recklessly.",
+  "deathlink.sent_message.spectral_keeper.2": "{0} didn't mind the mines.",
+
+  "deathlink.sent_message.yunalesca.0": "{0} was liberated.",
+  "deathlink.sent_message.yunalesca.1": "{0} died and became free of pain.",
+  "deathlink.sent_message.yunalesca.2": "{0} missed the time.",
+
+  "deathlink.sent_message.sin_fins.0": "The hymn couldn't save {0}.",
+  "deathlink.sent_message.sin_fins.1": "{0} was pulled off the airship.",
+  "deathlink.sent_message.sin_fins.2": "{0} didn't see the weak spot.",
+
+  "deathlink.sent_message.sin_core.0": "{0} couldn't stop the thrashing.",
+  "deathlink.sent_message.sin_core.1": "{0} was foolhardy.",
+  "deathlink.sent_message.sin_core.2": "{0} dropped the ball.",
+
+  "deathlink.sent_message.overdrive_sin.0": "{0} failed Spira.",
+  "deathlink.sent_message.overdrive_sin.1": "{0} was too slow.",
+  "deathlink.sent_message.overdrive_sin.2": "Sin proved too powerful for {0}.",
+
+  "deathlink.sent_message.seymour_omnis.0": "The darkness took {0}.",
+  "deathlink.sent_message.seymour_omnis.1": "{0} rests in eternal darkness.",
+  "deathlink.sent_message.seymour_omnis.2": "{0} tried and failed.",
+
+  "deathlink.sent_message.braskas_final_aeon.0": "Jecht hit {0} with all he's got.",
+  "deathlink.sent_message.braskas_final_aeon.1": "{0} lost.",
+  "deathlink.sent_message.braskas_final_aeon.2": "Jecht beat {0} this time.",
+
+  "deathlink.sent_message.contest_of_aeons.0": "{0} couldn't let the aeons go.",
+  "deathlink.sent_message.contest_of_aeons.1": "{0} should've skipped the contest.",
+  "deathlink.sent_message.contest_of_aeons.2": "",
+
+  "deathlink.sent_message.yu_yevon.0": "{0} has a new fear of spiders.",
+  "deathlink.sent_message.yu_yevon.1": "{0} fought together for the last time.",
+  "deathlink.sent_message.yu_yevon.2": "It wasn't {0}'s story.",
+
+
+  "deathlink.sent_message.ultima_weapon.0": "{0} was overshadowed.",
+  "deathlink.sent_message.ultima_weapon.1": "{0} couldn't face Omega's wrath.",
+  "deathlink.sent_message.ultima_weapon.2": "{0} should've been scared.",
+
+  "deathlink.sent_message.omega_weapon.0": "{0} left Spira to the living.",
+  "deathlink.sent_message.omega_weapon.1": "{0} rated Omega's personal attention.",
+  "deathlink.sent_message.omega_weapon.2": "{0} found the main man.",
+
+
+  "deathlink.sent_message.geosgaeno.0": "{0} got eaten by a fiend.",
+  "deathlink.sent_message.geosgaeno.1": "{0} was mistaken for a Sahagin.",
+  "deathlink.sent_message.geosgaeno.2": "{0} didn't get payback.",
+
+
+  "deathlink.sent_message.dark_valefor.0": "{0} was pierced by dark energy.",
+  "deathlink.sent_message.dark_valefor.1": "{0} should've stayed away.",
+  "deathlink.sent_message.dark_valefor.2": "",
+
+  "deathlink.sent_message.dark_ifrit.0": "{0} was charred by the inferno.",
+  "deathlink.sent_message.dark_ifrit.1": "{0} was all bark, no bite.",
+  "deathlink.sent_message.dark_ifrit.2": "{0} didn't find the child.",
+
+  "deathlink.sent_message.dark_ixion.0": "{0} was struck by lightning.",
+  "deathlink.sent_message.dark_ixion.1": "{0} met a shocking end.",
+  "deathlink.sent_message.dark_ixion.2": "{0}'s death begets a thunderous applause.",
+
+  "deathlink.sent_message.dark_shiva.0": "{0} succumbed to the cold.",
+  "deathlink.sent_message.dark_shiva.1": "{0} found salvation on the Farplane.",
+  "deathlink.sent_message.dark_shiva.2": "{0} ran into the Guado.",
+
+  "deathlink.sent_message.dark_bahamut.0": "{0} fell before the dragon.",
+  "deathlink.sent_message.dark_bahamut.1": "",
+  "deathlink.sent_message.dark_bahamut.2": "",
+
+  "deathlink.sent_message.dark_anima.0": "{0} met oblivion.",
+  "deathlink.sent_message.dark_anima.1": "{0} requires a requiem.",
+  "deathlink.sent_message.dark_anima.2": "{0} seeks forgiveness in death.",
+
+  "deathlink.sent_message.dark_yojimbo.0": "{0} paid the price.",
+  "deathlink.sent_message.dark_yojimbo.1": "",
+  "deathlink.sent_message.dark_yojimbo.2": "",
+
+  "deathlink.sent_message.dark_magus_sisters.0": "{0} was hunted down.",
+  "deathlink.sent_message.dark_magus_sisters.1": "{0} lost the chase.",
+  "deathlink.sent_message.dark_magus_sisters.2": "{0} became prey.",
+
+  "deathlink.sent_message.dark_sandy.0": "{0}'s life was dispelled.",
+  "deathlink.sent_message.dark_sandy.1": "",
+  "deathlink.sent_message.dark_sandy.2": "",
+
+  "deathlink.sent_message.dark_mindy.0": "{0} faced calamity.",
+  "deathlink.sent_message.dark_mindy.1": "",
+  "deathlink.sent_message.dark_mindy.2": "",
+
+  "deathlink.sent_message.dark_cindy.0": "{0} was flattened.",
+  "deathlink.sent_message.dark_cindy.1": "",
+  "deathlink.sent_message.dark_cindy.2": "",
+
+  "deathlink.sent_message.generic.0": "{0} visited the Farplane.",
+  "deathlink.sent_message.generic.1": "{0} made Yuna dance.",
+  "deathlink.sent_message.generic.2": "{0} should've thought ahead.",
+  "deathlink.sent_message.generic.3": "{0} didn't see it coming.",
+  "deathlink.sent_message.generic.4": "{0} ran out of backup plans.",
+  "deathlink.sent_message.generic.5": "{0} ran out of turns.",
+  "deathlink.sent_message.generic.6": "{0} forgot to heal."
+}
