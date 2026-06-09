@@ -326,8 +326,9 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         // Some encounters have unique messages
         string message_id = "deathlink.sent_message." + encounter_name switch {
-            // Special
-            _ when Globals.Battle.btl->ambush_state == 1 => "ambush",
+            // Special - tied to GameOver because they bypass rng
+            _ when Globals.Battle.btl->ambush_state == 1
+                && deathlink_send_type == DeathLinkSendType.GameOver => "ambush",
 
             // Bosses
             "bjyt04_00" or "bjyt04_01" => $"klikk.{boss_rng}",
