@@ -2821,7 +2821,7 @@ public unsafe partial class ArchipelagoFFXModule {
         return FhXCall.h_MsBtlGetPos.chain_from(h_MsBtlGetPos).fnptr!(param_1, chr, btl_pos_a, btl_pos_b, btl_pos_c, out_pos);
     }
 
-    private uint h_give_item(uint item_id, int amount) {
+    private void h_give_item(uint item_id, int amount) {
         _logger.Debug($"give_item: {amount} x {item_id}");
 
         int new_amount = (int)(save_data->get_item_count((int)item_id) + amount);
@@ -2832,7 +2832,8 @@ public unsafe partial class ArchipelagoFFXModule {
             amount -= excess;
         }
 
-        return FhXCall.h_MsSaveItemUse.chain_from(h_give_item).fnptr!(item_id, amount);
+        FhXCall.h_MsSaveItemUse.chain_from(h_give_item).fnptr!(item_id, amount);
+        return;
     }
 
     private void h_TkMsImportantSet(uint param_1) {
