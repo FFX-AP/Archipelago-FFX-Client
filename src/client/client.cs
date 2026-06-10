@@ -63,6 +63,7 @@ public class ArchipelagoClientModule : FhModule {
             && _death_link_handle.try_get_module(out _death_link);
     }
 
+    private bool _connecting = false;
     public async Task Connect(string server, string user, string password) {
         _logger.Debug("Connect");
         LoginResult? login_result = new LoginFailure("");
@@ -71,6 +72,9 @@ public class ArchipelagoClientModule : FhModule {
 
         if (is_disconnecting) return;
 
+        if (_connecting) return; // Already connecting, so don't attempt to connect twice at the same time
+        _connecting = true;
+
         try {
             session = ArchipelagoSessionFactory.CreateSession(server);
             death_link = session.CreateDeathLinkService();
@@ -78,8 +82,7 @@ public class ArchipelagoClientModule : FhModule {
             var roomInfoPacket = await session.ConnectAsync();
 
             login_result = await session.LoginAsync("Final Fantasy X", user, ItemsHandlingFlags.RemoteItems, Version.Parse("0.6.0"), password: password, requestSlotData: true);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             login_result = new LoginFailure(e.GetBaseException().Message);
         }
 
@@ -92,6 +95,7 @@ public class ArchipelagoClientModule : FhModule {
             foreach (ConnectionRefusedError error in failure.ErrorCodes) {
                 errorMessage += $"\n    {error}";
             }
+            _connecting = false;
             current_session = null;
             _logger.Error(errorMessage);
             return; // Did not connect, show the user the contents of `errorMessage`
@@ -104,6 +108,7 @@ public class ArchipelagoClientModule : FhModule {
                 _gui!.add_log_message([(message, Color.Red)]);
                 _logger.Error(message);
                 disconnect(session);
+                _connecting = false;
                 return;
             }
             ArchipelagoFFXModule.SeedToServer[ArchipelagoFFXModule.seed.Options.SeedId] = server;
@@ -120,6 +125,7 @@ public class ArchipelagoClientModule : FhModule {
         current_server = server;
         current_session = session;
         current_death_link_service = death_link;
+        _connecting = false;
     }
 
     public void disconnect(ArchipelagoSession? session = null) {
