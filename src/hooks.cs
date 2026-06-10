@@ -488,6 +488,7 @@ public unsafe partial class ArchipelagoFFXModule {
             CT_RetInt_IsCharacterUnlocked,
             CT_RetInt_HasCelestialWeapon,
             CT_RetInt_IsOtherLocationChecked,
+            CT_RetInt_IsTreasureLocationChecked,
             CT_RetInt_CollectedPrimers,
             CT_RetInt_SendOtherLocation,
             CT_RetInt_SendPartyMemberLocation,
