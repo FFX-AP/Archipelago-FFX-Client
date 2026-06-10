@@ -2832,7 +2832,7 @@ public unsafe partial class ArchipelagoFFXModule {
             amount -= excess;
         }
 
-        return FhXCall.h_FUN_007905a0.chain_from(h_give_item).fnptr!(item_id, amount);
+        return FhXCall.h_MsSaveItemUse.chain_from(h_give_item).fnptr!(item_id, amount);
     }
 
     private void h_TkMsImportantSet(uint param_1) {
