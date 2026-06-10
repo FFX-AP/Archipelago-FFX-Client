@@ -38,7 +38,7 @@
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Update="Fahrenheit" Version="1.0.0-alpha10-20260609-2" />
+	  <PackageReference Update="Fahrenheit" Version="1.0.0-alpha10" />
 	</ItemGroup>
 
 	<PropertyGroup>

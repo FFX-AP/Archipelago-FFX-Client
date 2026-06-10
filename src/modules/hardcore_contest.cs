@@ -1,25 +1,17 @@
 using System.IO;
-using System.Runtime.InteropServices;
 
 using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 
+using FhGCall = Fahrenheit.FhCall;
+using FhXCall = Fahrenheit.FFX.FhCall;
+
 namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe partial class HardcoreDreamsEndModule : FhModule {
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void MsBtlReadManage();
-    public const nint __addr_MsBtlReadManage = 0x3830d0;
-
     private bool _hardcore_dreams_end_enabled;
-
-    private FhMethodHandle<MsBtlReadManage> _MsBtlReadManage;
-
-    public HardcoreDreamsEndModule() {
-        _MsBtlReadManage = new(this, "FFX.exe", __addr_MsBtlReadManage, _h_MsBtlReadManage);
-    }
 
     public bool get_enabled() {
         return _hardcore_dreams_end_enabled;
@@ -30,13 +22,13 @@ public unsafe partial class HardcoreDreamsEndModule : FhModule {
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return _MsBtlReadManage.hook();
+        return FhXCall.h_MsBtlReadManage.hook(this, _h_MsBtlReadManage);
     }
 
     private void _h_MsBtlReadManage() {
         int old_state = Globals.Battle.btl->battle_state;
 
-        _MsBtlReadManage.orig_fptr();
+        FhXCall.h_MsBtlReadManage.chain_from(_h_MsBtlReadManage).fnptr!();
 
         if (Globals.Battle.btl->battle_state != 13 || old_state == Globals.Battle.btl->battle_state) return;
 

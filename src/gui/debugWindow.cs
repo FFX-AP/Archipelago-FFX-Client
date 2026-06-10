@@ -1,7 +1,8 @@
-﻿using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.Enums;
+using ArchipelagoFFX.Client;
+using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
-
 using Hexa.NET.ImGui;
 using System;
 using System.Collections.Generic;
@@ -9,16 +10,11 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-
-using ArchipelagoFFX.Client;
-
-using Fahrenheit;
-
-using static Fahrenheit.FFX.Globals;
 using static ArchipelagoFFX.ArchipelagoData;
 using static ArchipelagoFFX.ArchipelagoFFXModule;
-using static ArchipelagoFFX.delegates;
+using static Fahrenheit.FFX.Globals;
 using Color = Archipelago.MultiClient.Net.Models.Color;
+using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX.GUI;
 
@@ -171,8 +167,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             }
 
             if (ImGui.Checkbox("Original soundtrack?", &save_data->soundtrack_type)) {
-                var soundtrack_callback = FhUtil.get_fptr<FUN_008cc120>(__addr_FUN_008cc120);
-                soundtrack_callback(save_data->soundtrack_type ? 1 : 0);
+                FhXCall.h_FUN_008cc120.fnptr!(save_data->soundtrack_type ? 1 : 0);
             }
 
             ImGui.InputScalarN("frontline? (0x1FC5)", ImGuiDataType.U8, Battle.btl->__0x1FC5, 7);
@@ -366,7 +361,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             //    localizationManager->voice = voice_language;
             //
             //    nint _FmodManager = FhUtil.get_at<nint>(0x008E9000);
-            //    //_FfxFmod_soundInit(*(nint*)(_FmodManager+8));
+            //    //FhXCall.h_FfxFmod_soundInit.fnptr!(*(nint*)(_FmodManager+8));
             //
             //    nint ffxFmod = *(nint*)(_FmodManager + 8);
             //
@@ -374,7 +369,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             //
             //    *(byte*)(fmodVoice + 4) = (byte)voice_language;
             //
-            //    _FmodVoice_initList(fmodVoice);
+            //    FhXCall.h_FmodVoice_initList.fnptr!(fmodVoice);
             //
             //    int dataChange_result = h_FmodVoice_dataChange(fmodVoice, Globals.save_data->current_room_id, *(nint*)(ffxFmod + 4));
             //    if (dataChange_result != 0) {
@@ -456,7 +451,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             for (int i = 0; i < 7; i++) {
                 if (ImGui.Button($"{id_to_character[i]}: {(clickedNode->activated_by & (1 << i)) != 0}")) {
                     clickedNode->activated_by ^= (byte)(1 << i);
-                    FhUtil.get_fptr<eiAbmParaGet>(Fahrenheit.FFX.FhCall.__addr_eiAbmParaGet)();
+                    FhXCall.h_eiAbmParaGet.fnptr!();
                     SphereGrid.lpamng->should_update = 1;
                     // Setting to clickedNodeIndex only turns off light if no character has it activated. Setting to -1 correctly turns on/off node itself, but not surrounding lights (per character).
                     SphereGrid.lpamng->should_update_node = -1;
@@ -800,7 +795,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
                 ImGui.InputScalar("launchBattleInput", ImGuiDataType.U32, battle_input, &p_step, &p_step_fast, "%x");
             }
             if (ImGui.Button("launchBattleButton")) {
-                _MsBattleLabelExe(LaunchBattleInput, 1, 1);
+                FhXCall.h_MsBattleLabelExe.fnptr!(LaunchBattleInput, 1, 1);
             }
 #endif
         }

@@ -1,7 +1,9 @@
 ﻿using Archipelago.MultiClient.Net.Enums;
+using ArchipelagoFFX.Client;
+using ArchipelagoFFX.GUI;
+using Fahrenheit;
 using Fahrenheit.Atel;
 using Fahrenheit.Events;
-using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 //using Fahrenheit.ImGuiNET;
 using System;
@@ -16,16 +18,11 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-
-using ArchipelagoFFX.Client;
-using ArchipelagoFFX.GUI;
-
-using Fahrenheit;
-
-using static Fahrenheit.FFX.Globals;
 //using Fahrenheit.Modules.ArchipelagoFFX.GUI;
 using static ArchipelagoFFX.ArchipelagoData;
+using static Fahrenheit.FFX.Globals;
 using Color = Archipelago.MultiClient.Net.Models.Color;
+using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
 
@@ -185,15 +182,15 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude] public string PlayerName;
         [JsonInclude] public string SeedId;
 
-        [JsonInclude] public ArchipelagoData.Goal            Goal;
-        [JsonInclude] public ArchipelagoData.GoalRequirement GoalRequirement;
+        [JsonInclude] public Goal            Goal;
+        [JsonInclude] public GoalRequirement GoalRequirement;
         [JsonInclude] public int RequiredPartyMembers;
         [JsonInclude] public int RequiredPrimers;
 
         [JsonInclude] public int APMultiplier;
         [JsonInclude] public int AlwaysSensor;
 
-        [JsonInclude] public ArchipelagoData.CaptureRequirement CaptureRequirement;
+        [JsonInclude] public CaptureRequirement CaptureRequirement;
         [JsonInclude] public int AlwaysCapture;
         [JsonInclude] public int CaptureDamage;
         [JsonInclude] public int EncounterWeighting;
@@ -1010,9 +1007,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         stack.push_int(chr_id + 1);
         AtelBasicWorker* worker0 = Atel.controllers[0].worker(0);
         int storage = 0;
-        _Common_loadModel(worker0, &storage, &stack);
+        FhXCall.h_Common_loadModel.fnptr!(worker0, &storage, &stack);
         stack.push_int(0);
-        _Common_linkFieldToBattleActor(worker0, &storage, &stack);
+        FhXCall.h_Common_linkFieldToBattleActor.fnptr!(worker0, &storage, &stack);
     }
 
     public uint allocate_file(string filename, out nint file_ptr) {
@@ -1029,7 +1026,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             var file_length = *(long*)(*(int*)(fileStream[1] + 0xc) + 8);
             file_ptr = Marshal.AllocHGlobal((int)file_length);
             uint max_len = (uint)file_length;
-            readBytes = _readFile((nint)fs, file_ptr, max_len);
+            readBytes = FhXCall.h_readFile.fnptr!((nint)fs, file_ptr, max_len);
         }
         _logger.Debug($"read {readBytes}, beginning={((byte*)file_ptr)[0]} {((byte*)file_ptr)[1]} {((byte*)file_ptr)[2]} {((byte*)file_ptr)[3]}");
         return readBytes;
@@ -1048,7 +1045,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public override void render_game() {
         foreach ((string key, CustomStringDrawInfo drawInfo) in customStringDrawInfos) {
             fixed (byte* text = drawInfo.customString.encoded) {
-                _TOMkpCrossExtMesFontLClutTypeRGBA(0, text, drawInfo.pos.X, drawInfo.pos.Y, drawInfo.color, 0, 0x80, 0x80, 0x80, 0x80, drawInfo.scale, 0);
+                FhXCall.h_TOMkpCrossExtMesFontLClutTypeRGBA.fnptr!(0, text, drawInfo.pos.X, drawInfo.pos.Y, drawInfo.color, 0, 0x80, 0x80, 0x80, 0x80, drawInfo.scale, 0);
             }
         }
     }
