@@ -65,7 +65,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
-    public void h_PrepareMenuList(MenuList menu_list_id, Equipment* gear) {
+    public void PrepareMenuList(TkMenuItemListId menu_list_id, Equipment* gear) {
         //MenuList menu_list_id = (MenuList)menu_list_id_raw;
         _logger.Info($"{menu_list_id}");
 
@@ -73,7 +73,7 @@ public unsafe partial class ArchipelagoFFXModule {
         uint[] ability_group_idxs = new uint[4];
         uint[] ability_group_levels = new uint[4];
 
-        if (menu_list_id == MenuList.GEAR_CUSTOMIZATION) {
+        if (menu_list_id == TkMenuItemListId.GEAR_CUSTOMIZATION) {
             // Modify kaizou.bin
             int num_customizations;
             CustomizationRecipe* customizations = FhXCall.h_MsGetRomKaizou.fnptr!(&num_customizations);
@@ -207,10 +207,10 @@ public unsafe partial class ArchipelagoFFXModule {
 
             // Set length
             PrepareMenuList_SetLength(added, skipped);
-        } else if (menu_list_id == MenuList.AEON_ABILITIES) {
+        } else if (menu_list_id == TkMenuItemListId.AEON_ABILITIES) {
             // TODO: Modify sum_grow.bin
             int num_customizations;
-            CustomizationRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
+            AeonAbilityRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
             num_customizations = FhXCall.h_TkMn2GetSummonGrowMax.fnptr!();
             if (original_sum_grow_costs == null) {
                 original_sum_grow_costs = new ushort[num_customizations];
@@ -240,21 +240,21 @@ public unsafe partial class ArchipelagoFFXModule {
             uint added = 0;
             if (0 < num_customizations) {
                 for (byte customization_id = 0; customization_id < num_customizations; customization_id++) {
-                    CustomizationRecipe customization = customizations[customization_id];
-                    ushort auto_ability_id = customization.auto_ability;
+                    AeonAbilityRecipe customization = customizations[customization_id];
+                    short auto_ability_id = customization.command;
                     menu_list_iter->customization_id = 0xff;
-                    bool has_command = FhXCall.h_MsGetSaveCommand.fnptr!(current_summon, auto_ability_id) != 0;
+                    bool has_command = FhXCall.h_MsGetSaveCommand.fnptr!(current_summon, (uint)auto_ability_id) != 0;
 
                     if (!has_command) {
                         uint item_count = Globals.save_data->get_item_count(customization.item);
                         if (item_count == 0 && customization.item_cost != 0) {
                             continue;
                         } else {
-                            menu_list_iter->a_ability_id = auto_ability_id;
+                            menu_list_iter->a_ability_id = (ushort)auto_ability_id;
                             menu_list_iter->customization_id = customization_id;
                             if (item_count < customization.item_cost) {
                                 menu_list_iter->status = CustomizationStatusEnum.AEON_NOT_ENOUGH_ITEMS;
-                            } else if (((int)customization.target_gear_type & (1 << (current_summon - 8))) == 0 && !has_key_item) {
+                            } else if ((0x7F & (1 << (current_summon - 8))) == 0 && !has_key_item) {
                                 // Never reached because both conditions are always false: Bit is set for all Aeons (always 0x7F) and key item is unused.
                                 menu_list_iter->status = CustomizationStatusEnum.AEON_CANNOT_LEARN_WITHOUT_KEY;
                             } else {
@@ -262,7 +262,7 @@ public unsafe partial class ArchipelagoFFXModule {
                             }
                         }
                     } else {
-                        menu_list_iter->a_ability_id = auto_ability_id;
+                        menu_list_iter->a_ability_id = (ushort)auto_ability_id;
                         menu_list_iter->customization_id = customization_id;
                         menu_list_iter->status = CustomizationStatusEnum.AEON_ALREADY_LEARNED;
                     }
@@ -275,7 +275,7 @@ public unsafe partial class ArchipelagoFFXModule {
             // Set length
             PrepareMenuList_SetLength(added, 0);
         } else {
-            FhXCall.h_PrepareMenuList.chain_from(h_PrepareMenuList).fnptr!(menu_list_id, gear);
+            FhXCall.h_FUN_008c2370.chain_from(PrepareMenuList).fnptr!(menu_list_id, gear);
         }
 
 
@@ -298,7 +298,7 @@ public unsafe partial class ArchipelagoFFXModule {
     ///         6: Calls TkMenuRestartSelFileWindow, then ??? and goes to 7
     /// </summary>
     /// <param name="window"></param>
-    public void h_UpdateGearCustomizationMenuState(TkWindow* window) {
+    public void UpdateGearCustomizationMenuState(TkWindow* window) {
         uint* state = FhUtil.ptr_at<uint>(0x146AA28);
         uint pre_state = *state;
 
@@ -500,7 +500,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     break;
 
                 default:
-                    FhXCall.h_UpdateGearCustomizationMenuState.chain_from(h_UpdateGearCustomizationMenuState).fnptr!(window);
+                    FhXCall.h_UpdateGearCustomizationMenuState.chain_from(UpdateGearCustomizationMenuState).fnptr!(window);
                     break_loop = true;
                     break;
             }
@@ -543,12 +543,12 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     // param_1 is TkMenu*
-    public void h_UpdateAeonCustomizationMenuState(uint param_1, uint param_2) {
-        uint* state = (uint*)(param_1 + 0x1c);
+    public void TkMenuCtrlSummon(TkMenu* menu, int param_2) {
+        uint* state = (uint*)(menu->state);
         uint pre_state = *state;
 
 
-        FhXCall.h_UpdateAeonCustomizationMenuState.chain_from(h_UpdateAeonCustomizationMenuState).fnptr!(param_1, param_2);
+        FhXCall.h_TkMenuCtrlSummon.chain_from(TkMenuCtrlSummon).fnptr!(menu, param_2);
 
         if (*state != pre_state) {
             _logger.Debug($"{pre_state} -> {*state}");
@@ -559,14 +559,14 @@ public unsafe partial class ArchipelagoFFXModule {
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
                 byte customization_id = menu_list[selected_idx].customization_id;
                 int num_customizations;
-                CustomizationRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
+                AeonAbilityRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
                 _logger.Debug($"Applied customization {get_other_item_name((uint)(0xC07D + customization_id))}");
                 if (customizations[customization_id].item_cost != original_sum_grow_costs[customization_id]) {
                     uint item_id = (uint)(0xC07D + customization_id);
                     other_inventory.TryGetValue(item_id, out int count);
                     if (--count <= 0) {
                         other_inventory.Remove(item_id);
-                        customizations[customization_id].item_cost = original_sum_grow_costs[customization_id];
+                        customizations[customization_id].item_cost = (byte)original_sum_grow_costs[customization_id];
                     } else other_inventory[item_id] = count;
                 }
             }
@@ -577,14 +577,14 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public static ManagedCustomString customization_string = new("Free!");
 
-    public void h_DrawGearCustomizationMenu(TkWindow* window) {
-        //FhXCall.h_DrawGearCustomizationMenu.chain_from(h_DrawGearCustomizationMenu).fnptr!(param_1);
+    public void DrawGearCustomizationMenu(TkWindow* window) {
+        //FhXCall.DrawGearCustomizationMenu.chain_from(DrawGearCustomizationMenu).fnptr!(param_1);
         DrawGearCustomizationMenu_reimplement(window);
         return;
     }
 
-    public void h_DrawAeonCustomizationMenu(TkWindow* window) {
-        //FhXCall.h_DrawAeonCustomizationMenu.chain_from(h_DrawAeonCustomizationMenu).fnptr!(param_1);
+    public void DrawAeonCustomizationMenu(TkWindow* window) {
+        //FhXCall.DrawAeonCustomizationMenu.chain_from(DrawAeonCustomizationMenu).fnptr!(param_1);
         DrawAeonCustomizationMenu_reimplement(window);
     }
 
@@ -605,7 +605,7 @@ public unsafe partial class ArchipelagoFFXModule {
         } else {
             byte customization_id = menu_list[selected_idx].customization_id;
             int num_customizations;
-            CustomizationRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
+            AeonAbilityRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
             item_id = customizations[customization_id].item;
             int item_cost = customizations[customization_id].item_cost;
 
@@ -764,7 +764,7 @@ public unsafe partial class ArchipelagoFFXModule {
             if (0 <= curr_index && curr_index < menu_length) {
                 if (menu_list[curr_index].customization_id != 0xFF) {
                     int num_customizations;
-                    CustomizationRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
+                    AeonAbilityRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
 
                     uint item_id   = customizations[menu_list[curr_index].customization_id].item;
                     int item_cost = customizations[menu_list[curr_index].customization_id].item_cost;
@@ -989,7 +989,7 @@ public unsafe partial class ArchipelagoFFXModule {
         FhXCall.h_TkMn2DrawCrossCursor.fnptr!(pos.X, pos.Y, 0);
     }
 
-    public static bool h_FUN_008d5720(uint gear_id, int param_2) {
+    public static bool FUN_008d5720(uint gear_id, int param_2) {
         Equipment* gear = FhXCall.h_MsGetSaveWeapon.fnptr!(gear_id, 0);
 
         bool can_customize = false;

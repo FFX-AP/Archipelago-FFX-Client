@@ -863,7 +863,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         int work = 0;
         int storage = 0;
 
-        h_Common_warpToMap((AtelBasicWorker*)&work, &storage, &stack);
+        Common_warpToMap((AtelBasicWorker*)&work, &storage, &stack);
     }
 
     public void call_remove_party_member(int character_id, bool long_term = false) {
@@ -873,8 +873,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         int work = 0;
         int storage = 0;
 
-        if (!long_term) h_Common_removePartyMember((AtelBasicWorker*)&work, &storage, &stack);
-        else h_Common_removePartyMemberLongTerm((AtelBasicWorker*)&work, &storage, &stack);
+        if (!long_term) Common_removePartyMember((AtelBasicWorker*)&work, &storage, &stack);
+        else Common_removePartyMemberLongTerm((AtelBasicWorker*)&work, &storage, &stack);
     }
 
     public void call_add_party_member(int character_id) {
@@ -884,7 +884,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         int work = 0;
         int storage = 0;
 
-        h_Common_addPartyMember((AtelBasicWorker*)&work, &storage, &stack);
+        Common_addPartyMember((AtelBasicWorker*)&work, &storage, &stack);
     }
 
     public void call_put_party_member_in_slot(int slot, int character_id) {
@@ -895,7 +895,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         int work = 0;
         int storage = 0;
 
-        h_Common_putPartyMemberInSlot((AtelBasicWorker*)&work, &storage, &stack);
+        Common_putPartyMemberInSlot((AtelBasicWorker*)&work, &storage, &stack);
     }
 
     public uint[] get_party_frontline() {
@@ -1007,9 +1007,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         stack.push_int(chr_id + 1);
         AtelBasicWorker* worker0 = Atel.controllers[0].worker(0);
         int storage = 0;
-        FhXCall.h_Common_loadModel.fnptr!(worker0, &storage, &stack);
+        h_Common_loadModel.fnptr!(worker0, &storage, &stack);
         stack.push_int(0);
-        FhXCall.h_Common_linkFieldToBattleActor.fnptr!(worker0, &storage, &stack);
+        h_Common_linkFieldToBattleActor.fnptr!(worker0, &storage, &stack);
     }
 
     public uint allocate_file(string filename, out nint file_ptr) {
@@ -1026,7 +1026,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             var file_length = *(long*)(*(int*)(fileStream[1] + 0xc) + 8);
             file_ptr = Marshal.AllocHGlobal((int)file_length);
             uint max_len = (uint)file_length;
-            readBytes = FhXCall.h_readFile.fnptr!((nint)fs, file_ptr, max_len);
+            readBytes = FhXCall.h_Phyre_PSerialization_PStreamFileWin32_readFile.fnptr!((nint)fs, file_ptr, max_len);
         }
         _logger.Debug($"read {readBytes}, beginning={((byte*)file_ptr)[0]} {((byte*)file_ptr)[1]} {((byte*)file_ptr)[2]} {((byte*)file_ptr)[3]}");
         return readBytes;

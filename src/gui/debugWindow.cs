@@ -371,7 +371,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             //
             //    FhXCall.h_FmodVoice_initList.fnptr!(fmodVoice);
             //
-            //    int dataChange_result = h_FmodVoice_dataChange(fmodVoice, Globals.save_data->current_room_id, *(nint*)(ffxFmod + 4));
+            //    int dataChange_result = FmodVoice_dataChange(fmodVoice, Globals.save_data->current_room_id, *(nint*)(ffxFmod + 4));
             //    if (dataChange_result != 0) {
             //        *(nint*)(*(int*)((int)ffxFmod + 0xc) + 0x28) = **(nint**)((int)ffxFmod + 0x10);
             //    }
