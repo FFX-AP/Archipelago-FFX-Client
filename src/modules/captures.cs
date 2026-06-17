@@ -29,6 +29,7 @@ public unsafe partial class CaptureModule : FhModule {
         _ffx_interop_handle = new(this);
     }
 
+    // TODO: Remove once Fahrenheit adds Atel call targets to FhCall
     // Mars Sigil location check (Atel CT_RetInt hook); not yet a curated FhCall entry, so kept as a local handle.
     private FhMethodHandle<FhGCall.CT_RetInt> h_ret_hasKeyItem_handle
         => new( new FhMethodLocation("FFX.exe", 0x45B7A0) );
@@ -39,7 +40,7 @@ public unsafe partial class CaptureModule : FhModule {
             && FhXCall.h_MsMonsterCapture.hook(this, h_MsMonsterCapture)
             && FhXCall.h_FUN_00783bb0.hook(this, h_FUN_00783bb0)
             && FhXCall.h_AtelEventSetUp.hook(this, h_AtelEventSetUp)
-            && h_ret_hasKeyItem_handle.hook(this, h_ret_hasKeyItem)
+            && h_ret_hasKeyItem_handle.hook(this, ret_hasKeyItem)
             && FhXCall.h_MsDamageCheckDeath.hook(this, h_MsDamageCheckDeath)
             && FhXCall.h_MsSetRamChrParam.hook(this, h_MsSetRamChrParam)
             && FhXCall.h_MsSetSaveParam.hook(this, h_MsSetSaveParam)
@@ -153,7 +154,7 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     //Check Mars Sigil location instead of inventory
-    private int h_ret_hasKeyItem(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
+    private int ret_hasKeyItem(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         if (_event_name == "nagi0700") {
             int item_id = atelStack->pop_int();
 
@@ -167,7 +168,7 @@ public unsafe partial class CaptureModule : FhModule {
             }
         }
 
-        return h_ret_hasKeyItem_handle.fnptr!(work, storage, atelStack);
+        return h_ret_hasKeyItem_handle.chain_from(ret_hasKeyItem).fnptr!(work, storage, atelStack);
     }
 
     private int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, int param_4) {

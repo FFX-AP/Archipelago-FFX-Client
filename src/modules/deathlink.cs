@@ -1,18 +1,14 @@
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+using ArchipelagoFFX.Client;
+using Fahrenheit;
+using Fahrenheit.FFX;
+using Fahrenheit.FFX.Battle;
+using Fahrenheit.FFX.Ids;
 using System;
 using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-
-using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
-
-using ArchipelagoFFX.Client;
-
-using Fahrenheit;
-using Fahrenheit.FFX;
-using Fahrenheit.FFX.Battle;
-using Fahrenheit.FFX.Ids;
-
 using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
@@ -230,6 +226,7 @@ public unsafe partial class DeathLinkModule : FhModule {
         _logger.Info("  Disabling Escape and Flee...");
 
         for (int chr_id = 0; chr_id <= PlySaveId.PC_SEYMOUR; chr_id++) {
+            // Disable Escape & Flee commands
             FhXCall.h_FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
             FhXCall.h_FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_FLEE, 1);
         }

@@ -26,7 +26,8 @@ public unsafe partial class OverdriveModule : FhModule {
     private FhModuleHandle<ArchipelagoFFXModule> _ffx_interop_handle;
     private ArchipelagoFFXModule? _ffx_interop;
 
-    private FhMethodHandle<FhGCall.CT_RetInt> h_ret_doesChrKnowCommand => new(new FhMethodLocation("FFX.exe", 0x3A30C0));
+    private FhMethodHandle<FhGCall.CT_RetInt> h_ret_doesChrKnowCommand 
+        => new(new FhMethodLocation("FFX.exe", 0x3A30C0));
 
     // Damage Calc
     [StructLayout(LayoutKind.Explicit, Size = 0x2C)]
@@ -206,8 +207,8 @@ public unsafe partial class OverdriveModule : FhModule {
             && FhXCall.h_MsGetSaveCommand.hook(this, h_MsGetSaveCommand)
             && FhXCall.h_MsSetRamChrAbility.hook(this, h_MsSetRamChrAbility)
             && FhXCall.h_MsLimitTidusLearn.hook(this, h_MsLimitTidusLearn)
-            && FhXCall.h_MsAfterDamageProcess.hook(this, h_MsAfterDamageProcess)
-            && h_ret_doesChrKnowCommand.hook(this, h_ret_doesChrKnowCommand_reimpl)
+            && FhXCall.h_AfterDamageProcess.hook(this, h_MsAfterDamageProcess)
+            && h_ret_doesChrKnowCommand.hook(this, ret_doesChrKnowCommand)
             && FhXCall.h_MsSetSaveCommandWithPrefix.hook(this, h_MsSetSaveCommandWithPrefix)
             && FhXCall.h_TOBtlDrawLearningMessageWindow.hook(this, h_TOBtlDrawLearningMessageWindow);
     }
@@ -233,7 +234,6 @@ public unsafe partial class OverdriveModule : FhModule {
         OverdriveProvider.provide_overdrive(chr_id);
 
         FhXCall.h_MsSetRamChrAbility.chain_from(h_MsSetRamChrAbility).fnptr!(chr_id, chr);
-        return;
     }
 
     // Runs on every Tidus Limit. Override the normal requirements, and send locations based on 10 / 20 / 40
@@ -498,7 +498,7 @@ public unsafe partial class OverdriveModule : FhModule {
     }
 
     // Required in order to allow Biran & Yenke's ChrLoot to progress to the next Ronso Rage based on location sent, rather than command known
-    private int h_ret_doesChrKnowCommand_reimpl(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
+    private int ret_doesChrKnowCommand(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         int com_id = atelStack->pop_int();
         int chr_id = atelStack->pop_int();
 
@@ -511,7 +511,7 @@ public unsafe partial class OverdriveModule : FhModule {
 
         atelStack->push_int(chr_id);
         atelStack->push_int(com_id);
-        return h_ret_doesChrKnowCommand.fnptr!(work, storage, atelStack);
+        return h_ret_doesChrKnowCommand.chain_from(ret_doesChrKnowCommand).fnptr!(work, storage, atelStack);
     }
 
     // Called from teachAbilityToPartyMemberSilently & teachAbilityToPartyMemberWithMsg
