@@ -608,7 +608,7 @@ public unsafe partial class CaptureModule : FhModule {
 
             for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                 //BtlBinFormation formation = group->formations[formation_idx];
-                BtlBinFormation formation = MemoryMarshal.CreateSpan(ref group->_first_formation, group->formation_count);
+                BtlBinFormation formation = MemoryMarshal.CreateSpan(ref group->first_formation, group->formation_count);
 
                 if (formation.weight == 0) {
                     weights[formation_idx] = 0;
@@ -639,7 +639,7 @@ public unsafe partial class CaptureModule : FhModule {
 
                 for (int formation_idx = 0; formation_idx < group->formation_count; formation_idx++) {
                     //BtlBinFormation formation = group->formations[formation_idx];
-                    BtlBinFormation formation = MemoryMarshal.CreateSpan(ref group->_first_formation, group->formation_count);
+                    BtlBinFormation formation = MemoryMarshal.CreateSpan(ref group->first_formation, group->formation_count);
                     weights[formation_idx] = formation.weight / 17;
                 }
             }
