@@ -14,7 +14,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -1012,25 +1011,25 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         h_Common_linkFieldToBattleActor.fnptr!(worker0, &storage, &stack);
     }
 
-    public uint allocate_file(string filename, out nint file_ptr) {
-        int[] fileStream = [0,0];
-        uint readBytes = 0;
-        file_ptr = 0;
+    //public uint allocate_file(string filename, out nint file_ptr) {
+    //    int[] fileStream = [0,0];
+    //    uint readBytes = 0;
+    //    file_ptr = 0;
 
-        fixed (int* fs = fileStream) {
-            nint pFilename = Marshal.StringToHGlobalAnsi(filename);
-            h_openFile((nint)fs, pFilename, true, 0, 0, 1);
-            Marshal.FreeHGlobal(pFilename);
-            _logger.Debug($"file_handle={fileStream[0]}, file_length={*(long*)(*(int*)(fileStream[1] + 0xc) + 8)}");
-            if (fileStream[1] == 0) return 0;
-            var file_length = *(long*)(*(int*)(fileStream[1] + 0xc) + 8);
-            file_ptr = Marshal.AllocHGlobal((int)file_length);
-            uint max_len = (uint)file_length;
-            readBytes = FhXCall.h_Phyre_PSerialization_PStreamFileWin32_readFile.fnptr!((nint)fs, file_ptr, max_len);
-        }
-        _logger.Debug($"read {readBytes}, beginning={((byte*)file_ptr)[0]} {((byte*)file_ptr)[1]} {((byte*)file_ptr)[2]} {((byte*)file_ptr)[3]}");
-        return readBytes;
-    }
+    //    fixed (int* fs = fileStream) {
+    //        nint pFilename = Marshal.StringToHGlobalAnsi(filename);
+    //        h_openFile((nint)fs, pFilename, true, 0, 0, 1);
+    //        Marshal.FreeHGlobal(pFilename);
+    //        _logger.Debug($"file_handle={fileStream[0]}, file_length={*(long*)(*(int*)(fileStream[1] + 0xc) + 8)}");
+    //        if (fileStream[1] == 0) return 0;
+    //        var file_length = *(long*)(*(int*)(fileStream[1] + 0xc) + 8);
+    //        file_ptr = Marshal.AllocHGlobal((int)file_length);
+    //        uint max_len = (uint)file_length;
+    //        readBytes = FhXCall.h_Phyre_PSerialization_PStreamFileWin32_Read.fnptr!((nint)fs, file_ptr, max_len);
+    //    }
+    //    _logger.Debug($"read {readBytes}, beginning={((byte*)file_ptr)[0]} {((byte*)file_ptr)[1]} {((byte*)file_ptr)[2]} {((byte*)file_ptr)[3]}");
+    //    return readBytes;
+    //}
 
     public struct CustomStringDrawInfo(ManagedCustomString customString, Vector2 pos, float scale = 0.65f, byte color = 0, bool persistent = false) {
         public ManagedCustomString customString = customString;

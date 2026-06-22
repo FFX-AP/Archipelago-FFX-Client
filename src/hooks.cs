@@ -109,13 +109,13 @@ public unsafe partial class ArchipelagoFFXModule {
         return h_Map_800F.chain_from(h_Map_800F_reimpl).fnptr!(work, storage, atelStack);
     }
 
-    public bool h_openFile(nint _this, nint filename, bool readOnly, nint unknown_1, nint unknown_2, nint unknown_3) {
-        string x = Marshal.PtrToStringAnsi(filename)!;
-        _logger.Debug($"{_this}, {x}, {readOnly}, {unknown_1}, {unknown_2}, {unknown_3}");
-        var result = FhXCall.h_Phyre_PSerialization_PStreamFileWin32_openFile.chain_from(h_openFile).fnptr!(_this, filename, readOnly, unknown_1, unknown_2, unknown_3);
-        _logger.Debug($"{result}, {*(int*)_this}, {*(int*)((int)_this + 4)}");
-        return result;
-    }
+    //public bool h_openFile(nint _this, nint filename, bool readOnly, nint unknown_1, nint unknown_2, nint unknown_3) {
+    //    string x = Marshal.PtrToStringAnsi(filename)!;
+    //    _logger.Debug($"{_this}, {x}, {readOnly}, {unknown_1}, {unknown_2}, {unknown_3}");
+    //    var result = FhXCall.h_Phyre_PSerialization_PStreamFileWin32_Open.chain_from(h_openFile).fnptr!(_this, filename, readOnly, unknown_1, unknown_2, unknown_3);
+    //    _logger.Debug($"{result}, {*(int*)_this}, {*(int*)((int)_this + 4)}");
+    //    return result;
+    //}
 
     public uint h_FUN_0070aec0(nint _this, uint voice_id, uint param_2) {
         return FhXCall.h_FUN_0070aec0.chain_from(h_FUN_0070aec0).fnptr!(_this, voice_id, param_2);
@@ -2122,7 +2122,7 @@ public unsafe partial class ArchipelagoFFXModule {
         FhXCall.h_FUN_008b8910.fnptr!(window_id, 1, 1);
         bool gear_inv_is_full = false;
         uint weapon_id = 0;
-        byte* message_text = FhXCall.h_FUN_008bda20.fnptr!(0x401d); // "Nothing"
+        byte* message_text = FhXCall.h_TkBtlEndGetText.fnptr!(0x401d); // "Nothing"
 
         if (item_locations.treasure.TryGetValue(treasure_id, out var item)) {
             if (_client!.sendLocation(treasure_id, ArchipelagoClientModule.ArchipelagoLocationType.Treasure)) {
@@ -2135,7 +2135,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 cached_strings.Add(name);
                 item_name = name.encoded;
                 if (item.id != 0) {
-                    message_text = FhXCall.h_FUN_008bda20.fnptr!(0x4018); // "Obtained %0!"
+                    message_text = FhXCall.h_TkBtlEndGetText.fnptr!(0x4018); // "Obtained %0!"
                 } else {
                     NativeCustomString sent_text = new NativeCustomString("Sent {VAR:00}!");
                     //CustomString sent_text = new CustomString("Sent {VAR:00} to {VAR:01}!");
@@ -2157,10 +2157,10 @@ public unsafe partial class ArchipelagoFFXModule {
             FhXCall.h_TkMsGetRomItem.fnptr!(Battle.reward_data->items[0], (int*)&item_name);
             FhXCall.h_FUN_008b8930.fnptr!(window_id, 1, Battle.reward_data->items_amounts[0]);
             if (Battle.reward_data->items_amounts[0] == 1) {
-                message_text = FhXCall.h_FUN_008bda20.fnptr!(0x4018); // "Obtained %0!"
+                message_text = FhXCall.h_TkBtlEndGetText.fnptr!(0x4018); // "Obtained %0!"
             }
             else {
-                message_text = FhXCall.h_FUN_008bda20.fnptr!(0x4019); // "Obtained %0 x%1!"
+                message_text = FhXCall.h_TkBtlEndGetText.fnptr!(0x4019); // "Obtained %0 x%1!"
             }
 
             byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(new ReadOnlySpan<byte>(item_name, 1000))];
@@ -2173,19 +2173,19 @@ public unsafe partial class ArchipelagoFFXModule {
         }
         else if (Battle.reward_data->key_item_count != 0) {
             item_name = FhXCall.h_MsImportantName.fnptr!(Battle.reward_data->key_item);
-            message_text = FhXCall.h_FUN_008bda20.fnptr!(0x4017); // "Obtained %0!"
+            message_text = FhXCall.h_TkBtlEndGetText.fnptr!(0x4017); // "Obtained %0!"
             FhXCall.h_TkMsImportantSet.fnptr!(Battle.reward_data->key_item);
         }
         else if (Battle.reward_data->gear_count != 0) {
             weapon_id = Battle.reward_data->gear_inv_idx;
-            message_text = FhXCall.h_FUN_008bda20.fnptr!(0x4016); // "Obtained %0!"
+            message_text = FhXCall.h_TkBtlEndGetText.fnptr!(0x4016); // "Obtained %0!"
             Equipment* weapon = (Equipment*)FhXCall.h_MsGetSaveWeapon.fnptr!(weapon_id, (nint)(&item_name));
             int inv_id = FhXCall.h_FUN_007ab930.fnptr!(weapon); // giveWeapon?
             gear_inv_is_full = inv_id == 0;
         }
         else if (Battle.reward_data->gil != 0) {
             FhXCall.h_FUN_008b8930.fnptr!(window_id, 1, (int)Battle.reward_data->gil);
-            message_text = FhXCall.h_FUN_008bda20.fnptr!(0x401a); // "Obtained %1 Gil!"
+            message_text = FhXCall.h_TkBtlEndGetText.fnptr!(0x401a); // "Obtained %1 Gil!"
             FhXCall.h_MsPayGIL.fnptr!(-(int)Battle.reward_data->gil);
         }
 
@@ -2929,16 +2929,16 @@ public unsafe partial class ArchipelagoFFXModule {
         FhXCall.h_TkMsImportantSet.chain_from(h_TkMsImportantSet).fnptr!(param_1);
     }
 
-    private byte* h_read_from_bin(int param_1, short* param_2, int param_3) {
-        _logger.Debug($"get_from_bin: {param_1}, {(int)param_2}, {param_3}");
+    private nint h_read_from_bin(int param_1, nint param_2, int* param_3) {
+        _logger.Debug($"get_from_bin: {param_1}, {(int)param_2}, {*param_3}");
         _logger.Debug($"bin_pointers: {(uint)param_2}, {(uint)(*takara_pointer)}, {(uint)(*buki_get_pointer)}");
-        if (param_2 == (short*)*takara_pointer) {
+        if (param_2 == *takara_pointer) {
             _logger.Debug("get_from_bin: takara.bin");
         }
-        else if (param_2 == (short*)*buki_get_pointer) {
+        else if (param_2 == *buki_get_pointer) {
             _logger.Debug("get_from_bin: buki_get.bin");
         }
-        var result = FhXCall.h_FUN_007ab890.chain_from(h_read_from_bin).fnptr!(param_1, param_2, param_3);
+        var result = FhXCall.h_MsGetExcelData.chain_from(h_read_from_bin).fnptr!(param_1, param_2, param_3);
         _logger.Debug($"get_from_bin: result = {((uint)result).ToString("X")}");
         return result;
     }
@@ -2946,13 +2946,13 @@ public unsafe partial class ArchipelagoFFXModule {
     private ushort h_get_weapon_name(Equipment* param_1) {
         _logger.Debug($"get_weapon_name: {(int)param_1}");
 
-        return FhXCall.h_FUN_007a0d10.chain_from(h_get_weapon_name).fnptr!(param_1);
+        return FhXCall.h_MsWeaponNameNum.chain_from(h_get_weapon_name).fnptr!(param_1);
     }
 
     private void h_get_weapon_model(ushort name_id, byte owner, int unknown, ushort* model_id_pointer) {
         _logger.Debug($"get_weapon_model: {name_id}, {owner}, {unknown}, {*model_id_pointer}, ");
 
-        FhXCall.h_FUN_007a0c70.chain_from(h_get_weapon_model).fnptr!(name_id, owner, unknown, model_id_pointer);
+        FhXCall.h_MsWeaponName.chain_from(h_get_weapon_model).fnptr!(name_id, owner, unknown, model_id_pointer);
     }
 
     private void h_obtain_treasure_cleanup(BtlRewardData* param_1, int param_2) {

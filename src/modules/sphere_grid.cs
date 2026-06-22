@@ -1,16 +1,10 @@
+using Fahrenheit;
+using Fahrenheit.FFX;
+using Hexa.NET.ImGui;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
-using Fahrenheit;
-
-using Hexa.NET.ImGui;
-
-using Fahrenheit.FFX;
-
 using static Fahrenheit.FFX.Globals;
-
-using FhGCall = Fahrenheit.FhCall;
 using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
@@ -39,7 +33,7 @@ public unsafe class SphereGridQolModule : FhModule {
         _global_state = global_state_file;
 
         return FhXCall.h_AbmapState_MovingToTarget.hook(this, h_move_speed)
-            && FhXCall.h_abmap_confirm_move.hook(this, h_move_confirm)
+            && FhXCall.h_FUN_00a56160.hook(this, h_move_confirm)
             && FhXCall.h_AbmapState_MovingToTarget.hook(this, h_state_moving)
             && FhXCall.h_AbmapState_Warping.hook(this, h_state_warping)
             && FhXCall.h_AbmapState_ChangingNode.hook(this, h_change_node);
@@ -308,7 +302,7 @@ public unsafe class SphereGridQolModule : FhModule {
 
         knots_counted = 0;
 
-        FhXCall.h_abmap_confirm_move.chain_from(h_move_confirm).fnptr!(p1, p2, p3);
+        FhXCall.h_FUN_00a56160.chain_from(h_move_confirm).fnptr!(p1, p2, p3);
 
         // If we cancelled it, also deactivate all activated nodes
         if (p3 == 1 && temporarily_activated_nodes.Count > 0) {
