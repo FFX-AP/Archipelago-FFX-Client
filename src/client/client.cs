@@ -63,7 +63,6 @@ public class ArchipelagoClientModule : FhModule {
             && _death_link_handle.try_get_module(out _death_link);
     }
 
-    private bool _connecting = false;
     public async Task Connect(string server, string user, string password) {
         _logger.Debug("Connect");
         LoginResult? login_result = new LoginFailure("");
@@ -72,60 +71,67 @@ public class ArchipelagoClientModule : FhModule {
 
         if (is_disconnecting) return;
 
-        if (_connecting) return; // Already connecting, so don't attempt to connect twice at the same time
-        _connecting = true;
+        lock (client_lock) {
 
-        try {
-            session = ArchipelagoSessionFactory.CreateSession(server);
-            death_link = session.CreateDeathLinkService();
-            connectHandlers(session, death_link);
-            var roomInfoPacket = await session.ConnectAsync();
+            // Already connecting, so don't attempt to connect twice at the same time
+            if (current_session is not null) return;
 
-            login_result = await session.LoginAsync("Final Fantasy X", user, ItemsHandlingFlags.RemoteItems, Version.Parse("0.6.0"), password: password, requestSlotData: true);
-        } catch (Exception e) {
-            login_result = new LoginFailure(e.GetBaseException().Message);
-        }
+            try {
+                session = ArchipelagoSessionFactory.CreateSession(server);
+                death_link = session.CreateDeathLinkService();
+                connectHandlers(session, death_link);
+                var roomInfoPacket =  session.ConnectAsync();
 
-        if (!login_result.Successful) {
-            LoginFailure failure = (LoginFailure)login_result;
-            string errorMessage = $"Failed to Connect to {server} as {user}:";
-            foreach (string error in failure.Errors) {
-                errorMessage += $"\n    {error}";
+                login_result = session.TryConnectAndLogin(
+                    "Final Fantasy X",
+                    user,
+                    ItemsHandlingFlags.RemoteItems,
+                    Version.Parse("0.6.0"),
+                    password: password,
+                    requestSlotData: true
+                );
+            } catch (Exception e) {
+                login_result = new LoginFailure(e.GetBaseException().Message);
             }
-            foreach (ConnectionRefusedError error in failure.ErrorCodes) {
-                errorMessage += $"\n    {error}";
-            }
-            _connecting = false;
-            current_session = null;
-            _logger.Error(errorMessage);
-            return; // Did not connect, show the user the contents of `errorMessage`
-        }
-        var loginSuccess = (LoginSuccessful)login_result;
 
-        if (ArchipelagoFFXModule.seed.Options.SeedId is not null) {
-            if (ArchipelagoFFXModule.seed.Options.SeedId != (string)loginSuccess.SlotData["SeedId"]) {
-                string message = "Loaded seed doesn't match connected slot";
-                _gui!.add_log_message([(message, Color.Red)]);
-                _logger.Error(message);
-                disconnect(session);
-                _connecting = false;
-                return;
+            if (!login_result.Successful) {
+                LoginFailure failure = (LoginFailure)login_result;
+                string errorMessage = $"Failed to Connect to {server} as {user}:";
+                foreach (string error in failure.Errors) {
+                    errorMessage += $"\n    {error}";
+                }
+                foreach (ConnectionRefusedError error in failure.ErrorCodes) {
+                    errorMessage += $"\n    {error}";
+                }
+                current_session = null;
+                _logger.Error(errorMessage);
+                return; // Did not connect, show the user the contents of `errorMessage`
             }
-            ArchipelagoFFXModule.SeedToServer[ArchipelagoFFXModule.seed.Options.SeedId] = server;
-            _ffx_interop!.save_global_state();
-        } else {
-            SeedId = (string)loginSuccess.SlotData["SeedId"];
-            int selected_seed = ArchipelagoFFXModule.loaded_seeds.FindIndex(x => x.Options.SeedId == SeedId);
-            if (selected_seed != -1) {
-                _gui!.selected_seed = selected_seed;
-                ArchipelagoFFXModule.SeedToServer[SeedId] = server;
+            var loginSuccess = (LoginSuccessful)login_result;
+
+            if (ArchipelagoFFXModule.seed.Options.SeedId is not null) {
+                if (ArchipelagoFFXModule.seed.Options.SeedId != (string)loginSuccess.SlotData["SeedId"]) {
+                    string message = "Loaded seed doesn't match connected slot";
+                    _gui!.add_log_message([(message, Color.Red)]);
+                    _logger.Error(message);
+                    disconnect(session);
+                    return;
+                }
+                ArchipelagoFFXModule.SeedToServer[ArchipelagoFFXModule.seed.Options.SeedId] = server;
                 _ffx_interop!.save_global_state();
+            } else {
+                SeedId = (string)loginSuccess.SlotData["SeedId"];
+                int selected_seed = ArchipelagoFFXModule.loaded_seeds.FindIndex(x => x.Options.SeedId == SeedId);
+                if (selected_seed != -1) {
+                    _gui!.selected_seed = selected_seed;
+                    ArchipelagoFFXModule.SeedToServer[SeedId] = server;
+                    _ffx_interop!.save_global_state();
+                }
             }
+            current_server = server;
+            current_session = session;
+            current_death_link_service = death_link;
         }
-        current_server = server;
-        current_session = session;
-        current_death_link_service = death_link;
-        _connecting = false;
     }
 
     public void disconnect(ArchipelagoSession? session = null) {
