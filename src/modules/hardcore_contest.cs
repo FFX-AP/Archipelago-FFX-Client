@@ -13,22 +13,20 @@ public unsafe partial class HardcoreDreamsEndModule : FhModule {
     public delegate void MsBtlReadManage();
     public const nint __addr_MsBtlReadManage = 0x3830d0;
 
-    private static HardcoreDreamsEndModule _this;
     private bool _hardcore_dreams_end_enabled;
 
     private FhMethodHandle<MsBtlReadManage> _MsBtlReadManage;
 
     public HardcoreDreamsEndModule() {
-        _this = this;
         _MsBtlReadManage = new(this, "FFX.exe", __addr_MsBtlReadManage, _h_MsBtlReadManage);
     }
 
-    public static bool get_enabled() {
-        return _this._hardcore_dreams_end_enabled;
+    public bool get_enabled() {
+        return _hardcore_dreams_end_enabled;
     }
 
-    public static void set_enabled(bool enabled) {
-        _this._hardcore_dreams_end_enabled = enabled;
+    public void set_enabled(bool enabled) {
+        _hardcore_dreams_end_enabled = enabled;
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {

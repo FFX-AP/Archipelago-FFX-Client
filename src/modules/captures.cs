@@ -17,7 +17,7 @@ using ArchipelagoFFX.Client;
 using Fahrenheit;
 
 using static Fahrenheit.FFX.Globals;
-using static ArchipelagoFFX.Client.FFXArchipelagoClient;
+using static ArchipelagoFFX.Client.ArchipelagoClientModule;
 using static ArchipelagoFFX.delegates;
 
 namespace ArchipelagoFFX;
@@ -68,16 +68,22 @@ public unsafe partial class CaptureModule : FhModule {
         public byte weight;
     }
 
-    private FhModContext? _mod_context;
-    private FileStream? _global_state;
+    private FhModuleHandle<ArchipelagoClientModule> _client_handle;
+    private ArchipelagoClientModule? _client;
+
+    private FhModuleHandle<ArchipelagoFFXModule> _ffx_interop_handle;
+    private ArchipelagoFFXModule? _ffx_interop;
 
     public CaptureModule() {
         const string GAME = "FFX.exe";
 
+        _client_handle = new(this);
+        _ffx_interop_handle = new(this);
+
         _MsMonsterCapture = new FhMethodHandle<MsMonsterCapture>(this, GAME, __addr_MsMonsterCapture, h_MsMonsterCapture);
         _FUN_00783bb0 = new FhMethodHandle<FUN_00783bb0>(this, GAME, __addr_FUN_00783bb0, h_FUN_00783bb0);
         _AtelEventSetUp = new FhMethodHandle<AtelEventSetUp>(this, GAME, __addr_AtelEventSetUp, h_AtelEventSetUp);
-        _ret_hasKeyItem = new FhMethodHandle<delegates.CT_RetInt>(this, GAME, __addr_ret_hasKeyItem, h_ret_hasKeyItem);
+        _ret_hasKeyItem = new FhMethodHandle<CT_RetInt>(this, GAME, __addr_ret_hasKeyItem, h_ret_hasKeyItem);
         _MsDamageCheckDeath = new FhMethodHandle<MsDamageCheckDeath>(this, GAME, __addr_MsDamageCheckDeath, h_MsDamageCheckDeath);
         _MsSetRamChrParam = new FhMethodHandle<MsSetRamChrParam>(this, GAME, __addr_MsSetRamChrParam, h_MsSetRamChrParam);
         _MsSetSaveParam = new FhMethodHandle<MsSetSaveParam>(this, GAME, __addr_MsSetSaveParam, h_MsSetSaveParam);
@@ -86,10 +92,9 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        _mod_context = mod_context;
-        _global_state = global_state_file;
-
-        return _MsMonsterCapture.hook()
+        return _client_handle.try_get_module(out _client)
+            && _ffx_interop_handle.try_get_module(out _ffx_interop)
+            && _MsMonsterCapture.hook()
             && _FUN_00783bb0.hook()
             && _AtelEventSetUp.hook()
             && _ret_hasKeyItem.hook()
@@ -123,24 +128,24 @@ public unsafe partial class CaptureModule : FhModule {
 
         // Send AP Location if successfully captured
         if (captured) {
-            if (sendLocation(arena_idx, FFXArchipelagoClient.ArchipelagoLocationType.Capture) && ArchipelagoFFXModule.item_locations.capture.TryGetValue(arena_idx, out var item)) {
-                ArchipelagoFFXModule.obtain_item(item.id);
-            }
+            lock (_client!.client_lock) {
+                if (_client!.sendLocation(arena_idx, ArchipelagoLocationType.Capture) && ArchipelagoFFXModule.item_locations.capture.TryGetValue(arena_idx, out var item)) {
+                    _ffx_interop!.obtain_item(item.id);
+                }
 
-            int amount = save_data->monsters_captured[arena_idx];
-            lock (FFXArchipelagoClient.client_lock) {
-                if (FFXArchipelagoClient.is_connected) {
+                int amount = save_data->monsters_captured[arena_idx];
+                if (_client!.is_connected) {
                     if (amount > 0)
-                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = amount;
+                        _client!.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = amount;
                     else
-                        FFXArchipelagoClient.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = 0;
+                        _client!.current_session!.DataStorage[Scope.Slot, "FFX_CAPTURE_" + arena_idx] = 0;
                 }
             }
         }
         return captured;
     }
 
-    private HashSet<ushort> initialized_monsters = [];
+    private readonly HashSet<ushort> initialized_monsters = [];
     private static readonly HashSet<short> _incorrect_arena_idx = [
         041, // Sahagin
         042, // Sahagin
@@ -166,7 +171,7 @@ public unsafe partial class CaptureModule : FhModule {
 
         Chr* mon = _MsGetMon(mon_idx);
         if (initialized_monsters.Add(mon->chr_id)) {
-            MonStats* stats = (MonStats*)mon->ptr_base_stats;
+            MonStats* stats = mon->ptr_base_stats;
 
             // Corrects incorrect monster arena indexes to be uncapturable
             if (_incorrect_arena_idx.Contains((short)(mon->chr_id & 0xFFF))) {
@@ -184,7 +189,7 @@ public unsafe partial class CaptureModule : FhModule {
 
         _event_name = Marshal.PtrToStringAnsi((nint)get_event_name((uint)event_id))!;
         _logger.Debug($"atel_event_setup: {_event_name}");
-        byte* code_ptr = Globals.Atel.controllers[0].worker(0)->code_ptr;
+        byte* code_ptr = Atel.controllers[0].worker(0)->code_ptr;
 
         switch (_event_name) {
             case "nagi0700":
@@ -211,7 +216,9 @@ public unsafe partial class CaptureModule : FhModule {
             int item_id = atelStack->pop_int();
 
             if (item_id == 0xA028) {
-                return local_checked_locations.Contains(276 | (long)FFXArchipelagoClient.ArchipelagoLocationType.Treasure) ? 1 : 0;
+                lock (_client!.client_lock) {
+                    return _client!.local_checked_locations.Contains(276 | (long)ArchipelagoLocationType.Treasure) ? 1 : 0;
+                }
             }
             else {
                 atelStack->push_int(item_id);
@@ -223,7 +230,7 @@ public unsafe partial class CaptureModule : FhModule {
 
     private int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, uint param_4) {
         Chr* target = _MsGetChr((uint)target_id);
-        MonStats* mon_stats = (MonStats*)target->ptr_base_stats;
+        MonStats* mon_stats = target->ptr_base_stats;
 
         ushort capture_index = mon_stats is not null ? mon_stats->monster_arena_idx : (ushort)0xFF;
 
