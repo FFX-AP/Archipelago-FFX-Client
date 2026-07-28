@@ -4197,7 +4197,6 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public Dictionary<string, CustomStringDrawInfo> customStringDrawInfos = [];
 
-    //TODO: Figure out where to hook to make this work again
     public void render_game() {
         FhXCall.TODrawWindow.chain_from(render_game).fnptr!();
 
