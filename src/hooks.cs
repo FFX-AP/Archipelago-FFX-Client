@@ -177,6 +177,8 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     private bool hook() {
+        FhApi.Events.Common.GameLoop.PreUpdate.subscribe(handle_input);
+
         return h_Common_obtainTreasureInit.hook(this, Common_obtainTreasureInit)
             && h_Common_obtainTreasureSilentlyInit.hook(this, Common_obtainTreasureSilentlyInit)
             && h_Common_obtainBrotherhoodRetInt.hook(this, Common_obtainBrotherhoodRetInt)

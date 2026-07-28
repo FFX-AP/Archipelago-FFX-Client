@@ -719,7 +719,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
     }
 
-    public void handle_input() {
+    public void handle_input(UpdateLoopEventArgs e) {
         /*
         if (Globals.Input.select.held) {
             if (Globals.Input.l1.just_pressed) {
