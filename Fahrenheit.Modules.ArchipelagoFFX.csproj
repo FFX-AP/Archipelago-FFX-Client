@@ -1,9 +1,9 @@
-﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha10">
+﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha11">
 
 	<!-- ASSEMBLY BASIC PROPERTIES -->
 	<PropertyGroup>
 		<Version>0.8.1-alpha</Version>
-		<FahrenheitVersion>v1.0.0-alpha10</FahrenheitVersion>
+		<FahrenheitVersion>v1.0.0-alpha11</FahrenheitVersion>
 	</PropertyGroup>
 
 	<!-- ASSEMBLY ADDITIONAL PROPERTIES -->
@@ -18,11 +18,11 @@
 		<Compile Remove="fh-mods-csr\**" />
 		<EmbeddedResource Remove="fh-mods-csr\**" />
 		<None Remove="fh-mods-csr\**" />
-		
+
 		<Compile Remove="custom-character\**" />
 		<EmbeddedResource Remove="custom-character\**" />
 		<None Remove="custom-character\**" />
-		
+
 		<Compile Remove="playable-seymour-mod\**" />
 		<EmbeddedResource Remove="playable-seymour-mod\**" />
 		<None Remove="playable-seymour-mod\**" />
@@ -36,9 +36,6 @@
     <!-- PACKAGE REFERENCES -->
 	<ItemGroup>
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.1" />
-	</ItemGroup>
-	<ItemGroup>
-	  <PackageReference Update="Fahrenheit" Version="1.0.0-alpha10" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -132,5 +129,5 @@
 		<Message Text="Publish playable-seymour" />
 		<MSBuild Projects="$(playableSeymourProject)" Properties="OutputPath=$(PublishDir)fahrenheit\mods\$(playableSeymourName);Configuration=$(Configuration)" Targets="Build" />
 	</Target>
-  
+
 </Project>
