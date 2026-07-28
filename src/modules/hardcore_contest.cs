@@ -10,7 +10,7 @@ using FhXCall = Fahrenheit.FFX.FhCall;
 namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
-public unsafe partial class HardcoreDreamsEndModule : FhModule {
+public unsafe class HardcoreDreamsEndModule : FhModule {
     private bool _hardcore_dreams_end_enabled;
 
     public bool get_enabled() {
@@ -22,13 +22,13 @@ public unsafe partial class HardcoreDreamsEndModule : FhModule {
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return FhXCall.h_MsBtlReadManage.hook(this, _h_MsBtlReadManage);
+        return FhXCall.MsBtlReadManage.hook(this, _h_MsBtlReadManage);
     }
 
     private void _h_MsBtlReadManage() {
         int old_state = Globals.Battle.btl->battle_state;
 
-        FhXCall.h_MsBtlReadManage.chain_from(_h_MsBtlReadManage).fnptr!();
+        FhXCall.MsBtlReadManage.chain_from(_h_MsBtlReadManage).fnptr!();
 
         if (Globals.Battle.btl->battle_state != 13 || old_state == Globals.Battle.btl->battle_state) return;
 

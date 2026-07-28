@@ -17,7 +17,7 @@ using FhXCall = Fahrenheit.FFX.FhCall;
 namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
-public unsafe partial class CaptureModule : FhModule {
+public unsafe class CaptureModule : FhModule {
     private FhModuleHandle<ArchipelagoClientModule> _client_handle;
     private ArchipelagoClientModule? _client;
 
@@ -31,21 +31,21 @@ public unsafe partial class CaptureModule : FhModule {
 
     // TODO: Remove once Fahrenheit adds Atel call targets to FhCall
     // Mars Sigil location check (Atel CT_RetInt hook); not yet a curated FhCall entry, so kept as a local handle.
-    private FhMethodHandle<FhGCall.CT_RetInt> h_ret_hasKeyItem_handle
+    private FhMethodHandle<FhGCall.d_CT_RetInt> h_ret_hasKeyItem_handle
         => new( new FhMethodLocation("FFX.exe", 0x45B7A0) );
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return _client_handle.try_get_module(out _client)
             && _ffx_interop_handle.try_get_module(out _ffx_interop)
-            && FhXCall.h_MsMonsterCapture.hook(this, h_MsMonsterCapture)
-            && FhXCall.h_FUN_00783bb0.hook(this, h_FUN_00783bb0)
-            && FhXCall.h_AtelEventSetUp.hook(this, h_AtelEventSetUp)
+            && FhXCall.MsMonsterCapture.hook(this, h_MsMonsterCapture)
+            && FhXCall.FUN_00783bb0.hook(this, h_FUN_00783bb0)
+            && FhXCall.AtelEventSetUp.hook(this, h_AtelEventSetUp)
             && h_ret_hasKeyItem_handle.hook(this, ret_hasKeyItem)
-            && FhXCall.h_MsDamageCheckDeath.hook(this, h_MsDamageCheckDeath)
-            && FhXCall.h_MsSetRamChrParam.hook(this, h_MsSetRamChrParam)
-            && FhXCall.h_MsSetSaveParam.hook(this, h_MsSetSaveParam)
-            && FhXCall.h_MsCalcCommand.hook(this, h_MsCalcCommand)
-            && FhXCall.h_MsBattleEncountExe.hook(this, h_MsBattleEncountExe);
+            && FhXCall.MsDamageCheckDeath.hook(this, h_MsDamageCheckDeath)
+            && FhXCall.MsSetRamChrParam.hook(this, h_MsSetRamChrParam)
+            && FhXCall.MsSetSaveParam.hook(this, h_MsSetSaveParam)
+            && FhXCall.MsCalcCommand.hook(this, h_MsCalcCommand)
+            && FhXCall.MsBattleEncountExe.hook(this, h_MsBattleEncountExe);
     }
 
     private static void set(byte* code_ptr, uint offset, AtelInst[] opcodes) {
@@ -65,7 +65,7 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     private bool h_MsMonsterCapture(int target_id, int arena_idx) {
-        bool captured = FhXCall.h_MsMonsterCapture.chain_from(h_MsMonsterCapture).fnptr!(target_id, arena_idx);
+        bool captured = FhXCall.MsMonsterCapture.chain_from(h_MsMonsterCapture).fnptr!(target_id, arena_idx);
 
         _logger.Info($"Fiend Capture: Target={target_id}, Arena Index={arena_idx}, Captured={captured}");
 
@@ -110,9 +110,9 @@ public unsafe partial class CaptureModule : FhModule {
         byte num_initialized = FhUtil.get_at<byte>(0xD2CA80);
         if (num_initialized == 0) initialized_monsters.Clear();
 
-        FhXCall.h_FUN_00783bb0.chain_from(h_FUN_00783bb0).fnptr!(mon_idx);
+        FhXCall.FUN_00783bb0.chain_from(h_FUN_00783bb0).fnptr!(mon_idx);
 
-        Chr* mon = FhXCall.h_MsGetMon.fnptr!(mon_idx);
+        Chr* mon = FhXCall.MsGetMon.fnptr!(mon_idx);
         if (initialized_monsters.Add(mon->chr_id)) {
             MonStats* stats = mon->ptr_base_stats;
 
@@ -128,9 +128,9 @@ public unsafe partial class CaptureModule : FhModule {
 
     private string? _event_name;
     private void h_AtelEventSetUp(int event_id) {
-        FhXCall.h_AtelEventSetUp.chain_from(h_AtelEventSetUp).fnptr!(event_id);
+        FhXCall.AtelEventSetUp.chain_from(h_AtelEventSetUp).fnptr!(event_id);
 
-        _event_name = Marshal.PtrToStringAnsi((nint)FhXCall.h_AtelGetEventName.fnptr!((uint)event_id))!;
+        _event_name = Marshal.PtrToStringAnsi((nint)FhXCall.AtelGetEventName.fnptr!((uint)event_id))!;
         _logger.Debug($"atel_event_setup: {_event_name}");
         byte* code_ptr = Atel.controllers[0].worker(0)->code_ptr;
 
@@ -172,7 +172,7 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     private int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, int param_4) {
-        Chr* target = FhXCall.h_MsGetChr.fnptr!(target_id);
+        Chr* target = FhXCall.MsGetChr.fnptr!(target_id);
         MonStats* mon_stats = target->ptr_base_stats;
 
         ushort capture_index = mon_stats is not null ? mon_stats->monster_arena_idx : (ushort)0xFF;
@@ -186,13 +186,13 @@ public unsafe partial class CaptureModule : FhModule {
             target->should_try_capture = true;
         }
 
-        return FhXCall.h_MsDamageCheckDeath.chain_from(h_MsDamageCheckDeath).fnptr!(attacker_id, target_id, param_3, param_4);
+        return FhXCall.MsDamageCheckDeath.chain_from(h_MsDamageCheckDeath).fnptr!(attacker_id, target_id, param_3, param_4);
     }
 
     private void h_MsSetRamChrParam(uint chr_id) {
-        FhXCall.h_MsSetRamChrParam.chain_from(h_MsSetRamChrParam).fnptr!(chr_id);
+        FhXCall.MsSetRamChrParam.chain_from(h_MsSetRamChrParam).fnptr!(chr_id);
 
-        Chr* chr = FhXCall.h_MsGetChr.fnptr!((int)chr_id);
+        Chr* chr = FhXCall.MsGetChr.fnptr!((int)chr_id);
 
         if (ArchipelagoFFXModule.seed.Options.AlwaysCapture == 1) {
             chr->ram.auto_ability_effects.has_capture = true;
@@ -200,7 +200,7 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     private void h_MsSetSaveParam(uint chr_id) {
-        FhXCall.h_MsSetSaveParam.chain_from(h_MsSetSaveParam).fnptr!(chr_id);
+        FhXCall.MsSetSaveParam.chain_from(h_MsSetSaveParam).fnptr!(chr_id);
 
         // Does nothing??
         if (ArchipelagoFFXModule.seed.Options.AlwaysCapture == 1) {
@@ -209,19 +209,19 @@ public unsafe partial class CaptureModule : FhModule {
     }
 
     private void h_MsCalcCommand(AttackCue* param_1, int param_2) {
-        FhXCall.h_MsCalcCommand.chain_from(h_MsCalcCommand).fnptr!(param_1, param_2);
+        FhXCall.MsCalcCommand.chain_from(h_MsCalcCommand).fnptr!(param_1, param_2);
         if (param_1 == null) return;
 
         uint local_6c;
-        Command* command = FhXCall.h_MsGetCommand.fnptr!(param_1->attacker_id, 0, -1, &param_1->command_list[param_2], &local_6c);
+        Command* command = FhXCall.MsGetCommand.fnptr!(param_1->attacker_id, 0, -1, &param_1->command_list[param_2], &local_6c);
 
         if (param_1->command_count <= param_2 || command == null) return;
 
-        Chr* attacker = FhXCall.h_MsGetChr.fnptr!(param_1->attacker_id);
+        Chr* attacker = FhXCall.MsGetChr.fnptr!(param_1->attacker_id);
 
         int[] local_7c = [0, 0, 0, param_2];
         if (command->absorbs_dmg) {
-            local_7c[2] = (int)FhXCall.h_FUN_0078d100.fnptr!(attacker);
+            local_7c[2] = (int)FhXCall.FUN_0078d100.fnptr!(attacker);
         }
 
         //TODO: Figure out a way not to duplicate affection in _FUN_0078bb30
@@ -230,7 +230,7 @@ public unsafe partial class CaptureModule : FhModule {
         fixed (byte* p_targets = targets) {
             fixed (byte* p_local_48 = local_48) {
                 fixed (int* p_local_7c = local_7c) {
-                    FhXCall.h_FUN_0078bb30.fnptr!(param_1->attacker_id, p_targets, p_local_48, command, local_6c, &param_1->command_list[param_2].targets, p_local_7c + 1);
+                    FhXCall.FUN_0078bb30.fnptr!(param_1->attacker_id, p_targets, p_local_48, command, local_6c, &param_1->command_list[param_2].targets, p_local_7c + 1);
                 }
             }
         }
@@ -238,8 +238,8 @@ public unsafe partial class CaptureModule : FhModule {
         for (uint target_id = 0; target_id < 32; target_id++) {
             if (targets[target_id] != 0) {
                 if (local_7c[2] == 0 || target_id != param_1->attacker_id) {
-                    Chr* target = FhXCall.h_MsGetChr.fnptr!((int)target_id);
-                    uint iVar6 = FhXCall.h_FUN_0078d100.fnptr!(target);
+                    Chr* target = FhXCall.MsGetChr.fnptr!((int)target_id);
+                    uint iVar6 = FhXCall.FUN_0078d100.fnptr!(target);
                     if (iVar6 != 0) {
                         if (attacker->ram.auto_ability_effects.has_capture && Battle.btl->battle_type == 0 && (ArchipelagoFFXModule.seed.Options.CaptureDamage > 0 || command->uses_weapon_properties)) {
                             target->should_try_capture = true;
@@ -257,19 +257,19 @@ public unsafe partial class CaptureModule : FhModule {
         byte[] filename = Encoding.UTF8.GetBytes($"host0:/ffx/master/jppc/battle/mon/_m{monster_id:D3}/m{monster_id:D3}.bin");
 
         fixed (byte* filename_ptr = &filename[0]) {
-            void* filestream = FhXCall.h_sceOpen.fnptr!(filename_ptr, 1);
+            void* filestream = FhXCall.sceOpen.fnptr!(filename_ptr, 1);
 
             if (filestream is null) {
                 _logger.Info("Failed to open monster file");
                 return -1;
             }
 
-            int filesize = FhXCall.h_sceLseek.fnptr!(filestream, 0, 2);
-            FhXCall.h_sceLseek.fnptr!(filestream, 0, 0);
+            int filesize = FhXCall.sceLseek.fnptr!(filestream, 0, 2);
+            FhXCall.sceLseek.fnptr!(filestream, 0, 0);
 
             void* file = NativeMemory.Alloc((nuint)filesize);
-            FhXCall.h_sceRead.fnptr!(filestream, file, filesize);
-            FhXCall.h_sceClose.fnptr!(filestream);
+            FhXCall.sceRead.fnptr!(filestream, file, filesize);
+            FhXCall.sceClose.fnptr!(filestream);
 
             int stats_offset = *(int*)((int)file + 0xC);
             MonStats* mon_stats = (MonStats*)((int)file + stats_offset);
@@ -467,16 +467,16 @@ public unsafe partial class CaptureModule : FhModule {
         float extra_weight = 0.0f;
 
         fixed (byte* filepath_ptr = &filepath[0]) {
-            void* open_result = FhXCall.h_sceOpen.fnptr!(filepath_ptr, 1);
+            void* open_result = FhXCall.sceOpen.fnptr!(filepath_ptr, 1);
 
             if (open_result is null) return 0;
 
-            int file_size = FhXCall.h_sceLseek.fnptr!(open_result, 0, 2);
-            FhXCall.h_sceLseek.fnptr!(open_result, 0, 0);
+            int file_size = FhXCall.sceLseek.fnptr!(open_result, 0, 2);
+            FhXCall.sceLseek.fnptr!(open_result, 0, 0);
 
             void* file = NativeMemory.Alloc((nuint)file_size);
-            FhXCall.h_sceRead.fnptr!(open_result, file, file_size);
-            FhXCall.h_sceClose.fnptr!(open_result);
+            FhXCall.sceRead.fnptr!(open_result, file, file_size);
+            FhXCall.sceClose.fnptr!(open_result);
 
             int chunk_ptr = *(int*)((nint)file + 0xC);
             if (chunk_ptr != 0) {
@@ -525,7 +525,7 @@ public unsafe partial class CaptureModule : FhModule {
 
     private int h_MsBattleEncountExe(int field_id, int group_idx, float walked_delta) {
         if (ArchipelagoFFXModule.seed.Options.CaptureRequirement == 0 || ArchipelagoFFXModule.seed.Options.EncounterWeighting == 0) {
-            return FhXCall.h_MsBattleEncountExe.chain_from(h_MsBattleEncountExe).fnptr!(field_id, group_idx, walked_delta);
+            return FhXCall.MsBattleEncountExe.chain_from(h_MsBattleEncountExe).fnptr!(field_id, group_idx, walked_delta);
         }
 
         // Globals
@@ -541,14 +541,14 @@ public unsafe partial class CaptureModule : FhModule {
         // _logger.Info($"  g_encounter_level = {*g_encounter_level}");
         // _logger.Info($"  EnableBattle = {*EnableBattle}");
 
-        int field_idx = FhXCall.h_MsBtlListFieldNum.fnptr!(field_id);
+        int field_idx = FhXCall.MsBtlListFieldNum.fnptr!(field_id);
 
         if (*g_keybattle != 0 && *g_keydown_R != 0) {
             Battle.btl->group_idx = (byte)group_idx;
             Battle.btl->formation_idx = (byte)*DAT_0112ca28;
             *(byte*)((nint)Battle.btl + 0x12) = 1;
             Battle.btl->field_idx = (ushort)field_idx;
-            FhXCall.h_ResetEncountExe.fnptr!(1);
+            FhXCall.ResetEncountExe.fnptr!(1);
             return -1;
         }
 
@@ -570,15 +570,15 @@ public unsafe partial class CaptureModule : FhModule {
         if (field_idx < 0) return 0;
         if (walked_delta <= 0.0f || !can_encounter) return 0;
 
-        BtlBinField* field = FhXCall.h_MsBtlListField.fnptr!(field_idx);
-        BtlBinEncounter* encounter = FhXCall.h_MsBtlListEncount.fnptr!(field_idx);
+        BtlBinField* field = FhXCall.MsBtlListField.fnptr!(field_idx);
+        BtlBinEncounter* encounter = FhXCall.MsBtlListEncount.fnptr!(field_idx);
 
         // _logger.Info($"  encounter->group_count: {encounter->group_count}");
 
         if (group_idx < 0 || group_idx >= encounter->group_count) return 0;
         if (*EnableBattle == 0) return 0;
 
-        BtlBinGroup* group = FhXCall.h_MsBtlListGroup.fnptr!(field_idx, group_idx);
+        BtlBinGroup* group = FhXCall.MsBtlListGroup.fnptr!(field_idx, group_idx);
 
         if (group->grace == 0 || group->total_weight == 0 || group->formation_count == 0) return 0;
 
@@ -599,7 +599,7 @@ public unsafe partial class CaptureModule : FhModule {
             *(float*)((nint)Battle.btl + 0x110) *= 256.0f - encounter_chance;
             *(float*)((nint)Battle.btl + 0x114) *= 256.0f;
 
-            if ((FhXCall.h_brnd.fnptr!(0) & 0xFF) >= encounter_chance) continue;
+            if ((FhXCall.brnd.fnptr!(0) & 0xFF) >= encounter_chance) continue;
 
             // We have to prepare weights first
             int total_weight = group->total_weight;
@@ -645,7 +645,7 @@ public unsafe partial class CaptureModule : FhModule {
             }
 
             // Let's figure out which formation we should encounter!
-            int formation_rng = FhXCall.h_brnd.fnptr!(1) % total_weight;
+            int formation_rng = FhXCall.brnd.fnptr!(1) % total_weight;
             int iVar7 = 0;
 
             _logger.Debug( "Encounter!");
@@ -661,14 +661,14 @@ public unsafe partial class CaptureModule : FhModule {
                 if (*(byte*)((nint)Battle.btl + 0x27) == 0) {
                     *(byte*)((nint)Battle.btl + 0x12) = 1;
                 } else {
-                    FhXCall.h_Sg_FadeInW.fnptr!(3);
+                    FhXCall.Sg_FadeInW.fnptr!(3);
                     save_data->battle_count += 1;
                 }
 
                 Battle.btl->field_idx = (ushort)field_idx;
                 Battle.btl->group_idx = (byte)group_idx;
                 Battle.btl->formation_idx = (byte)formation_idx;
-                FhXCall.h_ResetEncountExe.fnptr!(1);
+                FhXCall.ResetEncountExe.fnptr!(1);
 
                 return -1;
             }

@@ -1,10 +1,14 @@
-using Fahrenheit;
-using Fahrenheit.FFX;
-using Hexa.NET.ImGui;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+
+using Hexa.NET.ImGui;
+
+using Fahrenheit;
+using Fahrenheit.FFX;
+
 using static Fahrenheit.FFX.Globals;
+
 using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
@@ -32,11 +36,11 @@ public unsafe class SphereGridQolModule : FhModule {
         _mod_context = mod_context;
         _global_state = global_state_file;
 
-        return FhXCall.h_AbmapState_MovingToTarget.hook(this, h_move_speed)
-            && FhXCall.h_FUN_00a56160.hook(this, h_move_confirm)
-            && FhXCall.h_AbmapState_MovingToTarget.hook(this, h_state_moving)
-            && FhXCall.h_AbmapState_Warping.hook(this, h_state_warping)
-            && FhXCall.h_AbmapState_ChangingNode.hook(this, h_change_node);
+        return FhXCall.AbmapState_MovingToTarget.hook(this, h_move_speed)
+            && FhXCall.FUN_00a56160.hook(this, h_move_confirm)
+            && FhXCall.AbmapState_MovingToTarget.hook(this, h_state_moving)
+            && FhXCall.AbmapState_Warping.hook(this, h_state_warping)
+            && FhXCall.AbmapState_ChangingNode.hook(this, h_change_node);
     }
 
     private string get_state_name() {
@@ -191,20 +195,20 @@ public unsafe class SphereGridQolModule : FhModule {
             if (ImGui.Button(activated ? $"Deactivate##{i}" : $"Activate##{i}")) {
                 if (activated) {
                     selected_node->activated_by.set_bit(i, false);
-                    FhXCall.h_SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
+                    FhXCall.SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
 
                     lpamng->should_update = 1;
                     lpamng->should_update_node = lpamng->selected_node_idx;
                 } else {
-                    FhXCall.h_abmap_get_panel.fnptr!(i, lpamng->selected_node_idx);
+                    FhXCall.abmap_get_panel.fnptr!(i, lpamng->selected_node_idx);
                 }
             }
         }
 
         ImGui.Unindent();
 
-        ImGui.Text($"Can target? {selected_node->properties.can_target()}");
-        ImGui.Text($"Is highlighted? {selected_node->properties.is_highlighted()}");
+        ImGui.Text($"Can target? {selected_node->properties.can_target}");
+        ImGui.Text($"Is highlighted? {selected_node->properties.is_highlighted}");
 
         ImGui.Text($"Move cost: {selected_node->move_cost}");
     }
@@ -214,7 +218,7 @@ public unsafe class SphereGridQolModule : FhModule {
 
         float prev_t = lpamng->moving_progress;
 
-        FhXCall.h_AbmapState_MovingToTarget.chain_from(h_move_speed).fnptr!();
+        FhXCall.AbmapState_MovingToTarget.chain_from(h_move_speed).fnptr!();
 
         if (freeze_move) {
             lpamng->moving_progress = prev_t;
@@ -268,7 +272,7 @@ public unsafe class SphereGridQolModule : FhModule {
         }
 
         node->activated_by.set_bit(ply_id, true);
-        FhXCall.h_SndSepPlaySimple.fnptr!(SND_ACTIVATE_NODE);
+        FhXCall.SndSepPlaySimple.fnptr!(SND_ACTIVATE_NODE);
 
         if (temporary) {
             temporarily_activated_nodes.Add(node_idx);
@@ -302,7 +306,7 @@ public unsafe class SphereGridQolModule : FhModule {
 
         knots_counted = 0;
 
-        FhXCall.h_FUN_00a56160.chain_from(h_move_confirm).fnptr!(p1, p2, p3);
+        FhXCall.FUN_00a56160.chain_from(h_move_confirm).fnptr!(p1, p2, p3);
 
         // If we cancelled it, also deactivate all activated nodes
         if (p3 == 1 && temporarily_activated_nodes.Count > 0) {
@@ -312,7 +316,7 @@ public unsafe class SphereGridQolModule : FhModule {
                 lpamng->nodes[node_idx].activated_by.set_bit(chr_id, false);
             }
 
-            FhXCall.h_SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
+            FhXCall.SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
 
             lpamng->should_update = 1;
             lpamng->should_update_node = -1;
@@ -327,7 +331,7 @@ public unsafe class SphereGridQolModule : FhModule {
         float prev_t = lpamng->moving_progress;
         short last_knot = lpamng->move_next_target_node_idx;
 
-        FhXCall.h_AbmapState_MovingToTarget.chain_from(h_state_moving).fnptr!();
+        FhXCall.AbmapState_MovingToTarget.chain_from(h_state_moving).fnptr!();
 
         float current_t = lpamng->moving_progress;
 
@@ -354,7 +358,7 @@ public unsafe class SphereGridQolModule : FhModule {
 
         byte last_warp_state = *(byte*)((int)lpamng + 0x1164c);
 
-        FhXCall.h_AbmapState_Warping.chain_from(h_state_warping).fnptr!();
+        FhXCall.AbmapState_Warping.chain_from(h_state_warping).fnptr!();
 
         // Warp states:
         // 0 == Disappearing
@@ -390,7 +394,7 @@ public unsafe class SphereGridQolModule : FhModule {
         short node_idx = *(short*)((int)lpamng + 0x1164e);
         byte ply_id = lpamng->current_chr_id;
 
-        FhXCall.h_AbmapState_ChangingNode.chain_from(h_change_node).fnptr!();
+        FhXCall.AbmapState_ChangingNode.chain_from(h_change_node).fnptr!();
 
         byte timing = *(byte*)((int)lpamng + 0x11650);
 

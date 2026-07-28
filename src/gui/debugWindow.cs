@@ -167,12 +167,12 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             }
 
             if (ImGui.Checkbox("Original soundtrack?", &save_data->soundtrack_type)) {
-                FhXCall.h_FUN_008cc120.fnptr!(save_data->soundtrack_type ? 1 : 0);
+                FhXCall.FUN_008cc120.fnptr!(save_data->soundtrack_type ? 1 : 0);
             }
 
-            ImGui.InputScalarN("frontline? (0x1FC5)", ImGuiDataType.U8, Battle.btl->__0x1FC5, 7);
-            ImGui.InputScalarN("frontline? (0x1FCC)", ImGuiDataType.U8, Battle.btl->__0x1FCC, 7);
-            ImGui.InputScalarN("backline? (0x1FD3)", ImGuiDataType.U8, Battle.btl->__0x1FD3, 17);
+            ImGui.InputScalarN("frontline? (0x1FC5)", ImGuiDataType.U8, &Battle.btl->__0x1FC5, 7);
+            ImGui.InputScalarN("frontline? (0x1FCC)", ImGuiDataType.U8, &Battle.btl->__0x1FCC, 7);
+            ImGui.InputScalarN("backline? (0x1FD3)", ImGuiDataType.U8, &Battle.btl->__0x1FD3, 17);
 
 
 
@@ -361,7 +361,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             //    localizationManager->voice = voice_language;
             //
             //    nint _FmodManager = FhUtil.get_at<nint>(0x008E9000);
-            //    //FhXCall.h_FfxFmod_soundInit.fnptr!(*(nint*)(_FmodManager+8));
+            //    //FhXCall.FfxFmod_soundInit.fnptr!(*(nint*)(_FmodManager+8));
             //
             //    nint ffxFmod = *(nint*)(_FmodManager + 8);
             //
@@ -369,7 +369,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             //
             //    *(byte*)(fmodVoice + 4) = (byte)voice_language;
             //
-            //    FhXCall.h_FmodVoice_initList.fnptr!(fmodVoice);
+            //    FhXCall.FmodVoice_initList.fnptr!(fmodVoice);
             //
             //    int dataChange_result = FmodVoice_dataChange(fmodVoice, Globals.save_data->current_room_id, *(nint*)(ffxFmod + 4));
             //    if (dataChange_result != 0) {
@@ -451,7 +451,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             for (int i = 0; i < 7; i++) {
                 if (ImGui.Button($"{id_to_character[i]}: {(clickedNode->activated_by & (1 << i)) != 0}")) {
                     clickedNode->activated_by ^= (byte)(1 << i);
-                    FhXCall.h_eiAbmParaGet.fnptr!();
+                    FhXCall.eiAbmParaGet.fnptr!();
                     SphereGrid.lpamng->should_update = 1;
                     // Setting to clickedNodeIndex only turns off light if no character has it activated. Setting to -1 correctly turns on/off node itself, but not surrounding lights (per character).
                     SphereGrid.lpamng->should_update_node = -1;
@@ -795,7 +795,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
                 ImGui.InputScalar("launchBattleInput", ImGuiDataType.U32, battle_input, &p_step, &p_step_fast, "%x");
             }
             if (ImGui.Button("launchBattleButton")) {
-                FhXCall.h_MsBattleLabelExe.fnptr!(LaunchBattleInput, 1, 1);
+                FhXCall.MsBattleLabelExe.fnptr!(LaunchBattleInput, 1, 1);
             }
 #endif
         }

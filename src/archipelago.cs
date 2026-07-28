@@ -719,7 +719,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
     }
 
-    public override void handle_input() {
+    public void handle_input() {
         /*
         if (Globals.Input.select.held) {
             if (Globals.Input.l1.just_pressed) {
@@ -728,7 +728,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             }
         }
          */
-        if (Input.l1.held && Input.r1.held && Input.start.just_pressed) {
+        if (Input.l1.is_pressed && Input.r1.is_pressed && Input.start.is_pressed) {
             _logger.Debug("Soft Reset");
             //Globals.save_data->current_room_id = 23;
             if (Battle.btl->battle_state != 0) {
@@ -739,7 +739,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         }
 
-        if (Input.select.held && Input.l1.just_pressed) {
+        if (Input.select.is_pressed && Input.l1.is_pressed) {
 #if DEBUG
             AtelBasicWorker* worker0 = Atel.controllers[0].worker(0);
 
@@ -827,13 +827,13 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         }
 
-        if (Input.select.held && Input.r1.just_pressed) {
+        if (Input.select.is_pressed && Input.r1.is_pressed) {
             _logger.Info("Resetting party");
             save_party();
             reset_party();
         }
 
-        if (Input.select.held && Input.l2.just_pressed) {
+        if (Input.select.is_pressed && Input.l2.is_pressed) {
             //foreach (var state in region_states) {
             //    _logger.Debug($"{state.Key}: story_progress={state.Value.Story_progress}, room_id={state.Value.room_id}, entrance={state.Value.entrance}");
             //}
@@ -849,7 +849,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             //get_party_frontline();
         }
 
-        if (Input.select.held && Input.r2.just_pressed) {
+        if (Input.select.is_pressed && Input.r2.is_pressed) {
             //_logger.Debug("Warp to Airship");
             //call_warp_to_map(382, 0);
         }
@@ -1026,7 +1026,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     //        var file_length = *(long*)(*(int*)(fileStream[1] + 0xc) + 8);
     //        file_ptr = Marshal.AllocHGlobal((int)file_length);
     //        uint max_len = (uint)file_length;
-    //        readBytes = FhXCall.h_Phyre_PSerialization_PStreamFileWin32_Read.fnptr!((nint)fs, file_ptr, max_len);
+    //        readBytes = FhXCall.Phyre_PSerialization_PStreamFileWin32_Read.fnptr!((nint)fs, file_ptr, max_len);
     //    }
     //    _logger.Debug($"read {readBytes}, beginning={((byte*)file_ptr)[0]} {((byte*)file_ptr)[1]} {((byte*)file_ptr)[2]} {((byte*)file_ptr)[3]}");
     //    return readBytes;
@@ -1042,10 +1042,11 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public Dictionary<string, CustomStringDrawInfo> customStringDrawInfos = [];
 
-    public override void render_game() {
+    //TODO: Figure out where to hook to make this work again
+    public void render_game() {
         foreach ((string key, CustomStringDrawInfo drawInfo) in customStringDrawInfos) {
             fixed (byte* text = drawInfo.customString.encoded) {
-                FhXCall.h_TOMkpCrossExtMesFontLClutTypeRGBA.fnptr!(0, text, drawInfo.pos.X, drawInfo.pos.Y, drawInfo.color, 0, 0x80, 0x80, 0x80, 0x80, drawInfo.scale, 0);
+                FhXCall.TOMkpCrossExtMesFontLClutTypeRGBA.fnptr!(0, text, drawInfo.pos.X, drawInfo.pos.Y, drawInfo.color, 0, 0x80, 0x80, 0x80, 0x80, drawInfo.scale, 0);
             }
         }
     }

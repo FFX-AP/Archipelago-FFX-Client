@@ -76,7 +76,7 @@ public unsafe partial class ArchipelagoFFXModule {
         if (menu_list_id == TkMenuItemListId.GEAR_CUSTOMIZATION) {
             // Modify kaizou.bin
             int num_customizations;
-            CustomizationRecipe* customizations = FhXCall.h_MsGetRomKaizou.fnptr!(&num_customizations);
+            CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
             if (original_kaizou_costs == null) {
                 original_kaizou_costs = new ushort[num_customizations];
                 for (int i = 0; i < num_customizations; i++) {
@@ -119,7 +119,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 ushort ability_id = gear->abilities[i];
                 if (ability_id != 0 && ability_id != 0xFF) {
                     int a_ability_id;
-                    AutoAbility* a_ability = FhXCall.h_MsGetRomAbility.fnptr!(ability_id, &a_ability_id);
+                    AutoAbility* a_ability = FhXCall.MsGetRomAbility.fnptr!(ability_id, &a_ability_id);
 
                     ability_group_idxs[num_abilities] = (uint)a_ability->group_idx;
                     ability_group_levels[num_abilities] = (uint)a_ability->group_level;
@@ -141,7 +141,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     if (customization.target_gear_type.HasFlag(gear_type)) {
                         ushort a_ability_id = customization.auto_ability;
                         int local_68;
-                        AutoAbility* a_ability = FhXCall.h_MsGetRomAbility.fnptr!(a_ability_id, &local_68);
+                        AutoAbility* a_ability = FhXCall.MsGetRomAbility.fnptr!(a_ability_id, &local_68);
                         uint item_count = Globals.save_data->get_item_count(customization.item);
 
                         if (item_count == 0 && customization.item_cost != 0) {
@@ -210,8 +210,8 @@ public unsafe partial class ArchipelagoFFXModule {
         } else if (menu_list_id == TkMenuItemListId.AEON_ABILITIES) {
             // TODO: Modify sum_grow.bin
             int num_customizations;
-            AeonAbilityRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
-            num_customizations = FhXCall.h_TkMn2GetSummonGrowMax.fnptr!();
+            AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
+            num_customizations = FhXCall.TkMn2GetSummonGrowMax.fnptr!();
             if (original_sum_grow_costs == null) {
                 original_sum_grow_costs = new ushort[num_customizations];
                 for (int i = 0; i < num_customizations; i++) {
@@ -234,7 +234,7 @@ public unsafe partial class ArchipelagoFFXModule {
             CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
             uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
 
-            byte current_summon = FhXCall.h_TkMenuGetCurrentSummon.fnptr!();
+            byte current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
             bool has_key_item = Globals.save_data->key_items.get(0xa022);
 
             uint added = 0;
@@ -243,7 +243,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     AeonAbilityRecipe customization = customizations[customization_id];
                     short auto_ability_id = customization.command;
                     menu_list_iter->customization_id = 0xff;
-                    bool has_command = FhXCall.h_MsGetSaveCommand.fnptr!(current_summon, (uint)auto_ability_id) != 0;
+                    bool has_command = FhXCall.MsGetSaveCommand.fnptr!(current_summon, (uint)auto_ability_id) != 0;
 
                     if (!has_command) {
                         uint item_count = Globals.save_data->get_item_count(customization.item);
@@ -275,7 +275,7 @@ public unsafe partial class ArchipelagoFFXModule {
             // Set length
             PrepareMenuList_SetLength(added, 0);
         } else {
-            FhXCall.h_FUN_008c2370.chain_from(PrepareMenuList).fnptr!(menu_list_id, gear);
+            FhXCall.FUN_008c2370.chain_from(PrepareMenuList).fnptr!(menu_list_id, gear);
         }
 
 
@@ -310,13 +310,13 @@ public unsafe partial class ArchipelagoFFXModule {
         while (!break_loop) {
             switch (*state) {
                 case 2:
-                    FhXCall.h_FUN_008b4460.fnptr!(window);
+                    FhXCall.FUN_008b4460.fnptr!(window);
                     if (window->exit_value < 1) {
                         return;
                     }
 
                     ushort weapon_index = *(ushort*)(p_DAT_0186a9f8 + window->selected_index * 2);
-                    gear = FhXCall.h_MsGetSaveWeapon.fnptr!(weapon_index, 0);
+                    gear = FhXCall.MsGetSaveWeapon.fnptr!(weapon_index, 0);
                     bool can_customize = false;
                     if (gear->exists && !gear->is_hidden && gear->slot_count > 0) {
                         if (!gear->is_celestial && !gear->is_brotherhood) {
@@ -328,7 +328,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     if (!can_customize) {
                         goto default;
                     } else {
-                        FhXCall.h_SndSepPlaySimple.fnptr!(0x80000001);
+                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
                         {
                             int slot = 0;
                             for (; slot < gear->slot_count; slot++) {
@@ -351,7 +351,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
                 case 6: {
                     TkWindow* _GearSelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
-                    gear = FhXCall.h_MsGetSaveWeapon.fnptr!(
+                    gear = FhXCall.MsGetSaveWeapon.fnptr!(
                         *(ushort*)(p_DAT_0186a9f8 + _GearSelectionWindow->selected_index * 2),
                         (nint)(&gear_name)
                     );
@@ -382,7 +382,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 case 0xc: {
                     TkWindow* DAT_023cc120 = (TkWindow*)FhUtil.get_at<uint>(0x1FCC120);
                     if (DAT_023cc120->exit_value < 0) {
-                        FhXCall.h_FUN_008e2de0.fnptr!();
+                        FhXCall.FUN_008e2de0.fnptr!();
                         *state = 6;
                         break_loop = true;
                         break;
@@ -393,9 +393,9 @@ public unsafe partial class ArchipelagoFFXModule {
                         break;
                     }
 
-                    FhXCall.h_FUN_008e2de0.fnptr!();
+                    FhXCall.FUN_008e2de0.fnptr!();
                     if (DAT_023cc120->selected_index != 0) {
-                        FhXCall.h_SndSepPlaySimple.fnptr!(0x80000001);
+                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
                         *state = 6;
                         break_loop = true;
                         break;
@@ -412,9 +412,9 @@ public unsafe partial class ArchipelagoFFXModule {
 
                     short selected_ability = AbilitySelectionWindow->selected_index;
                     int num_customizations;
-                    CustomizationRecipe* customizations = FhXCall.h_MsGetRomKaizou.fnptr!(&num_customizations);
+                    CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
                     byte customization_id = menu_list[selected_ability].customization_id;
-                    gear = FhXCall.h_MsGetSaveWeapon.fnptr!(
+                    gear = FhXCall.MsGetSaveWeapon.fnptr!(
                         *(ushort*)(p_DAT_0186a9f8 + GearSelectionWindow->selected_index * 2),
                         (nint)(&gear_name)
                     );
@@ -431,12 +431,12 @@ public unsafe partial class ArchipelagoFFXModule {
                         gear->abilities[selected_gear_slot] = menu_list[selected_ability].a_ability_id;
                     }
 
-                    FhXCall.h_MsSetSaveParamAll.fnptr!();
+                    FhXCall.MsSetSaveParamAll.fnptr!();
 
-                    FhXCall.h_MsSetWeaponName.fnptr!(gear);
-                    FhXCall.h_MsSaveItemUse.fnptr!(customizations[customization_id].item, -customizations[customization_id].item_cost);
-                    FhXCall.h_SndSepPlaySimple.fnptr!(0x80000063);
-                    FhXCall.h_MsGetSaveWeapon.fnptr!((uint)*(ushort*)(p_DAT_0186a9f8 + GearSelectionWindow->selected_index * 2), (nint)(&gear_name));
+                    FhXCall.MsSetWeaponName.fnptr!(gear);
+                    FhXCall.MsSaveItemUse.fnptr!(customizations[customization_id].item, -customizations[customization_id].item_cost);
+                    FhXCall.SndSepPlaySimple.fnptr!(0x80000063);
+                    FhXCall.MsGetSaveWeapon.fnptr!((uint)*(ushort*)(p_DAT_0186a9f8 + GearSelectionWindow->selected_index * 2), (nint)(&gear_name));
 
                     byte* p_DAT_0186aa70 = FhUtil.ptr_at<byte>(0x146AA70);
                     i = -1;
@@ -467,10 +467,10 @@ public unsafe partial class ArchipelagoFFXModule {
                         uVar9 = 0x1f;
                     }
 
-                    byte* pbVar8 = FhXCall.h_FUN_008bee80.fnptr!(uVar9);
-                    FhXCall.h_FUN_008c2c40.fnptr!(0, 0, p_DAT_0186aa30);
-                    FhXCall.h_FUN_008c2c40.fnptr!(2, 0, p_DAT_0186aa70);
-                    FhXCall.h_FUN_008e33a0.fnptr!(pbVar8, (byte*)0, (byte*)0);
+                    byte* pbVar8 = FhXCall.FUN_008bee80.fnptr!(uVar9);
+                    FhXCall.FUN_008c2c40.fnptr!(0, 0, p_DAT_0186aa30);
+                    FhXCall.FUN_008c2c40.fnptr!(2, 0, p_DAT_0186aa70);
+                    FhXCall.FUN_008e33a0.fnptr!(pbVar8, (byte*)0, (byte*)0);
                 {
                     TkWindow* DAT_023cc120 = (TkWindow*)FhUtil.get_at<uint>(0x1FCC120);
                     ;
@@ -500,7 +500,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     break;
 
                 default:
-                    FhXCall.h_UpdateGearCustomizationMenuState.chain_from(UpdateGearCustomizationMenuState).fnptr!(window);
+                    FhXCall.UpdateGearCustomizationMenuState.chain_from(UpdateGearCustomizationMenuState).fnptr!(window);
                     break_loop = true;
                     break;
             }
@@ -517,7 +517,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 short selected_idx = DAT_0186a9f4->selected_index;
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
                 int num_customizations;
-                CustomizationRecipe* customizations = FhXCall.h_MsGetRomKaizou.fnptr!(&num_customizations);
+                CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
                 byte customization_id = menu_list[selected_idx].customization_id;
                 if (customizations[customization_id].item_cost != original_kaizou_costs[customization_id]) {
                     uint item_id = (uint)(0xC000 | customization_id);
@@ -534,7 +534,7 @@ public unsafe partial class ArchipelagoFFXModule {
             // Reset kaizou.bin
             if (original_kaizou_costs != null) {
                 int num_customizations;
-                CustomizationRecipe* customizations = FhXCall.h_MsGetRomKaizou.fnptr!(&num_customizations);
+                CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
                 for (int i = 0; i < num_customizations; i++) {
                     customizations[i].item_cost = original_kaizou_costs[i];
                 }
@@ -548,7 +548,7 @@ public unsafe partial class ArchipelagoFFXModule {
         uint pre_state = *state;
 
 
-        FhXCall.h_TkMenuCtrlSummon.chain_from(TkMenuCtrlSummon).fnptr!(menu, param_2);
+        FhXCall.TkMenuCtrlSummon.chain_from(TkMenuCtrlSummon).fnptr!(menu, param_2);
 
         if (*state != pre_state) {
             _logger.Debug($"{pre_state} -> {*state}");
@@ -559,7 +559,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
                 byte customization_id = menu_list[selected_idx].customization_id;
                 int num_customizations;
-                AeonAbilityRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
+                AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
                 _logger.Debug($"Applied customization {get_other_item_name((uint)(0xC07D + customization_id))}");
                 if (customizations[customization_id].item_cost != original_sum_grow_costs[customization_id]) {
                     uint item_id = (uint)(0xC07D + customization_id);
@@ -589,9 +589,9 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     public void DrawAeonCustomizationMenu_reimplement(TkWindow* window) {
-        FhXCall.h_TkVU1SyncPath.fnptr!();
-        FhXCall.h_FUN_008e71d0.fnptr!(7);
-        uint current_summon = FhXCall.h_TkMenuGetCurrentSummon.fnptr!();
+        FhXCall.TkVU1SyncPath.fnptr!();
+        FhXCall.FUN_008e71d0.fnptr!(7);
+        uint current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
 
 
         CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
@@ -605,7 +605,7 @@ public unsafe partial class ArchipelagoFFXModule {
         } else {
             byte customization_id = menu_list[selected_idx].customization_id;
             int num_customizations;
-            AeonAbilityRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
+            AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
             item_id = customizations[customization_id].item;
             int item_cost = customizations[customization_id].item_cost;
 
@@ -614,35 +614,35 @@ public unsafe partial class ArchipelagoFFXModule {
             if (item_cost == 0) {
                 fixed (byte* text = customization_string.encoded) {
                     Vector2 pos = new Vector2(1260f, 381f).game_remap_1080p();
-                    FhXCall.h_ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 2f);
+                    FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 2f);
                 }
             } else {
                 pos_1 = new Vector2(970f, 380f).game_remap_1080p();
-                FhXCall.h_FUN_008c1c70.fnptr!((int)pos_1.X, (int)pos_1.Y, item_id, item_cost);
+                FhXCall.FUN_008c1c70.fnptr!((int)pos_1.X, (int)pos_1.Y, item_id, item_cost);
             }
         }
 
         pos_1 = new Vector2(210f, 226f).game_remap_1080p();
-        FhXCall.h_FUN_008ff490.fnptr!(current_summon, pos_1.X, pos_1.Y);
+        FhXCall.FUN_008ff490.fnptr!(current_summon, pos_1.X, pos_1.Y);
 
         pos_1 = new Vector2(210f, 312f).game_remap_1080p();
         pos_2 = new Vector2(740f,  48f).game_remap_1080p();
-        FhXCall.h_TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
+        FhXCall.TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
 
         // Header text
         pos_1 = new Vector2(365f, 320f).game_remap_1080p();
         pos_2 = new Vector2(430f,  36f).game_remap_1080p();
-        FhXCall.h_FUN_008f8bb0.fnptr!(0xf, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+        FhXCall.FUN_008f8bb0.fnptr!(0xf, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
 
         if (-1 < (int)item_id) {
             pos_1 = new Vector2(970f, 312f).game_remap_1080p();
             pos_2 = new Vector2(740f, 48f).game_remap_1080p();
-            FhXCall.h_TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
+            FhXCall.TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
 
             // Header text ("Item cost")?
             pos_1 = new Vector2(1125f, 318f).game_remap_1080p();
             pos_2 = new Vector2(430f,  36f).game_remap_1080p();
-            FhXCall.h_FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+            FhXCall.FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
         }
 
         int iVar2 = (int)new Vector2(0, 365f).game_remap_1080p()
@@ -651,7 +651,7 @@ public unsafe partial class ArchipelagoFFXModule {
         float fVar10;
         if (window->visible_item_offset == window->scroll_offset) {
             // Draw ability list
-            FhXCall.h_FUN_008c0f40.fnptr!(
+            FhXCall.FUN_008c0f40.fnptr!(
                 iVar2,
                 (int)(new Vector2(0, 70f).game_remap_1080p()
                                          .Y * 9.0),
@@ -663,7 +663,7 @@ public unsafe partial class ArchipelagoFFXModule {
             iVar6 = 0;
         } else {
             // Draw ability list when quick scrolling (L2/R2)
-            FhXCall.h_FUN_008c0f40.fnptr!(
+            FhXCall.FUN_008c0f40.fnptr!(
                 iVar2,
                 (int)(new Vector2(0, 70f).game_remap_1080p()
                                          .Y * 9.0),
@@ -672,7 +672,7 @@ public unsafe partial class ArchipelagoFFXModule {
             );
             FUN_008cd960_Extra(window, 1, window->visible_item_offset, 0.0f, 0.0f);
 
-            FhXCall.h_FUN_008c0f40.fnptr!(
+            FhXCall.FUN_008c0f40.fnptr!(
                 iVar2,
                 (int)(new Vector2(0, 70f).game_remap_1080p()
                                          .Y * 9.0),
@@ -687,14 +687,14 @@ public unsafe partial class ArchipelagoFFXModule {
         }
 
         FUN_008cd960_Extra(window, iVar6, sVar1, 0.0f, fVar10);
-        FhXCall.h_FUN_008c1350_DrawScissor512x416.fnptr!();
+        FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
 
         ushort _DAT_0186a5a4 = FhUtil.get_at<ushort>(0x0146a5a4);
         ushort _DAT_0186a5a6 = FhUtil.get_at<ushort>(0x0146a5a6);
-        FhXCall.h_FUN_008cd9f0.fnptr!(window, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
+        FhXCall.FUN_008cd9f0.fnptr!(window, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
 
         float local_8;
-        FhXCall.h_ToGetCrossExtMesFontWidth.fnptr!(0, FhXCall.h_FUN_008bee80.fnptr!(5), &local_8, 0.78f, 1.0f);
+        FhXCall.ToGetCrossExtMesFontWidth.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), &local_8, 0.78f, 1.0f);
 
         fVar10 = (float)(double)(new Vector2(80f, 0).game_remap_1080p()
                                                     .X + local_8);
@@ -718,9 +718,9 @@ public unsafe partial class ArchipelagoFFXModule {
 
         pos_1 = new Vector2(955f, 370f).game_remap_1080p();
         pos_2 = new Vector2(  8f, 630f).game_remap_1080p();
-        FhXCall.h_DrawCrossMenuScrollParts.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, window->visible_item_offset, window->max_visible_items, window->num_items);
+        FhXCall.DrawCrossMenuScrollParts.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, window->visible_item_offset, window->max_visible_items, window->num_items);
 
-        FhXCall.h_TODrawMenuPlateXYWHType.fnptr!(
+        FhXCall.TODrawMenuPlateXYWHType.fnptr!(
             fVar11,
             new Vector2(0, 925f).game_remap_1080p()
                                 .Y,
@@ -736,18 +736,18 @@ public unsafe partial class ArchipelagoFFXModule {
         float uv_x1 = 0.9267578f;
         pos_1 = new Vector2(0f, 920f).game_remap_1080p();
         pos_2 = new Vector2(64f,  64f).game_remap_1080p();
-        FhXCall.h_TOMkpShapeXYWHUV.fnptr!(0xf3, fVar12, pos_1.Y, pos_2.X, pos_2.Y, uv_x1, uv_y1, uv_x2, uv_y2);
+        FhXCall.TOMkpShapeXYWHUV.fnptr!(0xf3, fVar12, pos_1.Y, pos_2.X, pos_2.Y, uv_x1, uv_y1, uv_x2, uv_y2);
 
         pos_1 = new Vector2(80f, 928f).game_remap_1080p();
-        FhXCall.h_TOMkpCrossExtMesFontLClut.fnptr!(0, FhXCall.h_FUN_008bee80.fnptr!(5), pos_1.X + fVar12, pos_1.Y, 0, 0.78f, 1.0f);
+        FhXCall.TOMkpCrossExtMesFontLClut.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), pos_1.X + fVar12, pos_1.Y, 0, 0.78f, 1.0f);
 
-        item_id = FhXCall.h_FUN_008d48e0.fnptr!();
-        FhXCall.h_FUN_008d4140.fnptr!(item_id, 1);
-        FhXCall.h_TkMn2DrawKickSyncPacket.fnptr!();
+        item_id = FhXCall.FUN_008d48e0.fnptr!();
+        FhXCall.FUN_008d4140.fnptr!(item_id, 1);
+        FhXCall.TkMn2DrawKickSyncPacket.fnptr!();
     }
 
     private void FUN_008cd960_Extra(TkWindow* window, int param_2, int menu_offset, float x, float y) {
-        FhXCall.h_FUN_008cd960.fnptr!(window, param_2, menu_offset, x, y);
+        FhXCall.FUN_008cd960.fnptr!(window, param_2, menu_offset, x, y);
 
         Vector2 pos = new(x, y);
         pos += new Vector2(209f + 50f, 306f).game_remap_1080p();
@@ -764,13 +764,13 @@ public unsafe partial class ArchipelagoFFXModule {
             if (0 <= curr_index && curr_index < menu_length) {
                 if (menu_list[curr_index].customization_id != 0xFF) {
                     int num_customizations;
-                    AeonAbilityRecipe* customizations = FhXCall.h_MsGetRomSummonGrow.fnptr!(&num_customizations);
+                    AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
 
                     uint item_id   = customizations[menu_list[curr_index].customization_id].item;
                     int item_cost = customizations[menu_list[curr_index].customization_id].item_cost;
                     if (item_cost == 0) {
                         fixed (byte* text = customization_string.encoded) {
-                            FhXCall.h_ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
+                            FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
                         }
                     }
                 }
@@ -787,7 +787,7 @@ public unsafe partial class ArchipelagoFFXModule {
         Vector2 pos_2;
         if (menu_list[selected_idx].customization_id != 0xFF) {
             int num_customizations;
-            CustomizationRecipe* customizations = FhXCall.h_MsGetRomKaizou.fnptr!(&num_customizations);
+            CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
 
             uint item_id   = customizations[menu_list[selected_idx].customization_id].item;
             int item_cost = customizations[menu_list[selected_idx].customization_id].item_cost;
@@ -796,38 +796,38 @@ public unsafe partial class ArchipelagoFFXModule {
             if (item_cost == 0) {
                 fixed (byte* text = customization_string.encoded) {
                     Vector2 pos = new Vector2(1260f, 320f).game_remap_1080p();
-                    FhXCall.h_ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 2f);
+                    FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 2f);
                 }
             } else {
                 pos_1 = new Vector2(970f, 319f).game_remap_1080p();
-                FhXCall.h_FUN_008c1c70.fnptr!((int)pos_1.X, (int)pos_1.Y, item_id, item_cost);
+                FhXCall.FUN_008c1c70.fnptr!((int)pos_1.X, (int)pos_1.Y, item_id, item_cost);
             }
 
             // Header background
             pos_1 = new Vector2(970f, 252f).game_remap_1080p();
             pos_2 = new Vector2(740f, 60f).game_remap_1080p();
-            FhXCall.h_TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
+            FhXCall.TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
 
             // Header ("Item cost")
             pos_1 = new Vector2(1125f, 264f).game_remap_1080p();
             pos_2 = new Vector2(430f, 36f).game_remap_1080p();
-            FhXCall.h_FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+            FhXCall.FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
         }
         //_TkMenuGetCurrentPlayer(); // Result is unused?
 
         // Abilities Header background
         pos_1 = new Vector2(211f, 252f).game_remap_1080p();
         pos_2 = new Vector2(740f, 60f).game_remap_1080p();
-        FhXCall.h_TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
+        FhXCall.TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
 
         // Header ("Abilities")
         pos_1 = new Vector2(366f, 264f).game_remap_1080p();
         pos_2 = new Vector2(430f, 36f).game_remap_1080p();
-        FhXCall.h_FUN_008f8bb0.fnptr!(7, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+        FhXCall.FUN_008f8bb0.fnptr!(7, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
 
         if (window->visible_item_offset == window->scroll_offset) {
             // Draw ability list
-            FhXCall.h_TODrawScissorXYWH.fnptr!(
+            FhXCall.TODrawScissorXYWH.fnptr!(
                 0,
                 (int)(new Vector2(0, 315f).game_remap_1080p()
                                           .Y),
@@ -840,7 +840,7 @@ public unsafe partial class ArchipelagoFFXModule {
             // Draw ability list when quick scrolling (L2/R2)
             short uVar5 = window->scroll_delta; // Scroll offset
 
-            FhXCall.h_FUN_008c0f40.fnptr!(
+            FhXCall.FUN_008c0f40.fnptr!(
                 (int)(new Vector2(0, 315f).game_remap_1080p()
                                           .Y),
                 (int)(new Vector2(0, 680f).game_remap_1080p()
@@ -850,7 +850,7 @@ public unsafe partial class ArchipelagoFFXModule {
             );
             FUN_008d5d20_Extra(window, 1, window->visible_item_offset, 0, 0);
 
-            FhXCall.h_FUN_008c0f40.fnptr!(
+            FhXCall.FUN_008c0f40.fnptr!(
                 (int)(new Vector2(0, 315f).game_remap_1080p()
                                           .Y),
                 (int)(new Vector2(0, 680f).game_remap_1080p()
@@ -864,10 +864,10 @@ public unsafe partial class ArchipelagoFFXModule {
             FUN_008d5d20_Extra(window, 2, window->scroll_offset, 0, iVar2);
         }
 
-        FhXCall.h_FUN_008c1350_DrawScissor512x416.fnptr!();
+        FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
 
         pos_1 = new Vector2(389f, 325f).game_remap_1080p();
-        FhXCall.h_FUN_008d5dc0.fnptr!(window, (int)pos_1.X, (int)pos_1.Y);
+        FhXCall.FUN_008d5dc0.fnptr!(window, (int)pos_1.X, (int)pos_1.Y);
 
         {
             int uVar5 = window->num_items;
@@ -875,7 +875,7 @@ public unsafe partial class ArchipelagoFFXModule {
             int iVar2 = window->visible_item_offset;
             pos_1 = new Vector2(955f, 319f).game_remap_1080p();
             pos_2 = new Vector2(8f, 675f).game_remap_1080p();
-            FhXCall.h_DrawCrossMenuScrollParts.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, iVar2, uVar1, uVar5);
+            FhXCall.DrawCrossMenuScrollParts.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, iVar2, uVar1, uVar5);
         }
 
         {
@@ -883,12 +883,12 @@ public unsafe partial class ArchipelagoFFXModule {
             uint _DAT_0186a9f0 = FhUtil.get_at<uint>(0x146A9F0);
             int iVar2 = *(short*)(_DAT_0186a9f0 + 0x48);
             pos_1 = new Vector2(970f, 659f).game_remap_1080p();
-            FhXCall.h_FUN_008d6630.fnptr!((int)pos_1.X, (int)pos_1.Y, iVar2);
+            FhXCall.FUN_008d6630.fnptr!((int)pos_1.X, (int)pos_1.Y, iVar2);
         }
     }
 
     private void FUN_008d5d20_Extra(TkWindow* window, int param_2, int menu_offset, int x, int y) {
-        FhXCall.h_FUN_008d5d20.fnptr!(window, param_2, menu_offset, x, y);
+        FhXCall.FUN_008d5d20.fnptr!(window, param_2, menu_offset, x, y);
 
         Vector2 pos = new(x, y);
         pos += new Vector2(209f + 50f, 255f).game_remap_1080p();
@@ -905,13 +905,13 @@ public unsafe partial class ArchipelagoFFXModule {
             if (0 <= curr_index && curr_index < menu_length) {
                 if (menu_list[curr_index].customization_id != 0xFF) {
                     int num_customizations;
-                    CustomizationRecipe* customizations = FhXCall.h_MsGetRomKaizou.fnptr!(&num_customizations);
+                    CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
 
                     uint item_id   = customizations[menu_list[curr_index].customization_id].item;
                     int item_cost = customizations[menu_list[curr_index].customization_id].item_cost;
                     if (item_cost == 0) {
                         fixed (byte* text = customization_string.encoded) {
-                            FhXCall.h_ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
+                            FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
                         }
                     }
                 }
@@ -924,7 +924,7 @@ public unsafe partial class ArchipelagoFFXModule {
     public static TkWindow* MyWindow;
 
     public static void CreateMyWindow(Equipment* gear) {
-        MyWindow = FhXCall.h_TkMenuMainAllocWindow.fnptr!();
+        MyWindow = FhXCall.TkMenuMainAllocWindow.fnptr!();
         MyWindow->num_items         = gear->slot_count;
         MyWindow->max_visible_items = 4;
         MyWindow->selected_index    = 0;
@@ -932,7 +932,7 @@ public unsafe partial class ArchipelagoFFXModule {
         MyWindow->fn_init           = &MyWindow_Init;
         MyWindow->fn_state          = &MyWindow_State;
         MyWindow->fn_render         = &MyWindow_Render;
-        FhXCall.h_TkMenuMainRegistWindow.fnptr!(MyWindow);
+        FhXCall.TkMenuMainRegistWindow.fnptr!(MyWindow);
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -951,17 +951,17 @@ public unsafe partial class ArchipelagoFFXModule {
                     return;
 
                 case 1:
-                    if (Globals.Input.up.just_pressed && 0 < window->selected_index) {
-                        FhXCall.h_SndSepPlaySimple.fnptr!(0x80000001);
+                    if (Globals.Input.up.is_pressed && 0 < window->selected_index) {
+                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->selected_index--;
-                    } else if (Globals.Input.down.just_pressed && window->selected_index < window->num_items - 1) {
-                        FhXCall.h_SndSepPlaySimple.fnptr!(0x80000001);
+                    } else if (Globals.Input.down.is_pressed && window->selected_index < window->num_items - 1) {
+                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->selected_index++;
-                    } else if (Globals.Input.confirm.just_pressed) {
-                        FhXCall.h_SndSepPlaySimple.fnptr!(0x80000001);
+                    } else if (Globals.Input.confirm.is_pressed) {
+                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->current_state = 2;
-                    } else if (Globals.Input.cancel.just_pressed) {
-                        FhXCall.h_SndSepPlaySimple.fnptr!(0x80000004);
+                    } else if (Globals.Input.cancel.is_pressed) {
+                        FhXCall.SndSepPlaySimple.fnptr!(0x80000004);
                         window->current_state = 3;
                     }
 
@@ -986,11 +986,11 @@ public unsafe partial class ArchipelagoFFXModule {
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static void MyWindow_Render(TkWindow* window) {
         Vector2 pos = new Vector2(970 + 150, 735 + 12 + 68 * window->selected_index).game_remap_1080p();
-        FhXCall.h_TkMn2DrawCrossCursor.fnptr!(pos.X, pos.Y, 0);
+        FhXCall.TkMn2DrawCrossCursor.fnptr!(pos.X, pos.Y, 0);
     }
 
     public static bool FUN_008d5720(uint gear_id, int param_2) {
-        Equipment* gear = FhXCall.h_MsGetSaveWeapon.fnptr!(gear_id, 0);
+        Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_id, 0);
 
         bool can_customize = false;
         if (gear->exists && !gear->is_hidden && gear->slot_count > 0) {

@@ -14,7 +14,7 @@ using FhXCall = Fahrenheit.FFX.FhCall;
 namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
-public unsafe partial class DeathLinkModule : FhModule {
+public unsafe class DeathLinkModule : FhModule {
     public enum DeathLinkSendType {
         GameOver,
         KO,
@@ -135,9 +135,9 @@ public unsafe partial class DeathLinkModule : FhModule {
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return _client_handle.try_get_module(out _client)
             && _toasts_handle.try_get_module(out _toasts)
-            && FhXCall.h_MsBtlReadManage.hook(this, _h_MsBtlReadManage)
-            && FhXCall.h_MsDamageCheckDeath.hook(this, _h_MsDamageCheckDeath)
-            && FhXCall.h_MsGetBattleEndStatus.hook(this, _h_MsGetBattleEndStatus);
+            && FhXCall.MsBtlReadManage.hook(this, _h_MsBtlReadManage)
+            && FhXCall.MsDamageCheckDeath.hook(this, _h_MsDamageCheckDeath)
+            && FhXCall.MsGetBattleEndStatus.hook(this, _h_MsGetBattleEndStatus);
     }
 
     private void apply_death_link() {
@@ -202,7 +202,7 @@ public unsafe partial class DeathLinkModule : FhModule {
     private void _h_MsBtlReadManage() {
         int old_state = Globals.Battle.btl->battle_state;
 
-        FhXCall.h_MsBtlReadManage.chain_from(_h_MsBtlReadManage).fnptr!();
+        FhXCall.MsBtlReadManage.chain_from(_h_MsBtlReadManage).fnptr!();
 
         if (Globals.Battle.btl->battle_state != 13 || old_state == Globals.Battle.btl->battle_state) return;
 
@@ -221,14 +221,14 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         apply_death_link();
 
-        FhXCall.h_MsMessageCueRegist.fnptr!((uint)MessageCueType.FH_CUSTOM, (int)_deathlink_announcement.encoded, 0, 27, 35);
+        FhXCall.MsMessageCueRegist.fnptr!((uint)MessageCueType.FH_CUSTOM, (int)_deathlink_announcement.encoded, 0, 27, 35);
 
         _logger.Info("  Disabling Escape and Flee...");
 
         for (int chr_id = 0; chr_id <= PlySaveId.PC_SEYMOUR; chr_id++) {
             // Disable Escape & Flee commands
-            FhXCall.h_FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
-            FhXCall.h_FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_FLEE, 1);
+            FhXCall.FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
+            FhXCall.FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_FLEE, 1);
         }
 
         _deathlinks_queued -= 1;
@@ -237,7 +237,7 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     private int _h_MsDamageCheckDeath(int attacker_id, int target_id, int p3, int targetting_self) {
-        int result = FhXCall.h_MsDamageCheckDeath.chain_from(_h_MsDamageCheckDeath).fnptr!(attacker_id, target_id, p3, targetting_self);
+        int result = FhXCall.MsDamageCheckDeath.chain_from(_h_MsDamageCheckDeath).fnptr!(attacker_id, target_id, p3, targetting_self);
 
         if (result == 0 || target_id > PlySaveId.PC_MAGUS3) {
             return result;
@@ -253,7 +253,7 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         string player = _client!.active_player?.Alias ?? "Someone";
 
-        Chr* target = FhXCall.h_MsGetChr.fnptr!(target_id);
+        Chr* target = FhXCall.MsGetChr.fnptr!(target_id);
         byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(target->ram.name, null, null, FhEncodingFlags.IMPLICIT_END)];
         FhEncoding.decode(target->ram.name, decoded, null, null, FhEncodingFlags.IMPLICIT_END);
         string target_name = Encoding.UTF8.GetString(decoded);
@@ -277,7 +277,7 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     private uint _h_MsGetBattleEndStatus() {
-        uint battle_end_type = FhXCall.h_MsGetBattleEndStatus.chain_from(_h_MsGetBattleEndStatus).fnptr!();
+        uint battle_end_type = FhXCall.MsGetBattleEndStatus.chain_from(_h_MsGetBattleEndStatus).fnptr!();
 
         if (!_deathlink_enabled || battle_end_type != 1 || Globals.Battle.btl->battle_state != 0x17) {
             return battle_end_type;

@@ -81,25 +81,27 @@ public unsafe class RecentItemsModule : FhModule {
     // Accessing settings through `FhModule.settings` goes through an array, which is rather unpleasant
     // So `RecentItemsSettings` exists to provide flat access to all settings
     public class RecentItemsSettings {
+        //TODO: Uncomment these when the relevant FhSetting types are implemented
+
         public readonly FhSettingToggle display_items = new("display_items", true);
         public readonly FhSettingToggle display_only_personal = new("display_only_personal", false);
         public readonly FhSettingToggle display_locations = new("display_locations", true);
         public readonly FhSettingNumber<int> item_count = new("item_count", 4, 0, 10, 1);
-
-        //TODO: Implement smooth scrolling
-        public readonly FhSettingDropdown<RecentItemsInterpolation> animation = new("interpolation", RecentItemsInterpolation.SMOOTH);
-
-        //TODO: Implement old items fading away
+        //
+        // //TODO: Implement smooth scrolling
+        // public readonly FhSettingDropdown<RecentItemsInterpolation> animation = new("interpolation", RecentItemsInterpolation.SMOOTH);
+        //
+        // //TODO: Implement old items fading away
         public readonly FhSettingNumber<float> fade_after = new("fade_after", 10.0f, 0.0f, 60.0f, 1.0f);
-        public readonly FhSettingDropdown<RecentItemsFadeMethod> fade_method = new("fade_method", RecentItemsFadeMethod.SLIDE);
-
-        //TODO: Implement different background behavior
-        public readonly FhSettingDropdown<RecentItemsBackground> background = new("background", RecentItemsBackground.NONE);
-
-        //TODO: Implement configurable positioning
+        // public readonly FhSettingDropdown<RecentItemsFadeMethod> fade_method = new("fade_method", RecentItemsFadeMethod.SLIDE);
+        //
+        // //TODO: Implement different background behavior
+        // public readonly FhSettingDropdown<RecentItemsBackground> background = new("background", RecentItemsBackground.NONE);
+        //
+        // //TODO: Implement configurable positioning
         public readonly FhSettingNumber<float> pos_x = new("x", 0.05f, 0.0f, 1.0f, 0.1f);
         public readonly FhSettingNumber<float> pos_y = new("y", 0.34f, 0.0f, 1.0f, 0.1f);
-        public readonly FhSettingDropdown<RecentItemsTextAlignment> alignment = new("alignment", RecentItemsTextAlignment.LEFT);
+        // public readonly FhSettingDropdown<RecentItemsTextAlignment> alignment = new("alignment", RecentItemsTextAlignment.LEFT);
     }
 
     public RecentItemsSettings module_settings = new();
