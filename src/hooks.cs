@@ -131,6 +131,7 @@ public unsafe partial class ArchipelagoFFXModule {
             CT_RetInt_IsCharacterUnlocked,
             CT_RetInt_HasCelestialWeapon,
             CT_RetInt_IsOtherLocationChecked,
+            CT_RetInt_IsTreasureLocationChecked,
             CT_RetInt_CollectedPrimers,
             CT_RetInt_SendOtherLocation,
             CT_RetInt_SendPartyMemberLocation,
@@ -904,36 +905,47 @@ public unsafe partial class ArchipelagoFFXModule {
             AtelOp.NOT      .build(),
 
             // (priv175A5 >= 13 [0Dh])
-            AtelOp.PUSHV   .build(0x001F),
-            AtelOp.PUSHII  .build(0x000D),
-            AtelOp.GTE     .build(),
+            AtelOp.PUSHV    .build(0x001F),
+            AtelOp.PUSHII   .build(0x000D),
+            AtelOp.GTE      .build(),
 
             // Common.?checkMultipleMonsterArenaUnlocks [023Ch](from=Creation #1 defeated [0300h], next=34 [22h])
-            AtelOp.PUSHII  .build(0x0300),
-            AtelOp.PUSHII  .build(0x0022),
-            AtelOp.CALL    .build(0x023C),
+            AtelOp.PUSHII   .build(0x0300),
+            AtelOp.PUSHII   .build(0x0022),
+            AtelOp.CALL     .build(0x023C),
 
             // else jump to jAD8 (DCED)
-            AtelOp.LAND    .build(),
-            AtelOp.LAND    .build(),
+            AtelOp.LAND     .build(),
+            AtelOp.LAND     .build(),
             AtelOp.POPXNCJMP.build(0x0AD8),
 
+            // if Custom.isTreasureLocationChecked(0x01CA) jump by 9
+            AtelOp.PUSHII   .build(0x01CA),
+            AtelOp.CALL     .build((ushort)CustomCallTarget.IS_TREASURE_LOCATION_CHECKED),
+            AtelOp.PUSHII   .build(0x0009),
+            AtelOp.CALLPOPA .build((ushort)CustomCallTarget.OFFSET_IF_TRUE),
+
+            // call Common.obtainTreasure [015Bh](msgWindow=0 [00h], treasure=Item: 10x Master Sphere [2050h] [01CAh]);
+            AtelOp.PUSHII   .build(0x0000),
+            AtelOp.PUSHII   .build(0x01CA),
+            AtelOp.CALLPOPA .build(0x015B),
+
             // Custom.isGoalUnlocked
-            AtelOp.CALL .build((ushort)CustomCallTarget.IS_GOAL_UNLOCKED),
+            AtelOp.CALL     .build((ushort)CustomCallTarget.IS_GOAL_UNLOCKED),
 
             // if Custom.isGoalUnlocked() jump to jAD7 (D7B3)
-            AtelOp.POPXCJMP.build(0x0AD7),
+            AtelOp.POPXCJMP .build(0x0AD7),
 
             // display customStrings[2]
             .. atelDisplayFieldString(1, 0x8002, 256, 224, 4, 0, 0),
 
             // call Common.waitForText [0084h](boxIndex=1 [01h], p2=1 [01h]);
-            AtelOp.PUSHII  .build(0x0001),
-            AtelOp.PUSHII  .build(0x0001),
-            AtelOp.CALLPOPA.build(0x0084),
+            AtelOp.PUSHII   .build(0x0001),
+            AtelOp.PUSHII   .build(0x0001),
+            AtelOp.CALLPOPA .build(0x0084),
 
             // jump to jAD8 (DCED)
-            AtelOp.JMP     .build(0x0AD8),
+            AtelOp.JMP      .build(0x0AD8),
 
         ]).SelectMany(x => x.to_bytes()).ToArray(),
     };
@@ -1763,6 +1775,9 @@ public unsafe partial class ArchipelagoFFXModule {
                         AtelOp.PUSHII  .build(0x000C),
                         AtelOp.CALLPOPA.build((ushort)CustomCallTarget.JUMP),
                         ]);
+
+                    // Remove obtainTreasure call
+                    set(code_ptr, 0xD81D, atelNOPArray(9));
                 }
                 break;
 
@@ -3935,7 +3950,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
     public int CT_RetInt_Offset(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         int offset = atelStack->pop_int();
-        work->current_thread.pc += offset - 3;
+        work->current_thread.pc += offset;
         return 1;
     }
 
@@ -3943,7 +3958,7 @@ public unsafe partial class ArchipelagoFFXModule {
         int offset = atelStack->pop_int();
         int val = atelStack->pop_int();
         if (val == 0) {
-            work->current_thread.pc += offset - 3;
+            work->current_thread.pc += offset;
         }
         return 1;
     }
@@ -3952,7 +3967,7 @@ public unsafe partial class ArchipelagoFFXModule {
         int offset = atelStack->pop_int();
         int val = atelStack->pop_int();
         if (val == 1) {
-            work->current_thread.pc += offset - 3;
+            work->current_thread.pc += offset;
         }
         return 1;
     }

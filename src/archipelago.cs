@@ -74,6 +74,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
     public ArchipelagoFFXModule() {
         init_hooks();
+        init_custom_atel();
 
         _client_handle = new(this);
         _gui_handle = new(this);
