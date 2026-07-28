@@ -1031,23 +1031,4 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     //    _logger.Debug($"read {readBytes}, beginning={((byte*)file_ptr)[0]} {((byte*)file_ptr)[1]} {((byte*)file_ptr)[2]} {((byte*)file_ptr)[3]}");
     //    return readBytes;
     //}
-
-    public struct CustomStringDrawInfo(ManagedCustomString customString, Vector2 pos, float scale = 0.65f, byte color = 0, bool persistent = false) {
-        public ManagedCustomString customString = customString;
-        public Vector2             pos          = pos;
-        public float               scale        = scale;
-        public byte                color        = color;
-        public bool                persistent   = persistent;
-    }
-
-    public Dictionary<string, CustomStringDrawInfo> customStringDrawInfos = [];
-
-    //TODO: Figure out where to hook to make this work again
-    public void render_game() {
-        foreach ((string key, CustomStringDrawInfo drawInfo) in customStringDrawInfos) {
-            fixed (byte* text = drawInfo.customString.encoded) {
-                FhXCall.TOMkpCrossExtMesFontLClutTypeRGBA.fnptr!(0, text, drawInfo.pos.X, drawInfo.pos.Y, drawInfo.color, 0, 0x80, 0x80, 0x80, 0x80, drawInfo.scale, 0);
-            }
-        }
-    }
 }

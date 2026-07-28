@@ -212,7 +212,8 @@ public unsafe partial class ArchipelagoFFXModule {
             && FhXCall.DrawGearCustomizationMenu.hook(this, DrawGearCustomizationMenu)
             && FhXCall.TkMenuCtrlSummon.hook(this, TkMenuCtrlSummon)
             && FhXCall.FUN_008cdb70.hook(this, DrawAeonCustomizationMenu)
-            && FhXCall.FUN_008d5720.hook(this, FUN_008d5720);
+            && FhXCall.FUN_008d5720.hook(this, FUN_008d5720)
+            && FhXCall.TODrawWindow.hook(this, render_game);
         //  && _FUN_00656c90.hook() && _FUN_0065ee30.hook();
         //  && _openFile.hook() && _FUN_0070aec0.hook();
         //  && _MsCheckLeftWindow.hook() && _MsCheckUseCommand.hook() && _TOBtlDrawStatusLimitGauge.hook();
@@ -4184,5 +4185,26 @@ public unsafe partial class ArchipelagoFFXModule {
             }
         }
         return 0;
+    }
+
+    public struct CustomStringDrawInfo(ManagedCustomString customString, Vector2 pos, float scale = 0.65f, byte color = 0, bool persistent = false) {
+        public ManagedCustomString customString = customString;
+        public Vector2             pos          = pos;
+        public float               scale        = scale;
+        public byte                color        = color;
+        public bool                persistent   = persistent;
+    }
+
+    public Dictionary<string, CustomStringDrawInfo> customStringDrawInfos = [];
+
+    //TODO: Figure out where to hook to make this work again
+    public void render_game() {
+        FhXCall.TODrawWindow.chain_from(render_game).fnptr!();
+
+        foreach ((string key, CustomStringDrawInfo drawInfo) in customStringDrawInfos) {
+            fixed (byte* text = drawInfo.customString.encoded) {
+                FhXCall.TOMkpCrossExtMesFontLClutTypeRGBA.fnptr!(0, text, drawInfo.pos.X, drawInfo.pos.Y, drawInfo.color, 0, 0x80, 0x80, 0x80, 0x80, drawInfo.scale, 0);
+            }
+        }
     }
 }
