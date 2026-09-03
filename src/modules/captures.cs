@@ -599,7 +599,7 @@ public unsafe class CaptureModule : FhModule {
             *(float*)((nint)Battle.btl + 0x110) *= 256.0f - encounter_chance;
             *(float*)((nint)Battle.btl + 0x114) *= 256.0f;
 
-            if ((FhXCall.brnd.fnptr!(0) & 0xFF) >= encounter_chance) continue;
+            if ((FhGCall.brnd.fnptr!(0) & 0xFF) >= encounter_chance) continue;
 
             // We have to prepare weights first
             int total_weight = group->total_weight;
@@ -645,7 +645,7 @@ public unsafe class CaptureModule : FhModule {
             }
 
             // Let's figure out which formation we should encounter!
-            int formation_rng = FhXCall.brnd.fnptr!(1) % total_weight;
+            int formation_rng = FhGCall.brnd.fnptr!(1) % total_weight;
             int iVar7 = 0;
 
             _logger.Debug( "Encounter!");

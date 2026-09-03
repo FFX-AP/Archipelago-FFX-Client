@@ -314,7 +314,7 @@ public unsafe class OverdriveModule : FhModule {
                     if (target_0x774->field4_0x4.get_bit(0)) {
                         byte bVar1 = attacker->ram.limit_charge;
                         attacker->ram.limit_charge = 0;
-                        target->ram.limit_charge = (byte)FhXCall.MsCheckRange.fnptr!(target->ram.limit_charge + bVar1, 0, target->ram.limit_charge_max);
+                        target->ram.limit_charge = (byte)FhGCall.MsCheckRange.fnptr!(target->ram.limit_charge + bVar1, 0, target->ram.limit_charge_max);
                     }
 
                     if (target_0x774->field4_0x4.get_bit(1)) {
@@ -483,7 +483,7 @@ public unsafe class OverdriveModule : FhModule {
 
         if (local_30->field0_0x0 != 5) {
             if (local_30->field0_0x0 == 6) {
-                FhXCall.MsDamageSetMotion.fnptr!(target_id, FhXCall.brnd.fnptr!(9).get_bit(0) ? 0x10 : 0xF, not_attacking_self);
+                FhXCall.MsDamageSetMotion.fnptr!(target_id, FhGCall.brnd.fnptr!(9).get_bit(0) ? 0x10 : 0xF, not_attacking_self);
                 return uVar12;
             }
 
@@ -493,7 +493,7 @@ public unsafe class OverdriveModule : FhModule {
             }
         }
 
-        FhXCall.MsDamageSetMotion.fnptr!(target_id, FhXCall.brnd.fnptr!(9).get_bits(0, 2) + 0xD, not_attacking_self);
+        FhXCall.MsDamageSetMotion.fnptr!(target_id, FhGCall.brnd.fnptr!(9).get_bits(0, 2) + 0xD, not_attacking_self);
         return uVar12;
     }
 
@@ -533,7 +533,7 @@ public unsafe class OverdriveModule : FhModule {
         FhXCall.TOBtlSetMacroCommandValue.fnptr!(7, 0, chr_name);
 
         Command* com = FhXCall.MsGetComData.fnptr!(com_id, &data_end);
-        ushort com_name_offset = com->name_offset;
+        ushort com_name_offset = com->name.standard.text_offset;
 
         FhXCall.TOBtlSetMacroCommandType.fnptr!(7, 1, 0);
 

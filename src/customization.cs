@@ -645,16 +645,14 @@ public unsafe partial class ArchipelagoFFXModule {
             FhXCall.FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
         }
 
-        int iVar2 = (int)new Vector2(0, 365f).game_remap_1080p()
-                                             .Y;
+        int iVar2 = (int)new Vector2(0, 365f).game_remap_1080p().Y;
         int iVar6, sVar1;
         float fVar10;
         if (window->visible_item_offset == window->scroll_offset) {
             // Draw ability list
             FhXCall.FUN_008c0f40.fnptr!(
                 iVar2,
-                (int)(new Vector2(0, 70f).game_remap_1080p()
-                                         .Y * 9.0),
+                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
                 0,
                 window->scroll_delta
             );

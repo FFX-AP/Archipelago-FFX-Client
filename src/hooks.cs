@@ -89,7 +89,7 @@ public unsafe partial class ArchipelagoFFXModule {
     public static int* buki_get_pointer => FhUtil.ptr_at<int>(0xD35FF4);
 
     public static char* get_event_name(uint event_id) => FhXCall.AtelGetEventName.fnptr!(event_id);
-    public static int atel_stack_pop(int* arg1, AtelStack* atelStack) => FhXCall.AtelPopStackInteger.fnptr!(arg1, atelStack);
+    public static int atel_stack_pop(AtelBasicWorker* work, AtelStack* atelStack) => FhXCall.AtelPopStackInteger.fnptr!(work, atelStack);
 
     public static void AtelSetUpCallFunc(int id, nint nameSpacePtr) => FhXCall.AtelSetUpCallFunc.fnptr!(id, nameSpacePtr);
 
@@ -2967,10 +2967,10 @@ public unsafe partial class ArchipelagoFFXModule {
         return FhXCall.MsWeaponNameNum.chain_from(h_get_weapon_name).fnptr!(param_1);
     }
 
-    private void h_get_weapon_model(ushort name_id, byte owner, int unknown, ushort* model_id_pointer) {
-        _logger.Debug($"get_weapon_model: {name_id}, {owner}, {unknown}, {*model_id_pointer}, ");
+    private void h_get_weapon_model(ushort name_id, byte owner, bool simplified, ushort* model_id_pointer) {
+        _logger.Debug($"get_weapon_model: {name_id}, {owner}, {simplified}, {*model_id_pointer}, ");
 
-        FhXCall.MsWeaponName.chain_from(h_get_weapon_model).fnptr!(name_id, owner, unknown, model_id_pointer);
+        FhXCall.MsWeaponName.chain_from(h_get_weapon_model).fnptr!(name_id, owner, simplified, model_id_pointer);
     }
 
     private void h_obtain_treasure_cleanup(BtlRewardData* param_1, int param_2) {
@@ -3110,7 +3110,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 }
                 new_weapon.slot_count = (byte)Math.Max(weapon_data.slot_count, count);
                 new_weapon.name_id = h_get_weapon_name(&new_weapon);
-                h_get_weapon_model(new_weapon.name_id, new_weapon.owner, 0, &new_weapon.model_id);
+                h_get_weapon_model(new_weapon.name_id, new_weapon.owner, false, &new_weapon.model_id);
                 var result = FhXCall.FUN_007ab930.fnptr!(&new_weapon); // giveWeapon?
                 if (result != 0) {
                     h_obtain_treasure_cleanup(&rewardData, 7);
@@ -3453,11 +3453,11 @@ public unsafe partial class ArchipelagoFFXModule {
 
         fixed (int* storage = storage_array) {
             h_Common_playFieldVoiceLineInit.fnptr!((AtelBasicWorker*)&work, storage, &stack);
-            h_Common_playFieldVoiceLineExec.fnptr!((AtelBasicWorker*)&work, &stack);
+            h_Common_playFieldVoiceLineExec.fnptr!((AtelBasicWorker*)&work, storage);
             h_Common_playFieldVoiceLineResultInt.fnptr!((AtelBasicWorker*)&work, storage, &stack);
 
             h_Common_00D6Init.fnptr!((AtelBasicWorker*)&work, storage, &stack);
-            h_Common_00D6Exec.fnptr!((AtelBasicWorker*)&work, &stack);
+            h_Common_00D6Exec.fnptr!((AtelBasicWorker*)&work, storage);
             h_Common_00D6ResultInt.fnptr!((AtelBasicWorker*)&work, storage, &stack);
 
         }
