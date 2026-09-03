@@ -1,22 +1,20 @@
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+using ArchipelagoFFX.Client;
+using Fahrenheit;
+using Fahrenheit.FFX;
+using Fahrenheit.FFX.Battle;
+using Fahrenheit.FFX.Ids;
 using System;
 using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-
-using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
-
-using ArchipelagoFFX.Client;
-
-using Fahrenheit;
-using Fahrenheit.FFX;
-using Fahrenheit.FFX.Battle;
-using Fahrenheit.FFX.Ids;
+using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
-public unsafe partial class DeathLinkModule : FhModule {
+public unsafe class DeathLinkModule : FhModule {
     public enum DeathLinkSendType {
         GameOver,
         KO,
@@ -32,11 +30,10 @@ public unsafe partial class DeathLinkModule : FhModule {
 
     public static readonly Vector4 DEATHLINK_COLOR = new(1.0f, 0.18f, 0.21f, 1.0f);
 
-    // This is annoying but necessary for now because `FFXArchipelagoClient` wants everything to be static
-    //TODO: Remove this once it's no longer necessary
-    private static DeathLinkModule _this;
+    private ArchipelagoFFXModule.NativeCustomString _deathlink_announcement;
 
-    private static ArchipelagoFFXModule.NativeCustomString _deathlink_announcement;
+    private FhModuleHandle<ArchipelagoClientModule> _client_handle;
+    private ArchipelagoClientModule? _client;
 
     private readonly FhModuleHandle<ToastModule> _toasts_handle;
     private ToastModule? _toasts;
@@ -52,75 +49,68 @@ public unsafe partial class DeathLinkModule : FhModule {
     private bool deathlink_grace = false;
 
     public DeathLinkModule() {
-        _this = this;
-
         _deathlink_announcement = new("Deathlink!");
 
+        _client_handle = new(this);
         _toasts_handle = new(this);
-
-        const string GAME = "FFX.exe";
-
-        _MsBtlReadManage = new(this, GAME, __addr_MsBtlReadManage, _h_MsBtlReadManage);
-        _MsDamageCheckDeath = new(this, GAME, __addr_MsDamageCheckDeath, _h_MsDamageCheckDeath);
-        _MsGetBattleEndStatus = new(this, GAME, __addr_MsGetBattleEndStatus, _h_MsGetBattleEndStatus);
     }
 
-    public static bool get_enabled() {
-        return _this._deathlink_enabled;
+    public bool get_enabled() {
+        return _deathlink_enabled;
     }
 
-    public static void set_enabled(bool value) {
-        _this._deathlink_enabled = value;
+    public void set_enabled(bool value) {
+        _deathlink_enabled = value;
 
-        if (!_this._deathlink_enabled) {
+        if (!_deathlink_enabled) {
             // Clear remaining deathlinks
-            _this._deathlinks_queued = 0;
+            _deathlinks_queued = 0;
         }
 
-        if (_this._deathlink_enabled) {
-            FFXArchipelagoClient.current_death_link?.EnableDeathLink();
+        if (_deathlink_enabled) {
+            _client!.current_death_link_service?.EnableDeathLink();
         } else {
-            FFXArchipelagoClient.current_death_link?.DisableDeathLink();
+            _client!.current_death_link_service?.DisableDeathLink();
         }
     }
 
-    public static string get_send_type() {
-        return get_send_type_name(_this.deathlink_send_type);
+    public string get_send_type() {
+        return get_send_type_name(deathlink_send_type);
     }
 
-    public static string get_send_type_name(DeathLinkSendType send_type) {
+    public string get_send_type_name(DeathLinkSendType send_type) {
         return send_type switch {
             DeathLinkSendType.GameOver => "Game Over",
             DeathLinkSendType.KO => "KO",
-            _ => throw new NotImplementedException($"Unknown deathlink type: {(int)_this.deathlink_receive_type}"),
+            _ => throw new NotImplementedException($"Unknown deathlink type: {(int)deathlink_receive_type}"),
         };
     }
 
-    public static void set_send_type(string type) {
-        _this.deathlink_send_type = type switch {
+    public void set_send_type(string type) {
+        deathlink_send_type = type switch {
             "Game Over" => DeathLinkSendType.GameOver,
             "KO" => DeathLinkSendType.KO,
             _ => throw new NotImplementedException($"Unknown deathlink type: {type}"),
         };
     }
 
-    public static string get_receive_type() {
-        return get_receive_type_name(_this.deathlink_receive_type);
+    public string get_receive_type() {
+        return get_receive_type_name(deathlink_receive_type);
     }
 
-    public static string get_receive_type_name(DeathLinkReceiveType receive_type) {
+    public string get_receive_type_name(DeathLinkReceiveType receive_type) {
         return receive_type switch {
             DeathLinkReceiveType.DOOM_STRICT => "Doom (1 turn)",
             DeathLinkReceiveType.DOOM_LENIENT => "Doom (3 turns)",
             DeathLinkReceiveType.GRAVE_HP => "Grave HP",
             DeathLinkReceiveType.BAD_BREATH => "Bad Breath",
             DeathLinkReceiveType.RANDOM => "Random",
-            _ => throw new NotImplementedException($"Unknown deathlink type: {(int)_this.deathlink_receive_type}"),
+            _ => throw new NotImplementedException($"Unknown deathlink type: {(int)deathlink_receive_type}"),
         };
     }
 
-    public static void set_receive_type(string type) {
-        _this.deathlink_receive_type = type switch {
+    public void set_receive_type(string type) {
+        deathlink_receive_type = type switch {
             "Doom (1 turn)" => DeathLinkReceiveType.DOOM_STRICT,
             "Doom (3 turns)" => DeathLinkReceiveType.DOOM_LENIENT,
             "Grave HP" => DeathLinkReceiveType.GRAVE_HP,
@@ -130,23 +120,24 @@ public unsafe partial class DeathLinkModule : FhModule {
         };
     }
 
-    public static uint get_deathlinks_queued() {
-        return _this._deathlinks_queued;
+    public uint get_deathlinks_queued() {
+        return _deathlinks_queued;
     }
 
-    public static void debug_add_queued() {
-        _this._deathlinks_queued += 1;
+    public void debug_add_queued() {
+        _deathlinks_queued += 1;
     }
 
-    public static void debug_apply_deathlink() {
-        _this.apply_death_link();
+    public void debug_apply_deathlink() {
+        apply_death_link();
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return _toasts_handle.try_get_module(out _toasts)
-            && _MsBtlReadManage.hook()
-            && _MsDamageCheckDeath.hook()
-            && _MsGetBattleEndStatus.hook();
+        return _client_handle.try_get_module(out _client)
+            && _toasts_handle.try_get_module(out _toasts)
+            && FhXCall.MsBtlReadManage.hook(this, _h_MsBtlReadManage)
+            && FhXCall.MsDamageCheckDeath.hook(this, _h_MsDamageCheckDeath)
+            && FhXCall.MsGetBattleEndStatus.hook(this, _h_MsGetBattleEndStatus);
     }
 
     private void apply_death_link() {
@@ -211,7 +202,7 @@ public unsafe partial class DeathLinkModule : FhModule {
     private void _h_MsBtlReadManage() {
         int old_state = Globals.Battle.btl->battle_state;
 
-        _MsBtlReadManage.orig_fptr();
+        FhXCall.MsBtlReadManage.chain_from(_h_MsBtlReadManage).fnptr!();
 
         if (Globals.Battle.btl->battle_state != 13 || old_state == Globals.Battle.btl->battle_state) return;
 
@@ -230,13 +221,14 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         apply_death_link();
 
-        _MsMessageCueRegist(MessageCueType.FH_CUSTOM, (int)_deathlink_announcement.encoded, 0, 27, 35);
+        FhXCall.MsMessageCueRegist.fnptr!((uint)MessageCueType.FH_CUSTOM, (int)_deathlink_announcement.encoded, 0, 27, 35);
 
         _logger.Info("  Disabling Escape and Flee...");
 
         for (int chr_id = 0; chr_id <= PlySaveId.PC_SEYMOUR; chr_id++) {
-            _set_command_disabled(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
-            _set_command_disabled(chr_id, PlayerCommandId.PCOM_FLEE, 1);
+            // Disable Escape & Flee commands
+            FhXCall.FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
+            FhXCall.FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_FLEE, 1);
         }
 
         _deathlinks_queued -= 1;
@@ -245,7 +237,7 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     private int _h_MsDamageCheckDeath(int attacker_id, int target_id, int p3, int targetting_self) {
-        int result = _MsDamageCheckDeath.orig_fptr(attacker_id, target_id, p3, targetting_self);
+        int result = FhXCall.MsDamageCheckDeath.chain_from(_h_MsDamageCheckDeath).fnptr!(attacker_id, target_id, p3, targetting_self);
 
         if (result == 0 || target_id > PlySaveId.PC_MAGUS3) {
             return result;
@@ -259,16 +251,16 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         _logger.Info("  Sending deathlink...");
 
-        string player = FFXArchipelagoClient.active_player?.Alias ?? "Someone";
+        string player = _client!.active_player?.Alias ?? "Someone";
 
-        Chr* target = _MsGetChr(target_id);
+        Chr* target = FhXCall.MsGetChr.fnptr!(target_id);
         byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(target->ram.name, null, null, FhEncodingFlags.IMPLICIT_END)];
         FhEncoding.decode(target->ram.name, decoded, null, null, FhEncodingFlags.IMPLICIT_END);
         string target_name = Encoding.UTF8.GetString(decoded);
 
         string message = _get_deathlink_send_text($"{player}'s {target_name}");
 
-        FFXArchipelagoClient.current_death_link?.SendDeathLink(new(player, message));
+        _client!.current_death_link_service?.SendDeathLink(new(player, message));
 
         ToastModule.Toast deathlink_toast = new(
             [
@@ -285,7 +277,7 @@ public unsafe partial class DeathLinkModule : FhModule {
     }
 
     private uint _h_MsGetBattleEndStatus() {
-        uint battle_end_type = _MsGetBattleEndStatus.orig_fptr();
+        uint battle_end_type = FhXCall.MsGetBattleEndStatus.chain_from(_h_MsGetBattleEndStatus).fnptr!();
 
         if (!_deathlink_enabled || battle_end_type != 1 || Globals.Battle.btl->battle_state != 0x17) {
             return battle_end_type;
@@ -299,10 +291,10 @@ public unsafe partial class DeathLinkModule : FhModule {
 
         _logger.Info("  Sending deathlink...");
 
-        string player = FFXArchipelagoClient.active_player?.Alias ?? "Someone";
+        string player = _client!.active_player?.Alias ?? "Someone";
         string message = _get_deathlink_send_text(player);
 
-        FFXArchipelagoClient.current_death_link?.SendDeathLink(new(player, message));
+        _client!.current_death_link_service?.SendDeathLink(new(player, message));
 
         ToastModule.Toast deathlink_toast = new(
             [
@@ -444,9 +436,9 @@ public unsafe partial class DeathLinkModule : FhModule {
         return String.Format(FhApi.Localization.localize(message_id), source_player);
     }
 
-    public static void post_deathlink(DeathLink death_msg) {
-        if (!_this._deathlink_enabled) return;
-        _this._deathlinks_queued += 1;
+    public void post_deathlink(DeathLink death_msg) {
+        if (!_deathlink_enabled) return;
+        _deathlinks_queued += 1;
 
         // Display a toast
         ToastModule.Toast deathlink_toast = new(
@@ -454,10 +446,10 @@ public unsafe partial class DeathLinkModule : FhModule {
                 new(DEATHLINK_COLOR, "Deathlink received!"),
             ],
             [
-                new(new(1f), death_msg.Cause ?? _this._get_backup_deathlink_received_text(death_msg.Source)),
+                new(new(1f), death_msg.Cause ?? _get_backup_deathlink_received_text(death_msg.Source)),
             ]
         );
 
-        _this._toasts!.queue_toast(deathlink_toast);
+        _toasts?.queue_toast(deathlink_toast);
     }
 }
