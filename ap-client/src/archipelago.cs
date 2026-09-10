@@ -57,29 +57,15 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static nint prev_length = 0;
     public static nint prev_bank = 0;
 
-    private FhModuleHandle<ArchipelagoClientModule> _client_handle;
     private ArchipelagoClientModule? _client;
-
-    private FhModuleHandle<ArchipelagoGuiModule> _gui_handle;
-    private ArchipelagoGuiModule? _gui;
-
-    private FhModuleHandle<OverdriveModule> _overdrives_handle;
-    private OverdriveModule? _overdrives;
-
-    private FhModuleHandle<DeathLinkModule> _deathlink_handle;
-    private DeathLinkModule? _deathlink;
-
-    private FhModuleHandle<HardcoreDreamsEndModule> _hardcore_dreams_end_handle;
+    private ArchipelagoGuiModule?    _gui;
+    private OverdriveModule?         _overdrives;
+    private DeathLinkModule?         _deathlink;
     private HardcoreDreamsEndModule? _hardcore_dreams_end;
 
     public ArchipelagoFFXModule() {
         init_hooks();
         init_custom_atel();
-
-        _client_handle = new(this);
-        _gui_handle = new(this);
-        _hardcore_dreams_end_handle = new(this);
-        _deathlink_handle = new(this);
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
@@ -89,10 +75,11 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         FhApi.Events.Common.GameLoop.PreUpdate.subscribe(pre_update);
 
         return hook()
-            && _client_handle.try_get_module(out _client)
-            && _gui_handle.try_get_module(out _gui)
-            && _hardcore_dreams_end_handle.try_get_module(out _hardcore_dreams_end)
-            && _deathlink_handle.try_get_module(out _deathlink)
+            && new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
+            && new FhModuleHandle<ArchipelagoGuiModule>   (this).try_get_module(out _gui)
+            && new FhModuleHandle<OverdriveModule>        (this).try_get_module(out _overdrives)
+            && new FhModuleHandle<DeathLinkModule>        (this).try_get_module(out _deathlink)
+            && new FhModuleHandle<HardcoreDreamsEndModule>(this).try_get_module(out _hardcore_dreams_end)
             && post_init();
     }
 
