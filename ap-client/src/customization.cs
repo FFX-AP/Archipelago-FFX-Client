@@ -544,14 +544,13 @@ public unsafe partial class ArchipelagoFFXModule {
 
     // param_1 is TkMenu*
     public void TkMenuCtrlSummon(TkMenu* menu, int param_2) {
-        uint* state = (uint*)(menu->state);
-        uint pre_state = *state;
-
+        int state = menu->state;
+        int pre_state = state;
 
         FhXCall.TkMenuCtrlSummon.chain_from(TkMenuCtrlSummon).fnptr!(menu, param_2);
 
-        if (*state != pre_state) {
-            _logger.Debug($"{pre_state} -> {*state}");
+        if (state != pre_state) {
+            _logger.Debug($"{pre_state} -> {state}");
 
             if (pre_state == 0x15) {
                 TkWindow* DAT_0186a568 = (TkWindow*)FhUtil.get_at<uint>(0x0146a568);
