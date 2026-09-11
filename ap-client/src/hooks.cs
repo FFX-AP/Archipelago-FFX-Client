@@ -85,6 +85,18 @@ public unsafe partial class ArchipelagoFFXModule {
     private FhMethodHandle<FhGCall.d_CT_Init> h_SgEvent_showModularMenuInit
         => new(new FhMethodLocation("FFX.exe", 0x678210));
 
+    private delegate void d_TOMenuGetControlPad();
+    private static FhMethodHandle<d_TOMenuGetControlPad> TOMenuGetControlPad
+        => new(new FhMethodLocation("FFX.exe", 0x4be3e0));
+
+    private delegate void d_TOMenuGetControlPadRep();
+    private static FhMethodHandle<d_TOMenuGetControlPadRep> TOMenuGetControlPadRep
+        => new(new FhMethodLocation("FFX.exe", 0x4be440));
+
+    private delegate void d_TOMenuGetControlPadTrg();
+    private static FhMethodHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
+        => new(new FhMethodLocation("FFX.exe", 0x4be480));
+
     public static int* takara_pointer => FhUtil.ptr_at<int>(0xD35FEC);
     public static int* buki_get_pointer => FhUtil.ptr_at<int>(0xD35FF4);
 

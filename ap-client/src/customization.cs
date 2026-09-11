@@ -938,9 +938,28 @@ public unsafe partial class ArchipelagoFFXModule {
         window->current_state = 0;
     }
 
+    private static bool _kaizou_was_pressed_up;
+    private static bool _kaizou_was_pressed_down;
+    private static bool _kaizou_was_pressed_confirm;
+    private static bool _kaizou_was_pressed_cancel;
+
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static void MyWindow_State(TkWindow* window) {
         while (true) {
+            TOMenuGetControlPad.fnptr!();
+            TOMenuGetControlPadRep.fnptr!();
+            TOMenuGetControlPadTrg.fnptr!();
+
+            bool just_pressed_up      = Globals.Input.up.is_pressed      && !_kaizou_was_pressed_up;
+            bool just_pressed_down    = Globals.Input.down.is_pressed    && !_kaizou_was_pressed_down;
+            bool just_pressed_confirm = Globals.Input.confirm.is_pressed && !_kaizou_was_pressed_confirm;
+            bool just_pressed_cancel  = Globals.Input.cancel.is_pressed  && !_kaizou_was_pressed_cancel;
+
+            _kaizou_was_pressed_up      = Globals.Input.up.is_pressed;
+            _kaizou_was_pressed_down    = Globals.Input.down.is_pressed;
+            _kaizou_was_pressed_confirm = Globals.Input.confirm.is_pressed;
+            _kaizou_was_pressed_cancel  = Globals.Input.cancel.is_pressed;
+
             switch (window->current_state) {
                 case 0:
                     window->exit_value = 0;
@@ -949,16 +968,16 @@ public unsafe partial class ArchipelagoFFXModule {
                     return;
 
                 case 1:
-                    if (Globals.Input.up.is_pressed && 0 < window->selected_index) {
+                    if (just_pressed_up && 0 < window->selected_index) {
                         FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->selected_index--;
-                    } else if (Globals.Input.down.is_pressed && window->selected_index < window->num_items - 1) {
+                    } else if (just_pressed_down && window->selected_index < window->num_items - 1) {
                         FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->selected_index++;
-                    } else if (Globals.Input.confirm.is_pressed) {
+                    } else if (just_pressed_confirm) {
                         FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->current_state = 2;
-                    } else if (Globals.Input.cancel.is_pressed) {
+                    } else if (just_pressed_cancel) {
                         FhXCall.SndSepPlaySimple.fnptr!(0x80000004);
                         window->current_state = 3;
                     }
