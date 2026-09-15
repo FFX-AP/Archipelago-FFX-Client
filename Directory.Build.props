@@ -1,5 +1,17 @@
+<!-- fkelava 11/06/26 01:50
+This file configures essential build system properties. Do not edit it unless you're certain you know what you're doing.
+-->
 <Project>
-  <PropertyGroup>
-    <BaseOutputPath>$(SolutionDir)release\</BaseOutputPath>
-  </PropertyGroup>
+    <PropertyGroup>
+        <!--
+        Artifact path handling.
+        -->
+        <_FhOutDir Condition="'$(Configuration)'=='Release'">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'artifacts', 'deploy', 'rel'))</_FhOutDir>
+        <_FhOutDir Condition="'$(Configuration)'=='Debug'">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'artifacts', 'deploy', 'dbg'))</_FhOutDir>
+        <_FhBaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'artifacts', 'obj', '$(MSBuildProjectName)'))</_FhBaseIntermediateOutputPath>
+        <_FhBaseOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'artifacts', 'build', '$(MSBuildProjectName)'))</_FhBaseOutputPath>
+
+        <BaseOutputPath>$(_FhBaseOutputPath)</BaseOutputPath>
+        <BaseIntermediateOutputPath>$(_FhBaseIntermediateOutputPath)</BaseIntermediateOutputPath>
+    </PropertyGroup>
 </Project>

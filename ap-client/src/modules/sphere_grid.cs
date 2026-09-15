@@ -1,52 +1,24 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
-
-using Fahrenheit;
 
 using Hexa.NET.ImGui;
 
+using Fahrenheit;
 using Fahrenheit.FFX;
 
 using static Fahrenheit.FFX.Globals;
+
+using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe class SphereGridQolModule : FhModule {
-    // Delegates for handles
-    //TODO: Remove these once FhCall is more up-to-date
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void abmap_get_panel(int ply_id, int node_idx);
-    public const nint __addr_abmap_get_panel = 0x6458a0;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void abmap_ctrl();
-    public const nint __addr_AbmapState_MovingToTarget = 0x659990;
-    public const nint __addr_AbmapState_ChangingNode = 0x647d50;
-    public const nint __addr_AbmapState_Warping = 0x647f00;
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void abmap_confirm_move(int p1, int p2, int p3);
-    public const nint __addr_FUN_00a56160 = 0x656160;
-
     // Sound IDs
     private const uint SND_PREFIX = 0x80000000;
     public const uint SND_ACTIVATE_NODE   = 0x50 | SND_PREFIX;
     public const uint SND_DEACTIVATE_NODE = 0x6e | SND_PREFIX;
-
-    // Method handles
-    private readonly FhMethodHandle<abmap_ctrl> _sphere_grid_move_speed;
-    private readonly FhMethodHandle<abmap_confirm_move> _sphere_grid_confirm_move;
-    private readonly FhMethodHandle<abmap_ctrl> _sphere_grid_state_moving;
-    private readonly FhMethodHandle<abmap_ctrl> _sphere_grid_state_warping;
-    private readonly FhMethodHandle<abmap_ctrl> _sphere_grid_change_node;
-
-    // Function pointers
-    //TODO: Move this into a library common between modules
-    private static delegates.SndSepPlaySimple _SndSepPlaySimple = FhUtil.get_fptr<delegates.SndSepPlaySimple>(delegates.__addr_SndSepPlaySimple);
-    private readonly abmap_get_panel _abmap_get_panel = FhUtil.get_fptr<abmap_get_panel>(__addr_abmap_get_panel);
 
     // Fahrenheit-related
     private FhModContext? _mod_context;
@@ -60,25 +32,15 @@ public unsafe class SphereGridQolModule : FhModule {
 
     private static readonly HashSet<short> temporarily_activated_nodes = [];
 
-    public SphereGridQolModule() {
-        const string GAME = "FFX.exe";
-
-        _sphere_grid_move_speed = new(this, GAME, __addr_AbmapState_MovingToTarget, h_move_speed);
-        _sphere_grid_confirm_move = new(this, GAME, __addr_FUN_00a56160, h_move_confirm);
-        _sphere_grid_state_moving = new(this, GAME, __addr_AbmapState_MovingToTarget, h_state_moving);
-        _sphere_grid_state_warping = new(this, GAME, __addr_AbmapState_Warping, h_state_warping);
-        _sphere_grid_change_node = new(this, GAME, __addr_AbmapState_ChangingNode, h_change_node);
-    }
-
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         _mod_context = mod_context;
         _global_state = global_state_file;
 
-        return _sphere_grid_move_speed.hook()
-            && _sphere_grid_confirm_move.hook()
-            && _sphere_grid_state_moving.hook()
-            && _sphere_grid_state_warping.hook()
-            && _sphere_grid_change_node.hook();
+        return FhXCall.AbmapState_MovingToTarget.hook(this, h_move_speed)
+            && FhXCall.FUN_00a56160.hook(this, h_move_confirm)
+            && FhXCall.AbmapState_MovingToTarget.hook(this, h_state_moving)
+            && FhXCall.AbmapState_Warping.hook(this, h_state_warping)
+            && FhXCall.AbmapState_ChangingNode.hook(this, h_change_node);
     }
 
     private string get_state_name() {
@@ -233,20 +195,20 @@ public unsafe class SphereGridQolModule : FhModule {
             if (ImGui.Button(activated ? $"Deactivate##{i}" : $"Activate##{i}")) {
                 if (activated) {
                     selected_node->activated_by.set_bit(i, false);
-                    _SndSepPlaySimple(SND_DEACTIVATE_NODE);
+                    FhXCall.SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
 
                     lpamng->should_update = 1;
                     lpamng->should_update_node = lpamng->selected_node_idx;
                 } else {
-                    _abmap_get_panel(i, lpamng->selected_node_idx);
+                    FhXCall.abmap_get_panel.fnptr!(i, lpamng->selected_node_idx);
                 }
             }
         }
 
         ImGui.Unindent();
 
-        ImGui.Text($"Can target? {selected_node->properties.can_target()}");
-        ImGui.Text($"Is highlighted? {selected_node->properties.is_highlighted()}");
+        ImGui.Text($"Can target? {selected_node->properties.can_target}");
+        ImGui.Text($"Is highlighted? {selected_node->properties.is_highlighted}");
 
         ImGui.Text($"Move cost: {selected_node->move_cost}");
     }
@@ -256,7 +218,7 @@ public unsafe class SphereGridQolModule : FhModule {
 
         float prev_t = lpamng->moving_progress;
 
-        _sphere_grid_move_speed.orig_fptr();
+        FhXCall.AbmapState_MovingToTarget.chain_from(h_move_speed).fnptr!();
 
         if (freeze_move) {
             lpamng->moving_progress = prev_t;
@@ -310,7 +272,7 @@ public unsafe class SphereGridQolModule : FhModule {
         }
 
         node->activated_by.set_bit(ply_id, true);
-        _SndSepPlaySimple(SND_ACTIVATE_NODE);
+        FhXCall.SndSepPlaySimple.fnptr!(SND_ACTIVATE_NODE);
 
         if (temporary) {
             temporarily_activated_nodes.Add(node_idx);
@@ -344,7 +306,7 @@ public unsafe class SphereGridQolModule : FhModule {
 
         knots_counted = 0;
 
-        _sphere_grid_confirm_move.orig_fptr(p1, p2, p3);
+        FhXCall.FUN_00a56160.chain_from(h_move_confirm).fnptr!(p1, p2, p3);
 
         // If we cancelled it, also deactivate all activated nodes
         if (p3 == 1 && temporarily_activated_nodes.Count > 0) {
@@ -354,7 +316,7 @@ public unsafe class SphereGridQolModule : FhModule {
                 lpamng->nodes[node_idx].activated_by.set_bit(chr_id, false);
             }
 
-            _SndSepPlaySimple(SND_DEACTIVATE_NODE);
+            FhXCall.SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
 
             lpamng->should_update = 1;
             lpamng->should_update_node = -1;
@@ -369,7 +331,7 @@ public unsafe class SphereGridQolModule : FhModule {
         float prev_t = lpamng->moving_progress;
         short last_knot = lpamng->move_next_target_node_idx;
 
-        _sphere_grid_state_moving.orig_fptr();
+        FhXCall.AbmapState_MovingToTarget.chain_from(h_state_moving).fnptr!();
 
         float current_t = lpamng->moving_progress;
 
@@ -396,7 +358,7 @@ public unsafe class SphereGridQolModule : FhModule {
 
         byte last_warp_state = *(byte*)((int)lpamng + 0x1164c);
 
-        _sphere_grid_state_warping.orig_fptr();
+        FhXCall.AbmapState_Warping.chain_from(h_state_warping).fnptr!();
 
         // Warp states:
         // 0 == Disappearing
@@ -432,7 +394,7 @@ public unsafe class SphereGridQolModule : FhModule {
         short node_idx = *(short*)((int)lpamng + 0x1164e);
         byte ply_id = lpamng->current_chr_id;
 
-        _sphere_grid_change_node.orig_fptr();
+        FhXCall.AbmapState_ChangingNode.chain_from(h_change_node).fnptr!();
 
         byte timing = *(byte*)((int)lpamng + 0x11650);
 
