@@ -316,7 +316,7 @@ public unsafe class DeathLinkModule : FhModule {
         int generic_rng = _deathlink_message_rng.Next(8);
 
         // Some encounters have unique messages
-        string message_id = "deathlink.sent_message." + encounter_name switch {
+        string message_id = "sent_message." + encounter_name switch {
             // Special
             _ when Globals.Battle.btl->ambush_state == 1 => "ambush",
 
@@ -424,7 +424,7 @@ public unsafe class DeathLinkModule : FhModule {
     }
 
     private string _get_backup_deathlink_received_text(string source_player) {
-        string message_id = "deathlink.received_backup_message." + deathlink_receive_type switch {
+        string message_id = "received_backup_message." + deathlink_receive_type switch {
             DeathLinkReceiveType.DOOM_STRICT
          or DeathLinkReceiveType.DOOM_LENIENT => "doom",
             DeathLinkReceiveType.GRAVE_HP     => "grave_hp",
