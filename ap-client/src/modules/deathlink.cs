@@ -420,7 +420,7 @@ public unsafe class DeathLinkModule : FhModule {
             _ => "generic.0",
         };
 
-        return String.Format(FhApi.Localization.localize(message_id), player);
+        return String.Format(FhApi.Localization.localize(message_id, this), player);
     }
 
     private string _get_backup_deathlink_received_text(string source_player) {
@@ -433,7 +433,7 @@ public unsafe class DeathLinkModule : FhModule {
             _ => "generic",
         };
 
-        return String.Format(FhApi.Localization.localize(message_id), source_player);
+        return String.Format(FhApi.Localization.localize(message_id, this), source_player);
     }
 
     public void post_deathlink(DeathLink death_msg) {
