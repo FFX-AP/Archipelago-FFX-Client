@@ -7,5 +7,5 @@
 	branch = Archipelago
 [submodule "playable-seymour-mod"]
 	path = playable-seymour-mod
-	url = https://github.com/Rurusachi/playable-seymour-mod
+	url = https://github.com/FFX-AP/playable-seymour-mod
 	branch = Archipelago
