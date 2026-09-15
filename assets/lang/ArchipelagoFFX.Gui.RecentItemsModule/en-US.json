@@ -1,0 +1,64 @@
+{
+  "recent_items.name": "Recent Items",
+  "recent_items.desc": "Settings for the Recent Items module.",
+
+
+  "recent_items.filter.name": "Filters",
+  "recent_items.filter.desc": "Filter what is displayed.",
+
+  "recent_items.filter.display_items.name": "Display Items",
+  "recent_items.filter.display_items.desc": "Whether to display recent items.",
+
+  "recent_items.filter.display_only_personal.name": "Display Only Personal",
+  "recent_items.filter.display_only_personal.desc": "Only display items relevant to you.",
+
+  "recent_items.filter.display_locations.name": "Display Locations",
+  "recent_items.filter.display_locations.desc": "Display locations along with the items. Warning: Location names can be very long.",
+
+  "recent_items.filter.item_count.name": "Item Count",
+  "recent.items.filter.item_count.desc": "The amount of recent items to display.",
+
+
+  "recent_items.visuals.name": "Visuals",
+  "recent_items.visuals.desc": "Change how the recent items are displayed.",
+
+  "recent_items.visuals.interpolation.name": "Interpolation",
+  "recent_items.visuals.interpolation.desc": "How the items move from one position to another.",
+
+  "recent_items.visuals.interpolation.values.0.name": "Smooth",
+  "recent_items.visuals.interpolation.values.1.name": "Instant",
+
+  "recent_items.visuals.fade_method.name": "Fade Method",
+  "recent_items.visuals.fade_method.desc": "How items should fade in and out.",
+
+  "recent_items.visuals.fade_method.values.0.name": "Fade",
+  "recent_items.visuals.fade_method.values.1.name": "Slide",
+  "recent_items.visuals.fade_method.values.2.name": "Capture",
+
+  "recent_items.visuals.fade_after.name": "Fade After",
+  "recent_items.visuals.fade_after.desc": "How many seconds should an item be visible for before fading. Set to 0 to show permanently.",
+
+  "recent_items.visuals.background.name": "Background",
+  "recent_items.visuals.background.desc": "Select the type of background to use.",
+
+  "recent_items.visuals.background.values.0.name": "Transparent",
+  "recent_items.visuals.background.values.1.name": "Per Item",
+  "recent_items.visuals.background.values.2.name": "Block",
+
+
+  "recent_items.position.name": "Positioning",
+  "recent_items.position.desc": "Position the items on the screen.",
+
+  "recent_items.position.x.name": "X",
+  "recent_items.position.x.desc": "Horizontal position of the recent items display as a percentage of the window width.",
+
+  "recent_items.position.y.name": "Y",
+  "recent_items.position.y.desc": "Vertical position of the recent items display as a percentage of the window height.",
+
+  "recent_items.position.alignment.name": "Alignment",
+  "recent_items.position.alignment.desc": "Whether to align the items to the left, right, or center of the display.",
+
+  "recent_items.position.alignment.values.0.name": "Left",
+  "recent_items.position.alignment.values.1.name": "Center",
+  "recent_items.position.alignment.values.2.name": "Right"
+}

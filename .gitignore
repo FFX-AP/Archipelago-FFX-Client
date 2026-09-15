@@ -401,8 +401,8 @@ FodyWeavers.xsd
 .idea
 *.sln.iml
 
-##### SPECIFIC BEGIN
+# Archipelago-specific files
 
-assets
-
-##### SPECIFIC END
+assets/*
+!assets/lang/
+!assets/resources/
