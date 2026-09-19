@@ -9,6 +9,7 @@ using Fahrenheit.FFX;
 
 using static Fahrenheit.FFX.Globals;
 
+using FhGCall = Fahrenheit.FhCall;
 using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
@@ -195,7 +196,7 @@ public unsafe class SphereGridQolModule : FhModule {
             if (ImGui.Button(activated ? $"Deactivate##{i}" : $"Activate##{i}")) {
                 if (activated) {
                     selected_node->activated_by.set_bit(i, false);
-                    FhXCall.SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
+                    FhGCall.SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
 
                     lpamng->should_update = 1;
                     lpamng->should_update_node = lpamng->selected_node_idx;
@@ -272,7 +273,7 @@ public unsafe class SphereGridQolModule : FhModule {
         }
 
         node->activated_by.set_bit(ply_id, true);
-        FhXCall.SndSepPlaySimple.fnptr!(SND_ACTIVATE_NODE);
+        FhGCall.SndSepPlaySimple.fnptr!(SND_ACTIVATE_NODE);
 
         if (temporary) {
             temporarily_activated_nodes.Add(node_idx);
@@ -316,7 +317,7 @@ public unsafe class SphereGridQolModule : FhModule {
                 lpamng->nodes[node_idx].activated_by.set_bit(chr_id, false);
             }
 
-            FhXCall.SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
+            FhGCall.SndSepPlaySimple.fnptr!(SND_DEACTIVATE_NODE);
 
             lpamng->should_update = 1;
             lpamng->should_update_node = -1;

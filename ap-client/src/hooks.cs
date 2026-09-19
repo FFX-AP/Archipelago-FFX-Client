@@ -2140,7 +2140,7 @@ public unsafe partial class ArchipelagoFFXModule {
         int window_id = atelStack->pop_int();
         _logger.Debug($"window_id:{window_id}, treasure_id:{treasure_id}");
 
-        FhXCall.SndSepPlaySimple.fnptr!(0x80000026);
+        FhGCall.SndSepPlaySimple.fnptr!(0x80000026);
         AtelWorkerController* pAVar2 = (AtelWorkerController*)FhXCall.AtelGetCurCtrlWork.fnptr!();
         ((byte*)pAVar2)[3] |= 4;
         FhXCall.MsFieldItemGet.fnptr!(treasure_id);

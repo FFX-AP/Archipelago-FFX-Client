@@ -6,6 +6,7 @@ using Fahrenheit.FFX.Ids;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using FhGCall = Fahrenheit.FhCall;
 using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
@@ -328,7 +329,7 @@ public unsafe partial class ArchipelagoFFXModule {
                     if (!can_customize) {
                         goto default;
                     } else {
-                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
                         {
                             int slot = 0;
                             for (; slot < gear->slot_count; slot++) {
@@ -395,7 +396,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
                     FhXCall.FUN_008e2de0.fnptr!();
                     if (DAT_023cc120->selected_index != 0) {
-                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
                         *state = 6;
                         break_loop = true;
                         break;
@@ -435,7 +436,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
                     FhXCall.MsSetWeaponName.fnptr!(gear);
                     FhXCall.MsSaveItemUse.fnptr!(customizations[customization_id].item, -customizations[customization_id].item_cost);
-                    FhXCall.SndSepPlaySimple.fnptr!(0x80000063);
+                    FhGCall.SndSepPlaySimple.fnptr!(0x80000063);
                     FhXCall.MsGetSaveWeapon.fnptr!((uint)*(ushort*)(p_DAT_0186a9f8 + GearSelectionWindow->selected_index * 2), (nint)(&gear_name));
 
                     byte* p_DAT_0186aa70 = FhUtil.ptr_at<byte>(0x146AA70);
@@ -968,16 +969,16 @@ public unsafe partial class ArchipelagoFFXModule {
 
                 case 1:
                     if (just_pressed_up && 0 < window->selected_index) {
-                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->selected_index--;
                     } else if (just_pressed_down && window->selected_index < window->num_items - 1) {
-                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->selected_index++;
                     } else if (just_pressed_confirm) {
-                        FhXCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
                         window->current_state = 2;
                     } else if (just_pressed_cancel) {
-                        FhXCall.SndSepPlaySimple.fnptr!(0x80000004);
+                        FhGCall.SndSepPlaySimple.fnptr!(0x80000004);
                         window->current_state = 3;
                     }
 
