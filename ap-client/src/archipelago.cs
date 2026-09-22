@@ -109,6 +109,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         public Dictionary<string, string> SeedToServer    { get; set; }
         public bool                       ShowRecentItems { get; set; }
 
+        public ArchipelagoGlobalState() {}
+
         public ArchipelagoGlobalState(ArchipelagoFFXModule module) {
             LastVersion     = ArchipelagoFFXModule.Version.ToString();
             VoiceLanguage   = ArchipelagoFFXModule.VoiceLanguage;
