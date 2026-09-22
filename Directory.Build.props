@@ -1,6 +1,3 @@
-<!-- fkelava 11/06/26 01:50
-This file configures essential build system properties. Do not edit it unless you're certain you know what you're doing.
--->
 <Project>
     <PropertyGroup>
         <!--
