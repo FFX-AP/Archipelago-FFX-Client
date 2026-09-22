@@ -308,7 +308,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 ZipArchiveEntry? zippedLocations = apffx.GetEntry("locations.json")!;
                 ZipArchiveEntry? zippedGear      = apffx.GetEntry("gear.json")!;
 
-                if (zippedOptions is not null && zippedLocations is not null) {
+                if (zippedOptions is not null && zippedLocations is not null && zippedGear is not null) {
                     using Stream optionsStream         = zippedOptions.Open();
                     using StreamReader optionsReader   = new StreamReader(optionsStream);
                     string optionsContents             = optionsReader.ReadToEnd();
