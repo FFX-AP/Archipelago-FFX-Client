@@ -663,8 +663,7 @@ public unsafe partial class ArchipelagoFFXModule {
             // Draw ability list when quick scrolling (L2/R2)
             FhXCall.FUN_008c0f40.fnptr!(
                 iVar2,
-                (int)(new Vector2(0, 70f).game_remap_1080p()
-                                         .Y * 9.0),
+                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
                 1,
                 window->scroll_delta
             );
@@ -672,14 +671,12 @@ public unsafe partial class ArchipelagoFFXModule {
 
             FhXCall.FUN_008c0f40.fnptr!(
                 iVar2,
-                (int)(new Vector2(0, 70f).game_remap_1080p()
-                                         .Y * 9.0),
+                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
                 2,
                 window->scroll_delta
             );
 
-            fVar10 = (int)(new Vector2(0, 70f).game_remap_1080p()
-                                              .Y * 9.0 * window->scroll_delta * -0.00024414063);
+            fVar10 = (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0 * window->scroll_delta * -0.00024414063);
             sVar1 = window->scroll_offset;
             iVar6 = 2;
         }
@@ -694,24 +691,19 @@ public unsafe partial class ArchipelagoFFXModule {
         float local_8;
         FhXCall.ToGetCrossExtMesFontWidth.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), &local_8, 0.78f, 1.0f);
 
-        fVar10 = (float)(double)(new Vector2(80f, 0).game_remap_1080p()
-                                                    .X + local_8);
+        fVar10 = (float)(double)(new Vector2(80f, 0).game_remap_1080p().X + local_8);
         local_8 = fVar10;
 
 
-        float fVar11 = new Vector2(660f, 0).game_remap_1080p()
-                                           .X;
+        float fVar11 = new Vector2(660f, 0).game_remap_1080p().X;
         if (fVar11 < (float)fVar10 == (float.IsNaN(fVar11) || float.IsNaN(fVar10))) {
-            fVar10 = new Vector2(740f, 0).game_remap_1080p()
-                                         .X;
+            fVar10 = new Vector2(740f, 0).game_remap_1080p().X;
         } else {
-            fVar10 = (float)(new Vector2(80f, 0).game_remap_1080p()
-                                                .X + local_8);
+            fVar10 = (float)(new Vector2(80f, 0).game_remap_1080p().X + local_8);
         }
 
         // graphicUiRemapX2(1806.0);
-        fVar11 = new Vector2(1806f, 0).game_remap_1080p()
-                                      .X - fVar10;
+        fVar11 = new Vector2(1806f, 0).game_remap_1080p().X - fVar10;
         float fVar12 = (float)((fVar10 - local_8) * 0.5 + fVar11);
 
         pos_1 = new Vector2(955f, 370f).game_remap_1080p();
@@ -720,11 +712,9 @@ public unsafe partial class ArchipelagoFFXModule {
 
         FhXCall.TODrawMenuPlateXYWHType.fnptr!(
             fVar11,
-            new Vector2(0, 925f).game_remap_1080p()
-                                .Y,
+            new Vector2(0, 925f).game_remap_1080p().Y,
             fVar10,
-            new Vector2(0, 48f).game_remap_1080p()
-                               .Y,
+            new Vector2(0, 48f).game_remap_1080p().Y,
             2
         );
 
@@ -751,8 +741,7 @@ public unsafe partial class ArchipelagoFFXModule {
         pos += new Vector2(209f + 50f, 306f).game_remap_1080p();
 
         if (param_2 == 0) {
-            pos.Y -= (float)(new Vector2(0, 70f).game_remap_1080p()
-                                                .Y * window->scroll_delta * 0.00024414063); // Scroll offset
+            pos.Y -= (float)(new Vector2(0, 70f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
         }
 
         CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
@@ -827,11 +816,9 @@ public unsafe partial class ArchipelagoFFXModule {
             // Draw ability list
             FhXCall.TODrawScissorXYWH.fnptr!(
                 0,
-                (int)(new Vector2(0, 315f).game_remap_1080p()
-                                          .Y),
+                (int)(new Vector2(0, 315f).game_remap_1080p().Y),
                 0x200,
-                (int)(new Vector2(0, 680f).game_remap_1080p()
-                                          .Y)
+                (int)(new Vector2(0, 680f).game_remap_1080p().Y)
             );
             FUN_008d5d20_Extra(window, 0, window->visible_item_offset, 0, 0);
         } else {
@@ -839,26 +826,21 @@ public unsafe partial class ArchipelagoFFXModule {
             short uVar5 = window->scroll_delta; // Scroll offset
 
             FhXCall.FUN_008c0f40.fnptr!(
-                (int)(new Vector2(0, 315f).game_remap_1080p()
-                                          .Y),
-                (int)(new Vector2(0, 680f).game_remap_1080p()
-                                          .Y),
+                (int)(new Vector2(0, 315f).game_remap_1080p().Y),
+                (int)(new Vector2(0, 680f).game_remap_1080p().Y),
                 1,
                 uVar5
             );
             FUN_008d5d20_Extra(window, 1, window->visible_item_offset, 0, 0);
 
             FhXCall.FUN_008c0f40.fnptr!(
-                (int)(new Vector2(0, 315f).game_remap_1080p()
-                                          .Y),
-                (int)(new Vector2(0, 680f).game_remap_1080p()
-                                          .Y),
+                (int)(new Vector2(0, 315f).game_remap_1080p().Y),
+                (int)(new Vector2(0, 680f).game_remap_1080p().Y),
                 2,
                 uVar5
             );
 
-            int iVar2 = (int)(new Vector2(0, 675f).game_remap_1080p()
-                                                  .Y * uVar5 * -0.00024414063);
+            int iVar2 = (int)(new Vector2(0, 675f).game_remap_1080p().Y * uVar5 * -0.00024414063);
             FUN_008d5d20_Extra(window, 2, window->scroll_offset, 0, iVar2);
         }
 
@@ -892,8 +874,7 @@ public unsafe partial class ArchipelagoFFXModule {
         pos += new Vector2(209f + 50f, 255f).game_remap_1080p();
 
         if (param_2 == 0) {
-            pos.Y -= (float)(new Vector2(0, 75f).game_remap_1080p()
-                                                .Y * window->scroll_delta * 0.00024414063); // Scroll offset
+            pos.Y -= (float)(new Vector2(0, 75f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
         }
 
         CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
