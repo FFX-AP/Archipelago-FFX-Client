@@ -719,16 +719,6 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             }
         }
          */
-        if (Input.l1.is_pressed && Input.r1.is_pressed && Input.start.is_pressed) {
-            _logger.Debug("Soft Reset");
-            //Globals.save_data->current_room_id = 23;
-            if (Battle.btl->battle_state != 0) {
-                Battle.btl->battle_end_type = 1;
-            } else {
-                call_warp_to_map(23, 0);
-            }
-
-        }
 
         if (Input.select.is_pressed && Input.l1.is_pressed) {
 #if DEBUG
