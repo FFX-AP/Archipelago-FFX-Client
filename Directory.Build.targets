@@ -1,0 +1,5 @@
+<Project>
+    <PropertyGroup>
+        <PublishDir>$([MSBuild]::NormalizeDirectory('$(_FhOutDir)', 'mods', '$(AssemblyName)'))</PublishDir>
+    </PropertyGroup>
+</Project>

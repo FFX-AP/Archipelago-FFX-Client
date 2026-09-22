@@ -1,0 +1,64 @@
+{
+  "name": "Recent Items",
+  "desc": "Settings for the Recent Items module.",
+
+
+  "filter.name": "Filters",
+  "filter.desc": "Filter what is displayed.",
+
+  "filter.display_items.name": "Display Items",
+  "filter.display_items.desc": "Whether to display recent items.",
+
+  "filter.display_only_personal.name": "Display Only Personal",
+  "filter.display_only_personal.desc": "Only display items relevant to you.",
+
+  "filter.display_locations.name": "Display Locations",
+  "filter.display_locations.desc": "Display locations along with the items. Warning: Location names can be very long.",
+
+  "filter.item_count.name": "Item Count",
+  "recent.items.filter.item_count.desc": "The amount of recent items to display.",
+
+
+  "visuals.name": "Visuals",
+  "visuals.desc": "Change how the recent items are displayed.",
+
+  "visuals.interpolation.name": "Interpolation",
+  "visuals.interpolation.desc": "How the items move from one position to another.",
+
+  "visuals.interpolation.values.0.name": "Smooth",
+  "visuals.interpolation.values.1.name": "Instant",
+
+  "visuals.fade_method.name": "Fade Method",
+  "visuals.fade_method.desc": "How items should fade in and out.",
+
+  "visuals.fade_method.values.0.name": "Fade",
+  "visuals.fade_method.values.1.name": "Slide",
+  "visuals.fade_method.values.2.name": "Capture",
+
+  "visuals.fade_after.name": "Fade After",
+  "visuals.fade_after.desc": "How many seconds should an item be visible for before fading. Set to 0 to show permanently.",
+
+  "visuals.background.name": "Background",
+  "visuals.background.desc": "Select the type of background to use.",
+
+  "visuals.background.values.0.name": "Transparent",
+  "visuals.background.values.1.name": "Per Item",
+  "visuals.background.values.2.name": "Block",
+
+
+  "position.name": "Positioning",
+  "position.desc": "Position the items on the screen.",
+
+  "position.x.name": "X",
+  "position.x.desc": "Horizontal position of the recent items display as a percentage of the window width.",
+
+  "position.y.name": "Y",
+  "position.y.desc": "Vertical position of the recent items display as a percentage of the window height.",
+
+  "position.alignment.name": "Alignment",
+  "position.alignment.desc": "Whether to align the items to the left, right, or center of the display.",
+
+  "position.alignment.values.0.name": "Left",
+  "position.alignment.values.1.name": "Center",
+  "position.alignment.values.2.name": "Right"
+}
