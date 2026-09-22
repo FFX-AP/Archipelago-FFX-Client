@@ -1,22 +1,19 @@
 ﻿using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
+using ArchipelagoFFX.GUI;
+using Fahrenheit;
 using Fahrenheit.FFX;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-
-using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
-
-using ArchipelagoFFX.GUI;
-
-using Fahrenheit;
 
 namespace ArchipelagoFFX.Client;
 
@@ -34,8 +31,14 @@ public class ArchipelagoClientModule : FhModule {
     public DeathLinkService? current_death_link_service;
 
     public PlayerInfo? active_player => current_session?.Players.ActivePlayer;
-    private bool is_disconnecting = false;
-    public bool is_connected => current_session is not null && !is_disconnecting;
+    public enum ConnectionStatus {
+        DISCONNECTED,
+        CONNECTING,
+        CONNECTED,
+        DISCONNECTING
+    }
+    public ConnectionStatus status = ConnectionStatus.DISCONNECTED;
+    public bool is_connected => current_session is not null && status == ConnectionStatus.CONNECTED;
 
     private ArchipelagoFFXModule? _ffx_interop;
     private ArchipelagoGuiModule? _gui;
@@ -55,10 +58,9 @@ public class ArchipelagoClientModule : FhModule {
         ArchipelagoSession? session = null;
         DeathLinkService? death_link = null;
 
-        if (is_disconnecting) return;
-
-        // Already connecting, so don't attempt to connect twice at the same time
-        if (current_session is not null) return;
+        if (ConnectionStatus.DISCONNECTED != Interlocked.CompareExchange(ref status, ConnectionStatus.CONNECTING, ConnectionStatus.DISCONNECTED)) {
+            return;
+        }
 
         try {
             session = ArchipelagoSessionFactory.CreateSession(server);
@@ -89,6 +91,7 @@ public class ArchipelagoClientModule : FhModule {
             }
             current_session = null;
             _logger.Error(errorMessage);
+            Interlocked.Exchange(ref status, ConnectionStatus.DISCONNECTED);
             return; // Did not connect, show the user the contents of `errorMessage`
         }
         var loginSuccess = (LoginSuccessful)login_result;
@@ -99,6 +102,7 @@ public class ArchipelagoClientModule : FhModule {
                 _gui!.add_log_message([(message, Color.Red)]);
                 _logger.Error(message);
                 disconnect(session);
+                Interlocked.Exchange(ref status, ConnectionStatus.DISCONNECTED);
                 return;
             }
             ArchipelagoFFXModule.SeedToServer[ArchipelagoFFXModule.seed.Options.SeedId] = server;
@@ -115,15 +119,14 @@ public class ArchipelagoClientModule : FhModule {
         current_server = server;
         current_session = session;
         current_death_link_service = death_link;
+        Interlocked.Exchange(ref status, ConnectionStatus.CONNECTED);
     }
 
     public void disconnect(ArchipelagoSession? session = null) {
         _logger.Debug("disconnect");
         lock (client_lock) {
             session ??= current_session;
-            if (session is null || is_disconnecting) return;
-            is_disconnecting = true;
-            disconnectHandlers(session, current_death_link_service);
+            if (session is null || ConnectionStatus.DISCONNECTING == Interlocked.Exchange(ref status, ConnectionStatus.DISCONNECTING)) return;
             session.Socket.DisconnectAsync();
         }
     }
@@ -181,11 +184,12 @@ public class ArchipelagoClientModule : FhModule {
         _logger.Debug($"Socket Closed: \"{reason}\"");
         _gui!.add_log_message([($"Disconnected from server ({reason})", Color.Red)]);
         lock (client_lock) {
+            disconnectHandlers(current_session, current_death_link_service);
             current_session = null;
             current_death_link_service = null;
             SeedId = null;
             current_server = null;
-            is_disconnecting = false;
+            Interlocked.Exchange(ref status, ConnectionStatus.DISCONNECTED);
         }
     }
 
@@ -263,8 +267,7 @@ public class ArchipelagoClientModule : FhModule {
         _gui!.add_log_message(messageParts);
     }
 
-    public void SayAsync(string message)
-    {
+    public void SayAsync(string message) {
         lock (client_lock) {
             if (is_connected) {
                 current_session!.Socket.SendPacketAsync(new SayPacket { Text = message });
@@ -290,9 +293,9 @@ public class ArchipelagoClientModule : FhModule {
     }
 
     private bool sendLocation(long locationId) {
-        if (!local_checked_locations.Add(locationId)) return false;
-        local_locations_updated = true;
         lock (client_lock) {
+            if (!local_checked_locations.Add(locationId)) return false;
+            local_locations_updated = true;
             if (is_connected) {
                 _logger.Debug(current_session!.Locations.GetLocationNameFromId(locationId) ?? $"Location: {locationId}");
             }

@@ -461,20 +461,27 @@ public unsafe class ArchipelagoGuiModule : FhModule {
         } else {
             ImGui.Text($"Loaded seed: {seed.Name}");
         }
-        if (!(_client!.is_connected)) {
-            ImGui.InputText("Address", ref client_input_address, 50);
-            ImGui.InputText("Name", ref client_input_name, 50);
-            ImGui.InputText("Password", ref client_input_password, 50);
-            if (ImGui.Button("Connect")) {
-                //Task.Run(() => FFXArchipelagoClient.Connect(client_input_address, client_input_name, client_input_password));
-                _client!.Connect(client_input_address, client_input_name, client_input_password);
-                //FFXArchipelagoClient.Connect(client_input_address, client_input_name, client_input_password);
-            }
-        } else {
-            ImGui.Text($"Connected as {_client!.active_player?.Name}");
-            if (ImGui.Button("Disconnect")) {
-                _client!.disconnect();
-            }
+        switch (_client!.status) {
+            case ArchipelagoClientModule.ConnectionStatus.DISCONNECTED:
+                ImGui.InputText("Address", ref client_input_address, 50);
+                ImGui.InputText("Name", ref client_input_name, 50);
+                ImGui.InputText("Password", ref client_input_password, 50);
+                if (ImGui.Button("Connect")) {
+                    _client!.Connect(client_input_address, client_input_name, client_input_password);
+                }
+                break;
+            case ArchipelagoClientModule.ConnectionStatus.CONNECTING:
+                ImGui.Text($"Connecting to server...");
+                break;
+            case ArchipelagoClientModule.ConnectionStatus.DISCONNECTING:
+                ImGui.Text($"Disconnecting...");
+                break;
+            case ArchipelagoClientModule.ConnectionStatus.CONNECTED:
+                ImGui.Text($"Connected as {_client!.active_player?.Name}");
+                if (ImGui.Button("Disconnect")) {
+                    _client!.disconnect();
+                }
+                break;
         }
     }
 
