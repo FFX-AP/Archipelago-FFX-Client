@@ -75,32 +75,18 @@ public unsafe class ArchipelagoGuiModule : FhModule {
         }
     }
 
-    private FhModuleHandle<ArchipelagoClientModule> _client_handle;
     private ArchipelagoClientModule? _client;
-
-    private FhModuleHandle<ArchipelagoFFXModule> _ffx_interop_handle;
     private ArchipelagoFFXModule? _ffx_interop;
-
-    private FhModuleHandle<DeathLinkModule> _deathlink_handle;
     private DeathLinkModule? _deathlink;
-
-    private FhModuleHandle<HardcoreDreamsEndModule> _hardcore_dreams_end_handle;
     private HardcoreDreamsEndModule? _hardcore_dreams_end;
-
-    public ArchipelagoGuiModule() {
-        _client_handle = new(this);
-        _ffx_interop_handle = new(this);
-        _hardcore_dreams_end_handle = new(this);
-        _deathlink_handle = new(this);
-    }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         shiori_file = mod_context.Paths.ResourcesDir.GetFiles("shiori.png").FirstOrDefault();
 
-        return _client_handle.try_get_module(out _client)
-            && _ffx_interop_handle.try_get_module(out _ffx_interop)
-            && _hardcore_dreams_end_handle.try_get_module(out _hardcore_dreams_end)
-            && _deathlink_handle.try_get_module(out _deathlink);
+        return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
+            && new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
+            && new FhModuleHandle<DeathLinkModule>(this).try_get_module(out _deathlink)
+            && new FhModuleHandle<HardcoreDreamsEndModule>(this).try_get_module(out _hardcore_dreams_end);
     }
 
     public override void render_imgui() {

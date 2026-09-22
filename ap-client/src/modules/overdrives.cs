@@ -20,10 +20,7 @@ public unsafe class OverdriveModule : FhModule {
     private FhModContext? _mod_context;
     private FileStream? _global_state;
 
-    private FhModuleHandle<ArchipelagoClientModule> _client_handle;
     private ArchipelagoClientModule? _client;
-
-    private FhModuleHandle<ArchipelagoFFXModule> _ffx_interop_handle;
     private ArchipelagoFFXModule? _ffx_interop;
 
     private FhMethodHandle<FhGCall.d_CT_RetInt> h_ret_doesChrKnowCommand
@@ -31,8 +28,7 @@ public unsafe class OverdriveModule : FhModule {
 
     // Damage Calc
     [StructLayout(LayoutKind.Explicit, Size = 0x2C)]
-    private struct DamageInfo
-    {
+    private struct DamageInfo {
         [FieldOffset(0x00)] public byte                 field0_0x0;
         [FieldOffset(0x01)] public byte                 field1_0x1;
         [FieldOffset(0x02)] public byte                 field2_0x2;
@@ -52,8 +48,7 @@ public unsafe class OverdriveModule : FhModule {
 
     // Chr inner struct
     [StructLayout(LayoutKind.Explicit)]
-    private struct Chr__0x774
-    {
+    private struct Chr__0x774 {
         [FieldOffset(0x00)] public byte        field0_0x0;
         [FieldOffset(0x01)] public byte        field1_0x1;
         [FieldOffset(0x02)] public byte        field2_0x2;
@@ -68,11 +63,6 @@ public unsafe class OverdriveModule : FhModule {
         [FieldOffset(0x10)] public int         field16_0x10;
         [FieldOffset(0x17)] public byte        chr_id__0x17;
         [FieldOffset(0x18)] public DamageInfo  field24_0x18;
-    };
-
-    public OverdriveModule() {
-        _client_handle      = new(this);
-        _ffx_interop_handle = new(this);
     }
 
     // Helper class for overdrive provider functions
@@ -202,8 +192,8 @@ public unsafe class OverdriveModule : FhModule {
         _mod_context  = mod_context;
         _global_state = global_state_file;
 
-        return _client_handle.try_get_module(out _client)
-            && _ffx_interop_handle.try_get_module(out _ffx_interop)
+        return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
+            && new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
             && FhXCall.MsGetSaveCommand.hook(this, h_MsGetSaveCommand)
             && FhXCall.MsSetRamChrAbility.hook(this, h_MsSetRamChrAbility)
             && FhXCall.MsLimitTidusLearn.hook(this, h_MsLimitTidusLearn)

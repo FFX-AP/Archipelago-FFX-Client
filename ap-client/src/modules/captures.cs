@@ -18,16 +18,8 @@ namespace ArchipelagoFFX;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe class CaptureModule : FhModule {
-    private FhModuleHandle<ArchipelagoClientModule> _client_handle;
     private ArchipelagoClientModule? _client;
-
-    private FhModuleHandle<ArchipelagoFFXModule> _ffx_interop_handle;
     private ArchipelagoFFXModule? _ffx_interop;
-
-    public CaptureModule() {
-        _client_handle = new(this);
-        _ffx_interop_handle = new(this);
-    }
 
     // TODO: Remove once Fahrenheit adds Atel call targets to FhCall
     // Mars Sigil location check (Atel CT_RetInt hook); not yet a curated FhCall entry, so kept as a local handle.
@@ -35,8 +27,8 @@ public unsafe class CaptureModule : FhModule {
         => new( new FhMethodLocation("FFX.exe", 0x45B7A0) );
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return _client_handle.try_get_module(out _client)
-            && _ffx_interop_handle.try_get_module(out _ffx_interop)
+        return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
+            && new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
             && FhXCall.MsMonsterCapture.hook(this, h_MsMonsterCapture)
             && FhXCall.FUN_00783bb0.hook(this, h_FUN_00783bb0)
             && FhXCall.AtelEventSetUp.hook(this, h_AtelEventSetUp)

@@ -32,10 +32,7 @@ public unsafe class DeathLinkModule : FhModule {
 
     private ArchipelagoFFXModule.NativeCustomString _deathlink_announcement;
 
-    private FhModuleHandle<ArchipelagoClientModule> _client_handle;
     private ArchipelagoClientModule? _client;
-
-    private readonly FhModuleHandle<ToastModule> _toasts_handle;
     private ToastModule? _toasts;
 
     private readonly Random _deathlink_message_rng = new();
@@ -50,9 +47,6 @@ public unsafe class DeathLinkModule : FhModule {
 
     public DeathLinkModule() {
         _deathlink_announcement = new("Deathlink!");
-
-        _client_handle = new(this);
-        _toasts_handle = new(this);
     }
 
     public bool get_enabled() {
@@ -133,8 +127,8 @@ public unsafe class DeathLinkModule : FhModule {
     }
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return _client_handle.try_get_module(out _client)
-            && _toasts_handle.try_get_module(out _toasts)
+        return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
+            && new FhModuleHandle<ToastModule>(this).try_get_module(out _toasts)
             && FhXCall.MsBtlReadManage.hook(this, _h_MsBtlReadManage)
             && FhXCall.MsDamageCheckDeath.hook(this, _h_MsDamageCheckDeath)
             && FhXCall.MsGetBattleEndStatus.hook(this, _h_MsGetBattleEndStatus);

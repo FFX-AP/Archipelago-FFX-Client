@@ -37,30 +37,16 @@ public class ArchipelagoClientModule : FhModule {
     private bool is_disconnecting = false;
     public bool is_connected => current_session is not null && !is_disconnecting;
 
-    private FhModuleHandle<ArchipelagoFFXModule> _ffx_interop_handle;
     private ArchipelagoFFXModule? _ffx_interop;
-
-    private FhModuleHandle<ArchipelagoGuiModule> _gui_handle;
     private ArchipelagoGuiModule? _gui;
-
-    private FhModuleHandle<RecentItemsModule> _recent_items_handle;
     private RecentItemsModule? _recent_items;
-
-    private FhModuleHandle<DeathLinkModule> _death_link_handle;
     private DeathLinkModule? _death_link;
 
-    public ArchipelagoClientModule() {
-        _ffx_interop_handle = new(this);
-        _gui_handle = new(this);
-        _recent_items_handle = new(this);
-        _death_link_handle = new(this);
-    }
-
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return _ffx_interop_handle.try_get_module(out _ffx_interop)
-            && _gui_handle.try_get_module(out _gui)
-            && _recent_items_handle.try_get_module(out _recent_items)
-            && _death_link_handle.try_get_module(out _death_link);
+        return new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
+            && new FhModuleHandle<ArchipelagoGuiModule>(this).try_get_module(out _gui)
+            && new FhModuleHandle<RecentItemsModule>(this).try_get_module(out _recent_items)
+            && new FhModuleHandle<DeathLinkModule>(this).try_get_module(out _death_link);
     }
 
     public async Task Connect(string server, string user, string password) {
