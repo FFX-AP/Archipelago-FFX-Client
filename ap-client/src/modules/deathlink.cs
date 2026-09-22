@@ -43,10 +43,18 @@ public unsafe class DeathLinkModule : FhModule {
     public DeathLinkReceiveType deathlink_receive_type = DeathLinkReceiveType.DOOM_STRICT;
     private bool _deathlink_enabled;
     private uint _deathlinks_queued;
-    private bool deathlink_grace = false;
+    private bool deathlink_grace;
 
     public DeathLinkModule() {
         _deathlink_announcement = new("Deathlink!");
+    }
+
+    public override bool init(FhModContext mod_context, FileStream global_state_file) {
+        return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
+            && new FhModuleHandle<ToastModule>(this).try_get_module(out _toasts)
+            && FhXCall.MsBtlReadManage.hook(this, _h_MsBtlReadManage)
+            && FhXCall.MsDamageCheckDeath.hook(this, _h_MsDamageCheckDeath)
+            && FhXCall.MsGetBattleEndStatus.hook(this, _h_MsGetBattleEndStatus);
     }
 
     public bool get_enabled() {
@@ -124,14 +132,6 @@ public unsafe class DeathLinkModule : FhModule {
 
     public void debug_apply_deathlink() {
         apply_death_link();
-    }
-
-    public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
-            && new FhModuleHandle<ToastModule>(this).try_get_module(out _toasts)
-            && FhXCall.MsBtlReadManage.hook(this, _h_MsBtlReadManage)
-            && FhXCall.MsDamageCheckDeath.hook(this, _h_MsDamageCheckDeath)
-            && FhXCall.MsGetBattleEndStatus.hook(this, _h_MsGetBattleEndStatus);
     }
 
     private void apply_death_link() {

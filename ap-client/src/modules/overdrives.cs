@@ -187,8 +187,7 @@ public unsafe class OverdriveModule : FhModule {
         }
     }
 
-    public override bool init(FhModContext mod_context, FileStream global_state_file)
-    {
+    public override bool init(FhModContext mod_context, FileStream global_state_file) {
         _mod_context  = mod_context;
         _global_state = global_state_file;
 
