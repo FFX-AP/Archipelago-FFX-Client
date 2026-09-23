@@ -1,0 +1,25 @@
+﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha11">
+	<!-- ASSEMBLY ADDITIONAL PROPERTIES -->
+	<PropertyGroup>
+		<AssemblyName>archipelago-ffx</AssemblyName>
+		<AssemblyTitle>Archipelago FFX</AssemblyTitle>
+		<Product>Archipelago FFX</Product>
+		<Description>Archipelago client for FFX</Description>
+        <Version>0.8.1-alpha</Version>
+        <Authors>Rurusachi, Andrewki, EvelynTSMG</Authors>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/FFX-AP/Archipelago-FFX-Client.git</RepositoryUrl>
+        <FhManifestFlags>NONE</FhManifestFlags>
+	</PropertyGroup>
+
+	<!-- SHARED FILE LINKS -->
+	<ItemGroup>
+		<None Include="$(SolutionDir).editorconfig" Link=".editorconfig" />
+	</ItemGroup>
+
+    <!-- PACKAGE REFERENCES -->
+	<ItemGroup>
+		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.1" />
+	</ItemGroup>
+
+</Project>
