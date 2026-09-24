@@ -1002,6 +1002,15 @@ public unsafe class ArchipelagoGuiModule : FhModule {
                             ImGui.Text($"{item_name}: {amount}");
                         }
                     }
+                    ImGui.SeparatorText("Gear");
+                    if (gear_inventory.Count == 0) {
+                        ImGui.Text("Empty");
+                    } else {
+                        foreach (ExcessGear gear in gear_inventory) {
+                            string gear_name = _ffx_interop!.get_gear_name(gear.name_id, gear.owner);
+                            ImGui.Text($"{gear_name}");
+                        }
+                    }
                     ImGui.EndTabItem();
                 }
                 if (ImGui.BeginTabItem("Unlocks###Archipelago.GUI.TabBar.Unlocks")) {
