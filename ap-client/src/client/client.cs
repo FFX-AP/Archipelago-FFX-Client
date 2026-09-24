@@ -121,14 +121,15 @@ public class ArchipelagoClientModule : FhModule {
         current_death_link_service = death_link;
         Interlocked.Exchange(ref status, ConnectionStatus.CONNECTED);
     }
-
-    public void disconnect(ArchipelagoSession? session = null) {
+    public async void disconnect() {
+        disconnect(current_session);
+    }
+    public async void disconnect(ArchipelagoSession? session) {
         _logger.Debug("disconnect");
         lock (client_lock) {
-            session ??= current_session;
             if (session is null || ConnectionStatus.DISCONNECTING == Interlocked.Exchange(ref status, ConnectionStatus.DISCONNECTING)) return;
-            session.Socket.DisconnectAsync();
         }
+        await session.Socket.DisconnectAsync();
     }
 
     private void connectHandlers(ArchipelagoSession session, DeathLinkService death_link) {
@@ -166,14 +167,14 @@ public class ArchipelagoClientModule : FhModule {
     }
 
     private void Socket_ErrorReceived(Exception e, string message) {
-        _logger.Debug($"Socket Error: {message}");
-        _logger.Debug($"Socket Exception: {e.Message}");
+        _logger.Info($"Socket Error: {message}");
+        _logger.Info($"Socket Exception: {e.Message}");
 
         if (e.StackTrace != null)
             foreach (var line in e.StackTrace.Split('\n'))
-                _logger.Debug($"    {line}");
+                _logger.Info($"    {line}");
         else
-            _logger.Debug("    No stacktrace provided");
+            _logger.Info("    No stacktrace provided");
     }
 
     private void Socket_SocketOpened() {
@@ -182,8 +183,8 @@ public class ArchipelagoClientModule : FhModule {
 
     private void Socket_SocketClosed(string reason) {
         _logger.Debug($"Socket Closed: \"{reason}\"");
-        _gui!.add_log_message([($"Disconnected from server ({reason})", Color.Red)]);
         lock (client_lock) {
+            if (current_session == null) return;
             disconnectHandlers(current_session, current_death_link_service);
             current_session = null;
             current_death_link_service = null;
@@ -191,6 +192,7 @@ public class ArchipelagoClientModule : FhModule {
             current_server = null;
             Interlocked.Exchange(ref status, ConnectionStatus.DISCONNECTED);
         }
+        _gui!.add_log_message([($"Disconnected from server ({reason})", Color.Red)]);
     }
 
     public unsafe void update() {

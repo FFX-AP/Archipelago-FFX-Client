@@ -15,6 +15,7 @@ using static ArchipelagoFFX.ArchipelagoFFXModule;
 using static Fahrenheit.FFX.Globals;
 using Color = Archipelago.MultiClient.Net.Models.Color;
 using FhXCall = Fahrenheit.FFX.FhCall;
+using ConnectionStatus = ArchipelagoFFX.Client.ArchipelagoClientModule.ConnectionStatus;
 
 namespace ArchipelagoFFX.GUI;
 
@@ -461,28 +462,25 @@ public unsafe class ArchipelagoGuiModule : FhModule {
         } else {
             ImGui.Text($"Loaded seed: {seed.Name}");
         }
-        switch (_client!.status) {
-            case ArchipelagoClientModule.ConnectionStatus.DISCONNECTED:
-                ImGui.InputText("Address", ref client_input_address, 50);
-                ImGui.InputText("Name", ref client_input_name, 50);
-                ImGui.InputText("Password", ref client_input_password, 50);
-                if (ImGui.Button("Connect")) {
-                    _client!.Connect(client_input_address, client_input_name, client_input_password);
-                }
-                break;
-            case ArchipelagoClientModule.ConnectionStatus.CONNECTING:
-                ImGui.Text($"Connecting to server...");
-                break;
-            case ArchipelagoClientModule.ConnectionStatus.DISCONNECTING:
-                ImGui.Text($"Disconnecting...");
-                break;
-            case ArchipelagoClientModule.ConnectionStatus.CONNECTED:
-                ImGui.Text($"Connected as {_client!.active_player?.Name}");
-                if (ImGui.Button("Disconnect")) {
-                    _client!.disconnect();
-                }
-                break;
-        }
+
+        ConnectionStatus client_status = _client!.status;
+
+        ImGui.BeginDisabled(client_status != ConnectionStatus.DISCONNECTED);
+        ImGui.InputText("Address", ref client_input_address, 50);
+        ImGui.InputText("Name", ref client_input_name, 50);
+        ImGui.InputText("Password", ref client_input_password, 50, ImGuiInputTextFlags.Password);
+        ImGui.EndDisabled();
+
+        (string text, Action? callback) button_data = client_status switch {
+            ConnectionStatus.DISCONNECTED => ("Connect", () => _client!.Connect(client_input_address, client_input_name, client_input_password)),
+            ConnectionStatus.CONNECTED => ("Disconnect", () => _client!.disconnect()),
+            ConnectionStatus.CONNECTING => ("Connecting...", null),
+            ConnectionStatus.DISCONNECTING => ("Disconnecting...", null),
+            _ => throw new NotImplementedException(),
+        };
+        ImGui.BeginDisabled(button_data.callback == null);
+        if (ImGui.Button(button_data.text)) button_data.callback!();
+        ImGui.EndDisabled();
     }
 
     public void add_log_message(List<(string, Color)> message) {
