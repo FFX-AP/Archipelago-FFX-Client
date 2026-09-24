@@ -9,6 +9,11 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+
+using Archipelago.MultiClient.Net.Models;
+
+using ArchipelagoFFX.GUI;
+
 using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
@@ -29,10 +34,16 @@ public unsafe class DeathLinkModule : FhModule {
     }
 
     public static readonly Vector4 DEATHLINK_COLOR = new(1.0f, 0.18f, 0.21f, 1.0f);
+    private static readonly Color DEATHLINK_AP_COLOR = new(
+        byte.CreateSaturating(DEATHLINK_COLOR.X * 255f),
+        byte.CreateSaturating(DEATHLINK_COLOR.Y * 255f),
+        byte.CreateSaturating(DEATHLINK_COLOR.Z * 255f)
+    );
 
     private ArchipelagoFFXModule.NativeCustomString _deathlink_announcement;
 
     private ArchipelagoClientModule? _client;
+    private ArchipelagoGuiModule? _gui;
     private ToastModule? _toasts;
 
     private readonly Random _deathlink_message_rng = new();
@@ -51,6 +62,7 @@ public unsafe class DeathLinkModule : FhModule {
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
+            && new FhModuleHandle<ArchipelagoGuiModule>(this).try_get_module(out _gui)
             && new FhModuleHandle<ToastModule>(this).try_get_module(out _toasts)
             && FhXCall.MsBtlReadManage.hook(this, _h_MsBtlReadManage)
             && FhXCall.MsDamageCheckDeath.hook(this, _h_MsDamageCheckDeath)
@@ -256,13 +268,11 @@ public unsafe class DeathLinkModule : FhModule {
 
         _client!.current_death_link_service?.SendDeathLink(new(player, message));
 
+        _gui!.add_log_message([ ($"Deathlink sent: {message}", DEATHLINK_AP_COLOR) ]);
+
         ToastModule.Toast deathlink_toast = new(
-            [
-                new(DEATHLINK_COLOR, "Deathlink sent!"),
-            ],
-            [
-                new(new(1f), message),
-            ]
+            [ new(DEATHLINK_COLOR, "Deathlink sent!") ],
+            [ new(new(1f), message) ]
         );
 
         _toasts!.queue_toast(deathlink_toast);
@@ -290,13 +300,11 @@ public unsafe class DeathLinkModule : FhModule {
 
         _client!.current_death_link_service?.SendDeathLink(new(player, message));
 
+        _gui!.add_log_message([ ($"Deathlink sent: {message}", DEATHLINK_AP_COLOR) ]);
+
         ToastModule.Toast deathlink_toast = new(
-            [
-                new(DEATHLINK_COLOR, "Deathlink sent!"),
-            ],
-            [
-                new(new(1f), message),
-            ]
+            [ new(DEATHLINK_COLOR, "Deathlink sent!") ],
+            [ new(new(1f), message) ]
         );
 
         _toasts!.queue_toast(deathlink_toast);
@@ -439,14 +447,16 @@ public unsafe class DeathLinkModule : FhModule {
         if (!_deathlink_enabled) return;
         _deathlinks_queued += 1;
 
+        string cause = death_msg.Cause
+            ?? _get_backup_deathlink_received_text(death_msg.Source);
+
+        // Log the deathlink
+        _gui!.add_log_message([ ($"Deathlink received: {cause}", DEATHLINK_AP_COLOR) ]);
+
         // Display a toast
         ToastModule.Toast deathlink_toast = new(
-            [
-                new(DEATHLINK_COLOR, "Deathlink received!"),
-            ],
-            [
-                new(new(1f), death_msg.Cause ?? _get_backup_deathlink_received_text(death_msg.Source)),
-            ]
+            [ new(DEATHLINK_COLOR, "Deathlink received!") ],
+            [ new(new(1f), cause) ]
         );
 
         _toasts?.queue_toast(deathlink_toast);
