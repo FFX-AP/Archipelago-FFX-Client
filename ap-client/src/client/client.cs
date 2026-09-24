@@ -167,14 +167,14 @@ public class ArchipelagoClientModule : FhModule {
     }
 
     private void Socket_ErrorReceived(Exception e, string message) {
-        _logger.Info($"Socket Error: {message}");
-        _logger.Info($"Socket Exception: {e.Message}");
+        _logger.Error($"Socket Error: {message}");
+        _logger.Error($"Socket Exception: {e.Message}");
 
         if (e.StackTrace != null)
             foreach (var line in e.StackTrace.Split('\n'))
-                _logger.Info($"    {line}");
+                _logger.Error($"    {line}");
         else
-            _logger.Info("    No stacktrace provided");
+            _logger.Error("    No stacktrace provided");
     }
 
     private void Socket_SocketOpened() {
