@@ -45,6 +45,7 @@ public unsafe class DeathLinkModule : FhModule {
     private ArchipelagoClientModule? _client;
     private ArchipelagoGuiModule? _gui;
     private ToastModule? _toasts;
+    private HardcoreDreamsEndModule? _hardcore_dreams_end;
 
     private readonly Random _deathlink_message_rng = new();
     private readonly Random _deathlink_type_rng = new();
@@ -64,6 +65,7 @@ public unsafe class DeathLinkModule : FhModule {
         return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
             && new FhModuleHandle<ArchipelagoGuiModule>(this).try_get_module(out _gui)
             && new FhModuleHandle<ToastModule>(this).try_get_module(out _toasts)
+            && new FhModuleHandle<HardcoreDreamsEndModule>(this).try_get_module(out _hardcore_dreams_end)
             && FhXCall.MsBtlReadManage.hook(this, _h_MsBtlReadManage)
             && FhXCall.MsDamageCheckDeath.hook(this, _h_MsDamageCheckDeath)
             && FhXCall.MsGetBattleEndStatus.hook(this, _h_MsGetBattleEndStatus);
@@ -357,7 +359,10 @@ public unsafe class DeathLinkModule : FhModule {
             "sins03_00" => $"seymour_omnis.{boss_rng}",
             "sins06_00" => $"braskas_final_aeon.{boss_rng}",
             "sins07_10" => $"yu_yevon.{boss_rng}",
-            _ when encounter_name.StartsWith("sins07") => $"contest_of_aeons.{boss_rng}",
+            _ when encounter_name.StartsWith("sins07")
+                => _hardcore_dreams_end!.get_enabled()
+                    ? $"contest_of_aeons.hardcore.{boss_rng}"
+                    : $"contest_of_aeons.{boss_rng}",
 
             "omeg00_10" => $"ultima_weapon.{boss_rng}",
             "omeg01_10" => $"omega_weapon.{boss_rng}",
