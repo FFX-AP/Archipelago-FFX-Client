@@ -3,6 +3,7 @@ using ArchipelagoFFX.Client;
 using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
+using Fahrenheit.Gui;
 using Hexa.NET.ImGui;
 using System;
 using System.Collections.Generic;
@@ -525,7 +526,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
                     var wrap_width = ImGui.GetContentRegionAvail().X;
                     var remaining_width = wrap_width;
                     foreach (var part in line) {
-                        var color = new Vector4(part.color.R / 255f, part.color.G / 255f, part.color.B / 255f, 1.0f);
+                        var color = part.color.to_vector4();
                         ImGui.PushStyleColor(ImGuiCol.Text, color);
                         foreach (var word in part.text.Split(" ")) {
                             var word_width = ImGui.CalcTextSize($"{word} ").X;
@@ -816,7 +817,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             foreach (var (region, i) in region_is_unlocked.Select((value, i) => (value, i))) {
                 ImGui.TableNextColumn();
                 Color color = region.Value ? Color.Green : Color.Red;
-                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.Text, color.to_vector4());
 #if !DEBUG
                 ImGui.BeginDisabled();
 #endif
@@ -841,7 +842,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             foreach (var (character, i) in unlocked_characters.Select((value, i) => (value, i))) {
                 ImGui.TableNextColumn();
                 Color color = character.Value ? Color.Green : Color.Red;
-                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.Text, color.to_vector4());
 #if !DEBUG
                 ImGui.BeginDisabled();
 #endif
@@ -1008,7 +1009,8 @@ public unsafe class ArchipelagoGuiModule : FhModule {
                     } else {
                         foreach (ExcessGear gear in gear_inventory) {
                             string gear_name = _ffx_interop!.get_gear_name(gear.name_id, gear.owner);
-                            ImGui.Text($"{gear_name}");
+                            Vector4 color = gear.name_id == 20480 ? Color.Yellow.to_vector4() : *ImGui.GetStyleColorVec4(ImGuiCol.Text);
+                            ImGui.TextColored(color, $"{gear_name}");
                         }
                     }
                     ImGui.EndTabItem();

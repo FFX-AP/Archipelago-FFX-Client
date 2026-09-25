@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 
-using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Models;
@@ -19,42 +18,6 @@ namespace ArchipelagoFFX.GUI;
 
 [FhLoad(FhGameId.FFX)]
 public unsafe class RecentItemsModule : FhModule {
-    private static class Colors {
-        private static Vector4 color_to_vector4(Color color) {
-            return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
-        }
-
-        // Pascal case names to mimic enums
-        private static readonly Vector4 BrightenFactor = new(0.2f, 0.2f, 0.2f, 0.0f);
-
-        public static readonly Vector4 Default = color_to_vector4(Color.White);
-
-        public static readonly Vector4 PlayerSelf  = color_to_vector4(Color.Magenta) + BrightenFactor;
-        public static readonly Vector4 PlayerOther = color_to_vector4(Color.Yellow);
-
-        public static readonly Vector4 ItemFiller = color_to_vector4(Color.Cyan);
-        public static readonly Vector4 ItemTrap   = color_to_vector4(Color.Salmon);
-        public static readonly Vector4 ItemProg   = color_to_vector4(Color.Plum);
-        public static readonly Vector4 ItemUseful = color_to_vector4(Color.SlateBlue) + BrightenFactor;
-
-        // Location color is slightly modified to be more readable on dark backgrounds
-        public static readonly Vector4 Location = color_to_vector4(Color.Green) + BrightenFactor;
-
-        public static Vector4 get_item_color(ItemInfo item) {
-            Vector4 item_color = ItemFiller;
-
-            if (item.Flags.HasFlag(ItemFlags.Trap)) {
-                item_color = ItemTrap;
-            } else if (item.Flags.HasFlag(ItemFlags.Advancement)) {
-                item_color = ItemProg;
-            } else if (item.Flags.HasFlag(ItemFlags.NeverExclude)) {
-                item_color = ItemUseful;
-            }
-
-            return item_color;
-        }
-    }
-
     public enum RecentItemsInterpolation {
         SMOOTH = 0,
         INSTANT = 1,
