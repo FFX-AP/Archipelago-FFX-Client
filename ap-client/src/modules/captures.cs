@@ -63,11 +63,10 @@ public unsafe class CaptureModule : FhModule {
 
         // Send AP Location if successfully captured
         if (captured) {
+            if (_client!.sendLocation(arena_idx, ArchipelagoLocationType.Capture) && ArchipelagoFFXModule.item_locations.capture.TryGetValue(arena_idx, out var item)) {
+                _ffx_interop!.obtain_item(item.id);
+            }
             lock (_client!.client_lock) {
-                if (_client!.sendLocation(arena_idx, ArchipelagoLocationType.Capture) && ArchipelagoFFXModule.item_locations.capture.TryGetValue(arena_idx, out var item)) {
-                    _ffx_interop!.obtain_item(item.id);
-                }
-
                 int amount = save_data->monsters_captured[arena_idx];
                 if (_client!.is_connected) {
                     if (amount > 0)
