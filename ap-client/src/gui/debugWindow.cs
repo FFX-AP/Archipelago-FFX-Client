@@ -1009,7 +1009,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
                     } else {
                         foreach (ExcessGear gear in gear_inventory) {
                             string gear_name = _ffx_interop!.get_gear_name(gear.name_id, gear.owner);
-                            Vector4 color = gear.name_id == 20480 ? Color.Yellow.to_vector4() : *ImGui.GetStyleColorVec4(ImGuiCol.Text);
+                            Vector4 color = gear.name_id == 0x5000 ? Color.Yellow.to_vector4() : *ImGui.GetStyleColorVec4(ImGuiCol.Text);
                             ImGui.TextColored(color, $"{gear_name}");
                         }
                     }
