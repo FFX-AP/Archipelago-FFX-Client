@@ -97,7 +97,8 @@ public unsafe partial class ArchipelagoFFXModule {
     private static FhMethodHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
         => new(new FhMethodLocation("FFX.exe", 0x4be480));
 
-    
+
+    //TODO: Remove this when updating to Fahrenheit alpha12
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate byte* d_MsWeaponName(ushort name_id, byte owner, [MarshalAs(UnmanagedType.Bool)] bool simplified, ushort* out_model_id);
     public static FhMethodHandle<d_MsWeaponName> MsWeaponName
@@ -3493,18 +3494,18 @@ public unsafe partial class ArchipelagoFFXModule {
         byte* item_name;
         FhXCall.TkMsGetRomItem.fnptr!(item_id, (int*)&item_name);
         byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(new ReadOnlySpan<byte>(item_name, 1000))];
-        int decoded_length = FhEncoding.decode(new ReadOnlySpan<byte>(item_name, 1000), decoded, flags:FhEncodingFlags.IMPLICIT_END);
-        string decoded_string = Encoding.UTF8.GetString(decoded, 0, decoded_length);
+        FhEncoding.decode(new ReadOnlySpan<byte>(item_name, 1000), decoded, flags:FhEncodingFlags.IMPLICIT_END);
+        string decoded_string = Encoding.UTF8.GetString(decoded);
         item_name_cache[item_id] = decoded_string;
         return decoded_string;
     }
     private Dictionary<(ushort, byte), string> gear_name_cache = [];
     public string get_gear_name(ushort name_id, byte owner) {
         if (gear_name_cache.TryGetValue((name_id, owner), out var name)) return name;
-        byte* gear_name_ptr = MsWeaponName.fnptr!(name_id, owner, false, (ushort*)0);
+        byte* gear_name_ptr = MsWeaponName.fnptr!(name_id, owner, false, null);
         byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(new ReadOnlySpan<byte>(gear_name_ptr, 1000))];
-        int decoded_length = FhEncoding.decode(new ReadOnlySpan<byte>(gear_name_ptr, 1000), decoded, flags:FhEncodingFlags.IMPLICIT_END);
-        string decoded_string = Encoding.UTF8.GetString(decoded, 0, decoded_length);
+        FhEncoding.decode(new ReadOnlySpan<byte>(gear_name_ptr, 1000), decoded, flags:FhEncodingFlags.IMPLICIT_END);
+        string decoded_string = Encoding.UTF8.GetString(decoded);
         gear_name_cache[(name_id, owner)] = decoded_string;
         return decoded_string;
     }
