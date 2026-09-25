@@ -85,18 +85,6 @@ public unsafe partial class ArchipelagoFFXModule {
     private FhMethodHandle<FhGCall.d_CT_Init> h_SgEvent_showModularMenuInit
         => new(new FhMethodLocation("FFX.exe", 0x678210));
 
-    private delegate void d_TOMenuGetControlPad();
-    private static FhMethodHandle<d_TOMenuGetControlPad> TOMenuGetControlPad
-        => new(new FhMethodLocation("FFX.exe", 0x4be3e0));
-
-    private delegate void d_TOMenuGetControlPadRep();
-    private static FhMethodHandle<d_TOMenuGetControlPadRep> TOMenuGetControlPadRep
-        => new(new FhMethodLocation("FFX.exe", 0x4be440));
-
-    private delegate void d_TOMenuGetControlPadTrg();
-    private static FhMethodHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
-        => new(new FhMethodLocation("FFX.exe", 0x4be480));
-
 
     //TODO: Remove this when updating to Fahrenheit alpha12
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -224,12 +212,6 @@ public unsafe partial class ArchipelagoFFXModule {
             && FhXCall.AtelInitTotal.hook(this, AtelInitTotal)
             && FhXCall.LocalizationManager_Initialize.hook(this, LocalizationManager_Initialize)
             && FhXCall.TkMenuAppearMainCmdWindow.hook(this, TkMenuAppearMainCmdWindow)
-            && FhXCall.FUN_008c2370.hook(this, PrepareMenuList)
-            && FhXCall.UpdateGearCustomizationMenuState.hook(this, UpdateGearCustomizationMenuState)
-            && FhXCall.DrawGearCustomizationMenu.hook(this, DrawGearCustomizationMenu)
-            && FhXCall.TkMenuCtrlSummon.hook(this, TkMenuCtrlSummon)
-            && FhXCall.FUN_008cdb70.hook(this, DrawAeonCustomizationMenu)
-            && FhXCall.FUN_008d5720.hook(this, FUN_008d5720)
             && FhGCall.TODrawMessageWindow.hook(this, render_game);
         //  && _FUN_00656c90.hook() && _FUN_0065ee30.hook();
         //  && _openFile.hook() && _FUN_0070aec0.hook();

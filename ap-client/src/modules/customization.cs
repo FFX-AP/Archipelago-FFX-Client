@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+using System.IO;
+
 using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
@@ -11,7 +13,34 @@ using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
 
-public unsafe partial class ArchipelagoFFXModule {
+public unsafe class CustomizationModule : FhModule {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void d_TOMenuGetControlPad();
+    private static FhMethodHandle<d_TOMenuGetControlPad> TOMenuGetControlPad
+        => new(new FhMethodLocation("FFX.exe", 0x4be3e0));
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void d_TOMenuGetControlPadRep();
+    private static FhMethodHandle<d_TOMenuGetControlPadRep> TOMenuGetControlPadRep
+        => new(new FhMethodLocation("FFX.exe", 0x4be440));
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void d_TOMenuGetControlPadTrg();
+    private static FhMethodHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
+        => new(new FhMethodLocation("FFX.exe", 0x4be480));
+
+    private ArchipelagoFFXModule? _ffx_interop;
+
+    public override bool init(FhModContext mod_context, FileStream global_state_file) {
+        return new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
+            && FhXCall.FUN_008c2370.hook(this, PrepareMenuList)
+            && FhXCall.UpdateGearCustomizationMenuState.hook(this, UpdateGearCustomizationMenuState)
+            && FhXCall.DrawGearCustomizationMenu.hook(this, DrawGearCustomizationMenu)
+            && FhXCall.TkMenuCtrlSummon.hook(this, TkMenuCtrlSummon)
+            && FhXCall.FUN_008cdb70.hook(this, DrawAeonCustomizationMenu)
+            && FhXCall.FUN_008d5720.hook(this, FUN_008d5720);
+    }
+
     public enum CustomizationStatusEnum : byte {
         NONE                          = 0x0,
         AEON_AVAILABLE                = 0x4,
@@ -87,9 +116,9 @@ public unsafe partial class ArchipelagoFFXModule {
 
             uint item_id = 0xC000;
             for (int i = 0; i < num_customizations; i++, item_id++) {
-                if (other_inventory.TryGetValue(item_id, out int count)) {
+                if (ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count)) {
                     if (count > 0) {
-                        _logger.Debug($"Free customization: {get_other_item_name(item_id)}");
+                        _logger.Debug($"Free customization: {_ffx_interop!.get_other_item_name(item_id)}");
                         customizations[i].item_cost = 0;
                     }
                 }
@@ -222,9 +251,9 @@ public unsafe partial class ArchipelagoFFXModule {
 
             uint item_id = 0xC07D;
             for (int i = 0; i < num_customizations; i++, item_id++) {
-                if (other_inventory.TryGetValue(item_id, out int count)) {
+                if (ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count)) {
                     if (count > 0) {
-                        _logger.Debug($"Free customization: {get_other_item_name(item_id)}");
+                        _logger.Debug($"Free customization: {_ffx_interop!.get_other_item_name(item_id)}");
                         customizations[i].item_cost = 0;
                     }
                 }
@@ -522,11 +551,11 @@ public unsafe partial class ArchipelagoFFXModule {
                 byte customization_id = menu_list[selected_idx].customization_id;
                 if (customizations[customization_id].item_cost != original_kaizou_costs[customization_id]) {
                     uint item_id = (uint)(0xC000 | customization_id);
-                    other_inventory.TryGetValue(item_id, out int count);
+                    ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count);
                     if (--count <= 0) {
-                        other_inventory.Remove(item_id);
+                        ArchipelagoFFXModule.other_inventory.Remove(item_id);
                         customizations[customization_id].item_cost = original_kaizou_costs[customization_id];
-                    } else other_inventory[item_id] = count;
+                    } else ArchipelagoFFXModule.other_inventory[item_id] = count;
                 }
             }
         }
@@ -560,14 +589,14 @@ public unsafe partial class ArchipelagoFFXModule {
                 byte customization_id = menu_list[selected_idx].customization_id;
                 int num_customizations;
                 AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
-                _logger.Debug($"Applied customization {get_other_item_name((uint)(0xC07D + customization_id))}");
+                _logger.Debug($"Applied customization {_ffx_interop!.get_other_item_name((uint)(0xC07D + customization_id))}");
                 if (customizations[customization_id].item_cost != original_sum_grow_costs[customization_id]) {
                     uint item_id = (uint)(0xC07D + customization_id);
-                    other_inventory.TryGetValue(item_id, out int count);
+                    ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count);
                     if (--count <= 0) {
-                        other_inventory.Remove(item_id);
+                        ArchipelagoFFXModule.other_inventory.Remove(item_id);
                         customizations[customization_id].item_cost = (byte)original_sum_grow_costs[customization_id];
-                    } else other_inventory[item_id] = count;
+                    } else ArchipelagoFFXModule.other_inventory[item_id] = count;
                 }
             }
 
@@ -575,7 +604,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
-    public static ManagedCustomString customization_string = new("Free!");
+    public static ArchipelagoFFXModule.ManagedCustomString customization_string = new("Free!");
 
     public void DrawGearCustomizationMenu(TkWindow* window) {
         //FhXCall.DrawGearCustomizationMenu.chain_from(DrawGearCustomizationMenu).fnptr!(param_1);
