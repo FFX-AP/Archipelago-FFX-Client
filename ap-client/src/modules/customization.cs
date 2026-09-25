@@ -302,59 +302,52 @@ public unsafe class CustomizationModule : FhModule {
         uint* state = FhUtil.ptr_at<uint>(0x146AA28);
         uint pre_state = *state;
 
-        byte* gear_name;
-        Equipment* gear;
-        byte* p_DAT_0186a9f8 = (byte*)FhUtil.get_at<uint>(0x146A9F8);
+        ushort* p_DAT_0186a9f8 = (ushort*)FhUtil.get_at<uint>(0x146A9F8);
 
         bool break_loop = false;
         while (!break_loop) {
             switch (*state) {
-                case 2:
+                case 2: {
                     FhXCall.FUN_008b4460.fnptr!(window);
-                    if (window->exit_value < 1) {
-                        return;
-                    }
+                    if (window->exit_value < 1) return;
 
-                    ushort weapon_index = *(ushort*)(p_DAT_0186a9f8 + window->selected_index * 2);
-                    gear = FhXCall.MsGetSaveWeapon.fnptr!(weapon_index, 0);
-                    bool can_customize = false;
-                    if (gear->exists && !gear->is_hidden && gear->slot_count > 0) {
-                        if (!gear->is_celestial && !gear->is_brotherhood) {
-                            //if (gear->abilities[gear->slot_count-1] == 0xff || gear->abilities[gear->slot_count - 1] == 0)
-                            can_customize = true;
+                    ushort gear_index = p_DAT_0186a9f8[window->selected_index];
+                    Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_index, 0);
+
+                    bool can_customize =
+                        gear->exists
+                        && !gear->is_hidden
+                        && !gear->is_celestial
+                        && !gear->is_brotherhood
+                        &&  gear->slot_count > 0;
+
+                    if (!can_customize) goto default;
+
+                    FhGCall.SndSepPlaySimple.fnptr!(SoundId.UI_ACTION);
+
+                    int slot = 0;
+                    for (; slot < gear->slot_count; slot++) {
+                        if (gear->abilities[slot] is 0 or 0xFF) {
+                            break;
                         }
                     }
 
-                    if (!can_customize) {
-                        goto default;
+                    if (slot < 4 && slot < gear->slot_count) {
+                        selected_gear_slot = slot;
+                        *state = 5;
                     } else {
-                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
-                        {
-                            int slot = 0;
-                            for (; slot < gear->slot_count; slot++) {
-                                if (gear->abilities[slot] is 0 or 0xff) {
-                                    break;
-                                }
-                            }
-
-                            if (slot < 4 && slot < gear->slot_count) {
-                                selected_gear_slot = slot;
-                                *state = 0x5;
-                            } else {
-                                CreateMyWindow(gear);
-                                *state = 0xe;
-                            }
-                        }
+                        CreateMyWindow(gear);
+                        *state = 14;
                     }
 
                     break;
+                }
 
                 case 6: {
-                    TkWindow* _GearSelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
-                    gear = FhXCall.MsGetSaveWeapon.fnptr!(
-                        *(ushort*)(p_DAT_0186a9f8 + _GearSelectionWindow->selected_index * 2),
-                        (nint)(&gear_name)
-                    );
+                    TkWindow* GearSelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
+                    ushort gear_index = p_DAT_0186a9f8[GearSelectionWindow->selected_index];
+                    Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_index, 0);
+
                     int slot = 0;
                     for (; slot < gear->slot_count; slot++) {
                         if (gear->abilities[slot] is 0 or 0xff) {
@@ -365,21 +358,22 @@ public unsafe class CustomizationModule : FhModule {
                     if (slot < 4 && slot < gear->slot_count) {
                         selected_gear_slot = slot;
                         goto default;
-                    } else {
-                        *state = 8;
                     }
-                }
-                    break;
 
-                case 8:
+                    *state = 8;
+                    break;
+                }
+
+                case 8: {
                     if (MyWindow != null) {
                         MyWindow->should_destroy = true;
                         MyWindow = null;
                     }
 
                     goto default;
+                }
 
-                case 0xc: {
+                case 12: {
                     TkWindow* DAT_023cc120 = (TkWindow*)FhUtil.get_at<uint>(0x1FCC120);
                     if (DAT_023cc120->exit_value < 0) {
                         FhXCall.FUN_008e2de0.fnptr!();
@@ -395,36 +389,34 @@ public unsafe class CustomizationModule : FhModule {
 
                     FhXCall.FUN_008e2de0.fnptr!();
                     if (DAT_023cc120->selected_index != 0) {
-                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(SoundId.UI_ACTION);
                         *state = 6;
                         break_loop = true;
                         break;
                     }
-                }
-                    *state = 0xd;
-                    break;
 
-                case 0xd:
+                    *state = 13;
+                    break;
+                }
+
+                case 13: {
                     TkWindow* AbilitySelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F4); // PTR_0186a9f4
                     TkWindow* GearSelectionWindow    = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
                     CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
 
-
                     short selected_ability = AbilitySelectionWindow->selected_index;
-                    int num_customizations;
-                    CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
-                    byte customization_id = menu_list[selected_ability].customization_id;
-                    gear = FhXCall.MsGetSaveWeapon.fnptr!(
-                        *(ushort*)(p_DAT_0186a9f8 + GearSelectionWindow->selected_index * 2),
-                        (nint)(&gear_name)
-                    );
+                    CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
+                    byte recipe_idx = menu_list[selected_ability].customization_id;
 
-                    byte* p_DAT_0186aa30 = FhUtil.ptr_at<byte>(0x146AA30);
-                    int i = -1;
-                    do {
-                        i++;
-                        p_DAT_0186aa30[i] = gear_name[i];
-                    } while (gear_name[i] != 0);
+                    ushort gear_index = p_DAT_0186a9f8[GearSelectionWindow->selected_index];
+                    byte* gear_name = null;
+                    Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_index, (nint)(&gear_name));
+
+                    byte* previous_gear_name = FhUtil.ptr_at<byte>(0x146AA30);
+                    for (int i = 0;; i++) {
+                        previous_gear_name[i] = gear_name![i];
+                        if (gear_name[i] == 0) break;
+                    }
 
                     //_FUN_008d5650((int)gear, menu_list[selected_ability].a_ability_id);
                     if (gear->slot_count != 0) {
@@ -432,59 +424,49 @@ public unsafe class CustomizationModule : FhModule {
                     }
 
                     FhXCall.MsSetSaveParamAll.fnptr!();
-
                     FhXCall.MsSetWeaponName.fnptr!(gear);
-                    FhXCall.MsSaveItemUse.fnptr!(customizations[customization_id].item, -customizations[customization_id].item_cost);
+                    FhXCall.MsSaveItemUse.fnptr!(recipes[recipe_idx].item, -recipes[recipe_idx].item_cost);
                     FhGCall.SndSepPlaySimple.fnptr!(0x80000063);
-                    FhXCall.MsGetSaveWeapon.fnptr!((uint)*(ushort*)(p_DAT_0186a9f8 + GearSelectionWindow->selected_index * 2), (nint)(&gear_name));
+                    FhXCall.MsGetSaveWeapon.fnptr!(p_DAT_0186a9f8[GearSelectionWindow->selected_index], (nint)(&gear_name));
 
-                    byte* p_DAT_0186aa70 = FhUtil.ptr_at<byte>(0x146AA70);
-                    i = -1;
-                    do {
-                        i++;
-                        p_DAT_0186aa70[i] = gear_name[i];
-                    } while (gear_name[i] != 0);
-
-                    byte uVar9 = 0;
-                    byte prev;
-                    byte curr;
-                    i = -1;
-                    do {
-                        i++;
-                        prev = p_DAT_0186aa30[i];
-                        curr = p_DAT_0186aa70[i];
-
-                        int is_lower = curr < prev ? 1 : 0;
-                        if (curr != prev) {
-                            uVar9 = (byte)(-is_lower | 1);
-                            break;
-                        }
-                    } while (curr != 0);
-
-                    if (uVar9 == 0) {
-                        uVar9 = 0x1e;
-                    } else {
-                        uVar9 = 0x1f;
+                    byte* new_gear_name = FhUtil.ptr_at<byte>(0x146AA70);
+                    for (int i = 0;; i++) {
+                        new_gear_name[i] = gear_name[i];
+                        if (gear_name[i] == 0) break;
                     }
 
-                    byte* pbVar8 = FhXCall.FUN_008bee80.fnptr!(uVar9);
-                    FhXCall.FUN_008c2c40.fnptr!(0, 0, p_DAT_0186aa30);
-                    FhXCall.FUN_008c2c40.fnptr!(2, 0, p_DAT_0186aa70);
-                    FhXCall.FUN_008e33a0.fnptr!(pbVar8, (byte*)0, (byte*)0);
-                {
+                    int name_compare = 0;
+                    for (int i = 0;; i++) {
+                        byte prev = previous_gear_name[i];
+                        byte curr = new_gear_name[i];
+
+                        if (curr != prev) {
+                            name_compare = curr < prev ? -1 : 1;
+                            break;
+                        }
+
+                        if (new_gear_name[i] == 0) break;
+                    }
+
+                    // Either "%0 gains the ability %1!"
+                    // or "Adding %1 to %0 creates %2!"
+                    int msg_idx = name_compare == 0 ? 0x1E : 0x1F;
+                    byte* msg_text = FhXCall.FUN_008bee80.fnptr!((byte)msg_idx);
+                    FhXCall.FUN_008c2c40.fnptr!(0, 0, previous_gear_name);
+                    FhXCall.FUN_008c2c40.fnptr!(2, 0, new_gear_name);
+                    FhXCall.FUN_008e33a0.fnptr!(msg_text, null, null);
+
                     TkWindow* DAT_023cc120 = (TkWindow*)FhUtil.get_at<uint>(0x1FCC120);
-                    ;
                     DAT_023cc120->render_priority = 4;
-                }
+
                     *state = 10;
                     break_loop = true;
                     break;
+                }
 
-                case 0xe:
+                case 14: {
                     // Custom state for selecting slot to overwrite
-                    if (MyWindow->exit_value == 0) {
-                        break_loop = true;
-                    } else {
+                    if (MyWindow->exit_value != 0) {
                         _logger.Info($"exit_value={MyWindow->exit_value}");
                         if (MyWindow->exit_value > 0) {
                             selected_gear_slot = MyWindow->selected_index;
@@ -493,39 +475,43 @@ public unsafe class CustomizationModule : FhModule {
                         } else {
                             *state = 8;
                         }
-
-                        break_loop = true;
                     }
 
+                    break_loop = true;
                     break;
+                }
 
-                default:
+                default: {
                     FhXCall.UpdateGearCustomizationMenuState.chain_from(UpdateGearCustomizationMenuState).fnptr!(window);
                     break_loop = true;
                     break;
+                }
             }
         }
-
 
         if (*state != pre_state) {
             _logger.Info($"{pre_state} -> {*state}");
 
-            if (pre_state == 0xc && *state == 0xa) {
+            if (pre_state == 12 && *state == 10) {
                 // Applied customization
 
                 TkWindow* DAT_0186a9f4 = (TkWindow*)FhUtil.get_at<uint>(0x0146A9F4);
                 short selected_idx = DAT_0186a9f4->selected_index;
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-                int num_customizations;
-                CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
+                CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
+
                 byte customization_id = menu_list[selected_idx].customization_id;
-                if (customizations[customization_id].item_cost != original_kaizou_costs[customization_id]) {
+                if (recipes[customization_id].item_cost != original_kaizou_costs[customization_id]) {
                     uint item_id = (uint)(0xC000 | customization_id);
                     ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count);
-                    if (--count <= 0) {
+                    count -= 1;
+
+                    if (count <= 0) {
                         ArchipelagoFFXModule.other_inventory.Remove(item_id);
-                        customizations[customization_id].item_cost = original_kaizou_costs[customization_id];
-                    } else ArchipelagoFFXModule.other_inventory[item_id] = count;
+                        recipes[customization_id].item_cost = original_kaizou_costs[customization_id];
+                    } else {
+                        ArchipelagoFFXModule.other_inventory[item_id] = count;
+                    }
                 }
             }
         }
@@ -533,10 +519,10 @@ public unsafe class CustomizationModule : FhModule {
         if (pre_state == 1) {
             // Reset kaizou.bin
             if (original_kaizou_costs != null) {
-                int num_customizations;
-                CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
-                for (int i = 0; i < num_customizations; i++) {
-                    customizations[i].item_cost = original_kaizou_costs[i];
+                int num_recipes;
+                CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(&num_recipes);
+                for (int i = 0; i < num_recipes; i++) {
+                    recipes[i].item_cost = original_kaizou_costs[i];
                 }
             }
         }
