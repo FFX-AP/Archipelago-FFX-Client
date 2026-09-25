@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+using System;
 using System.IO;
 
 using Fahrenheit;
@@ -13,6 +14,7 @@ using FhXCall = Fahrenheit.FFX.FhCall;
 
 namespace ArchipelagoFFX;
 
+[FhLoad(FhGameId.FFX)]
 public unsafe class CustomizationModule : FhModule {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void d_TOMenuGetControlPad();
@@ -29,17 +31,6 @@ public unsafe class CustomizationModule : FhModule {
     private static FhMethodHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
         => new(new FhMethodLocation("FFX.exe", 0x4be480));
 
-    private ArchipelagoFFXModule? _ffx_interop;
-
-    public override bool init(FhModContext mod_context, FileStream global_state_file) {
-        return new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
-            && FhXCall.FUN_008c2370.hook(this, PrepareMenuList)
-            && FhXCall.UpdateGearCustomizationMenuState.hook(this, UpdateGearCustomizationMenuState)
-            && FhXCall.DrawGearCustomizationMenu.hook(this, DrawGearCustomizationMenu)
-            && FhXCall.TkMenuCtrlSummon.hook(this, TkMenuCtrlSummon)
-            && FhXCall.FUN_008cdb70.hook(this, DrawAeonCustomizationMenu)
-            && FhXCall.FUN_008d5720.hook(this, FUN_008d5720);
-    }
 
     public enum CustomizationStatusEnum : byte {
         NONE                          = 0x0,
@@ -63,13 +54,26 @@ public unsafe class CustomizationModule : FhModule {
         public byte                    customization_id;
     }
 
-    // Customization-related
-    private static int selected_gear_slot = 0;
+
+    private ArchipelagoFFXModule? _ffx_interop;
+
+    private int selected_gear_slot;
     private ushort[] original_kaizou_costs;
     private ushort[] original_sum_grow_costs;
 
+    public static ArchipelagoFFXModule.ManagedCustomString string_free = new("Free!");
+
+    public override bool init(FhModContext mod_context, FileStream global_state_file) {
+        return new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
+            && FhXCall.FUN_008c2370.hook(this, PrepareMenuList)
+            && FhXCall.UpdateGearCustomizationMenuState.hook(this, UpdateGearCustomizationMenuState)
+            && FhXCall.DrawGearCustomizationMenu.hook(this, DrawGearCustomizationMenu)
+            && FhXCall.TkMenuCtrlSummon.hook(this, TkMenuCtrlSummon)
+            && FhXCall.FUN_008cdb70.hook(this, DrawAeonCustomizationMenu)
+            && FhXCall.FUN_008d5720.hook(this, FUN_008d5720);
+    }
+
     public void PrepareMenuList_InitList() {
-        // Init list
         ushort* _DAT_01597330 = FhUtil.ptr_at<ushort>(0x1197330);
         CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
 
@@ -80,254 +84,225 @@ public unsafe class CustomizationModule : FhModule {
             _DAT_01597330[i] = 0;
         }
 
-        uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
-        *_DAT_0186a20c = 0;
+        FhUtil.set_at<uint>(0x146A20C, 0);
     }
 
     public void PrepareMenuList_SetLength(uint added, uint skipped) {
-        // Set length
-        uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
-        uint* _DAT_0186a210 = FhUtil.ptr_at<uint>(0x146A210);
-        *_DAT_0186a210 = added;
-        *_DAT_0186a20c = added + skipped;
-        if (*_DAT_0186a210 == 0) {
-            *_DAT_0186a210 = 1;
-        }
+        FhUtil.set_at<uint>(0x146A20C, added + skipped);
+        FhUtil.set_at<uint>(0x146A210, uint.Max(added, 1));
     }
 
-    public void PrepareMenuList(TkMenuItemListId menu_list_id, Equipment* gear) {
-        //MenuList menu_list_id = (MenuList)menu_list_id_raw;
-        _logger.Info($"{menu_list_id}");
+    public void PrepareMenuList_Customization(Equipment* gear) {
+        //TODO Modify kaizou.bin
+        int num_customizations;
+        CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
+        if (original_kaizou_costs == null) {
+            original_kaizou_costs = new ushort[num_customizations];
+            for (int i = 0; i < num_customizations; i++) {
+                original_kaizou_costs[i] = customizations[i].item_cost;
+            }
+        }
 
-        uint[] ability_international_bonuses = new uint[4];
-        uint[] ability_group_idxs = new uint[4];
-        uint[] ability_group_levels = new uint[4];
-
-        if (menu_list_id == TkMenuItemListId.GEAR_CUSTOMIZATION) {
-            // Modify kaizou.bin
-            int num_customizations;
-            CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
-            if (original_kaizou_costs == null) {
-                original_kaizou_costs = new ushort[num_customizations];
-                for (int i = 0; i < num_customizations; i++) {
-                    original_kaizou_costs[i] = customizations[i].item_cost;
+        uint item_id = 0xC000;
+        for (int i = 0; i < num_customizations; i++, item_id++) {
+            if (ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count)) {
+                if (count > 0) {
+                    _logger.Debug($"Free customization: {_ffx_interop!.get_other_item_name(item_id)}");
+                    customizations[i].item_cost = 0;
                 }
             }
+        }
 
-            uint item_id = 0xC000;
-            for (int i = 0; i < num_customizations; i++, item_id++) {
-                if (ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count)) {
-                    if (count > 0) {
-                        _logger.Debug($"Free customization: {_ffx_interop!.get_other_item_name(item_id)}");
-                        customizations[i].item_cost = 0;
+        // Init list
+        PrepareMenuList_InitList();
+        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
+
+        // Prepare list
+        Span<uint> ability_international_bonuses = stackalloc uint[4];
+        Span<uint> ability_group_idxs   = stackalloc uint[4];
+        Span<int>  ability_group_levels = stackalloc int[4];
+
+        // `stackalloc` doesn't zero the memory automatically, so we do it ourselves.
+        ability_international_bonuses.Clear();
+        ability_group_idxs.Clear();
+        ability_group_levels.Fill(-1);
+
+        bool has_ribbon = false;
+        GearType gear_type = gear->is_weapon ? GearType.WEAPON : GearType.ARMOR;
+
+        int num_abilities = 0;
+
+        for (int i = 0; i < 4; i++) {
+            //if (selected_gear_slot == i) continue; // Skip selected slot
+            ushort ability_id = gear->abilities[i];
+            if (ability_id is 0x00 or 0xFF) continue;
+
+            AutoAbility* a_ability = FhXCall.MsGetRomAbility.fnptr!(ability_id, null);
+
+            ability_group_idxs[num_abilities] = a_ability->group_idx;
+            ability_group_levels[num_abilities] = a_ability->group_level;
+            ability_international_bonuses[num_abilities] = a_ability->international_bonus_idx;
+            if (a_ability->international_bonus_idx == 0xFF) {
+                has_ribbon = true;
+            }
+
+            num_abilities++;
+        }
+
+        uint added = 0;
+        uint skipped = 0;
+        for (byte customization_id = 0; customization_id < num_customizations; customization_id++) {
+            CustomizationRecipe customization = customizations[customization_id];
+
+            if (!customization.target_gear_type.HasFlag(gear_type)) continue;
+
+            ushort a_ability_id = customization.auto_ability;
+            AutoAbility* a_ability = FhXCall.MsGetRomAbility.fnptr!(a_ability_id, null);
+            uint item_count = Globals.save_data->get_item_count(customization.item);
+
+            if (item_count == 0 && customization.item_cost != 0) {
+                skipped++;
+                continue;
+            }
+
+            CustomizationStatusEnum status = CustomizationStatusEnum.GEAR_AVAILABLE;
+            for (int i = 0; i < num_abilities; i++) {
+                if (ability_group_idxs[i] == a_ability->group_idx) {
+                    if (a_ability->group_level < ability_group_levels[i]) {
+                        status = CustomizationStatusEnum.GEAR_CONFLICTING;
                     }
-                }
-            }
 
-            // Init list
-            PrepareMenuList_InitList();
-            CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-            uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
-
-
-            // Prepare list
-            bool has_ribbon = false;
-            ability_group_levels[0] = 0xffffffff;
-            GearType gear_type = gear->is_weapon ? GearType.WEAPON : GearType.ARMOR;
-            ability_group_levels[1] = 0xffffffff;
-            ability_group_levels[2] = 0xffffffff;
-            ability_group_levels[3] = 0xffffffff;
-            ability_group_idxs[0] = 0;
-            ability_group_idxs[1] = 0;
-            ability_group_idxs[2] = 0;
-            ability_group_idxs[3] = 0;
-
-            int num_abilities = 0;
-
-            for (int i = 0; i < 4; i++) {
-                //if (selected_gear_slot == i) continue; // Skip selected slot
-                ushort ability_id = gear->abilities[i];
-                if (ability_id != 0 && ability_id != 0xFF) {
-                    int a_ability_id;
-                    AutoAbility* a_ability = FhXCall.MsGetRomAbility.fnptr!(ability_id, &a_ability_id);
-
-                    ability_group_idxs[num_abilities] = (uint)a_ability->group_idx;
-                    ability_group_levels[num_abilities] = (uint)a_ability->group_level;
-                    ability_international_bonuses[num_abilities] = (uint)a_ability->international_bonus_idx;
-                    if (a_ability->international_bonus_idx == 0xff) {
-                        has_ribbon = true;
-                    }
-
-                    num_abilities++;
-                }
-            }
-
-            uint added = 0;
-            uint skipped = 0;
-            if (0 < num_customizations) {
-                for (byte customization_id = 0; customization_id < num_customizations; customization_id++) {
-                    CustomizationRecipe customization = customizations[customization_id];
-
-                    if (customization.target_gear_type.HasFlag(gear_type)) {
-                        ushort a_ability_id = customization.auto_ability;
-                        int local_68;
-                        AutoAbility* a_ability = FhXCall.MsGetRomAbility.fnptr!(a_ability_id, &local_68);
-                        uint item_count = Globals.save_data->get_item_count(customization.item);
-
-                        if (item_count == 0 && customization.item_cost != 0) {
-                            skipped++;
-                            continue;
-                        } else {
-                            CustomizationStatusEnum status = CustomizationStatusEnum.GEAR_AVAILABLE;
-                            if (num_abilities == 0) {
-                                if (item_count < customization.item_cost) {
-                                    status = CustomizationStatusEnum.GEAR_NOT_ENOUGH_ITEMS;
-                                }
-                            } else {
-                                for (int i = 0; i < num_abilities; i++) {
-                                    if (ability_group_idxs[i] == a_ability->group_idx) {
-                                        if (a_ability->group_level < ability_group_levels[i]) {
-                                            // Same group, lower level
-                                            status = CustomizationStatusEnum.GEAR_CONFLICTING;
-                                        }
-
-                                        //if (a_ability->group_level == ability_group_levels[i]) {
-                                        //    status = a_ability->international_bonus_idx != ability_international_bonuses[i] ? CustomizationStatusEnum.GEAR_CONFLICTING : CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
-                                        //}
-                                        if (a_ability->group_level == ability_group_levels[i]) {
-                                            if (a_ability->international_bonus_idx == ability_international_bonuses[i]) {
-                                                status = CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
-                                            } else if (selected_gear_slot != i) {
-                                                status = CustomizationStatusEnum.GEAR_CONFLICTING;
-                                            }
-                                        }
-                                    }
-
-                                    if (has_ribbon && a_ability->international_bonus_idx == 0xFE) {
-                                        status = CustomizationStatusEnum.GEAR_CONFLICTING;
-                                    }
-                                }
-
-                                if (status == CustomizationStatusEnum.GEAR_AVAILABLE && item_count < customization.item_cost) {
-                                    status = CustomizationStatusEnum.GEAR_NOT_ENOUGH_ITEMS;
-                                }
-                            }
-
-                            //if (gear->abilities[gear->slot_count - 1] != 0xff && gear->abilities[gear->slot_count - 1] != 0) {
-                            //    status = CustomizationStatusEnum.GEAR_NO_SLOTS;
-                            //}
-                            menu_list_iter->status = status;
-                            menu_list_iter->a_ability_id = a_ability_id;
-                            menu_list_iter->customization_id = customization_id;
-                            menu_list_iter++;
-                            added++;
+                    if (a_ability->group_level == ability_group_levels[i]) {
+                        if (a_ability->international_bonus_idx == ability_international_bonuses[i]) {
+                            status = CustomizationStatusEnum.GEAR_ALREADY_APPLIED;
+                        } else if (selected_gear_slot != i) {
+                            status = CustomizationStatusEnum.GEAR_CONFLICTING;
                         }
                     }
                 }
 
-                for (int i = 0; i < skipped; i++) {
-                    // ????
-                    menu_list_iter->status = (CustomizationStatusEnum)0x11;
-                    menu_list_iter->a_ability_id = 0;
-                    menu_list_iter->customization_id = 0xFF;
-                    menu_list_iter++;
+                if (has_ribbon && a_ability->international_bonus_idx == 0xFE) {
+                    status = CustomizationStatusEnum.GEAR_CONFLICTING;
                 }
             }
 
-
-            // Set length
-            PrepareMenuList_SetLength(added, skipped);
-        } else if (menu_list_id == TkMenuItemListId.AEON_ABILITIES) {
-            // TODO: Modify sum_grow.bin
-            int num_customizations;
-            AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
-            num_customizations = FhXCall.TkMn2GetSummonGrowMax.fnptr!();
-            if (original_sum_grow_costs == null) {
-                original_sum_grow_costs = new ushort[num_customizations];
-                for (int i = 0; i < num_customizations; i++) {
-                    original_sum_grow_costs[i] = customizations[i].item_cost;
-                }
+            if (status == CustomizationStatusEnum.GEAR_AVAILABLE && item_count < customization.item_cost) {
+                status = CustomizationStatusEnum.GEAR_NOT_ENOUGH_ITEMS;
             }
 
-            uint item_id = 0xC07D;
-            for (int i = 0; i < num_customizations; i++, item_id++) {
-                if (ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count)) {
-                    if (count > 0) {
-                        _logger.Debug($"Free customization: {_ffx_interop!.get_other_item_name(item_id)}");
-                        customizations[i].item_cost = 0;
-                    }
+            menu_list_iter->status = status;
+            menu_list_iter->a_ability_id = a_ability_id;
+            menu_list_iter->customization_id = customization_id;
+            menu_list_iter++;
+            added++;
+        }
+
+        for (int i = 0; i < skipped; i++) {
+            menu_list_iter->status = (CustomizationStatusEnum)0x11;
+            menu_list_iter->a_ability_id = 0;
+            menu_list_iter->customization_id = 0xFF;
+            menu_list_iter++;
+        }
+
+        // Set length
+        PrepareMenuList_SetLength(added, skipped);
+    }
+
+    public void PrepareMenuList_AeonAbilities() {
+        // TODO: Modify sum_grow.bin
+        int num_customizations;
+        AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
+        num_customizations = FhXCall.TkMn2GetSummonGrowMax.fnptr!();
+        if (original_sum_grow_costs == null) {
+            original_sum_grow_costs = new ushort[num_customizations];
+            for (int i = 0; i < num_customizations; i++) {
+                original_sum_grow_costs[i] = customizations[i].item_cost;
+            }
+        }
+
+        uint item_id = 0xC07D;
+        for (int i = 0; i < num_customizations; i++, item_id++) {
+            if (ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count)) {
+                if (count > 0) {
+                    _logger.Debug($"Free customization: {_ffx_interop!.get_other_item_name(item_id)}");
+                    customizations[i].item_cost = 0;
                 }
             }
+        }
 
-            // Init list
-            PrepareMenuList_InitList();
-            CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-            uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
+        // Init list
+        PrepareMenuList_InitList();
+        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        uint* _DAT_0186a20c = FhUtil.ptr_at<uint>(0x146A20C);
 
-            byte current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
-            bool has_key_item = Globals.save_data->key_items.get(0xa022);
+        byte current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
+        bool has_key_item = Globals.save_data->key_items.get(0xa022);
 
-            uint added = 0;
-            if (0 < num_customizations) {
-                for (byte customization_id = 0; customization_id < num_customizations; customization_id++) {
-                    AeonAbilityRecipe customization = customizations[customization_id];
-                    short auto_ability_id = customization.command;
-                    menu_list_iter->customization_id = 0xff;
-                    bool has_command = FhXCall.MsGetSaveCommand.fnptr!(current_summon, (uint)auto_ability_id) != 0;
+        uint added = 0;
+        if (0 < num_customizations) {
+            for (byte customization_id = 0; customization_id < num_customizations; customization_id++) {
+                AeonAbilityRecipe customization = customizations[customization_id];
+                short auto_ability_id = customization.command;
+                menu_list_iter->customization_id = 0xff;
+                bool has_command = FhXCall.MsGetSaveCommand.fnptr!(current_summon, (uint)auto_ability_id) != 0;
 
-                    if (!has_command) {
-                        uint item_count = Globals.save_data->get_item_count(customization.item);
-                        if (item_count == 0 && customization.item_cost != 0) {
-                            continue;
-                        } else {
-                            menu_list_iter->a_ability_id = (ushort)auto_ability_id;
-                            menu_list_iter->customization_id = customization_id;
-                            if (item_count < customization.item_cost) {
-                                menu_list_iter->status = CustomizationStatusEnum.AEON_NOT_ENOUGH_ITEMS;
-                            } else if ((0x7F & (1 << (current_summon - 8))) == 0 && !has_key_item) {
-                                // Never reached because both conditions are always false: Bit is set for all Aeons (always 0x7F) and key item is unused.
-                                menu_list_iter->status = CustomizationStatusEnum.AEON_CANNOT_LEARN_WITHOUT_KEY;
-                            } else {
-                                menu_list_iter->status = CustomizationStatusEnum.AEON_AVAILABLE;
-                            }
-                        }
+                if (!has_command) {
+                    uint item_count = Globals.save_data->get_item_count(customization.item);
+                    if (item_count == 0 && customization.item_cost != 0) {
+                        continue;
                     } else {
                         menu_list_iter->a_ability_id = (ushort)auto_ability_id;
                         menu_list_iter->customization_id = customization_id;
-                        menu_list_iter->status = CustomizationStatusEnum.AEON_ALREADY_LEARNED;
+                        if (item_count < customization.item_cost) {
+                            menu_list_iter->status = CustomizationStatusEnum.AEON_NOT_ENOUGH_ITEMS;
+                        } else if ((0x7F & (1 << (current_summon - 8))) == 0 && !has_key_item) {
+                            // Never reached because both conditions are always false: Bit is set for all Aeons (always 0x7F) and key item is unused.
+                            menu_list_iter->status = CustomizationStatusEnum.AEON_CANNOT_LEARN_WITHOUT_KEY;
+                        } else {
+                            menu_list_iter->status = CustomizationStatusEnum.AEON_AVAILABLE;
+                        }
                     }
-
-                    menu_list_iter++;
-                    added++;
+                } else {
+                    menu_list_iter->a_ability_id = (ushort)auto_ability_id;
+                    menu_list_iter->customization_id = customization_id;
+                    menu_list_iter->status = CustomizationStatusEnum.AEON_ALREADY_LEARNED;
                 }
-            }
 
-            // Set length
-            PrepareMenuList_SetLength(added, 0);
-        } else {
-            FhXCall.FUN_008c2370.chain_from(PrepareMenuList).fnptr!(menu_list_id, gear);
+                menu_list_iter++;
+                added++;
+            }
         }
 
+        // Set length
+        PrepareMenuList_SetLength(added, 0);
+    }
 
-        //if (menu_list_id == MenuList.GEAR_CUSTOMIZATION) {
-        //    CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-        //    int i = 0;
-        //    while (menu_list->status != CustomizationStatusEnum.NONE) {
-        //        //logger.Debug($"{i}: status={menu_list->status}, customization=\"{customization_names[menu_list->customization_id]}\" ({menu_list->customization_id}), a_ability={menu_list->a_ability_id}, cost={customizations[menu_list->customization_id].item_cost}");
-        //        menu_list++; i++;
-        //    }
-        //}
+    public void PrepareMenuList(TkMenuItemListId menu_list_id, Equipment* gear) {
+        switch (menu_list_id) {
+            case TkMenuItemListId.GEAR_CUSTOMIZATION:
+                PrepareMenuList_Customization(gear);
+                break;
+
+            case TkMenuItemListId.AEON_ABILITIES:
+                PrepareMenuList_AeonAbilities();
+                break;
+
+            default:
+                FhXCall.FUN_008c2370.chain_from(PrepareMenuList).fnptr!(menu_list_id, gear);
+                break;
+        }
     }
 
     /// <summary>
-    ///     Known states:
-    ///         2: Get selected weapon. Goes to 3 if it doesn't exist, otherwise goes to 5
-    ///         3: Goes to 4 and returns
-    ///         4: Goes to 1
-    ///         5: Calls TMn2SetStatusBGDiff, then prepares ability menu list and goes to 7
-    ///         6: Calls TkMenuRestartSelFileWindow, then ??? and goes to 7
+    ///     Known states: <ul>
+    ///         <li>2: Get selected weapon. Goes to 3 if it doesn't exist, otherwise goes to 5</li>
+    ///         <li>3: Goes to 4 and returns</li>
+    ///         <li>4: Goes to 1</li>
+    ///         <li>5: Calls TMn2SetStatusBGDiff, then prepares ability menu list and goes to 7</li>
+    ///         <li>6: Calls TkMenuRestartSelFileWindow, then ??? and goes to 7</li>
+    ///     </ul>
     /// </summary>
-    /// <param name="window"></param>
     public void UpdateGearCustomizationMenuState(TkWindow* window) {
         uint* state = FhUtil.ptr_at<uint>(0x146AA28);
         uint pre_state = *state;
@@ -572,7 +547,6 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    // param_1 is TkMenu*
     public void TkMenuCtrlSummon(TkMenu* menu, int param_2) {
         int state = menu->state;
         int pre_state = state;
@@ -604,16 +578,11 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    public static ArchipelagoFFXModule.ManagedCustomString customization_string = new("Free!");
-
     public void DrawGearCustomizationMenu(TkWindow* window) {
-        //FhXCall.DrawGearCustomizationMenu.chain_from(DrawGearCustomizationMenu).fnptr!(param_1);
         DrawGearCustomizationMenu_reimplement(window);
-        return;
     }
 
     public void DrawAeonCustomizationMenu(TkWindow* window) {
-        //FhXCall.DrawAeonCustomizationMenu.chain_from(DrawAeonCustomizationMenu).fnptr!(param_1);
         DrawAeonCustomizationMenu_reimplement(window);
     }
 
@@ -641,7 +610,7 @@ public unsafe class CustomizationModule : FhModule {
 
             // Draw cost section
             if (item_cost == 0) {
-                fixed (byte* text = customization_string.encoded) {
+                fixed (byte* text = string_free.encoded) {
                     Vector2 pos = new Vector2(1260f, 381f).game_remap_1080p();
                     FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 2f);
                 }
@@ -785,7 +754,7 @@ public unsafe class CustomizationModule : FhModule {
                     uint item_id   = customizations[menu_list[curr_index].customization_id].item;
                     int item_cost = customizations[menu_list[curr_index].customization_id].item_cost;
                     if (item_cost == 0) {
-                        fixed (byte* text = customization_string.encoded) {
+                        fixed (byte* text = string_free.encoded) {
                             FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
                         }
                     }
@@ -810,7 +779,7 @@ public unsafe class CustomizationModule : FhModule {
 
             // Draw cost section
             if (item_cost == 0) {
-                fixed (byte* text = customization_string.encoded) {
+                fixed (byte* text = string_free.encoded) {
                     Vector2 pos = new Vector2(1260f, 320f).game_remap_1080p();
                     FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 2f);
                 }
@@ -918,7 +887,7 @@ public unsafe class CustomizationModule : FhModule {
                     uint item_id   = customizations[menu_list[curr_index].customization_id].item;
                     int item_cost = customizations[menu_list[curr_index].customization_id].item_cost;
                     if (item_cost == 0) {
-                        fixed (byte* text = customization_string.encoded) {
+                        fixed (byte* text = string_free.encoded) {
                             FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
                         }
                     }
