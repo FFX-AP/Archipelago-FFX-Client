@@ -97,6 +97,13 @@ public unsafe partial class ArchipelagoFFXModule {
     private static FhMethodHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
         => new(new FhMethodLocation("FFX.exe", 0x4be480));
 
+
+    //TODO: Remove this when updating to Fahrenheit alpha12
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate byte* d_MsWeaponName(ushort name_id, byte owner, [MarshalAs(UnmanagedType.Bool)] bool simplified, ushort* out_model_id);
+    public static FhMethodHandle<d_MsWeaponName> MsWeaponName
+        => new(new FhMethodLocation("FFX.exe", 0x3A0C70));
+
     public static int* takara_pointer => FhUtil.ptr_at<int>(0xD35FEC);
     public static int* buki_get_pointer => FhUtil.ptr_at<int>(0xD35FF4);
 
@@ -2490,6 +2497,16 @@ public unsafe partial class ArchipelagoFFXModule {
                 give_item(item_id, amount);
             }
         }
+
+        var node = gear_inventory.First;
+        while (node != null) {
+            var next = node.Next;
+            var result = give_gear(node.Value.item_id);
+            if (result is null) {
+                gear_inventory.Remove(node);
+            }
+            node = next;
+        }
     }
 
     private int Common_transitionToMap(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
@@ -3029,92 +3046,8 @@ public unsafe partial class ArchipelagoFFXModule {
                 break;
             case 0x5:
                 // Equipment
-                item_id &= 0xFFF;
-
-                //UnownedEquipment* weapon_data = (UnownedEquipment*)h_read_from_bin((int)item_id, (short*)(*buki_get_pointer), 0);
-                if (!seed.Gear.TryGetValue((int)item_id, out ArchipelagoGear? gear)) {
-                    _logger.Error($"Gear {item_id} doesn't exist");
-                    break;
-                }
-
-                UnownedEquipment weapon_data = new(){
-                    flags = gear.flags,
-                    owner = gear.owner,
-                    type = gear.type,
-                    dmg_formula = gear.dmg_formula,
-                    power = gear.power,
-                    crit_bonus = gear.crit_bonus,
-                    slot_count = gear.slot_count,
-                };
-                for (int i = 0; i < 4; i++) {
-                    weapon_data.abilities[i] = i < gear.abilities.Length ? (ushort)(gear.abilities[i] | 0x8000) : (ushort)0xFF;
-                }
-
-                //var data = get_from_bin((int)item_id, (short*)0x12000C00, 0);
-                if (weapon_data.is_celestial) {
-                    foreach (var equip in save_data->equipment) {
-                        if (equip.exists && equip.owner == weapon_data.owner && equip.is_celestial) {
-                            // Upgrade celestial
-                            if (celestial_level[equip.owner] < 2) {
-                                celestial_level[equip.owner] += 1;
-                                FhXCall.TkSetLegendAbility.chain_from(TkSetLegendAbility).fnptr!(equip.owner, celestial_level[equip.owner]);
-                            }
-                            return;
-                        }
-                    }
-                } else if (weapon_data.is_brotherhood) {
-                    foreach (ref var equip in save_data->equipment) {
-                        if (equip.exists && equip.is_brotherhood) {
-                            if (equip.is_hidden) {
-                                // Obtain
-                                equip.is_hidden = false;
-                            } else {
-                                // Upgrade
-                                equip.flags = weapon_data.flags;
-                                equip.owner = weapon_data.owner;
-                                equip.type = weapon_data.type;
-                                equip.dmg_formula = weapon_data.dmg_formula;
-                                equip.power = weapon_data.power;
-                                equip.crit_bonus = weapon_data.crit_bonus;
-                                equip.slot_count = weapon_data.slot_count;
-                                for (int i = 0; i < 4; i++) {
-                                    equip.abilities[i] = weapon_data.abilities[i];
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    return;
-                }
-
-
-                BtlRewardData rewardData = new BtlRewardData();
-                rewardData.gear_count = 1;
-                Equipment new_weapon = rewardData.gear[0];
-                new_weapon.exists = true;
-                new_weapon.flags = weapon_data.flags;
-                new_weapon.owner = weapon_data.owner;
-                new_weapon.type = weapon_data.type;
-                new_weapon.equipped_by = 0xff;
-                new_weapon.dmg_formula = weapon_data.dmg_formula;
-                new_weapon.power = weapon_data.power;
-                new_weapon.crit_bonus = weapon_data.crit_bonus;
-                count = 0;
-                for (int i = 0; i < 4; i++) {
-                    if (weapon_data.abilities[i] is 0x00 or 0xFF) {
-                        new_weapon.abilities[i] = 0xff;
-                    } else {
-                        new_weapon.abilities[i] = weapon_data.abilities[i];
-                        count++;
-                    }
-                }
-                new_weapon.slot_count = (byte)Math.Max(weapon_data.slot_count, count);
-                new_weapon.name_id = h_get_weapon_name(&new_weapon);
-                h_get_weapon_model(new_weapon.name_id, new_weapon.owner, false, &new_weapon.model_id);
-                var result = FhXCall.FUN_007ab930.fnptr!(&new_weapon); // giveWeapon?
-                if (result != 0) {
-                    h_obtain_treasure_cleanup(&rewardData, 7);
-                }
+                var result = give_gear(item_id);
+                if (result is not null) gear_inventory.AddLast(result);
                 break;
             case 0x1:
                 // Gil
@@ -3200,6 +3133,97 @@ public unsafe partial class ArchipelagoFFXModule {
                 other_inventory.TryGetValue(item_id, out count);
                 other_inventory[item_id] = count+1;
                 break;
+        }
+    }
+
+    public ExcessGear? give_gear(uint item_id) {
+        item_id &= 0xFFF;
+
+        if (!seed.Gear.TryGetValue((int)item_id, out ArchipelagoGear? gear)) {
+            _logger.Error($"Gear {item_id} doesn't exist");
+            return null;
+        }
+
+        UnownedEquipment weapon_data = new(){
+            flags = gear.flags,
+            owner = gear.owner,
+            type = gear.type,
+            dmg_formula = gear.dmg_formula,
+            power = gear.power,
+            crit_bonus = gear.crit_bonus,
+            slot_count = gear.slot_count,
+        };
+        for (int i = 0; i < 4; i++) {
+            weapon_data.abilities[i] = i < gear.abilities.Length ? (ushort)(gear.abilities[i] | 0x8000) : (ushort)0xFF;
+        }
+
+        if (weapon_data.is_celestial) {
+            foreach (var equip in save_data->equipment) {
+                if (equip.exists && equip.owner == weapon_data.owner && equip.is_celestial) {
+                    // Upgrade celestial
+                    if (celestial_level[equip.owner] < 2) {
+                        celestial_level[equip.owner] += 1;
+                        FhXCall.TkSetLegendAbility.chain_from(TkSetLegendAbility).fnptr!(equip.owner, celestial_level[equip.owner]);
+                    }
+                    return null;
+                }
+            }
+        } else if (weapon_data.is_brotherhood) {
+            foreach (ref var equip in save_data->equipment) {
+                if (equip.exists && equip.is_brotherhood) {
+                    if (equip.is_hidden) {
+                        // Obtain
+                        equip.is_hidden = false;
+                    } else {
+                        // Upgrade
+                        equip.flags = weapon_data.flags;
+                        equip.owner = weapon_data.owner;
+                        equip.type = weapon_data.type;
+                        equip.dmg_formula = weapon_data.dmg_formula;
+                        equip.power = weapon_data.power;
+                        equip.crit_bonus = weapon_data.crit_bonus;
+                        equip.slot_count = weapon_data.slot_count;
+                        for (int i = 0; i < 4; i++) {
+                            equip.abilities[i] = weapon_data.abilities[i];
+                        }
+                    }
+                    break;
+                }
+            }
+            return null;
+        }
+
+
+        BtlRewardData rewardData = new BtlRewardData();
+        rewardData.gear_count = 1;
+        Equipment new_weapon = rewardData.gear[0];
+        new_weapon.exists = true;
+        new_weapon.flags = weapon_data.flags;
+        new_weapon.owner = weapon_data.owner;
+        new_weapon.type = weapon_data.type;
+        new_weapon.equipped_by = 0xff;
+        new_weapon.dmg_formula = weapon_data.dmg_formula;
+        new_weapon.power = weapon_data.power;
+        new_weapon.crit_bonus = weapon_data.crit_bonus;
+        int count = 0;
+        for (int i = 0; i < 4; i++) {
+            if (weapon_data.abilities[i] is 0x00 or 0xFF) {
+                new_weapon.abilities[i] = 0xff;
+            } else {
+                new_weapon.abilities[i] = weapon_data.abilities[i];
+                count++;
+            }
+        }
+        new_weapon.slot_count = (byte)Math.Max(weapon_data.slot_count, count);
+        new_weapon.name_id = h_get_weapon_name(&new_weapon);
+        h_get_weapon_model(new_weapon.name_id, new_weapon.owner, false, &new_weapon.model_id);
+
+        var result = FhXCall.FUN_007ab930.fnptr!(&new_weapon); // giveWeapon
+        if (result != 0) {
+            //h_obtain_treasure_cleanup(&rewardData, 7); // Unnecessary?
+            return null;
+        } else {
+            return new ExcessGear(item_id, new_weapon.name_id, new_weapon.owner);
         }
     }
 
@@ -3470,9 +3494,19 @@ public unsafe partial class ArchipelagoFFXModule {
         byte* item_name;
         FhXCall.TkMsGetRomItem.fnptr!(item_id, (int*)&item_name);
         byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(new ReadOnlySpan<byte>(item_name, 1000))];
-        int decoded_length = FhEncoding.decode(new ReadOnlySpan<byte>(item_name, 1000), decoded, flags:FhEncodingFlags.IMPLICIT_END);
-        string decoded_string = Encoding.UTF8.GetString(decoded, 0, decoded_length);
+        FhEncoding.decode(new ReadOnlySpan<byte>(item_name, 1000), decoded, flags:FhEncodingFlags.IMPLICIT_END);
+        string decoded_string = Encoding.UTF8.GetString(decoded);
         item_name_cache[item_id] = decoded_string;
+        return decoded_string;
+    }
+    private Dictionary<(ushort, byte), string> gear_name_cache = [];
+    public string get_gear_name(ushort name_id, byte owner) {
+        if (gear_name_cache.TryGetValue((name_id, owner), out var name)) return name;
+        byte* gear_name_ptr = MsWeaponName.fnptr!(name_id, owner, false, null);
+        byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(new ReadOnlySpan<byte>(gear_name_ptr, 1000))];
+        FhEncoding.decode(new ReadOnlySpan<byte>(gear_name_ptr, 1000), decoded, flags:FhEncodingFlags.IMPLICIT_END);
+        string decoded_string = Encoding.UTF8.GetString(decoded);
+        gear_name_cache[(name_id, owner)] = decoded_string;
         return decoded_string;
     }
 

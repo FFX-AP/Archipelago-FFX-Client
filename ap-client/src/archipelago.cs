@@ -4,6 +4,7 @@ using ArchipelagoFFX.GUI;
 using Fahrenheit;
 using Fahrenheit.Atel;
 using Fahrenheit.Events;
+using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 //using Fahrenheit.ImGuiNET;
 using System;
@@ -40,6 +41,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public static Dictionary<RegionEnum, ArchipelagoRegion> region_states = [];
     public static SortedDictionary<uint, int> excess_inventory = [];
     public static SortedDictionary<uint, int> other_inventory = [];
+
+    public record ExcessGear(uint item_id, ushort name_id, byte owner);
+    public static LinkedList<ExcessGear> gear_inventory = [];
 
     public const int NUM_CHARACTERS = 0x12;
     public static Dictionary<int, bool> unlocked_characters = [];
@@ -133,6 +137,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         public SortedDictionary<uint, int> excess_inventory { get; set; }
         public SortedDictionary<uint, int> other_inventory  { get; set; }
+        public LinkedList<ExcessGear> gear_inventory { get; set; }
 
         public int[] celestial_level { get; set; }
 
@@ -156,6 +161,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             unlocked_characters        = ArchipelagoFFXModule.unlocked_characters;
             excess_inventory           = ArchipelagoFFXModule.excess_inventory;
             other_inventory            = ArchipelagoFFXModule.other_inventory;
+            gear_inventory             = ArchipelagoFFXModule.gear_inventory;
             celestial_level            = ArchipelagoFFXModule.celestial_level;
             skip_state_updates         = ArchipelagoFFXModule.skip_state_updates;
             local_checked_locations    = module._client!.local_checked_locations;
@@ -415,6 +421,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         locked_characters.Clear();
         excess_inventory.Clear();
         other_inventory.Clear();
+        gear_inventory.Clear();
         celestial_level.Initialize();
         for (int i = 0; i < NUM_CHARACTERS; i++) {
             unlocked_characters.Add(i, false);
@@ -590,6 +597,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 }
                 foreach ((uint item_id, int amount) in loaded_state.other_inventory) {
                     other_inventory[item_id] = amount;
+                }
+                foreach (ExcessGear gear in loaded_state.gear_inventory) {
+                    gear_inventory.AddLast(gear);
                 }
 
                 if (_client!.is_connected)
