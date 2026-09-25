@@ -189,6 +189,10 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude] public int SkipContestOfAeons;
         [JsonInclude] public int HardcoreDreamsEnd;
 
+        [JsonInclude] public int Deathlink;
+        [JsonInclude] public int DeathlinkSendType;
+        [JsonInclude] public int DeathlinkReceiveType;
+
         [JsonInclude] public int OverdriveModes;
 
         public ArchipelagoSeedOptions() {
@@ -210,6 +214,10 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
             HardcoreDreamsEnd    = 0;
             SkipContestOfAeons   = 0;
+
+            Deathlink            = 0;
+            DeathlinkSendType    = 0;
+            DeathlinkReceiveType = 0;
 
             OverdriveModes       = 0;
         }
@@ -382,6 +390,11 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         seed = loaded_seed;
         ap_multiplier = seed.Options.APMultiplier;
         _hardcore_dreams_end!.set_enabled(seed.Options.HardcoreDreamsEnd != 0);
+        _deathlink!.set_enabled(seed.Options.Deathlink != 0);
+        _deathlink!.deathlink_send_type
+            = (DeathLinkModule.DeathLinkSendType)seed.Options.DeathlinkSendType;
+        _deathlink!.deathlink_receive_type
+            = (DeathLinkModule.DeathLinkReceiveType)seed.Options.DeathlinkReceiveType;
         item_locations = new ArchipelagoLocations(seed.Locations);
         _gui!.selected_seed = loaded_seeds.FindIndex(x => x.Options.SeedId == seed.Options.SeedId);
         LastSeed = seed.Options.SeedId;
