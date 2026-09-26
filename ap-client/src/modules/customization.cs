@@ -338,7 +338,7 @@ public unsafe class CustomizationModule : FhModule {
                         selected_gear_slot = slot;
                         *state = 5;
                     } else {
-                        CreateMyWindow(gear);
+                        CreateGearAAbiSelectionWindow(gear);
                         *state = 14;
                     }
 
@@ -367,9 +367,9 @@ public unsafe class CustomizationModule : FhModule {
                 }
 
                 case 8: {
-                    if (MyWindow != null) {
-                        MyWindow->should_destroy = true;
-                        MyWindow = null;
+                    if (GearAAbiSelectionWindow != null) {
+                        GearAAbiSelectionWindow->should_destroy = true;
+                        GearAAbiSelectionWindow = null;
                     }
 
                     goto default;
@@ -468,10 +468,10 @@ public unsafe class CustomizationModule : FhModule {
 
                 case 14: {
                     // Custom state for selecting slot to overwrite
-                    if (MyWindow->exit_value != 0) {
-                        _logger.Info($"exit_value={MyWindow->exit_value}");
-                        if (MyWindow->exit_value > 0) {
-                            selected_gear_slot = MyWindow->selected_index;
+                    if (GearAAbiSelectionWindow->exit_value != 0) {
+                        _logger.Info($"exit_value={GearAAbiSelectionWindow->exit_value}");
+                        if (GearAAbiSelectionWindow->exit_value > 0) {
+                            selected_gear_slot = GearAAbiSelectionWindow->selected_index;
                             _logger.Info($"selected_gear_slot={selected_gear_slot}");
                             *state = 5;
                         } else {
@@ -885,22 +885,22 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    public static TkWindow* MyWindow;
+    public static TkWindow* GearAAbiSelectionWindow;
 
-    public static void CreateMyWindow(Equipment* gear) {
-        MyWindow = FhXCall.TkMenuMainAllocWindow.fnptr!();
-        MyWindow->num_items         = gear->slot_count;
-        MyWindow->max_visible_items = 4;
-        MyWindow->selected_index    = 0;
-        MyWindow->render_priority   = 2;
-        MyWindow->fn_init           = &MyWindow_Init;
-        MyWindow->fn_state          = &MyWindow_State;
-        MyWindow->fn_render         = &MyWindow_Render;
-        FhXCall.TkMenuMainRegistWindow.fnptr!(MyWindow);
+    public static void CreateGearAAbiSelectionWindow(Equipment* gear) {
+        GearAAbiSelectionWindow = FhXCall.TkMenuMainAllocWindow.fnptr!();
+        GearAAbiSelectionWindow->num_items         = gear->slot_count;
+        GearAAbiSelectionWindow->max_visible_items = 4;
+        GearAAbiSelectionWindow->selected_index    = 0;
+        GearAAbiSelectionWindow->render_priority   = 2;
+        GearAAbiSelectionWindow->fn_init           = &GearAAbiSelectionWindow_Init;
+        GearAAbiSelectionWindow->fn_state          = &GearAAbiSelectionWindow_State;
+        GearAAbiSelectionWindow->fn_render         = &GearAAbiSelectionWindow_Render;
+        FhXCall.TkMenuMainRegistWindow.fnptr!(GearAAbiSelectionWindow);
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static void MyWindow_Init(TkWindow* window) {
+    public static void GearAAbiSelectionWindow_Init(TkWindow* window) {
         window->current_state = 0;
     }
 
@@ -910,7 +910,7 @@ public unsafe class CustomizationModule : FhModule {
     private static bool _kaizou_was_pressed_cancel;
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static void MyWindow_State(TkWindow* window) {
+    public static void GearAAbiSelectionWindow_State(TkWindow* window) {
         while (true) {
             TOMenuGetControlPad.fnptr!();
             TOMenuGetControlPadRep.fnptr!();
@@ -967,7 +967,7 @@ public unsafe class CustomizationModule : FhModule {
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static void MyWindow_Render(TkWindow* window) {
+    public static void GearAAbiSelectionWindow_Render(TkWindow* window) {
         Vector2 pos = new Vector2(970 + 150, 735 + 12 + 68 * window->selected_index).game_remap_1080p();
         FhXCall.TkMn2DrawCrossCursor.fnptr!(pos.X, pos.Y, 0);
     }
