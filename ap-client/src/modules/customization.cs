@@ -56,15 +56,16 @@ public unsafe class CustomizationModule : FhModule {
     }
 
 
+    public static TkWindow* GearAAbiSelectionWindow;
+    public static ArchipelagoFFXModule.ManagedCustomString string_free = new("Free!");
+
     private ArchipelagoFFXModule? _ffx_interop;
 
     private int selected_gear_slot;
 
-    //TODO: Initialize them at the earliest possible time, post MsBattleInit
+    //TODO: Initialize these at the earliest possible time, post MsBattleInit
     private ushort[]? original_kaizou_costs;
     private ushort[]? original_sum_grow_costs;
-
-    public static ArchipelagoFFXModule.ManagedCustomString string_free = new("Free!");
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
@@ -565,198 +566,11 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    public void h_DrawGearCustomizationMenu(TkWindow* window) {
-        DrawGearCustomizationMenu_reimplement(window);
-    }
-
-    public void h_DrawAeonCustomizationMenu(TkWindow* window) {
-        DrawAeonCustomizationMenu_reimplement(window);
-    }
-
-    public void DrawAeonCustomizationMenu_reimplement(TkWindow* window) {
-        FhXCall.TkVU1SyncPath.fnptr!();
-        FhXCall.FUN_008e71d0.fnptr!(7);
-        uint current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
-
-
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+    public void h_DrawGearCustomizationMenu(TkWindow* window) {CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
         short selected_idx = window->selected_index;
         Vector2 pos_1;
         Vector2 pos_2;
 
-        uint item_id;
-        if (menu_list[selected_idx].status == 0) {
-            item_id = 0xFFFFFFF;
-        } else {
-            byte customization_id = menu_list[selected_idx].recipe_idx;
-            int num_customizations;
-            AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
-            item_id = customizations[customization_id].item;
-            int item_cost = customizations[customization_id].item_cost;
-
-
-            // Draw cost section
-            if (item_cost == 0) {
-                fixed (byte* text = string_free.encoded) {
-                    Vector2 pos = new Vector2(1260f, 381f).game_remap_1080p();
-                    FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 2f);
-                }
-            } else {
-                pos_1 = new Vector2(970f, 380f).game_remap_1080p();
-                FhXCall.FUN_008c1c70.fnptr!((int)pos_1.X, (int)pos_1.Y, item_id, item_cost);
-            }
-        }
-
-        pos_1 = new Vector2(210f, 226f).game_remap_1080p();
-        FhXCall.FUN_008ff490.fnptr!(current_summon, pos_1.X, pos_1.Y);
-
-        pos_1 = new Vector2(210f, 312f).game_remap_1080p();
-        pos_2 = new Vector2(740f,  48f).game_remap_1080p();
-        FhXCall.TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
-
-        // Header text
-        pos_1 = new Vector2(365f, 320f).game_remap_1080p();
-        pos_2 = new Vector2(430f,  36f).game_remap_1080p();
-        FhXCall.FUN_008f8bb0.fnptr!(0xf, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
-
-        if (-1 < (int)item_id) {
-            pos_1 = new Vector2(970f, 312f).game_remap_1080p();
-            pos_2 = new Vector2(740f, 48f).game_remap_1080p();
-            FhXCall.TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
-
-            // Header text ("Item cost")?
-            pos_1 = new Vector2(1125f, 318f).game_remap_1080p();
-            pos_2 = new Vector2(430f,  36f).game_remap_1080p();
-            FhXCall.FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
-        }
-
-        int iVar2 = (int)new Vector2(0, 365f).game_remap_1080p().Y;
-        int iVar6, sVar1;
-        float fVar10;
-        if (window->visible_item_offset == window->scroll_offset) {
-            // Draw ability list
-            FhXCall.FUN_008c0f40.fnptr!(
-                iVar2,
-                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
-                0,
-                window->scroll_delta
-            );
-            sVar1 = window->visible_item_offset;
-            fVar10 = 0.0f;
-            iVar6 = 0;
-        } else {
-            // Draw ability list when quick scrolling (L2/R2)
-            FhXCall.FUN_008c0f40.fnptr!(
-                iVar2,
-                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
-                1,
-                window->scroll_delta
-            );
-            FUN_008cd960_Extra(window, 1, window->visible_item_offset, 0.0f, 0.0f);
-
-            FhXCall.FUN_008c0f40.fnptr!(
-                iVar2,
-                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
-                2,
-                window->scroll_delta
-            );
-
-            fVar10 = (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0 * window->scroll_delta * -0.00024414063);
-            sVar1 = window->scroll_offset;
-            iVar6 = 2;
-        }
-
-        FUN_008cd960_Extra(window, iVar6, sVar1, 0.0f, fVar10);
-        FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
-
-        ushort _DAT_0186a5a4 = FhUtil.get_at<ushort>(0x0146a5a4);
-        ushort _DAT_0186a5a6 = FhUtil.get_at<ushort>(0x0146a5a6);
-        FhXCall.FUN_008cd9f0.fnptr!(window, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
-
-        float local_8;
-        FhXCall.ToGetCrossExtMesFontWidth.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), &local_8, 0.78f, 1.0f);
-
-        fVar10 = (float)(double)(new Vector2(80f, 0).game_remap_1080p().X + local_8);
-        local_8 = fVar10;
-
-
-        float fVar11 = new Vector2(660f, 0).game_remap_1080p().X;
-        if (fVar11 < (float)fVar10 == (float.IsNaN(fVar11) || float.IsNaN(fVar10))) {
-            fVar10 = new Vector2(740f, 0).game_remap_1080p().X;
-        } else {
-            fVar10 = (float)(new Vector2(80f, 0).game_remap_1080p().X + local_8);
-        }
-
-        // graphicUiRemapX2(1806.0);
-        fVar11 = new Vector2(1806f, 0).game_remap_1080p().X - fVar10;
-        float fVar12 = (float)((fVar10 - local_8) * 0.5 + fVar11);
-
-        pos_1 = new Vector2(955f, 370f).game_remap_1080p();
-        pos_2 = new Vector2(  8f, 630f).game_remap_1080p();
-        FhXCall.DrawCrossMenuScrollParts.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, window->visible_item_offset, window->max_visible_items, window->num_items);
-
-        FhXCall.TODrawMenuPlateXYWHType.fnptr!(
-            fVar11,
-            new Vector2(0, 925f).game_remap_1080p().Y,
-            fVar10,
-            new Vector2(0, 48f).game_remap_1080p().Y,
-            2
-        );
-
-        float uv_y2 = 0.3017578f;
-        float uv_x2 = 0.99902344f;
-        float uv_y1 = 0.22851563f;
-        float uv_x1 = 0.9267578f;
-        pos_1 = new Vector2(0f, 920f).game_remap_1080p();
-        pos_2 = new Vector2(64f,  64f).game_remap_1080p();
-        FhXCall.TOMkpShapeXYWHUV.fnptr!(0xf3, fVar12, pos_1.Y, pos_2.X, pos_2.Y, uv_x1, uv_y1, uv_x2, uv_y2);
-
-        pos_1 = new Vector2(80f, 928f).game_remap_1080p();
-        FhXCall.TOMkpCrossExtMesFontLClut.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), pos_1.X + fVar12, pos_1.Y, 0, 0.78f, 1.0f);
-
-        item_id = FhXCall.FUN_008d48e0.fnptr!();
-        FhXCall.FUN_008d4140.fnptr!(item_id, 1);
-        FhXCall.TkMn2DrawKickSyncPacket.fnptr!();
-    }
-
-    private void FUN_008cd960_Extra(TkWindow* window, int param_2, int menu_offset, float x, float y) {
-        FhXCall.FUN_008cd960.fnptr!(window, param_2, menu_offset, x, y);
-
-        Vector2 pos = new(x, y);
-        pos += new Vector2(209f + 50f, 306f).game_remap_1080p();
-
-        if (param_2 == 0) {
-            pos.Y -= (float)(new Vector2(0, 70f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
-        }
-
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-        short menu_length = window->num_items;
-        for (int i = -1; i < 10; i++) {
-            int curr_index = menu_offset + i;
-            if (0 <= curr_index && curr_index < menu_length) {
-                if (menu_list[curr_index].recipe_idx != 0xFF) {
-                    int num_customizations;
-                    AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
-
-                    uint item_id   = customizations[menu_list[curr_index].recipe_idx].item;
-                    int item_cost = customizations[menu_list[curr_index].recipe_idx].item_cost;
-                    if (item_cost == 0) {
-                        fixed (byte* text = string_free.encoded) {
-                            FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
-                        }
-                    }
-                }
-            }
-
-            pos += new Vector2(0, 70f).game_remap_1080p();
-        }
-    }
-
-    public void DrawGearCustomizationMenu_reimplement(TkWindow* window) {
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-        short selected_idx = window->selected_index;
-        Vector2 pos_1;
-        Vector2 pos_2;
         if (menu_list[selected_idx].recipe_idx != 0xFF) {
             int num_customizations;
             CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
@@ -852,6 +666,179 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
+    public void h_DrawAeonCustomizationMenu(TkWindow* window) {
+        // Full reimplementation
+
+        FhXCall.TkVU1SyncPath.fnptr!();
+        FhXCall.FUN_008e71d0.fnptr!(7);
+        uint current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
+
+        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        short selected_idx = window->selected_index;
+
+        Vector2 pos_1;
+        Vector2 pos_2;
+
+        int item_id = -1;
+        if (menu_list[selected_idx].status != 0) {
+            byte recipe_idx = menu_list[selected_idx].recipe_idx;
+            AeonAbilityRecipe* recipes = FhXCall.MsGetRomSummonGrow.fnptr!(null);
+            item_id = recipes[recipe_idx].item;
+            int item_cost = recipes[recipe_idx].item_cost;
+
+
+            // Draw cost section
+            if (item_cost == 0) {
+                fixed (byte* text = string_free.encoded) {
+                    Vector2 pos = new Vector2(1260f, 381f).game_remap_1080p();
+                    FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 2f);
+                }
+            } else {
+                pos_1 = new Vector2(970f, 380f).game_remap_1080p();
+                FhXCall.FUN_008c1c70.fnptr!((int)pos_1.X, (int)pos_1.Y, (uint)item_id, item_cost);
+            }
+        }
+
+        pos_1 = new Vector2(210f, 226f).game_remap_1080p();
+        FhXCall.FUN_008ff490.fnptr!(current_summon, pos_1.X, pos_1.Y);
+
+        pos_1 = new Vector2(210f, 312f).game_remap_1080p();
+        pos_2 = new Vector2(740f,  48f).game_remap_1080p();
+        FhXCall.TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
+
+        // Header text
+        pos_1 = new Vector2(365f, 320f).game_remap_1080p();
+        pos_2 = new Vector2(430f,  36f).game_remap_1080p();
+        FhXCall.FUN_008f8bb0.fnptr!(0xf, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+
+        if (-1 < item_id) {
+            pos_1 = new Vector2(970f, 312f).game_remap_1080p();
+            pos_2 = new Vector2(740f, 48f).game_remap_1080p();
+            FhXCall.TODrawMenuPlateXYWHType.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, 2);
+
+            // Header text ("Item cost")?
+            pos_1 = new Vector2(1125f, 318f).game_remap_1080p();
+            pos_2 = new Vector2(430f, 36f).game_remap_1080p();
+            FhXCall.FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+        }
+
+        int iVar2 = (int)new Vector2(0, 365f).game_remap_1080p().Y;
+        int iVar6, sVar1;
+        float fVar10;
+        if (window->visible_item_offset == window->scroll_offset) {
+            // Draw ability list
+            FhXCall.FUN_008c0f40.fnptr!(
+                iVar2,
+                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
+                0,
+                window->scroll_delta
+            );
+            sVar1 = window->visible_item_offset;
+            fVar10 = 0.0f;
+            iVar6 = 0;
+        } else {
+            // Draw ability list when quick scrolling (L2/R2)
+            FhXCall.FUN_008c0f40.fnptr!(
+                iVar2,
+                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
+                1,
+                window->scroll_delta
+            );
+            FUN_008cd960_Extra(window, 1, window->visible_item_offset, 0.0f, 0.0f);
+
+            FhXCall.FUN_008c0f40.fnptr!(
+                iVar2,
+                (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
+                2,
+                window->scroll_delta
+            );
+
+            fVar10 = (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0 * window->scroll_delta * -0.00024414063);
+            sVar1 = window->scroll_offset;
+            iVar6 = 2;
+        }
+
+        FUN_008cd960_Extra(window, iVar6, sVar1, 0.0f, fVar10);
+        FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
+
+        ushort _DAT_0186a5a4 = FhUtil.get_at<ushort>(0x0146a5a4);
+        ushort _DAT_0186a5a6 = FhUtil.get_at<ushort>(0x0146a5a6);
+        FhXCall.FUN_008cd9f0.fnptr!(window, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
+
+        float local_8;
+        FhXCall.ToGetCrossExtMesFontWidth.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), &local_8, 0.78f, 1.0f);
+
+        fVar10 = new Vector2(80f, 0).game_remap_1080p().X + local_8;
+        local_8 = fVar10;
+
+        float fVar11 = new Vector2(660f, 0).game_remap_1080p().X;
+        if (fVar11 >= fVar10) {
+            fVar10 = new Vector2(740f, 0).game_remap_1080p().X;
+        } else {
+            fVar10 = new Vector2(80f, 0).game_remap_1080p().X + local_8;
+        }
+
+        // graphicUiRemapX2(1806.0);
+        fVar11 = new Vector2(1806f, 0).game_remap_1080p().X - fVar10;
+        float fVar12 = (float)((fVar10 - local_8) * 0.5 + fVar11);
+
+        pos_1 = new Vector2(955f, 370f).game_remap_1080p();
+        pos_2 = new Vector2(  8f, 630f).game_remap_1080p();
+        FhXCall.DrawCrossMenuScrollParts.fnptr!(pos_1.X, pos_1.Y, pos_2.X, pos_2.Y, window->visible_item_offset, window->max_visible_items, window->num_items);
+
+        FhXCall.TODrawMenuPlateXYWHType.fnptr!(
+            fVar11,
+            new Vector2(0, 925f).game_remap_1080p().Y,
+            fVar10,
+            new Vector2(0, 48f).game_remap_1080p().Y,
+            2
+        );
+
+        float uv_y2 = 0.3017578f;
+        float uv_x2 = 0.99902344f;
+        float uv_y1 = 0.22851563f;
+        float uv_x1 = 0.9267578f;
+        pos_1 = new Vector2(0f, 920f).game_remap_1080p();
+        pos_2 = new Vector2(64f,  64f).game_remap_1080p();
+        FhXCall.TOMkpShapeXYWHUV.fnptr!(0xf3, fVar12, pos_1.Y, pos_2.X, pos_2.Y, uv_x1, uv_y1, uv_x2, uv_y2);
+
+        pos_1 = new Vector2(80f, 928f).game_remap_1080p();
+        FhXCall.TOMkpCrossExtMesFontLClut.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), pos_1.X + fVar12, pos_1.Y, 0, 0.78f, 1.0f);
+
+        item_id = (int)FhXCall.FUN_008d48e0.fnptr!();
+        FhXCall.FUN_008d4140.fnptr!((uint)item_id, 1);
+        FhXCall.TkMn2DrawKickSyncPacket.fnptr!();
+    }
+
+    private void FUN_008cd960_Extra(TkWindow* window, int param_2, int menu_offset, float x, float y) {
+        FhXCall.FUN_008cd960.fnptr!(window, param_2, menu_offset, x, y);
+
+        Vector2 pos = new(x, y);
+        pos += new Vector2(209f + 50f, 306f).game_remap_1080p();
+
+        if (param_2 == 0) {
+            pos.Y -= (float)(new Vector2(0, 70f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
+        }
+
+        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        short menu_length = window->num_items;
+        for (int i = -1; i < 10; i++) {
+            int curr_index = menu_offset + i;
+            if (0 <= curr_index && curr_index < menu_length) {
+                if (menu_list[curr_index].recipe_idx != 0xFF) {
+                    AeonAbilityRecipe* recipes = FhXCall.MsGetRomSummonGrow.fnptr!(null);
+                    if (recipes[menu_list[curr_index].recipe_idx].item_cost == 0) {
+                        fixed (byte* text = string_free.encoded) {
+                            FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
+                        }
+                    }
+                }
+            }
+
+            pos += new Vector2(0, 70f).game_remap_1080p();
+        }
+    }
+
     private void FUN_008d5d20_Extra(TkWindow* window, int param_2, int menu_offset, int x, int y) {
         FhXCall.FUN_008d5d20.fnptr!(window, param_2, menu_offset, x, y);
 
@@ -868,12 +855,8 @@ public unsafe class CustomizationModule : FhModule {
             int curr_index = menu_offset + i;
             if (0 <= curr_index && curr_index < menu_length) {
                 if (menu_list[curr_index].recipe_idx != 0xFF) {
-                    int num_customizations;
-                    CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
-
-                    uint item_id   = customizations[menu_list[curr_index].recipe_idx].item;
-                    int item_cost = customizations[menu_list[curr_index].recipe_idx].item_cost;
-                    if (item_cost == 0) {
+                    CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
+                    if (recipes[menu_list[curr_index].recipe_idx].item_cost == 0) {
                         fixed (byte* text = string_free.encoded) {
                             FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
                         }
@@ -884,8 +867,6 @@ public unsafe class CustomizationModule : FhModule {
             pos += new Vector2(0, 75f).game_remap_1080p();
         }
     }
-
-    public static TkWindow* GearAAbiSelectionWindow;
 
     public static void CreateGearAAbiSelectionWindow(Equipment* gear) {
         GearAAbiSelectionWindow = FhXCall.TkMenuMainAllocWindow.fnptr!();
@@ -899,7 +880,7 @@ public unsafe class CustomizationModule : FhModule {
         FhXCall.TkMenuMainRegistWindow.fnptr!(GearAAbiSelectionWindow);
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [ typeof(CallConvCdecl) ])]
     public static void GearAAbiSelectionWindow_Init(TkWindow* window) {
         window->current_state = 0;
     }
@@ -909,7 +890,7 @@ public unsafe class CustomizationModule : FhModule {
     private static bool _kaizou_was_pressed_confirm;
     private static bool _kaizou_was_pressed_cancel;
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [ typeof(CallConvCdecl) ])]
     public static void GearAAbiSelectionWindow_State(TkWindow* window) {
         while (true) {
             TOMenuGetControlPad.fnptr!();
@@ -935,16 +916,16 @@ public unsafe class CustomizationModule : FhModule {
 
                 case 1:
                     if (just_pressed_up && 0 < window->selected_index) {
-                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(SoundId.UI_ACTION);
                         window->selected_index--;
                     } else if (just_pressed_down && window->selected_index < window->num_items - 1) {
-                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(SoundId.UI_ACTION);
                         window->selected_index++;
                     } else if (just_pressed_confirm) {
-                        FhGCall.SndSepPlaySimple.fnptr!(0x80000001);
+                        FhGCall.SndSepPlaySimple.fnptr!(SoundId.UI_ACTION);
                         window->current_state = 2;
                     } else if (just_pressed_cancel) {
-                        FhGCall.SndSepPlaySimple.fnptr!(0x80000004);
+                        FhGCall.SndSepPlaySimple.fnptr!(SoundId.UI_CANCEL);
                         window->current_state = 3;
                     }
 
@@ -966,7 +947,7 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [ typeof(CallConvCdecl) ])]
     public static void GearAAbiSelectionWindow_Render(TkWindow* window) {
         Vector2 pos = new Vector2(970 + 150, 735 + 12 + 68 * window->selected_index).game_remap_1080p();
         FhXCall.TkMn2DrawCrossCursor.fnptr!(pos.X, pos.Y, 0);
@@ -975,13 +956,10 @@ public unsafe class CustomizationModule : FhModule {
     public static bool h_FUN_008d5720(uint gear_id, int param_2) {
         Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_id, 0);
 
-        bool can_customize = false;
-        if (gear->exists && !gear->is_hidden && gear->slot_count > 0) {
-            if (param_2 != 0 || (!gear->is_celestial && !gear->is_brotherhood)) {
-                //if (gear->abilities[gear->slot_count-1] == 0xff || gear->abilities[gear->slot_count - 1] == 0)
-                can_customize = true;
-            }
-        }
+        bool can_customize = gear->exists
+            && !gear->is_hidden
+            && (param_2 != 0 || (!gear->is_celestial && !gear->is_brotherhood)
+            && gear->slot_count > 0);
 
         return can_customize;
     }
