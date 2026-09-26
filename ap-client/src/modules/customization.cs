@@ -68,12 +68,12 @@ public unsafe class CustomizationModule : FhModule {
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
-            && FhXCall.FUN_008c2370.hook(this, PrepareMenuList)
-            && FhXCall.UpdateGearCustomizationMenuState.hook(this, UpdateGearCustomizationMenuState)
-            && FhXCall.DrawGearCustomizationMenu.hook(this, DrawGearCustomizationMenu)
-            && FhXCall.TkMenuCtrlSummon.hook(this, TkMenuCtrlSummon)
-            && FhXCall.FUN_008cdb70.hook(this, DrawAeonCustomizationMenu)
-            && FhXCall.FUN_008d5720.hook(this, FUN_008d5720);
+            && FhXCall.FUN_008c2370.hook(this, h_PrepareMenuList)
+            && FhXCall.UpdateGearCustomizationMenuState.hook(this, h_UpdateGearCustomizationMenuState)
+            && FhXCall.DrawGearCustomizationMenu.hook(this, h_DrawGearCustomizationMenu)
+            && FhXCall.TkMenuCtrlSummon.hook(this, h_TkMenuCtrlSummon)
+            && FhXCall.FUN_008cdb70.hook(this, h_DrawAeonCustomizationMenu)
+            && FhXCall.FUN_008d5720.hook(this, h_FUN_008d5720);
     }
 
     public void PrepareMenuList_InitList() {
@@ -275,7 +275,7 @@ public unsafe class CustomizationModule : FhModule {
         PrepareMenuList_SetLength(added, 0);
     }
 
-    public void PrepareMenuList(TkMenuItemListId menu_list_id, Equipment* gear) {
+    public void h_PrepareMenuList(TkMenuItemListId menu_list_id, Equipment* gear) {
         switch (menu_list_id) {
             case TkMenuItemListId.GEAR_CUSTOMIZATION:
                 PrepareMenuList_Customization(gear);
@@ -286,7 +286,7 @@ public unsafe class CustomizationModule : FhModule {
                 break;
 
             default:
-                FhXCall.FUN_008c2370.chain_from(PrepareMenuList).fnptr!(menu_list_id, gear);
+                FhXCall.FUN_008c2370.chain_from(h_PrepareMenuList).fnptr!(menu_list_id, gear);
                 break;
         }
     }
@@ -300,7 +300,7 @@ public unsafe class CustomizationModule : FhModule {
     ///         <li>6: Calls TkMenuRestartSelFileWindow, then ??? and goes to 7</li>
     ///     </ul>
     /// </summary>
-    public void UpdateGearCustomizationMenuState(TkWindow* window) {
+    public void h_UpdateGearCustomizationMenuState(TkWindow* window) {
         uint* state = FhUtil.ptr_at<uint>(0x146AA28);
         uint pre_state = *state;
 
@@ -484,7 +484,7 @@ public unsafe class CustomizationModule : FhModule {
                 }
 
                 default: {
-                    FhXCall.UpdateGearCustomizationMenuState.chain_from(UpdateGearCustomizationMenuState).fnptr!(window);
+                    FhXCall.UpdateGearCustomizationMenuState.chain_from(h_UpdateGearCustomizationMenuState).fnptr!(window);
                     break_loop = true;
                     break;
                 }
@@ -530,9 +530,9 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    public void TkMenuCtrlSummon(TkMenu* menu, int param_2) {
+    public void h_TkMenuCtrlSummon(TkMenu* menu, int param_2) {
         int pre_state = menu->state;
-        FhXCall.TkMenuCtrlSummon.chain_from(TkMenuCtrlSummon).fnptr!(menu, param_2);
+        FhXCall.TkMenuCtrlSummon.chain_from(h_TkMenuCtrlSummon).fnptr!(menu, param_2);
         int state = menu->state;
 
         if (state != pre_state) {
@@ -565,11 +565,11 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    public void DrawGearCustomizationMenu(TkWindow* window) {
+    public void h_DrawGearCustomizationMenu(TkWindow* window) {
         DrawGearCustomizationMenu_reimplement(window);
     }
 
-    public void DrawAeonCustomizationMenu(TkWindow* window) {
+    public void h_DrawAeonCustomizationMenu(TkWindow* window) {
         DrawAeonCustomizationMenu_reimplement(window);
     }
 
@@ -972,7 +972,7 @@ public unsafe class CustomizationModule : FhModule {
         FhXCall.TkMn2DrawCrossCursor.fnptr!(pos.X, pos.Y, 0);
     }
 
-    public static bool FUN_008d5720(uint gear_id, int param_2) {
+    public static bool h_FUN_008d5720(uint gear_id, int param_2) {
         Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_id, 0);
 
         bool can_customize = false;
