@@ -52,15 +52,17 @@ public unsafe class CustomizationModule : FhModule {
     public struct CustomizationMenuList {
         public ushort              a_ability_id;
         public CustomizationStatus status;
-        public byte                customization_id;
+        public byte                recipe_idx;
     }
 
 
     private ArchipelagoFFXModule? _ffx_interop;
 
     private int selected_gear_slot;
-    private ushort[] original_kaizou_costs;
-    private ushort[] original_sum_grow_costs;
+
+    //TODO: Initialize them at the earliest possible time, post MsBattleInit
+    private ushort[]? original_kaizou_costs;
+    private ushort[]? original_sum_grow_costs;
 
     public static ArchipelagoFFXModule.ManagedCustomString string_free = new("Free!");
 
@@ -81,7 +83,7 @@ public unsafe class CustomizationModule : FhModule {
         for (int i = 0; i < 0x200; i++) {
             menu_list_iter[i].a_ability_id = 0;
             menu_list_iter[i].status = 0;
-            menu_list_iter[i].customization_id = 0;
+            menu_list_iter[i].recipe_idx = 0;
             _DAT_01597330[i] = 0;
         }
 
@@ -192,7 +194,7 @@ public unsafe class CustomizationModule : FhModule {
 
             menu_list_iter->status = status;
             menu_list_iter->a_ability_id = a_ability_id;
-            menu_list_iter->customization_id = recipe_idx;
+            menu_list_iter->recipe_idx = recipe_idx;
             menu_list_iter++;
             added++;
         }
@@ -200,7 +202,7 @@ public unsafe class CustomizationModule : FhModule {
         for (int i = 0; i < skipped; i++) {
             menu_list_iter->status = CustomizationStatus.GEAR_SKIPPED;
             menu_list_iter->a_ability_id = 0;
-            menu_list_iter->customization_id = 0xFF;
+            menu_list_iter->recipe_idx = 0xFF;
             menu_list_iter++;
         }
 
@@ -239,13 +241,13 @@ public unsafe class CustomizationModule : FhModule {
         for (byte recipe_idx = 0; recipe_idx < num_recipes; recipe_idx++) {
             AeonAbilityRecipe recipe = recipes[recipe_idx];
             short command_id = recipe.command;
-            menu_list_iter->customization_id = 0xff;
+            menu_list_iter->recipe_idx = 0xff;
 
             bool has_command = FhXCall.MsGetSaveCommand.fnptr!(current_summon, (uint)command_id) != 0;
 
             if (has_command) {
                 menu_list_iter->a_ability_id = (ushort)command_id;
-                menu_list_iter->customization_id = recipe_idx;
+                menu_list_iter->recipe_idx = recipe_idx;
                 menu_list_iter->status = CustomizationStatus.AEON_ALREADY_LEARNED;
                 menu_list_iter++;
                 added++;
@@ -259,7 +261,7 @@ public unsafe class CustomizationModule : FhModule {
             }
 
             menu_list_iter->a_ability_id = (ushort)command_id;
-            menu_list_iter->customization_id = recipe_idx;
+            menu_list_iter->recipe_idx = recipe_idx;
             menu_list_iter->status =
                 item_count < recipe.item_cost
                     ? CustomizationStatus.AEON_NOT_ENOUGH_ITEMS
@@ -406,7 +408,7 @@ public unsafe class CustomizationModule : FhModule {
 
                     short selected_ability = AbilitySelectionWindow->selected_index;
                     CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
-                    byte recipe_idx = menu_list[selected_ability].customization_id;
+                    byte recipe_idx = menu_list[selected_ability].recipe_idx;
 
                     ushort gear_index = p_DAT_0186a9f8[GearSelectionWindow->selected_index];
                     byte* gear_name = null;
@@ -500,7 +502,7 @@ public unsafe class CustomizationModule : FhModule {
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
                 CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
 
-                byte customization_id = menu_list[selected_idx].customization_id;
+                byte customization_id = menu_list[selected_idx].recipe_idx;
                 if (recipes[customization_id].item_cost != original_kaizou_costs[customization_id]) {
                     uint item_id = (uint)(0xC000 | customization_id);
                     ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count);
@@ -529,33 +531,37 @@ public unsafe class CustomizationModule : FhModule {
     }
 
     public void TkMenuCtrlSummon(TkMenu* menu, int param_2) {
-        int state = menu->state;
-        int pre_state = state;
-
+        int pre_state = menu->state;
         FhXCall.TkMenuCtrlSummon.chain_from(TkMenuCtrlSummon).fnptr!(menu, param_2);
+        int state = menu->state;
 
         if (state != pre_state) {
             _logger.Debug($"{pre_state} -> {state}");
 
-            if (pre_state == 0x15) {
+            if (pre_state == 21) {
                 TkWindow* DAT_0186a568 = (TkWindow*)FhUtil.get_at<uint>(0x0146a568);
-                short selected_idx = DAT_0186a568->selected_index;
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
-                byte customization_id = menu_list[selected_idx].customization_id;
-                int num_customizations;
-                AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
-                _logger.Debug($"Applied customization {_ffx_interop!.get_other_item_name((uint)(0xC07D + customization_id))}");
-                if (customizations[customization_id].item_cost != original_sum_grow_costs[customization_id]) {
-                    uint item_id = (uint)(0xC07D + customization_id);
+                AeonAbilityRecipe* recipes = FhXCall.MsGetRomSummonGrow.fnptr!(null);
+
+                short selected_idx = DAT_0186a568->selected_index;
+                byte recipe_idx = menu_list[selected_idx].recipe_idx;
+
+                uint item_id = (uint)(0xC07D + recipe_idx);
+
+                _logger.Debug($"Applied customization {_ffx_interop!.get_other_item_name(item_id)}");
+
+                if (recipes[recipe_idx].item_cost != original_sum_grow_costs[recipe_idx]) {
                     ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count);
-                    if (--count <= 0) {
+                    count -= 1;
+
+                    if (count <= 0) {
                         ArchipelagoFFXModule.other_inventory.Remove(item_id);
-                        customizations[customization_id].item_cost = (byte)original_sum_grow_costs[customization_id];
-                    } else ArchipelagoFFXModule.other_inventory[item_id] = count;
+                        recipes[recipe_idx].item_cost = (byte)original_sum_grow_costs[recipe_idx];
+                    } else {
+                        ArchipelagoFFXModule.other_inventory[item_id] = count;
+                    }
                 }
             }
-
-            // 1D -> 1E Applied attribute customization
         }
     }
 
@@ -582,7 +588,7 @@ public unsafe class CustomizationModule : FhModule {
         if (menu_list[selected_idx].status == 0) {
             item_id = 0xFFFFFFF;
         } else {
-            byte customization_id = menu_list[selected_idx].customization_id;
+            byte customization_id = menu_list[selected_idx].recipe_idx;
             int num_customizations;
             AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
             item_id = customizations[customization_id].item;
@@ -728,12 +734,12 @@ public unsafe class CustomizationModule : FhModule {
         for (int i = -1; i < 10; i++) {
             int curr_index = menu_offset + i;
             if (0 <= curr_index && curr_index < menu_length) {
-                if (menu_list[curr_index].customization_id != 0xFF) {
+                if (menu_list[curr_index].recipe_idx != 0xFF) {
                     int num_customizations;
                     AeonAbilityRecipe* customizations = FhXCall.MsGetRomSummonGrow.fnptr!(&num_customizations);
 
-                    uint item_id   = customizations[menu_list[curr_index].customization_id].item;
-                    int item_cost = customizations[menu_list[curr_index].customization_id].item_cost;
+                    uint item_id   = customizations[menu_list[curr_index].recipe_idx].item;
+                    int item_cost = customizations[menu_list[curr_index].recipe_idx].item_cost;
                     if (item_cost == 0) {
                         fixed (byte* text = string_free.encoded) {
                             FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
@@ -751,12 +757,12 @@ public unsafe class CustomizationModule : FhModule {
         short selected_idx = window->selected_index;
         Vector2 pos_1;
         Vector2 pos_2;
-        if (menu_list[selected_idx].customization_id != 0xFF) {
+        if (menu_list[selected_idx].recipe_idx != 0xFF) {
             int num_customizations;
             CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
 
-            uint item_id   = customizations[menu_list[selected_idx].customization_id].item;
-            int item_cost = customizations[menu_list[selected_idx].customization_id].item_cost;
+            uint item_id   = customizations[menu_list[selected_idx].recipe_idx].item;
+            int item_cost = customizations[menu_list[selected_idx].recipe_idx].item_cost;
 
             // Draw cost section
             if (item_cost == 0) {
@@ -861,12 +867,12 @@ public unsafe class CustomizationModule : FhModule {
         for (int i = -1; i < 10; i++) {
             int curr_index = menu_offset + i;
             if (0 <= curr_index && curr_index < menu_length) {
-                if (menu_list[curr_index].customization_id != 0xFF) {
+                if (menu_list[curr_index].recipe_idx != 0xFF) {
                     int num_customizations;
                     CustomizationRecipe* customizations = FhXCall.MsGetRomKaizou.fnptr!(&num_customizations);
 
-                    uint item_id   = customizations[menu_list[curr_index].customization_id].item;
-                    int item_cost = customizations[menu_list[curr_index].customization_id].item_cost;
+                    uint item_id   = customizations[menu_list[curr_index].recipe_idx].item;
+                    int item_cost = customizations[menu_list[curr_index].recipe_idx].item_cost;
                     if (item_cost == 0) {
                         fixed (byte* text = string_free.encoded) {
                             FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
