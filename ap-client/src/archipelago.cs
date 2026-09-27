@@ -65,6 +65,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     private ArchipelagoGuiModule?    _gui;
     private OverdriveModule?         _overdrives;
     private DeathLinkModule?         _deathlink;
+    private CustomizationModule?     _customization;
     private HardcoreDreamsEndModule? _hardcore_dreams_end;
 
     public ArchipelagoFFXModule() {
@@ -83,6 +84,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             && new FhModuleHandle<ArchipelagoGuiModule>   (this).try_get_module(out _gui)
             && new FhModuleHandle<OverdriveModule>        (this).try_get_module(out _overdrives)
             && new FhModuleHandle<DeathLinkModule>        (this).try_get_module(out _deathlink)
+            && new FhModuleHandle<CustomizationModule>    (this).try_get_module(out _customization)
             && new FhModuleHandle<HardcoreDreamsEndModule>(this).try_get_module(out _hardcore_dreams_end)
             && post_init();
     }
@@ -135,8 +137,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         public Dictionary<int, bool> unlocked_characters { get; set; }
 
-        public SortedDictionary<uint, int> excess_inventory { get; set; }
-        public SortedDictionary<uint, int> other_inventory  { get; set; }
+        public SortedDictionary<uint, int> excess_inventory  { get; set; }
+        public SortedDictionary<uint, int> other_inventory   { get; set; }
+        public SortedDictionary<uint, int> recipes_inventory { get; set; }
         public LinkedList<ExcessGear> gear_inventory { get; set; }
 
         public int[] celestial_level { get; set; }
@@ -161,6 +164,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             unlocked_characters        = ArchipelagoFFXModule.unlocked_characters;
             excess_inventory           = ArchipelagoFFXModule.excess_inventory;
             other_inventory            = ArchipelagoFFXModule.other_inventory;
+            recipes_inventory          = module._customization!.recipes_inventory;
             gear_inventory             = ArchipelagoFFXModule.gear_inventory;
             celestial_level            = ArchipelagoFFXModule.celestial_level;
             skip_state_updates         = ArchipelagoFFXModule.skip_state_updates;
@@ -195,6 +199,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         [JsonInclude] public int SkipContestOfAeons;
         [JsonInclude] public int HardcoreDreamsEnd;
 
+        [JsonInclude] public int CustomizationRecipes;
+
         [JsonInclude] public int Deathlink;
         [JsonInclude] public int DeathlinkSendType;
         [JsonInclude] public int DeathlinkReceiveType;
@@ -220,6 +226,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
             HardcoreDreamsEnd    = 0;
             SkipContestOfAeons   = 0;
+
+            CustomizationRecipes = 0;
 
             Deathlink            = 0;
             DeathlinkSendType    = 0;
@@ -395,6 +403,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         initalize_states();
         seed = loaded_seed;
         ap_multiplier = seed.Options.APMultiplier;
+        _customization!.recipes_option = (CustomizationModule.RecipesOption)seed.Options.CustomizationRecipes;
         _hardcore_dreams_end!.set_enabled(seed.Options.HardcoreDreamsEnd != 0);
         _deathlink!.set_enabled(seed.Options.Deathlink != 0);
         _deathlink!.deathlink_send_type
@@ -408,7 +417,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         return true;
     }
 
-    public static void initalize_states() {
+    public void initalize_states() {
         region_is_unlocked.Clear();
         foreach (var region in region_to_ids) {
             region_is_unlocked.Add(region.Key, region.Key == ArchipelagoData.RegionEnum.DreamZanarkand);
@@ -421,6 +430,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         locked_characters.Clear();
         excess_inventory.Clear();
         other_inventory.Clear();
+        _customization!.recipes_inventory.Clear();
         gear_inventory.Clear();
         celestial_level.Initialize();
         for (int i = 0; i < NUM_CHARACTERS; i++) {
@@ -597,6 +607,9 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 }
                 foreach ((uint item_id, int amount) in loaded_state.other_inventory) {
                     other_inventory[item_id] = amount;
+                }
+                foreach ((uint item_id, int amount) in loaded_state.recipes_inventory) {
+                    _customization!.recipes_inventory[item_id] = amount;
                 }
                 foreach (ExcessGear gear in loaded_state.gear_inventory) {
                     gear_inventory.AddLast(gear);

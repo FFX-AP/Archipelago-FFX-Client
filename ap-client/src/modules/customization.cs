@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Fahrenheit;
@@ -55,11 +56,22 @@ public unsafe class CustomizationModule : FhModule {
         public byte                recipe_idx;
     }
 
+    public enum RecipesOption {
+        OFF         = 0,
+        ON          = 1,
+        ALWAYS_FREE = 2,
+    }
+
 
     public static TkWindow* GearAAbiSelectionWindow;
     public static ArchipelagoFFXModule.ManagedCustomString string_free = new("Free!");
 
     private ArchipelagoFFXModule? _ffx_interop;
+
+    internal RecipesOption recipes_option;
+
+    // item id -> free count
+    internal SortedDictionary<uint, int> recipes_inventory = [ ];
 
     private int selected_gear_slot;
 
@@ -107,9 +119,8 @@ public unsafe class CustomizationModule : FhModule {
             }
         }
 
-        uint item_id = 0xC000;
-        for (int i = 0; i < num_recipes; i++, item_id++) {
-            if (!ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count)) continue;
+        for (uint i = 0, item_id = 0xC000; i < num_recipes; i++, item_id++) {
+            if (!recipes_inventory.TryGetValue(item_id, out int count)) continue;
             if (count <= 0) continue;
 
             _logger.Debug($"Free customization: {_ffx_interop!.get_other_item_name(item_id)}");
@@ -163,7 +174,13 @@ public unsafe class CustomizationModule : FhModule {
             AutoAbility* a_ability = FhXCall.MsGetRomAbility.fnptr!(a_ability_id, null);
             uint item_count = Globals.save_data->get_item_count(recipe.item);
 
-            if (item_count == 0 && recipe.item_cost != 0) {
+            if (recipes_option == RecipesOption.OFF && item_count == 0 && recipe.item_cost != 0) {
+                skipped++;
+                continue;
+            }
+
+            uint item_id = (uint)(0xC000 + recipe_idx);
+            if (recipes_option != RecipesOption.OFF && !recipes_inventory.ContainsKey(item_id)) {
                 skipped++;
                 continue;
             }
@@ -222,9 +239,8 @@ public unsafe class CustomizationModule : FhModule {
             }
         }
 
-        uint item_id = 0xC07D;
-        for (int i = 0; i < num_recipes; i++, item_id++) {
-            if (!ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count)) continue;
+        for (uint i = 0, item_id = 0xC07D; i < num_recipes; i++, item_id++) {
+            if (!recipes_inventory.TryGetValue(item_id, out int count)) continue;
             if (count <= 0) continue;
 
             _logger.Debug($"Free customization: {_ffx_interop!.get_other_item_name(item_id)}");
@@ -257,7 +273,12 @@ public unsafe class CustomizationModule : FhModule {
             }
 
             uint item_count = Globals.save_data->get_item_count(recipe.item);
-            if (item_count == 0 && recipe.item_cost != 0) {
+            if (recipes_option == RecipesOption.OFF && item_count == 0 && recipe.item_cost != 0) {
+                continue;
+            }
+
+            uint item_id = (uint)(0xC07D + recipe_idx);
+            if (recipes_option != RecipesOption.OFF && !recipes_inventory.ContainsKey(item_id)) {
                 continue;
             }
 
@@ -493,9 +514,13 @@ public unsafe class CustomizationModule : FhModule {
         }
 
         if (*state != pre_state) {
-            _logger.Info($"{pre_state} -> {*state}");
+            _logger.Debug($"{pre_state} -> {*state}");
 
-            if (pre_state == 12 && *state == 10) {
+            if (
+                pre_state == 12
+                && *state == 10
+                && recipes_option != RecipesOption.ALWAYS_FREE
+            ) {
                 // Applied customization
 
                 TkWindow* DAT_0186a9f4 = (TkWindow*)FhUtil.get_at<uint>(0x0146A9F4);
@@ -503,17 +528,23 @@ public unsafe class CustomizationModule : FhModule {
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
                 CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
 
-                byte customization_id = menu_list[selected_idx].recipe_idx;
-                if (recipes[customization_id].item_cost != original_kaizou_costs[customization_id]) {
-                    uint item_id = (uint)(0xC000 | customization_id);
-                    ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count);
+                byte recipe_idx = menu_list[selected_idx].recipe_idx;
+                uint item_id = (uint)(0xC000 | recipe_idx);
+
+                if (recipes[recipe_idx].item_cost != original_kaizou_costs[recipe_idx]) {
+                    recipes_inventory.TryGetValue(item_id, out int count);
                     count -= 1;
 
                     if (count <= 0) {
-                        ArchipelagoFFXModule.other_inventory.Remove(item_id);
-                        recipes[customization_id].item_cost = original_kaizou_costs[customization_id];
+                        if (recipes_option == RecipesOption.OFF) {
+                            recipes_inventory.Remove(item_id);
+                        } else {
+                            recipes_inventory[item_id] = 0;
+                        }
+
+                        recipes[recipe_idx].item_cost = original_kaizou_costs[recipe_idx];
                     } else {
-                        ArchipelagoFFXModule.other_inventory[item_id] = count;
+                        recipes_inventory[item_id] = count;
                     }
                 }
             }
@@ -539,27 +570,32 @@ public unsafe class CustomizationModule : FhModule {
         if (state != pre_state) {
             _logger.Debug($"{pre_state} -> {state}");
 
-            if (pre_state == 21) {
+            if (pre_state == 21 && recipes_option != RecipesOption.ALWAYS_FREE) {
                 TkWindow* DAT_0186a568 = (TkWindow*)FhUtil.get_at<uint>(0x0146a568);
                 CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
                 AeonAbilityRecipe* recipes = FhXCall.MsGetRomSummonGrow.fnptr!(null);
 
                 short selected_idx = DAT_0186a568->selected_index;
-                byte recipe_idx = menu_list[selected_idx].recipe_idx;
 
+                byte recipe_idx = menu_list[selected_idx].recipe_idx;
                 uint item_id = (uint)(0xC07D + recipe_idx);
 
                 _logger.Debug($"Applied customization {_ffx_interop!.get_other_item_name(item_id)}");
 
                 if (recipes[recipe_idx].item_cost != original_sum_grow_costs[recipe_idx]) {
-                    ArchipelagoFFXModule.other_inventory.TryGetValue(item_id, out int count);
+                    recipes_inventory.TryGetValue(item_id, out int count);
                     count -= 1;
 
                     if (count <= 0) {
-                        ArchipelagoFFXModule.other_inventory.Remove(item_id);
+                        if (recipes_option == RecipesOption.OFF) {
+                            recipes_inventory.Remove(item_id);
+                        } else {
+                            recipes_inventory[item_id] = 0;
+                        }
+
                         recipes[recipe_idx].item_cost = (byte)original_sum_grow_costs[recipe_idx];
                     } else {
-                        ArchipelagoFFXModule.other_inventory[item_id] = count;
+                        recipes_inventory[item_id] = count;
                     }
                 }
             }
@@ -827,7 +863,7 @@ public unsafe class CustomizationModule : FhModule {
             if (0 <= curr_index && curr_index < menu_length) {
                 if (menu_list[curr_index].recipe_idx != 0xFF) {
                     AeonAbilityRecipe* recipes = FhXCall.MsGetRomSummonGrow.fnptr!(null);
-                    if (recipes[menu_list[curr_index].recipe_idx].item_cost == 0) {
+                    if (recipes_option != RecipesOption.ALWAYS_FREE && recipes[menu_list[curr_index].recipe_idx].item_cost == 0) {
                         fixed (byte* text = string_free.encoded) {
                             FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
                         }
@@ -856,7 +892,7 @@ public unsafe class CustomizationModule : FhModule {
             if (0 <= curr_index && curr_index < menu_length) {
                 if (menu_list[curr_index].recipe_idx != 0xFF) {
                     CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
-                    if (recipes[menu_list[curr_index].recipe_idx].item_cost == 0) {
+                    if (recipes_option != RecipesOption.ALWAYS_FREE && recipes[menu_list[curr_index].recipe_idx].item_cost == 0) {
                         fixed (byte* text = string_free.encoded) {
                             FhXCall.ToMakeBtlEasyFont.fnptr!(text, pos.X, pos.Y, 0, 0.78f);
                         }
