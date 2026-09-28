@@ -38,53 +38,200 @@
   "sent_message.omega_ruins": "{0} liked it underground, six feet under.",
   "sent_message.omega_gauntlet": "{0} failed the gauntlet.",
 
-  "sent_message.klikk": "{0} was sliced into pieces.",
-  "sent_message.tros": "{0} was torn apart.",
-  "sent_message.lord_ochu": "{0} couldn't compare to 100 Crusaders.",
-  "sent_message.sinspawn_geneaux": "{0} forgot to buy Antidotes.",
-  "sent_message.oblitzerator": "{0} couldn't even catch a ball.",
-  "sent_message.chocobo_eater": "{0} became chocobo feed.",
-  "sent_message.sinspawn_gui": "{0} was not prepared.",
-  "sent_message.extractor": "{0} sunk into the depths.",
-  "sent_message.spherimorph": "{0} failed Black Magic 101.",
-  "sent_message.crawler": "{0} relied on magic too much.",
-  "sent_message.seymour": "{0} was taken care of.",
-  "sent_message.wendigo": "{0}'s boxing skills were insufficient.",
-  "sent_message.evrae": "{0} tripped on the red carpet.",
-  "sent_message.evrae_altana": "{0} failed to open the gates.",
-  "sent_message.isaaru": "{0}'s pilgrimage is over.",
-  "sent_message.seymour_natus": "{0} was broken.",
-  "sent_message.defender_x": "{0} took a haymaker to the face.",
-  "sent_message.lady_ginnem": "{0} failed as a guardian.",
-  "sent_message.biran_and_yenke": "{0} was rent asunder.",
-  "sent_message.seymour_flux": "{0} faced total annihilation.",
-  "sent_message.sanctuary_keeper": "{0} was kept from sanctuary.",
-  "sent_message.spectral_keeper": "{0} forgot to move.",
-  "sent_message.yunalesca": "{0} was liberated.",
-  "sent_message.sin_fins": "The hymn couldn't save {0}.",
-  "sent_message.sin_core": "{0} was negated.",
-  "sent_message.overdrive_sin": "{0} failed Spira.",
-  "sent_message.seymour_omnis": "The darkness took {0}.",
-  "sent_message.braskas_final_aeon": "Jecht hit {0} with all he's got.",
-  "sent_message.contest_of_aeons": "{0} couldn't let the aeons go.",
-  "sent_message.yu_yevon": "{0} couldn't take the pressure.",
+  "sent_message.klikk.0": "{0} was sliced to pieces.",
+  "sent_message.klikk.1": "{0} didn't get more wood.",
+  "sent_message.klikk.2": "{0} decided to go back to bed.",
 
-  "sent_message.ultima_weapon": "{0} was overshadowed.",
-  "sent_message.omega_weapon": "{0} left Spira to the living.",
+  "sent_message.tros.0": "{0} was torn apart.",
+  "sent_message.tros.1": "{0} decided pincer attacks are overrated.",
+  "sent_message.tros.2": "{0} missed too many swimming lessons.",
 
-  "sent_message.geosgaeno": "{0} got eaten by a fiend.",
+  "sent_message.kimahri.0": "{0} failed the test.",
+  "sent_message.kimahri.1": "{0} got jumped.",
+  "sent_message.kimahri.2": "{0} was deemed too weak.",
 
-  "sent_message.dark_valefor": "{0} was pierced by dark energy.",
-  "sent_message.dark_ifrit": "{0} was charred by the inferno.",
-  "sent_message.dark_ixion": "{0} was struck by lightning.",
-  "sent_message.dark_shiva": "{0} succumbed to the cold.",
-  "sent_message.dark_bahamut": "{0} fell before the dragon.",
-  "sent_message.dark_anima": "{0} met oblivion.",
-  "sent_message.dark_yojimbo": "{0} paid the price.",
-  "sent_message.dark_magus_sisters": "{0} was hunted down.",
-  "sent_message.dark_sandy": "{0}'s life was dispelled.",
-  "sent_message.dark_mindy": "{0} faced calamity.",
-  "sent_message.dark_cindy": "{0} was flattened.",
+  "sent_message.sin_fin.0": "{0} was thrown overboard.",
+  "sent_message.sin_fin.1": "{0} left their ranged attacks at home.",
+  "sent_message.sin_fin.2": "{0} was overwhelmed by the sinscales.",
+
+  "sent_message.sinspawn_echuilles.0": "{0} was thrown into the blender.",
+  "sent_message.sinspawn_echuilles.1": "{0} was swarmed by the sinscales.",
+  "sent_message.sinspawn_echuilles.2": "{0} was drained of their will to live.",
+
+  "sent_message.lord_ochu.0": "{0} couldn't compare to 100 Crusaders.",
+  "sent_message.lord_ochu.1": "{0} is not the lord of the woods.",
+  "sent_message.lord_ochu.2": "{0} failed to usurp the lord.",
+
+  "sent_message.sinspawn_geneaux.0": "{0} forgot to buy Antidotes.",
+  "sent_message.sinspawn_geneaux.1": "{0} couldn't pierce the shell.",
+  "sent_message.sinspawn_geneaux.2": "{0} wasn't talented enough.",
+
+  "sent_message.oblitzerator.0": "{0} couldn't even catch a ball.",
+  "sent_message.oblitzerator.1": "{0} forgot about the crane.",
+  "sent_message.oblitzerator.2": "{0} let Wakka down.",
+
+  "sent_message.chocobo_eater.0": "{0} became chocobo feed.",
+  "sent_message.chocobo_eater.1": "{0} was pushed too far.",
+  "sent_message.chocobo_eater.2": "{0} was bested by a bowling pin.",
+
+  "sent_message.sinspawn_gui.0": "{0} was not prepared.",
+  "sent_message.sinspawn_gui.1": "{0} forgot to hit the head",
+  "sent_message.sinspawn_gui.2": "{0} failed to recognize the gravity of the situation.",
+
+  "sent_message.extractor.0": "{0} sunk into the depths.",
+  "sent_message.extractor.1": "{0} is flying among the moonlilies.",
+  "sent_message.extractor.2": "{0} went to explore the sunken city.",
+
+  "sent_message.spherimorph.0": "{0} failed Black Magic 101.",
+  "sent_message.spherimorph.1": "{0} was easily im-pressed.",
+  "sent_message.spherimorph.2": "{0} will be remembered.",
+
+  "sent_message.crawler.0": "{0} relied on magic too much.",
+  "sent_message.crawler.1": "{0} didn't follow the countdown.",
+  "sent_message.crawler.2": "{0}'s fate was sealed too.",
+
+  "sent_message.seymour.0": "{0} was taken care of.",
+  "sent_message.seymour.1": "{0} followed the code of the guardian.",
+  "sent_message.seymour.2": "{0} felt Seymour's pain.",
+
+  "sent_message.wendigo.0": "{0} didn't roll with the punches.",
+  "sent_message.wendigo.1": "{0} needs to take boxing lessons.",
+  "sent_message.wendigo.2": "{0} brought a knife to a fist fight.",
+
+  "sent_message.evrae.0": "{0} tripped on the red carpet.",
+  "sent_message.evrae.1": "{0} fell off the airship.",
+  "sent_message.evrae.2": "{0} fell to the guardian wyrm.",
+
+  "sent_message.evrae_altana.0": "{0} failed to open the gates.",
+  "sent_message.evrae_altana.1": "{0} ran out of phoenix downs.",
+  "sent_message.evrae_altana.2": "{0} didn't find the exit.",
+
+  "sent_message.isaaru.0": "{0}'s pilgrimage is over.",
+  "sent_message.isaaru.1": "{0} ran out of aeons.",
+  "sent_message.isaaru.2": "{0} died a traitor's death.",
+
+  "sent_message.seymour_natus.0": "{0} was broken.",
+  "sent_message.seymour_natus.1": "Death awaited {0}.",
+  "sent_message.seymour_natus.2": "{0} sought freedom from this painful life.",
+
+  "sent_message.defender_x.0": "{0} took a haymaker to the face.",
+  "sent_message.defender_x.1": "{0} was not needed alive.",
+  "sent_message.defender_x.2": "{0} was defended against.",
+
+  "sent_message.lady_ginnem.0": "{0} failed as a guardian.",
+  "sent_message.lady_ginnem.1": "{0} became another farewell.",
+  "sent_message.lady_ginnem.2": "{0} was too young.",
+
+  "sent_message.biran_and_yenke.0": "{0} was rent asunder.",
+  "sent_message.biran_and_yenke.1": "{0} did not win.",
+  "sent_message.biran_and_yenke.2": "{0} was shunned by Gagazet.",
+
+  "sent_message.seymour_flux.0": "{0} faced total annihilation.",
+  "sent_message.seymour_flux.1": "{0} joined the Ronso.",
+  "sent_message.seymour_flux.2": "{0}'s meaningless existence ends here.",
+
+  "sent_message.sanctuary_keeper.0": "{0} was kept from sanctuary.",
+  "sent_message.sanctuary_keeper.1": "{0}'s strength was tested.",
+  "sent_message.sanctuary_keeper.2": "{0} couldn't handle the curse.",
+
+  "sent_message.spectral_keeper.0": "{0} forgot to move.",
+  "sent_message.spectral_keeper.1": "{0} attacked too recklessly.",
+  "sent_message.spectral_keeper.2": "{0} didn't mind the mines.",
+
+  "sent_message.yunalesca.0": "{0} was liberated.",
+  "sent_message.yunalesca.1": "{0} died and became free of pain.",
+  "sent_message.yunalesca.2": "{0} missed the time.",
+
+  "sent_message.sin_fins.0": "The hymn couldn't save {0}.",
+  "sent_message.sin_fins.1": "{0} was pulled off the airship.",
+  "sent_message.sin_fins.2": "{0} didn't see the weak spot.",
+
+  "sent_message.sin_core.0": "{0} couldn't stop the thrashing.",
+  "sent_message.sin_core.1": "{0} was foolhardy.",
+  "sent_message.sin_core.2": "{0} dropped the ball.",
+
+  "sent_message.overdrive_sin.0": "{0} failed Spira.",
+  "sent_message.overdrive_sin.1": "{0} understood the gravity of their battle.",
+  "sent_message.overdrive_sin.2": "Sin proved too powerful for {0}.",
+
+  "sent_message.seymour_omnis.0": "The darkness took {0}.",
+  "sent_message.seymour_omnis.1": "{0} rests in eternal darkness.",
+  "sent_message.seymour_omnis.2": "{0} tried and failed.",
+
+  "sent_message.braskas_final_aeon.0": "Jecht hit {0} with all he's got.",
+  "sent_message.braskas_final_aeon.1": "{0} lost.",
+  "sent_message.braskas_final_aeon.2": "Jecht beat {0} this time.",
+
+  "sent_message.contest_of_aeons.0": "{0} decided to join the fayth.",
+  "sent_message.contest_of_aeons.1": "{0} should've skipped the contest.",
+  "sent_message.contest_of_aeons.1": "{0} said goodbye.",
+
+  "sent_message.contest_of_aeons.hardcore.0": "The contest was too hardcore for {0}.",
+  "sent_message.contest_of_aeons.hardcore.1": "{0} found eternal rest.",
+  "sent_message.contest_of_aeons.hardcore.1": "{0} stopped suffering.",
+
+  "sent_message.yu_yevon.0": "{0} has a new fear of spiders.",
+  "sent_message.yu_yevon.1": "{0} fought together for the last time.",
+  "sent_message.yu_yevon.2": "It wasn't {0}'s story.",
+
+
+  "sent_message.ultima_weapon.0": "{0} was overshadowed.",
+  "sent_message.ultima_weapon.1": "{0} couldn't face Omega's wrath.",
+  "sent_message.ultima_weapon.2": "{0} should've been scared.",
+
+  "sent_message.omega_weapon.0": "{0} left Spira to the living.",
+  "sent_message.omega_weapon.1": "{0} rated Omega's personal attention.",
+  "sent_message.omega_weapon.2": "{0} found the main man.",
+
+
+  "sent_message.geosgaeno.0": "{0} got eaten by a fiend.",
+  "sent_message.geosgaeno.1": "{0} was mistaken for a Sahagin.",
+  "sent_message.geosgaeno.2": "{0} didn't get payback.",
+
+
+  "sent_message.dark_valefor.0": "{0} was pierced by dark energy.",
+  "sent_message.dark_valefor.1": "{0} should've stayed away.",
+  "sent_message.dark_valefor.2": "{0} shouldn't have approached the bad man.",
+
+  "sent_message.dark_ifrit.0": "{0} was charred by the inferno.",
+  "sent_message.dark_ifrit.1": "{0} was all bark, no bite.",
+  "sent_message.dark_ifrit.2": "{0} didn't find the child.",
+
+  "sent_message.dark_ixion.0": "{0} was struck by lightning.",
+  "sent_message.dark_ixion.1": "{0} met a shocking end.",
+  "sent_message.dark_ixion.2": "{0}'s death begets a thunderous applause.",
+
+  "sent_message.dark_shiva.0": "{0} succumbed to the cold.",
+  "sent_message.dark_shiva.1": "{0} found salvation on the Farplane.",
+  "sent_message.dark_shiva.2": "{0} ran into the Guado.",
+
+  "sent_message.dark_bahamut.0": "{0} fell before the dragon.",
+  "sent_message.dark_bahamut.1": "{0} stood in awe of the flare.",
+  "sent_message.dark_bahamut.2": "{0} was too impulsive.",
+
+  "sent_message.dark_anima.0": "{0} met oblivion.",
+  "sent_message.dark_anima.1": "{0} requires a requiem.",
+  "sent_message.dark_anima.2": "{0} seeks forgiveness in death.",
+
+  "sent_message.dark_yojimbo.0": "{0} paid the price.",
+  "sent_message.dark_yojimbo.1": "{0} didn't understand his true worth.",
+  "sent_message.dark_yojimbo.2": "{0} tried to skip payment.",
+
+  "sent_message.dark_magus_sisters.0": "{0} was hunted down.",
+  "sent_message.dark_magus_sisters.1": "{0} lost the chase.",
+  "sent_message.dark_magus_sisters.2": "{0} became prey.",
+
+  "sent_message.dark_sandy.0": "{0}'s life was dispelled.",
+  "sent_message.dark_sandy.1": "{0} was petrified with fear.",
+  "sent_message.dark_sandy.2": "{0} became prey.",
+
+  "sent_message.dark_mindy.0": "{0} faced calamity.",
+  "sent_message.dark_mindy.1": "{0} didn't mind their HP.",
+  "sent_message.dark_mindy.2": "{0} was hunted down.",
+
+  "sent_message.dark_cindy.0": "{0} was squashed.",
+  "sent_message.dark_cindy.1": "{0} was too slow.",
+  "sent_message.dark_cindy.2": "{0}'s fate caught up.",
 
   "sent_message.generic.0": "{0} visited the Farplane.",
   "sent_message.generic.1": "{0} made Yuna dance.",
