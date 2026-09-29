@@ -120,6 +120,7 @@ public class ArchipelagoClientModule : FhModule {
                 Interlocked.Exchange(ref status, ConnectionStatus.DISCONNECTED);
                 return;
             }
+            SeedId = (string)loginSuccess.SlotData["SeedId"];
             ArchipelagoFFXModule.SeedToServer[ArchipelagoFFXModule.seed.Options.SeedId] = server;
             _ffx_interop!.save_global_state();
         } else {
