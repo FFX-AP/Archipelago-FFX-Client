@@ -3,7 +3,6 @@ using ArchipelagoFFX.Client;
 using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
-using Fahrenheit.Gui;
 using Hexa.NET.ImGui;
 using System;
 using System.Collections.Generic;

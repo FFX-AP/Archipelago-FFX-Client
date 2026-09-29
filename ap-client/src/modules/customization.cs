@@ -252,7 +252,6 @@ public unsafe class CustomizationModule : FhModule {
         CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
 
         byte current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
-        bool has_key_item = Globals.save_data->key_items.get(0xa022);
 
         uint added = 0;
         for (byte recipe_idx = 0; recipe_idx < num_recipes; recipe_idx++) {
