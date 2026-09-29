@@ -96,6 +96,21 @@ public class ArchipelagoClientModule : FhModule {
         }
         var loginSuccess = (LoginSuccessful)login_result;
 
+        ArchipelagoFFXModule.SemVer generatedVersion;
+        if (loginSuccess.SlotData.TryGetValue("WorldVersion", out Object? x)) {
+            generatedVersion = new((string)x);
+        } else {
+            generatedVersion = new(0, 0, 0);
+        }
+        if (generatedVersion.OnlyMajorMinor() != ArchipelagoFFXModule.Version.OnlyMajorMinor()) {
+            string message = $"Client version ({ArchipelagoFFXModule.Version}) doesn't match APWorld version ({generatedVersion})";
+            _gui!.add_log_message([(message, Color.Red)]);
+            _logger.Error(message);
+            disconnect(session);
+            Interlocked.Exchange(ref status, ConnectionStatus.DISCONNECTED);
+            return;
+        }
+
         if (ArchipelagoFFXModule.seed.Options.SeedId is not null) {
             if (ArchipelagoFFXModule.seed.Options.SeedId != (string)loginSuccess.SlotData["SeedId"]) {
                 string message = "Loaded seed doesn't match connected slot";
