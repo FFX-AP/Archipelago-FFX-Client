@@ -3,10 +3,10 @@ using ArchipelagoFFX.Client;
 using Fahrenheit;
 using Fahrenheit.FFX;
 using Fahrenheit.FFX.Battle;
-using Fahrenheit.Gui;
 using Hexa.NET.ImGui;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -80,6 +80,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
     private ArchipelagoClientModule? _client;
     private ArchipelagoFFXModule? _ffx_interop;
     private DeathLinkModule? _deathlink;
+    private CustomizationModule? _customization;
     private HardcoreDreamsEndModule? _hardcore_dreams_end;
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
@@ -88,6 +89,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
         return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
             && new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
             && new FhModuleHandle<DeathLinkModule>(this).try_get_module(out _deathlink)
+            && new FhModuleHandle<CustomizationModule>(this).try_get_module(out _customization)
             && new FhModuleHandle<HardcoreDreamsEndModule>(this).try_get_module(out _hardcore_dreams_end);
     }
 
@@ -1006,6 +1008,22 @@ public unsafe class ArchipelagoGuiModule : FhModule {
                         foreach ((uint item_id, int amount) in other_inventory) {
                             string item_name = _ffx_interop!.get_other_item_name(item_id);
                             ImGui.Text($"{item_name}: {amount}");
+                        }
+                    }
+                    ImGui.SeparatorText("Customization Recipes");
+                    if (_customization!.recipes_inventory.Count == 0) {
+                        ImGui.Text("Empty");
+                    } else {
+                        foreach ((uint item_id, int amount) in _customization!.recipes_inventory) {
+                            string item_name = _ffx_interop!.get_other_item_name(item_id);
+                            string text = _customization.recipes_option switch {
+                                CustomizationModule.RecipesOption.OFF                => $"{item_name}: {amount}x Free",
+                                CustomizationModule.RecipesOption.ON when amount > 0 => $"{item_name} + {amount}x Free",
+                                CustomizationModule.RecipesOption.ON                 => item_name,
+                                CustomizationModule.RecipesOption.ALWAYS_FREE        => item_name,
+                                _ => throw new UnreachableException(),
+                            };
+                            ImGui.TextUnformatted(text);
                         }
                     }
                     ImGui.SeparatorText("Gear");

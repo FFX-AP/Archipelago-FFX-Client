@@ -3111,6 +3111,12 @@ public unsafe partial class ArchipelagoFFXModule {
                 break;
             case 0xC:
                 // Other
+                if (item_id is >= 0xC000 and <= 0xC0BF) {
+                    _customization!.recipes_inventory.TryGetValue(item_id, out count);
+                    _customization!.recipes_inventory[item_id] = count + 1;
+                    break;
+                }
+
                 _logger.Debug($"Other: {item_id}");
                 other_inventory.TryGetValue(item_id, out count);
                 other_inventory[item_id] = count+1;
