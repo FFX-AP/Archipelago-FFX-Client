@@ -177,6 +177,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     public record Location(string location_name, int location_id, uint item_id, string item_name, string player_name);
     public struct ArchipelagoSeedOptions {
         [JsonInclude] public string PlayerName;
+        [JsonInclude] public string WorldVersion;
         [JsonInclude] public string SeedId;
 
         [JsonInclude] public Goal            Goal;
@@ -203,6 +204,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         public ArchipelagoSeedOptions() {
             PlayerName           = "";
+            WorldVersion         = "0.0.0";
             SeedId               = "";
 
             Goal                 = Goal.YuYevon;
@@ -377,6 +379,14 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
     }
 
     public bool loadSeed(ArchipelagoSeed loaded_seed) {
+        SemVer seedVersion = new(loaded_seed.Options.WorldVersion);
+        if (seedVersion.OnlyMajorMinor() != Version.OnlyMajorMinor()) {
+            string message = $"Client version ({Version}) doesn't match APWorld version ({seedVersion})";
+            _gui!.add_log_message([(message, Color.Red)]);
+            _logger.Error(message);
+            return false;
+        }
+
         lock (_client!.client_lock) {
             if (_client!.is_connected) {
                 if (_client!.SeedId != loaded_seed.Options.SeedId) {
@@ -463,6 +473,14 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         public SemVer WithoutMetadata() {
             return this with {
+                buildmetadata = "",
+            };
+        }
+
+        public SemVer OnlyMajorMinor() {
+            return this with {
+                patch = 0,
+                prerelease = "",
                 buildmetadata = "",
             };
         }
