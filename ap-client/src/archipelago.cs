@@ -4,7 +4,6 @@ using ArchipelagoFFX.GUI;
 using Fahrenheit;
 using Fahrenheit.Atel;
 using Fahrenheit.Events;
-using Fahrenheit.FFX;
 using Fahrenheit.FFX.Ids;
 //using Fahrenheit.ImGuiNET;
 using System;
@@ -579,7 +578,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 return;
             }
 
-            if (save_version < new SemVer(0, 8, 0, "alpha")) {
+            if (save_version < new SemVer(0, 9, 0, "alpha")) {
                 string message = "Incompatible version. Returning to main menu";
                 _gui!.add_log_message([(message, Color.Red)]);
                 _logger.Info(message);
