@@ -126,25 +126,25 @@ public unsafe partial class ArchipelagoFFXModule {
             && FhXCall.TkSetLegendAbility.hook(this, TkSetLegendAbility)
             && FhXCall.AtelEventSetUp.hook(this, AtelEventSetUp)
             && FhXCall.MsBattleExe.hook(this, MsBattleExe)
-            && FhXCall.FUN_00791820.hook(this, FUN_00791820)
+            && FhXCall.FUN_003917D0.hook(this, FUN_003917D0)
             && FhXCall.MsApUp.hook(this, MsApUp)
             && FhXCall.MsBtlReadSetScene.hook(this, MsBtlReadSetScene)
             && FhXCall.eiAbmParaGet.hook(this, eiAbmParaGet)
             && FhXCall.MsSetSaveParam.hook(this, MsSetSaveParam)
             && FhXCall.MsSetRamChrParam.hook(this, MsSetRamChrParam)
-            && FhXCall.FUN_0086bec0.hook(this, FUN_0086bec0)
-            && FhXCall.FUN_0086bea0.hook(this, FUN_0086bea0) // Custom strings
+            && FhXCall.FUN_0046bf30.hook(this, FUN_0046bf30)
+            && FhXCall.FUN_0046bf10.hook(this, FUN_0046bf10) // Custom strings
             && FhXCall.graphicInitFMVPlayer.hook(this, graphicInitFMVPlayer)
             && FhXCall.FmodVoice_dataChange.hook(this, FmodVoice_dataChange)
             && FhXCall.AtelInitTotal.hook(this, AtelInitTotal)
             && FhXCall.LocalizationManager_Initialize.hook(this, LocalizationManager_Initialize)
             && FhXCall.TkMenuAppearMainCmdWindow.hook(this, TkMenuAppearMainCmdWindow)
             && FhGCall.TODrawMessageWindow.hook(this, render_game);
-        //  && _FUN_00656c90.hook() && _FUN_0065ee30.hook();
+        //  && _FUN_00256ae0.hook() && _FUN_0065ee30.hook();
         //  && _openFile.hook() && _FUN_0070aec0.hook();
         //  && _MsCheckLeftWindow.hook() && _MsCheckUseCommand.hook() && _TOBtlDrawStatusLimitGauge.hook();
         //  && Map_800F //MsBtlGetPos
-        //  && FUN_00a48910
+        //  && FUN_00648910
 
     }
 
@@ -198,7 +198,7 @@ public unsafe partial class ArchipelagoFFXModule {
         temp.CopyTo(destinationDestination);
     }
 
-    private byte* FUN_0086bec0(int param_1) {
+    private byte* FUN_0046bf30(int param_1) {
         byte* result;
         if ((param_1 & 0x8000) != 0) {
             int custom_index = param_1 & 0x7FFF;
@@ -209,20 +209,20 @@ public unsafe partial class ArchipelagoFFXModule {
             _logger.Debug(customStrings[custom_index].decoded);
         } else {
             // May crash if called with invalid index
-            result = FhXCall.FUN_0086bec0.chain_from(FUN_0086bec0).fnptr!(param_1);
+            result = FhXCall.FUN_0046bf30.chain_from(FUN_0046bf30).fnptr!(param_1);
         }
 
         return result;
     }
 
-    private short FUN_0086bea0(int param_1) {
+    private short FUN_0046bf10(int param_1) {
         short result;
         if ((param_1 & 0x8000) != 0) {
             int custom_index = param_1 & 0x7FFF;
             result = customStrings[custom_index].metadata;
         }
         else {
-            result = FhXCall.FUN_0086bea0.chain_from(FUN_0086bea0).fnptr!(param_1);
+            result = FhXCall.FUN_0046bf10.chain_from(FUN_0046bf10).fnptr!(param_1);
         }
 
         return result;
@@ -2060,8 +2060,8 @@ public unsafe partial class ArchipelagoFFXModule {
         AtelWorkerController* pAVar2 = (AtelWorkerController*)FhXCall.AtelGetCurCtrlWork.fnptr!();
         ((byte*)pAVar2)[3] |= 4;
         FhXCall.MsFieldItemGet.fnptr!(treasure_id);
-        FhXCall.FUN_008b8910.fnptr!(window_id, 0, 0);
-        FhXCall.FUN_008b8910.fnptr!(window_id, 1, 1);
+        FhXCall.FUN_004b8960.fnptr!(window_id, 0, 0);
+        FhXCall.FUN_004b8960.fnptr!(window_id, 1, 1);
         bool gear_inv_is_full = false;
         uint weapon_id = 0;
         byte* message_text = FhXCall.TkBtlEndGetText.fnptr!(0x401d); // "Nothing"
@@ -2086,7 +2086,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
                     //CustomString player_name = new CustomString(item.player, encodingFlags: FhEncodingFlags.IGNORE_EXPRESSIONS);
                     //cached_strings.Add(player_name);
-                    //_FUN_008b8930(window_id, 1, (int)player_name.encoded);
+                    //_FUN_004b8980(window_id, 1, (int)player_name.encoded);
                 }
             } else {
                 NativeCustomString sent_text = new NativeCustomString("Already received this item!");
@@ -2097,7 +2097,7 @@ public unsafe partial class ArchipelagoFFXModule {
         else
         if (Battle.reward_data->item_count != 0) {
             FhXCall.TkMsGetRomItem.fnptr!(Battle.reward_data->items[0], (int*)&item_name);
-            FhXCall.FUN_008b8930.fnptr!(window_id, 1, Battle.reward_data->items_amounts[0]);
+            FhXCall.FUN_004b8980.fnptr!(window_id, 1, Battle.reward_data->items_amounts[0]);
             if (Battle.reward_data->items_amounts[0] == 1) {
                 message_text = FhXCall.TkBtlEndGetText.fnptr!(0x4018); // "Obtained %0!"
             }
@@ -2122,16 +2122,16 @@ public unsafe partial class ArchipelagoFFXModule {
             weapon_id = Battle.reward_data->gear_inv_idx;
             message_text = FhXCall.TkBtlEndGetText.fnptr!(0x4016); // "Obtained %0!"
             Equipment* weapon = (Equipment*)FhXCall.MsGetSaveWeapon.fnptr!(weapon_id, (nint)(&item_name));
-            int inv_id = FhXCall.FUN_007ab930.fnptr!(weapon); // giveWeapon?
+            int inv_id = FhXCall.FUN_003ab910.fnptr!(weapon); // giveWeapon?
             gear_inv_is_full = inv_id == 0;
         }
         else if (Battle.reward_data->gil != 0) {
-            FhXCall.FUN_008b8930.fnptr!(window_id, 1, (int)Battle.reward_data->gil);
+            FhXCall.FUN_004b8980.fnptr!(window_id, 1, (int)Battle.reward_data->gil);
             message_text = FhXCall.TkBtlEndGetText.fnptr!(0x401a); // "Obtained %1 Gil!"
             FhXCall.MsPayGIL.fnptr!(-(int)Battle.reward_data->gil);
         }
 
-        FhXCall.FUN_008b8930.fnptr!(window_id, 0, (int)item_name);
+        FhXCall.FUN_004b8980.fnptr!(window_id, 0, (int)item_name);
 
         atelStack->push_int(window_id);
         atelStack->push_int(0x100);
@@ -2158,7 +2158,7 @@ public unsafe partial class ArchipelagoFFXModule {
         if (!gear_inv_is_full) {
             MsBtlGetInit.fnptr!();
         }
-        FhXCall.FUN_0086a0c0.fnptr!();
+        FhGCall.FUN_0046A130_00324820.fnptr!();
         mesageWindowWorker->_0x1d |= 0x10;
     }
 
@@ -2191,7 +2191,7 @@ public unsafe partial class ArchipelagoFFXModule {
         else if (Battle.reward_data->gear_count != 0) {
             weapon_id = Battle.reward_data->gear_inv_idx;
             Equipment* weapon = FhXCall.MsGetSaveWeapon.fnptr!(weapon_id, 0);
-            int inv_id = FhXCall.FUN_007ab930.fnptr!(weapon); // giveWeapon?
+            int inv_id = FhXCall.FUN_003ab910.fnptr!(weapon); // giveWeapon?
             gear_inv_is_full = inv_id == 0;
         }
         else if (Battle.reward_data->gil != 0) {
@@ -2615,8 +2615,8 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     // Battle loop?
-    public void FUN_00791820() {
-        FhXCall.FUN_00791820.chain_from(FUN_00791820).fnptr!();
+    public void FUN_003917D0() {
+        FhXCall.FUN_003917D0.chain_from(FUN_003917D0).fnptr!();
         string encounter_name = Marshal.PtrToStringAnsi((nint)(&Battle.btl->field_name))!;
         byte battle_end_type = Battle.btl->battle_end_type;
         byte battle_state = Battle.btl->battle_state;
@@ -2902,7 +2902,7 @@ public unsafe partial class ArchipelagoFFXModule {
     private void h_obtain_treasure_cleanup(BtlRewardData* param_1, int param_2) {
         _logger.Debug("obtain_treasure_cleanup");
 
-        FhXCall.FUN_007993f0.fnptr!(param_1, param_2);
+        FhXCall.FUN_003993e0.fnptr!(param_1, param_2);
     }
 
     public void obtain_item(uint item_id, int amount=-1) {
@@ -3133,7 +3133,7 @@ public unsafe partial class ArchipelagoFFXModule {
         new_weapon.name_id = h_get_weapon_name(&new_weapon);
         h_get_weapon_model(new_weapon.name_id, new_weapon.owner, false, &new_weapon.model_id);
 
-        var result = FhXCall.FUN_007ab930.fnptr!(&new_weapon); // giveWeapon
+        var result = FhXCall.FUN_003ab910.fnptr!(&new_weapon); // giveWeapon
         if (result != 0) {
             //h_obtain_treasure_cleanup(&rewardData, 7); // Unnecessary?
             return null;
@@ -3260,10 +3260,10 @@ public unsafe partial class ArchipelagoFFXModule {
         //ply.mp = (uint)Math.Clamp(ply.mp * mp_mult / 100, 0, ply.auto_ability_effects.has_break_mp_limit ? 9999 : 999);
     }
 
-    public void h_FUN_00a48910(uint chr_id, int node_idx) {
+    public void h_FUN_00648910(uint chr_id, int node_idx) {
         // TODO: Send Archipelago location when node is unlocked (if option enabled)
         _logger.Debug($"Unlock node {node_idx} for {id_to_character[chr_id]}");
-        FhXCall.FUN_00a48910.chain_from(h_FUN_00a48910).fnptr!(chr_id, node_idx);
+        FhXCall.FUN_00648910.chain_from(h_FUN_00648910).fnptr!(chr_id, node_idx);
     }
 
     private uint MsApUp(int chr_id, Chr* chr, int base_ap_add, uint param_4) {
@@ -3281,7 +3281,7 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     // Texture experiments
-    private void h_FUN_00656c90(int param_1, int param_2, char* fileName) {
+    private void h_FUN_00256ae0(int param_1, int param_2, char* fileName) {
         //logger.Debug($"{param_1}, {param_2}, {(nint)fileName}");
         //
         //string nameString = Marshal.PtrToStringAnsi((nint)fileName);
@@ -3289,7 +3289,7 @@ public unsafe partial class ArchipelagoFFXModule {
         //logger.Debug(nameString);
 
 
-        FhXCall.FUN_00656c90.chain_from(h_FUN_00656c90).fnptr!(param_1, param_2, fileName);
+        FhXCall.FUN_00256ae0.chain_from(h_FUN_00256ae0).fnptr!(param_1, param_2, fileName);
     }
 
     private void TkMenuAppearMainCmdWindow(int param_1, int param_2) {
@@ -3738,7 +3738,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 atelStack->push_int(2); // signal priority?
                 atelStack->push_int(0); // worker
                 atelStack->push_int(entry_point); // entrypoint
-                FhXCall.FUN_00867370.fnptr!((byte)AtelOp.REQEW & 0x7F, work, &work->threads[work->current_thread_priority], atelStack, 0);
+                FhXCall.FUN_004673D0.fnptr!((byte)AtelOp.REQEW & 0x7F, work, &work->threads[work->current_thread_priority], atelStack, 0);
                 work->__0x34 = (ushort)(work->__0x34 & 0xEBFF | 0x800);
                 //work->__0x34 = (ushort)(work->__0x34 | 0x800);
                 atelStack->pop_int();

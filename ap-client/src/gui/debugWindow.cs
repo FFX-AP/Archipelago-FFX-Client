@@ -157,7 +157,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
             }
 
             if (ImGui.Checkbox("Original soundtrack?", &save_data->soundtrack_type)) {
-                FhXCall.FUN_008cc120.fnptr!(save_data->soundtrack_type ? 1 : 0);
+                FhXCall.FUN_004cc150.fnptr!(save_data->soundtrack_type ? 1 : 0);
             }
 
             ImGui.InputScalarN("frontline? (0x1FC5)", ImGuiDataType.U8, &Battle.btl->__0x1FC5, 7);

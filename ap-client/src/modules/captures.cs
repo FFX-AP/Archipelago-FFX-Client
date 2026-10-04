@@ -25,7 +25,7 @@ public unsafe class CaptureModule : FhModule {
         return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
             && new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
             && FhXCall.MsMonsterCapture.hook(this, h_MsMonsterCapture)
-            && FhXCall.FUN_00783bb0.hook(this, h_FUN_00783bb0)
+            && FhXCall.FUN_00383b00.hook(this, h_FUN_00383b00)
             && FhXCall.AtelEventSetUp.hook(this, h_AtelEventSetUp)
             && FhXCall.AtelFn_Std_160_RetI.hook(this, ret_hasKeyItem)
             && FhXCall.MsDamageCheckDeath.hook(this, h_MsDamageCheckDeath)
@@ -92,11 +92,11 @@ public unsafe class CaptureModule : FhModule {
         233, // Condor (Tutorial)
         234, // Ragora (Tutorial)
     ];
-    private void h_FUN_00783bb0(byte mon_idx) {
+    private void h_FUN_00383b00(byte mon_idx) {
         byte num_initialized = FhUtil.get_at<byte>(0xD2CA80);
         if (num_initialized == 0) initialized_monsters.Clear();
 
-        FhXCall.FUN_00783bb0.chain_from(h_FUN_00783bb0).fnptr!(mon_idx);
+        FhXCall.FUN_00383b00.chain_from(h_FUN_00383b00).fnptr!(mon_idx);
 
         Chr* mon = FhXCall.MsGetMon.fnptr!(mon_idx);
         if (initialized_monsters.Add(mon->chr_id)) {
@@ -207,16 +207,16 @@ public unsafe class CaptureModule : FhModule {
 
         int[] local_7c = [0, 0, 0, param_2];
         if (command->absorbs_dmg) {
-            local_7c[2] = (int)FhXCall.FUN_0078d100.fnptr!(attacker);
+            local_7c[2] = (int)FhXCall.FUN_0038d040.fnptr!(attacker);
         }
 
-        //TODO: Figure out a way not to duplicate affection in _FUN_0078bb30
+        //TODO: Figure out a way not to duplicate affection in _FUN_0038ba70
         byte[] targets = new byte[32];
         byte[] local_48 = new byte[32];
         fixed (byte* p_targets = targets) {
             fixed (byte* p_local_48 = local_48) {
                 fixed (int* p_local_7c = local_7c) {
-                    FhXCall.FUN_0078bb30.fnptr!(param_1->attacker_id, p_targets, p_local_48, command, local_6c, &param_1->command_list[param_2].targets, p_local_7c + 1);
+                    FhXCall.FUN_0038ba70.fnptr!(param_1->attacker_id, p_targets, p_local_48, command, local_6c, &param_1->command_list[param_2].targets, p_local_7c + 1);
                 }
             }
         }
@@ -225,7 +225,7 @@ public unsafe class CaptureModule : FhModule {
             if (targets[target_id] != 0) {
                 if (local_7c[2] == 0 || target_id != param_1->attacker_id) {
                     Chr* target = FhXCall.MsGetChr.fnptr!((int)target_id);
-                    uint iVar6 = FhXCall.FUN_0078d100.fnptr!(target);
+                    uint iVar6 = FhXCall.FUN_0038d040.fnptr!(target);
                     if (iVar6 != 0) {
                         if (attacker->ram.auto_ability_effects.has_capture && Battle.btl->battle_type == 0 && (ArchipelagoFFXModule.seed.Options.CaptureDamage > 0 || command->uses_weapon_properties)) {
                             target->should_try_capture = true;

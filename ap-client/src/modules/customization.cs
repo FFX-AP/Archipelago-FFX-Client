@@ -81,12 +81,12 @@ public unsafe class CustomizationModule : FhModule {
 
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
-            && FhXCall.FUN_008c2370.hook(this, h_PrepareMenuList)
+            && FhXCall.FUN_004c2390.hook(this, h_PrepareMenuList)
             && FhXCall.UpdateGearCustomizationMenuState.hook(this, h_UpdateGearCustomizationMenuState)
             && FhXCall.DrawGearCustomizationMenu.hook(this, h_DrawGearCustomizationMenu)
             && FhXCall.TkMenuCtrlSummon.hook(this, h_TkMenuCtrlSummon)
-            && FhXCall.FUN_008cdb70.hook(this, h_DrawAeonCustomizationMenu)
-            && FhXCall.FUN_008d5720.hook(this, h_FUN_008d5720);
+            && FhXCall.FUN_004cdba0.hook(this, h_DrawAeonCustomizationMenu)
+            && FhXCall.FUN_004d5750.hook(this, h_FUN_004d5750);
     }
 
     public void PrepareMenuList_InitList() {
@@ -307,7 +307,7 @@ public unsafe class CustomizationModule : FhModule {
                 break;
 
             default:
-                FhXCall.FUN_008c2370.chain_from(h_PrepareMenuList).fnptr!(menu_list_id, gear);
+                FhXCall.FUN_004c2390.chain_from(h_PrepareMenuList).fnptr!(menu_list_id, gear);
                 break;
         }
     }
@@ -331,7 +331,7 @@ public unsafe class CustomizationModule : FhModule {
         while (!break_loop) {
             switch (*state) {
                 case 2: {
-                    FhXCall.FUN_008b4460.fnptr!(window);
+                    FhXCall.FUN_004b44b0.fnptr!(window);
                     if (window->exit_value < 1) return;
 
                     ushort gear_index = p_DAT_0186a9f8[window->selected_index];
@@ -399,7 +399,7 @@ public unsafe class CustomizationModule : FhModule {
                 case 12: {
                     TkWindow* DAT_023cc120 = (TkWindow*)FhUtil.get_at<uint>(0x1FCC120);
                     if (DAT_023cc120->exit_value < 0) {
-                        FhXCall.FUN_008e2de0.fnptr!();
+                        FhXCall.FUN_004e2de0.fnptr!();
                         *state = 6;
                         break_loop = true;
                         break;
@@ -410,7 +410,7 @@ public unsafe class CustomizationModule : FhModule {
                         break;
                     }
 
-                    FhXCall.FUN_008e2de0.fnptr!();
+                    FhXCall.FUN_004e2de0.fnptr!();
                     if (DAT_023cc120->selected_index != 0) {
                         FhGCall.SndSepPlaySimple.fnptr!(SoundId.UI_ACTION);
                         *state = 6;
@@ -474,10 +474,10 @@ public unsafe class CustomizationModule : FhModule {
                     // Either "%0 gains the ability %1!"
                     // or "Adding %1 to %0 creates %2!"
                     int msg_idx = name_compare == 0 ? 0x1E : 0x1F;
-                    byte* msg_text = FhXCall.FUN_008bee80.fnptr!((byte)msg_idx);
-                    FhXCall.FUN_008c2c40.fnptr!(0, 0, previous_gear_name);
-                    FhXCall.FUN_008c2c40.fnptr!(2, 0, new_gear_name);
-                    FhXCall.FUN_008e33a0.fnptr!(msg_text, null, null);
+                    byte* msg_text = FhXCall.FUN_004beeb0.fnptr!((byte)msg_idx);
+                    FhXCall.FUN_004c2c60.fnptr!(0, 0, previous_gear_name);
+                    FhXCall.FUN_004c2c60.fnptr!(2, 0, new_gear_name);
+                    FhXCall.FUN_004e33a0.fnptr!(msg_text, null, null);
 
                     TkWindow* DAT_023cc120 = (TkWindow*)FhUtil.get_at<uint>(0x1FCC120);
                     DAT_023cc120->render_priority = 4;
@@ -622,7 +622,7 @@ public unsafe class CustomizationModule : FhModule {
                 }
             } else {
                 pos_1 = new Vector2(970f, 319f).game_remap_1080p();
-                FhXCall.FUN_008c1c70.fnptr!((int)pos_1.X, (int)pos_1.Y, item_id, item_cost);
+                FhXCall.FUN_004c1c90.fnptr!((int)pos_1.X, (int)pos_1.Y, item_id, item_cost);
             }
 
             // Header background
@@ -655,20 +655,20 @@ public unsafe class CustomizationModule : FhModule {
                 0x200,
                 (int)(new Vector2(0, 680f).game_remap_1080p().Y)
             );
-            FUN_008d5d20_Extra(window, 0, window->visible_item_offset, 0, 0);
+            FUN_004d5d50_Extra(window, 0, window->visible_item_offset, 0, 0);
         } else {
             // Draw ability list when quick scrolling (L2/R2)
             short uVar5 = window->scroll_delta; // Scroll offset
 
-            FhXCall.FUN_008c0f40.fnptr!(
+            FhXCall.FUN_004c0f70.fnptr!(
                 (int)(new Vector2(0, 315f).game_remap_1080p().Y),
                 (int)(new Vector2(0, 680f).game_remap_1080p().Y),
                 1,
                 uVar5
             );
-            FUN_008d5d20_Extra(window, 1, window->visible_item_offset, 0, 0);
+            FUN_004d5d50_Extra(window, 1, window->visible_item_offset, 0, 0);
 
-            FhXCall.FUN_008c0f40.fnptr!(
+            FhXCall.FUN_004c0f70.fnptr!(
                 (int)(new Vector2(0, 315f).game_remap_1080p().Y),
                 (int)(new Vector2(0, 680f).game_remap_1080p().Y),
                 2,
@@ -676,13 +676,13 @@ public unsafe class CustomizationModule : FhModule {
             );
 
             int iVar2 = (int)(new Vector2(0, 675f).game_remap_1080p().Y * uVar5 * -0.00024414063);
-            FUN_008d5d20_Extra(window, 2, window->scroll_offset, 0, iVar2);
+            FUN_004d5d50_Extra(window, 2, window->scroll_offset, 0, iVar2);
         }
 
         FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
 
         pos_1 = new Vector2(389f, 325f).game_remap_1080p();
-        FhXCall.FUN_008d5dc0.fnptr!(window, (int)pos_1.X, (int)pos_1.Y);
+        FhXCall.FUN_004d5df0.fnptr!(window, (int)pos_1.X, (int)pos_1.Y);
 
         {
             int uVar5 = window->num_items;
@@ -698,7 +698,7 @@ public unsafe class CustomizationModule : FhModule {
             uint _DAT_0186a9f0 = FhUtil.get_at<uint>(0x146AA30);
             int iVar2 = *(short*)(_DAT_0186a9f0 + 0x48);
             pos_1 = new Vector2(970f, 659f).game_remap_1080p();
-            FhXCall.FUN_008d6630.fnptr!((int)pos_1.X, (int)pos_1.Y, iVar2);
+            FhXCall.FUN_004d6660.fnptr!((int)pos_1.X, (int)pos_1.Y, iVar2);
         }
     }
 
@@ -706,7 +706,7 @@ public unsafe class CustomizationModule : FhModule {
         // Full reimplementation
 
         FhXCall.TkVU1SyncPath.fnptr!();
-        FhXCall.FUN_008e71d0.fnptr!(7);
+        FhXCall.FUN_004e71d0.fnptr!(7);
         uint current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
 
         CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
@@ -731,12 +731,12 @@ public unsafe class CustomizationModule : FhModule {
                 }
             } else {
                 pos_1 = new Vector2(970f, 380f).game_remap_1080p();
-                FhXCall.FUN_008c1c70.fnptr!((int)pos_1.X, (int)pos_1.Y, (uint)item_id, item_cost);
+                FhXCall.FUN_004c1c90.fnptr!((int)pos_1.X, (int)pos_1.Y, (uint)item_id, item_cost);
             }
         }
 
         pos_1 = new Vector2(210f, 226f).game_remap_1080p();
-        FhXCall.FUN_008ff490.fnptr!(current_summon, pos_1.X, pos_1.Y);
+        FhXCall.FUN_004ff490.fnptr!(current_summon, pos_1.X, pos_1.Y);
 
         pos_1 = new Vector2(210f, 312f).game_remap_1080p();
         pos_2 = new Vector2(740f,  48f).game_remap_1080p();
@@ -763,7 +763,7 @@ public unsafe class CustomizationModule : FhModule {
         float fVar10;
         if (window->visible_item_offset == window->scroll_offset) {
             // Draw ability list
-            FhXCall.FUN_008c0f40.fnptr!(
+            FhXCall.FUN_004c0f70.fnptr!(
                 iVar2,
                 (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
                 0,
@@ -774,15 +774,15 @@ public unsafe class CustomizationModule : FhModule {
             iVar6 = 0;
         } else {
             // Draw ability list when quick scrolling (L2/R2)
-            FhXCall.FUN_008c0f40.fnptr!(
+            FhXCall.FUN_004c0f70.fnptr!(
                 iVar2,
                 (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
                 1,
                 window->scroll_delta
             );
-            FUN_008cd960_Extra(window, 1, window->visible_item_offset, 0.0f, 0.0f);
+            FUN_004cd990_Extra(window, 1, window->visible_item_offset, 0.0f, 0.0f);
 
-            FhXCall.FUN_008c0f40.fnptr!(
+            FhXCall.FUN_004c0f70.fnptr!(
                 iVar2,
                 (int)(new Vector2(0, 70f).game_remap_1080p().Y * 9.0),
                 2,
@@ -794,15 +794,15 @@ public unsafe class CustomizationModule : FhModule {
             iVar6 = 2;
         }
 
-        FUN_008cd960_Extra(window, iVar6, sVar1, 0.0f, fVar10);
+        FUN_004cd990_Extra(window, iVar6, sVar1, 0.0f, fVar10);
         FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
 
         ushort _DAT_0186a5a4 = FhUtil.get_at<ushort>(0x146A5E4);
         ushort _DAT_0186a5a6 = FhUtil.get_at<ushort>(0x146A5E6);
-        FhXCall.FUN_008cd9f0.fnptr!(window, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
+        FhXCall.FUN_004cda20.fnptr!(window, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
 
         float local_8;
-        FhXCall.ToGetCrossExtMesFontWidth.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), &local_8, 0.78f, 1.0f);
+        FhXCall.ToGetCrossExtMesFontWidth.fnptr!(0, FhXCall.FUN_004beeb0.fnptr!(5), &local_8, 0.78f, 1.0f);
 
         fVar10 = new Vector2(80f, 0).game_remap_1080p().X + local_8;
         local_8 = fVar10;
@@ -839,15 +839,15 @@ public unsafe class CustomizationModule : FhModule {
         FhXCall.TOMkpShapeXYWHUV.fnptr!(0xf3, fVar12, pos_1.Y, pos_2.X, pos_2.Y, uv_x1, uv_y1, uv_x2, uv_y2);
 
         pos_1 = new Vector2(80f, 928f).game_remap_1080p();
-        FhXCall.TOMkpCrossExtMesFontLClut.fnptr!(0, FhXCall.FUN_008bee80.fnptr!(5), pos_1.X + fVar12, pos_1.Y, 0, 0.78f, 1.0f);
+        FhXCall.TOMkpCrossExtMesFontLClut.fnptr!(0, FhXCall.FUN_004beeb0.fnptr!(5), pos_1.X + fVar12, pos_1.Y, 0, 0.78f, 1.0f);
 
-        item_id = (int)FhXCall.FUN_008d48e0.fnptr!();
-        FhXCall.FUN_008d4140.fnptr!((uint)item_id, 1);
+        item_id = (int)FhXCall.FUN_004d4910.fnptr!();
+        FhXCall.FUN_004d4170.fnptr!((uint)item_id, 1);
         FhXCall.TkMn2DrawKickSyncPacket.fnptr!();
     }
 
-    private void FUN_008cd960_Extra(TkWindow* window, int param_2, int menu_offset, float x, float y) {
-        FhXCall.FUN_008cd960.fnptr!(window, param_2, menu_offset, x, y);
+    private void FUN_004cd990_Extra(TkWindow* window, int param_2, int menu_offset, float x, float y) {
+        FhXCall.FUN_004cd990.fnptr!(window, param_2, menu_offset, x, y);
 
         Vector2 pos = new(x, y);
         pos += new Vector2(209f + 50f, 306f).game_remap_1080p();
@@ -875,8 +875,8 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    private void FUN_008d5d20_Extra(TkWindow* window, int param_2, int menu_offset, int x, int y) {
-        FhXCall.FUN_008d5d20.fnptr!(window, param_2, menu_offset, x, y);
+    private void FUN_004d5d50_Extra(TkWindow* window, int param_2, int menu_offset, int x, int y) {
+        FhXCall.FUN_004d5d50.fnptr!(window, param_2, menu_offset, x, y);
 
         Vector2 pos = new(x, y);
         pos += new Vector2(209f + 50f, 255f).game_remap_1080p();
@@ -989,7 +989,7 @@ public unsafe class CustomizationModule : FhModule {
         FhXCall.TkMn2DrawCrossCursor.fnptr!(pos.X, pos.Y, 0);
     }
 
-    public static bool h_FUN_008d5720(uint gear_id, int param_2) {
+    public static bool h_FUN_004d5750(uint gear_id, int param_2) {
         Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_id, 0);
 
         bool can_customize = gear->exists
