@@ -773,7 +773,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         }
          */
 
-        if (Input.select.is_pressed && Input.l1.is_pressed) {
+        if (FhApi.Input.select.is_pressed && FhApi.Input.l1.is_pressed) {
 #if DEBUG
             AtelBasicWorker* worker0 = Atel.controllers[0].worker(0);
 
@@ -861,13 +861,13 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
 
         }
 
-        if (Input.select.is_pressed && Input.r1.is_pressed) {
+        if (FhApi.Input.select.is_pressed && FhApi.Input.r1.is_pressed) {
             _logger.Info("Resetting party");
             save_party();
             reset_party();
         }
 
-        if (Input.select.is_pressed && Input.l2.is_pressed) {
+        if (FhApi.Input.select.is_pressed && FhApi.Input.l2.is_pressed) {
             //foreach (var state in region_states) {
             //    _logger.Debug($"{state.Key}: story_progress={state.Value.Story_progress}, room_id={state.Value.room_id}, entrance={state.Value.entrance}");
             //}
@@ -883,7 +883,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             //get_party_frontline();
         }
 
-        if (Input.select.is_pressed && Input.r2.is_pressed) {
+        if (FhApi.Input.select.is_pressed && FhApi.Input.r2.is_pressed) {
             //_logger.Debug("Warp to Airship");
             //call_warp_to_map(382, 0);
         }
@@ -897,7 +897,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         int work = 0;
         int storage = 0;
 
-        h_Common_warpToMap.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
+        FhXCall.AtelFn_Std_10B_RetI.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
     }
 
     public void call_remove_party_member(int character_id, bool long_term = false) {
@@ -907,8 +907,8 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         int work = 0;
         int storage = 0;
 
-        if (!long_term) h_Common_removePartyMember.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
-        else h_Common_removePartyMemberLongTerm.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
+        if (!long_term) FhXCall.AtelFn_Std_0CB_RetI.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
+        else FhXCall.AtelFn_Std_1F9_RetI.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
     }
 
     public void call_add_party_member(int character_id) {
@@ -918,7 +918,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         int work = 0;
         int storage = 0;
 
-        h_Common_addPartyMember.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
+        FhXCall.AtelFn_Std_0CA_RetI.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
     }
 
     public void call_put_party_member_in_slot(int slot, int character_id) {
@@ -929,7 +929,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
         int work = 0;
         int storage = 0;
 
-        h_Common_putPartyMemberInSlot.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
+        FhXCall.AtelFn_Std_0E7_RetI.fnptr!((AtelBasicWorker*)&work, &storage, &stack);
     }
 
     public uint[] get_party_frontline() {
@@ -1036,15 +1036,15 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                   ], saveParty, onlyUnlocked);
     }
 
-    public void set_character_model(int chr_id) {
-        AtelStack stack = new AtelStack();
-        stack.push_int(chr_id + 1);
-        AtelBasicWorker* worker0 = Atel.controllers[0].worker(0);
-        int storage = 0;
-        h_Common_loadModel.fnptr!(worker0, &storage, &stack);
-        stack.push_int(0);
-        h_Common_linkFieldToBattleActor.fnptr!(worker0, &storage, &stack);
-    }
+    //public void set_character_model(int chr_id) {
+    //    AtelStack stack = new AtelStack();
+    //    stack.push_int(chr_id + 1);
+    //    AtelBasicWorker* worker0 = Atel.controllers[0].worker(0);
+    //    int storage = 0;
+    //    h_Common_loadModel.fnptr!(worker0, &storage, &stack);
+    //    stack.push_int(0);
+    //    h_Common_linkFieldToBattleActor.fnptr!(worker0, &storage, &stack);
+    //}
 
     //public uint allocate_file(string filename, out nint file_ptr) {
     //    int[] fileStream = [0,0];

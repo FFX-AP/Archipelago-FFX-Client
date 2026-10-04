@@ -21,18 +21,13 @@ public unsafe class CaptureModule : FhModule {
     private ArchipelagoClientModule? _client;
     private ArchipelagoFFXModule? _ffx_interop;
 
-    // TODO: Remove once Fahrenheit adds Atel call targets to FhCall
-    // Mars Sigil location check (Atel CT_RetInt hook); not yet a curated FhCall entry, so kept as a local handle.
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_ret_hasKeyItem_handle
-        => new( new FhMethodLocation("FFX.exe", 0x45B7A0) );
-
     public override bool init(FhModContext mod_context, FileStream global_state_file) {
         return new FhModuleHandle<ArchipelagoClientModule>(this).try_get_module(out _client)
             && new FhModuleHandle<ArchipelagoFFXModule>(this).try_get_module(out _ffx_interop)
             && FhXCall.MsMonsterCapture.hook(this, h_MsMonsterCapture)
             && FhXCall.FUN_00783bb0.hook(this, h_FUN_00783bb0)
             && FhXCall.AtelEventSetUp.hook(this, h_AtelEventSetUp)
-            && h_ret_hasKeyItem_handle.hook(this, ret_hasKeyItem)
+            && FhXCall.AtelFn_Std_160_RetI.hook(this, ret_hasKeyItem)
             && FhXCall.MsDamageCheckDeath.hook(this, h_MsDamageCheckDeath)
             && FhXCall.MsSetRamChrParam.hook(this, h_MsSetRamChrParam)
             && FhXCall.MsSetSaveParam.hook(this, h_MsSetSaveParam)
@@ -159,7 +154,7 @@ public unsafe class CaptureModule : FhModule {
             }
         }
 
-        return h_ret_hasKeyItem_handle.chain_from(ret_hasKeyItem).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_160_RetI.chain_from(ret_hasKeyItem).fnptr!(work, storage, atelStack);
     }
 
     private int h_MsDamageCheckDeath(int attacker_id, int target_id, int param_3, int param_4) {

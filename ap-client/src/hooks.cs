@@ -19,78 +19,15 @@ using FhXCall = Fahrenheit.FFX.FhCall;
 namespace ArchipelagoFFX;
 
 public unsafe partial class ArchipelagoFFXModule {
+    //private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_linkFieldToBattleActor
+    //    => new(new FhMethodLocation("FFX.exe", 0x45CA00));
+    //private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_loadModel
+    //    => new(new FhMethodLocation("FFX.exe", 0x45CE70));
 
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Map_800F
-        => new(new FhMethodLocation("FFX.exe", 0x51B1A0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Map_show2DLayerResultInt
-        => new(new FhMethodLocation("FFX.exe", 0x51B1A0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Map_hide2DLayerResultInt
-        => new(new FhMethodLocation("FFX.exe", 0x51B1E0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_obtainBrotherhoodRetInt
-        => new(new FhMethodLocation("FFX.exe", 0x459A40));
-    private FhMethodHandle<FhGCall.d_CT_Init> h_Common_obtainTreasureInit
-        => new(new FhMethodLocation("FFX.exe", 0x45A740));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_removePartyMemberLongTerm
-        => new(new FhMethodLocation("FFX.exe", 0x45AAF0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_setPrimerCollected
-        => new(new FhMethodLocation("FFX.exe", 0x45AB30));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_pushParty
-        => new(new FhMethodLocation("FFX.exe", 0x45B350));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_popParty
-        => new(new FhMethodLocation("FFX.exe", 0x45B3C0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_addPartyMember
-        => new(new FhMethodLocation("FFX.exe", 0x45B5A0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_removePartyMember
-        => new(new FhMethodLocation("FFX.exe", 0x45B6C0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_putPartyMemberInSlot
-        => new(new FhMethodLocation("FFX.exe", 0x45BC90));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_0043
-        => new(new FhMethodLocation("FFX.exe", 0x45C810));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_linkFieldToBattleActor
-        => new(new FhMethodLocation("FFX.exe", 0x45CA00));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_playFieldVoiceLineInit
-        => new(new FhMethodLocation("FFX.exe", 0x45CB70));
-    private FhMethodHandle<FhGCall.d_CT_Exec> h_Common_playFieldVoiceLineExec
-        => new(new FhMethodLocation("FFX.exe", 0x45CD30));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_loadModel
-        => new(new FhMethodLocation("FFX.exe", 0x45CE70));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_playFieldVoiceLineResultInt
-        => new(new FhMethodLocation("FFX.exe", 0x45D150));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_00D6Init
-        => new(new FhMethodLocation("FFX.exe", 0x45D520));
-    private FhMethodHandle<FhGCall.d_CT_Exec> h_Common_00D6Exec
-        => new(new FhMethodLocation("FFX.exe", 0x45D820));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_00D6ResultInt
-        => new(new FhMethodLocation("FFX.exe", 0x45DCF0));
-    private FhMethodHandle<FhGCall.d_CT_Init> h_Common_01D1Init
-        => new(new FhMethodLocation("FFX.exe", 0x45FB60));
-    private FhMethodHandle<FhGCall.d_CT_Exec> h_Common_01D1Exec
-        => new(new FhMethodLocation("FFX.exe", 0x45FDB0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_setWeaponInvisible
-        => new(new FhMethodLocation("FFX.exe", 0x456770));
-    private FhMethodHandle<FhGCall.d_CT_Init> h_Common_obtainTreasureSilentlyInit
-        => new(new FhMethodLocation("FFX.exe", 0x4579E0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_CT_RetInt_0065
-        => new(new FhMethodLocation("FFX.exe", 0x457F60));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_transitionToMap
-        => new(new FhMethodLocation("FFX.exe", 0x4580C0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_warpToMap
-        => new(new FhMethodLocation("FFX.exe", 0x458370));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_CT_RetInt_006A
-        => new(new FhMethodLocation("FFX.exe", 0x4589F0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_CT_RetInt_01B6
-        => new(new FhMethodLocation("FFX.exe", 0x4594D0));
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_upgradeBrotherhoodRetInt
-        => new(new FhMethodLocation("FFX.exe", 0x4596A0));
-    private FhMethodHandle<FhGCall.d_CT_Init> h_SgEvent_showModularMenuInit
-        => new(new FhMethodLocation("FFX.exe", 0x678210));
-
-
-    //TODO: Remove this when updating to Fahrenheit alpha12
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate byte* d_MsWeaponName(ushort name_id, byte owner, [MarshalAs(UnmanagedType.Bool)] bool simplified, ushort* out_model_id);
-    public static FhMethodHandle<d_MsWeaponName> MsWeaponName
-        => new(new FhMethodLocation("FFX.exe", 0x3A0C70));
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public unsafe delegate void d_MsBtlGetInit();
+    private FhMethodHandle<d_MsBtlGetInit> MsBtlGetInit
+        => new(new FhMethodLocation("FFX.exe", 0x398b60));
 
     public static int* takara_pointer => FhUtil.ptr_at<int>(0xD35FEC);
     public static int* buki_get_pointer => FhUtil.ptr_at<int>(0xD35FF4);
@@ -106,16 +43,6 @@ public unsafe partial class ArchipelagoFFXModule {
         }
     }
 
-    public static int ignore_this = 11;
-    public int h_Map_800F_reimpl(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
-        int param_1 = atelStack->values.as_int()[0];
-        if (param_1 == ignore_this) {
-            atelStack->pop_int();
-            return 1;
-        }
-        return h_Map_800F.chain_from(h_Map_800F_reimpl).fnptr!(work, storage, atelStack);
-    }
-
     //public bool h_openFile(nint _this, nint filename, bool readOnly, nint unknown_1, nint unknown_2, nint unknown_3) {
     //    string x = Marshal.PtrToStringAnsi(filename)!;
     //    _logger.Debug($"{_this}, {x}, {readOnly}, {unknown_1}, {unknown_2}, {unknown_3}");
@@ -124,7 +51,7 @@ public unsafe partial class ArchipelagoFFXModule {
     //    return result;
     //}
 
-    private FhGCall.d_CT_RetInt[] custom_ct_retints;
+    private FhGCall.d_CT_RetI[] custom_ct_retints;
     private int   turnAroundScriptLength;
     private byte* turnAroundScript;
     private void init_custom_atel() {
@@ -182,20 +109,20 @@ public unsafe partial class ArchipelagoFFXModule {
     private bool hook() {
         FhApi.Events.Common.GameLoop.PreUpdate.subscribe(handle_input);
 
-        return h_Common_obtainTreasureInit.hook(this, Common_obtainTreasureInit)
-            && h_Common_obtainTreasureSilentlyInit.hook(this, Common_obtainTreasureSilentlyInit)
-            && h_Common_obtainBrotherhoodRetInt.hook(this, Common_obtainBrotherhoodRetInt)
-            && h_Common_setPrimerCollected.hook(this, Common_setPrimerCollected)
-            && h_Common_transitionToMap.hook(this, Common_transitionToMap)
-            && h_Common_warpToMap.hook(this, Common_warpToMap)
-            && h_SgEvent_showModularMenuInit.hook(this, SgEvent_showModularMenuInit)
-            && h_Common_addPartyMember.hook(this, Common_addPartyMember)
-            && h_Common_removePartyMember.hook(this, Common_removePartyMember)
-            && h_Common_removePartyMemberLongTerm.hook(this, Common_removePartyMemberLongTerm)
-            && h_Common_setWeaponInvisible.hook(this, Common_setWeaponInvisible)
-            && h_Common_putPartyMemberInSlot.hook(this, Common_putPartyMemberInSlot)
-            && h_Common_pushParty.hook(this, Common_pushParty)
-            && h_Common_popParty.hook(this, Common_popParty)
+        return FhXCall.AtelFn_Std_15B_Init.hook(this, Common_obtainTreasureInit)
+            && FhXCall.AtelFn_Std_1A7_Init.hook(this, Common_obtainTreasureSilentlyInit)
+            && FhXCall.AtelFn_Std_1B8_RetI.hook(this, Common_obtainBrotherhoodRetInt)
+            && FhXCall.AtelFn_Std_10D_RetI.hook(this, Common_setPrimerCollected)
+            && FhXCall.AtelFn_Std_011_RetI.hook(this, Common_transitionToMap)
+            && FhXCall.AtelFn_Std_10B_RetI.hook(this, Common_warpToMap)
+            && FhXCall.AtelFn_Sg_01D_Init.hook(this, SgEvent_showModularMenuInit)
+            && FhXCall.AtelFn_Std_0CA_RetI.hook(this, Common_addPartyMember)
+            && FhXCall.AtelFn_Std_0CB_RetI.hook(this, Common_removePartyMember)
+            && FhXCall.AtelFn_Std_1F9_RetI.hook(this, Common_removePartyMemberLongTerm)
+            && FhXCall.AtelFn_Std_240_RetI.hook(this, Common_setWeaponInvisible)
+            && FhXCall.AtelFn_Std_0E7_RetI.hook(this, Common_putPartyMemberInSlot)
+            && FhXCall.AtelFn_Std_111_RetI.hook(this, Common_pushParty)
+            && FhXCall.AtelFn_Std_112_RetI.hook(this, Common_popParty)
             && FhXCall.TkSetLegendAbility.hook(this, TkSetLegendAbility)
             && FhXCall.AtelEventSetUp.hook(this, AtelEventSetUp)
             && FhXCall.MsBattleExe.hook(this, MsBattleExe)
@@ -2210,7 +2137,7 @@ public unsafe partial class ArchipelagoFFXModule {
         atelStack->push_int(0x100);
         atelStack->push_int(0xd0);
         atelStack->push_int(4);
-        h_CT_RetInt_0065.fnptr!(work, storage, atelStack);
+        FhXCall.AtelFn_Std_065_RetI.fnptr!(work, storage, atelStack);
 
         TOMesWinWork* mesageWindowWorker = FhXCall.AtelGetMesWinWork.fnptr!(window_id);
         mesageWindowWorker->_0x20 = 0;
@@ -2221,7 +2148,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         atelStack->push_int(window_id);
         atelStack->push_int(0);
-        h_CT_RetInt_006A.fnptr!(work, storage, atelStack);
+        FhXCall.AtelFn_Std_06A_RetI.fnptr!(work, storage, atelStack);
 
         *storage = window_id;
         storage[1] = 1;
@@ -2229,7 +2156,7 @@ public unsafe partial class ArchipelagoFFXModule {
         storage[3] = (int)weapon_id;
 
         if (!gear_inv_is_full) {
-            FhXCall.MsBtlGetInit.fnptr!();
+            MsBtlGetInit.fnptr!();
         }
         FhXCall.FUN_0086a0c0.fnptr!();
         mesageWindowWorker->_0x1d |= 0x10;
@@ -2275,7 +2202,7 @@ public unsafe partial class ArchipelagoFFXModule {
         storage[3] = (int)weapon_id;
 
         if (!gear_inv_is_full) {
-            FhXCall.MsBtlGetInit.fnptr!();
+            MsBtlGetInit.fnptr!();
         }
     }
 
@@ -2288,7 +2215,7 @@ public unsafe partial class ArchipelagoFFXModule {
             obtain_item(item.id);
             return 1;
         }
-        return h_Common_obtainBrotherhoodRetInt.chain_from(Common_obtainBrotherhoodRetInt).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_1B8_RetI.chain_from(Common_obtainBrotherhoodRetInt).fnptr!(work, storage, atelStack);
     }
     private int Common_upgradeBrotherhoodRetInt(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         _logger.Debug("upgrade_brotherhoodRetInt");
@@ -2297,12 +2224,12 @@ public unsafe partial class ArchipelagoFFXModule {
             return 1;
         }
 
-        return h_Common_upgradeBrotherhoodRetInt.chain_from(Common_upgradeBrotherhoodRetInt).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_1B7_RetI.chain_from(Common_upgradeBrotherhoodRetInt).fnptr!(work, storage, atelStack);
     }
     private int Common_isBrotherhoodUnpoweredRetInt(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
         _logger.Debug("isBrotherhoodUnpoweredRetInt");
 
-        return h_CT_RetInt_01B6.chain_from(Common_isBrotherhoodUnpoweredRetInt).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_1B6_RetI.chain_from(Common_isBrotherhoodUnpoweredRetInt).fnptr!(work, storage, atelStack);
     }
     //private static int h_Common_grantCelestialUpgrade(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
     //    int character = atelStack->values.as_int()[0];
@@ -2347,7 +2274,7 @@ public unsafe partial class ArchipelagoFFXModule {
             return 1;
         }
 
-        return h_Common_setPrimerCollected.chain_from(Common_setPrimerCollected).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_10D_RetI.chain_from(Common_setPrimerCollected).fnptr!(work, storage, atelStack);
     }
 
     private void update_region_state() {
@@ -2497,7 +2424,7 @@ public unsafe partial class ArchipelagoFFXModule {
         _logger.Debug($"transition_to_map: map={map}, entrance={entrance}");
 
         if (handle_warp_transition(save_data->current_room_id, save_data->current_spawnpoint, ref map, ref entrance)) {
-            return h_Common_transitionToMap.chain_from(Common_transitionToMap).fnptr!(work, storage, atelStack);
+            return FhXCall.AtelFn_Std_011_RetI.chain_from(Common_transitionToMap).fnptr!(work, storage, atelStack);
         }
 
         return blockWarp(work, storage, atelStack);
@@ -2514,7 +2441,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
 
         if (handle_warp_transition(save_data->current_room_id, save_data->current_spawnpoint, ref map, ref entrance)) {
-            return h_Common_warpToMap.chain_from(Common_warpToMap).fnptr!(work, storage, atelStack);
+            return FhXCall.AtelFn_Std_10B_RetI.chain_from(Common_warpToMap).fnptr!(work, storage, atelStack);
         }
 
         return blockWarp(work, storage, atelStack);
@@ -2555,7 +2482,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
 
         _logger.Info($"Opening menu: type={menuTypeString}, index={index} {(unknown1 == 0x40 ? "" : $", Unknown1={unknown1}")} {(unknown2 == 0x00 ? "" : $", Unknown2={unknown2}")}");
-        h_SgEvent_showModularMenuInit.chain_from(SgEvent_showModularMenuInit).fnptr!(work, storage, atelStack);
+        FhXCall.AtelFn_Sg_01D_Init.chain_from(SgEvent_showModularMenuInit).fnptr!(work, storage, atelStack);
     }
 
 
@@ -2571,7 +2498,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
         //logger.Debug($"add_party_member: character={id_to_character[character]}");
 
-        return h_Common_addPartyMember.chain_from(Common_addPartyMember).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_0CA_RetI.chain_from(Common_addPartyMember).fnptr!(work, storage, atelStack);
     }
 
     public int Common_removePartyMember(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
@@ -2586,7 +2513,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
         //logger.Debug($"remove_party_member: character={id_to_character[character]}");
 
-        return h_Common_removePartyMember.chain_from(Common_removePartyMember).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_0CB_RetI.chain_from(Common_removePartyMember).fnptr!(work, storage, atelStack);
     }
 
     public int Common_removePartyMemberLongTerm(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
@@ -2601,7 +2528,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
         //logger.Debug($"remove_party_member_long_term: character={id_to_character[character]}");
 
-        return h_Common_removePartyMemberLongTerm.chain_from(Common_removePartyMemberLongTerm).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_1F9_RetI.chain_from(Common_removePartyMemberLongTerm).fnptr!(work, storage, atelStack);
     }
 
     public int Common_setWeaponInvisible(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
@@ -2613,7 +2540,7 @@ public unsafe partial class ArchipelagoFFXModule {
             atelStack->pop_int();
             return 0;
         }
-        return h_Common_setWeaponInvisible.chain_from(Common_setWeaponInvisible).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_240_RetI.chain_from(Common_setWeaponInvisible).fnptr!(work, storage, atelStack);
     }
 
     public int Common_putPartyMemberInSlot(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
@@ -2630,7 +2557,7 @@ public unsafe partial class ArchipelagoFFXModule {
         }
         //logger.Debug($"put_party_member_in_slot: slot={slot}, character={(character != 0xff ? id_to_character[character] : "Empty")}");
 
-        return h_Common_putPartyMemberInSlot.chain_from(Common_putPartyMemberInSlot).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Std_0E7_RetI.chain_from(Common_putPartyMemberInSlot).fnptr!(work, storage, atelStack);
     }
 
     public int Common_pushParty(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
@@ -3217,25 +3144,6 @@ public unsafe partial class ArchipelagoFFXModule {
 
     private Random rng = new Random();
 
-    public void call_obtain_brotherhood() {
-        AtelStack stack = new AtelStack();
-
-        int param_1 = 0;
-        int param_2 = 0;
-
-        h_Common_obtainBrotherhoodRetInt.fnptr!((AtelBasicWorker*)&param_1, &param_2, &stack);
-    }
-
-    public void receive_treasure(int id) {
-        AtelStack stack = new AtelStack();
-        stack.push_int(id);
-
-        int param_1 = 0;
-        int param_2 = 0;
-
-        h_Common_obtainTreasureSilentlyInit.chain_from(Common_obtainTreasureSilentlyInit).fnptr!((AtelBasicWorker*)&param_1, &param_2, &stack);
-    }
-
     public void set_airship_destinations() {
         _logger.Debug("set_airship_destinations");
         AtelBasicWorker* worker = Atel.controllers[0].worker(0);
@@ -3464,13 +3372,13 @@ public unsafe partial class ArchipelagoFFXModule {
         int[] storage_array = [0,0,0,0];
 
         fixed (int* storage = storage_array) {
-            h_Common_playFieldVoiceLineInit.fnptr!((AtelBasicWorker*)&work, storage, &stack);
-            h_Common_playFieldVoiceLineExec.fnptr!((AtelBasicWorker*)&work, storage);
-            h_Common_playFieldVoiceLineResultInt.fnptr!((AtelBasicWorker*)&work, storage, &stack);
+            FhXCall.AtelFn_Std_0D5_Init.fnptr!((AtelBasicWorker*)&work, storage, &stack); // playFieldVoiceLineInit
+            FhXCall.AtelFn_Std_0D5_Exec.fnptr!((AtelBasicWorker*)&work, storage); // playFieldVoiceLineExec
+            FhXCall.AtelFn_Std_0D5_RetI.fnptr!((AtelBasicWorker*)&work, storage, &stack); // playFieldVoiceLineResultInt
 
-            h_Common_00D6Init.fnptr!((AtelBasicWorker*)&work, storage, &stack);
-            h_Common_00D6Exec.fnptr!((AtelBasicWorker*)&work, storage);
-            h_Common_00D6ResultInt.fnptr!((AtelBasicWorker*)&work, storage, &stack);
+            FhXCall.AtelFn_Std_0D6_Init.fnptr!((AtelBasicWorker*)&work, storage, &stack);
+            FhXCall.AtelFn_Std_0D6_Exec.fnptr!((AtelBasicWorker*)&work, storage);
+            FhXCall.AtelFn_Std_0D6_RetI.fnptr!((AtelBasicWorker*)&work, storage, &stack);
 
         }
 
@@ -3490,7 +3398,7 @@ public unsafe partial class ArchipelagoFFXModule {
     private Dictionary<(ushort, byte), string> gear_name_cache = [];
     public string get_gear_name(ushort name_id, byte owner) {
         if (gear_name_cache.TryGetValue((name_id, owner), out var name)) return name;
-        byte* gear_name_ptr = MsWeaponName.fnptr!(name_id, owner, false, null);
+        byte* gear_name_ptr = FhXCall.MsWeaponName.fnptr!(name_id, owner, false, null);
         byte[] decoded = new byte[FhEncoding.compute_decode_buffer_size(new ReadOnlySpan<byte>(gear_name_ptr, 1000))];
         FhEncoding.decode(new ReadOnlySpan<byte>(gear_name_ptr, 1000), decoded, flags:FhEncodingFlags.IMPLICIT_END);
         string decoded_string = Encoding.UTF8.GetString(decoded);
@@ -3511,9 +3419,9 @@ public unsafe partial class ArchipelagoFFXModule {
         return $"Unnamed item ({item_id})";
     }
 
-    private Dictionary<int, FhGCall.d_CT_Exec>     cached_CT_Execs     = new();
-    private Dictionary<int, FhGCall.d_CT_RetInt>   cached_CT_RetInts   = new();
-    private Dictionary<int, FhGCall.d_CT_RetFloat> cached_CT_RetFloats = new();
+    private Dictionary<int, FhGCall.d_CT_Exec> cached_CT_Execs     = new();
+    private Dictionary<int, FhGCall.d_CT_RetI> cached_CT_RetInts   = new();
+    private Dictionary<int, FhGCall.d_CT_RetF> cached_CT_RetFloats = new();
 
     public FhGCall.d_CT_Exec get_CT_Exec(int id) {
         if (cached_CT_Execs.TryGetValue(id, out var result)) {
@@ -3527,26 +3435,26 @@ public unsafe partial class ArchipelagoFFXModule {
         return ct;
     }
 
-    public FhGCall.d_CT_RetInt get_CT_RetInt(int id) {
+    public FhGCall.d_CT_RetI get_CT_RetInt(int id) {
         if (cached_CT_RetInts.TryGetValue(id, out var result)) {
             return result;
         }
         AtelCallTargetNamespace nmsp = (AtelCallTargetNamespace)(id >> 0xC);
         AtelCallTarget* internal_ct = nmsp.get_internal() + (id & 0xFFF);
 
-        FhGCall.d_CT_RetInt ct = Marshal.GetDelegateForFunctionPointer<FhGCall.d_CT_RetInt>(internal_ct->ret_float_func);
+        FhGCall.d_CT_RetI ct = Marshal.GetDelegateForFunctionPointer<FhGCall.d_CT_RetI>(internal_ct->ret_float_func);
         cached_CT_RetInts[id] = ct;
         return ct;
     }
 
-    public FhGCall.d_CT_RetFloat get_CT_RetFloat(int id) {
+    public FhGCall.d_CT_RetF get_CT_RetFloat(int id) {
         if (cached_CT_RetFloats.TryGetValue(id, out var result)) {
             return result;
         }
         AtelCallTargetNamespace nmsp = (AtelCallTargetNamespace)(id >> 0xC);
         AtelCallTarget* internal_ct = nmsp.get_internal() + (id & 0xFFF);
 
-        FhGCall.d_CT_RetFloat ct = Marshal.GetDelegateForFunctionPointer<FhGCall.d_CT_RetFloat>(internal_ct->ret_float_func);
+        FhGCall.d_CT_RetF ct = Marshal.GetDelegateForFunctionPointer<FhGCall.d_CT_RetF>(internal_ct->ret_float_func);
         cached_CT_RetFloats[id] = ct;
         return ct;
     }
@@ -3843,7 +3751,7 @@ public unsafe partial class ArchipelagoFFXModule {
         // Warp
         atelStack->push_int(382);
         atelStack->push_int(0);
-        h_Common_warpToMap.fnptr!(work, storage, atelStack);
+        FhXCall.AtelFn_Std_10B_RetI.fnptr!(work, storage, atelStack);
         return 1;
     }
 
@@ -3907,7 +3815,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         // AE0300 D80F80 call Map.?show2DLayer [800Fh](layerIndex=3 [03h]);
         atelStack->push_int(3);
-        h_Map_show2DLayerResultInt.fnptr!(work, storage, atelStack);
+        FhXCall.AtelFn_Map_00F_RetI.fnptr!(work, storage, atelStack); // Map_show2DLayerResultInt
         return 1;
     }
 
@@ -3917,7 +3825,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         // AE0300 D81080 call Map.?hide2DLayer [8010h](layerIndex=3 [03h]);
         atelStack->push_int(3);
-        h_Map_hide2DLayerResultInt.fnptr!(work, storage, atelStack);
+        FhXCall.AtelFn_Map_010_RetI.fnptr!(work, storage, atelStack); // Map_hide2DLayerResultInt
         return 1;
     }
 
@@ -3944,7 +3852,7 @@ public unsafe partial class ArchipelagoFFXModule {
 
         atelStack->push_int(map);
         atelStack->push_int(entrance);
-        h_Common_transitionToMap.fnptr!(work, storage, atelStack);
+        FhXCall.AtelFn_Std_011_RetI.fnptr!(work, storage, atelStack);
 
         return 1;
     }

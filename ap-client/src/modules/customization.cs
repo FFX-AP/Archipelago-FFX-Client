@@ -20,17 +20,17 @@ public unsafe class CustomizationModule : FhModule {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void d_TOMenuGetControlPad();
     private static FhMethodHandle<d_TOMenuGetControlPad> TOMenuGetControlPad
-        => new(new FhMethodLocation("FFX.exe", 0x4be3e0));
+        => new(new FhMethodLocation("FFX.exe", 0x4be410));
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void d_TOMenuGetControlPadRep();
     private static FhMethodHandle<d_TOMenuGetControlPadRep> TOMenuGetControlPadRep
-        => new(new FhMethodLocation("FFX.exe", 0x4be440));
+        => new(new FhMethodLocation("FFX.exe", 0x4be470));
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void d_TOMenuGetControlPadTrg();
     private static FhMethodHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
-        => new(new FhMethodLocation("FFX.exe", 0x4be480));
+        => new(new FhMethodLocation("FFX.exe", 0x4be4b0));
 
 
     public enum CustomizationStatus : byte {
@@ -632,7 +632,7 @@ public unsafe class CustomizationModule : FhModule {
             // Header ("Item cost")
             pos_1 = new Vector2(1125f, 264f).game_remap_1080p();
             pos_2 = new Vector2(430f, 36f).game_remap_1080p();
-            FhXCall.FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+            FhXCall.FUN_004f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
         }
         //_TkMenuGetCurrentPlayer(); // Result is unused?
 
@@ -644,7 +644,7 @@ public unsafe class CustomizationModule : FhModule {
         // Header ("Abilities")
         pos_1 = new Vector2(366f, 264f).game_remap_1080p();
         pos_2 = new Vector2(430f, 36f).game_remap_1080p();
-        FhXCall.FUN_008f8bb0.fnptr!(7, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+        FhXCall.FUN_004f8bb0.fnptr!(7, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
 
         if (window->visible_item_offset == window->scroll_offset) {
             // Draw ability list
@@ -744,7 +744,7 @@ public unsafe class CustomizationModule : FhModule {
         // Header text
         pos_1 = new Vector2(365f, 320f).game_remap_1080p();
         pos_2 = new Vector2(430f,  36f).game_remap_1080p();
-        FhXCall.FUN_008f8bb0.fnptr!(0xf, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+        FhXCall.FUN_004f8bb0.fnptr!(0xf, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
 
         if (-1 < item_id) {
             pos_1 = new Vector2(970f, 312f).game_remap_1080p();
@@ -754,7 +754,7 @@ public unsafe class CustomizationModule : FhModule {
             // Header text ("Item cost")?
             pos_1 = new Vector2(1125f, 318f).game_remap_1080p();
             pos_2 = new Vector2(430f, 36f).game_remap_1080p();
-            FhXCall.FUN_008f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
+            FhXCall.FUN_004f8bb0.fnptr!(0x10, pos_1.X, pos_1.Y, pos_2.X, pos_2.Y);
         }
 
         int iVar2 = (int)new Vector2(0, 365f).game_remap_1080p().Y;
@@ -932,15 +932,15 @@ public unsafe class CustomizationModule : FhModule {
             TOMenuGetControlPadRep.fnptr!();
             TOMenuGetControlPadTrg.fnptr!();
 
-            bool just_pressed_up      = Globals.Input.up.is_pressed      && !_kaizou_was_pressed_up;
-            bool just_pressed_down    = Globals.Input.down.is_pressed    && !_kaizou_was_pressed_down;
-            bool just_pressed_confirm = Globals.Input.confirm.is_pressed && !_kaizou_was_pressed_confirm;
-            bool just_pressed_cancel  = Globals.Input.cancel.is_pressed  && !_kaizou_was_pressed_cancel;
+            bool just_pressed_up      = FhApi.Input.up.is_pressed      && !_kaizou_was_pressed_up;
+            bool just_pressed_down    = FhApi.Input.down.is_pressed    && !_kaizou_was_pressed_down;
+            bool just_pressed_confirm = FhApi.Input.confirm.is_pressed && !_kaizou_was_pressed_confirm;
+            bool just_pressed_cancel  = FhApi.Input.cancel.is_pressed  && !_kaizou_was_pressed_cancel;
 
-            _kaizou_was_pressed_up      = Globals.Input.up.is_pressed;
-            _kaizou_was_pressed_down    = Globals.Input.down.is_pressed;
-            _kaizou_was_pressed_confirm = Globals.Input.confirm.is_pressed;
-            _kaizou_was_pressed_cancel  = Globals.Input.cancel.is_pressed;
+            _kaizou_was_pressed_up      = FhApi.Input.up.is_pressed;
+            _kaizou_was_pressed_down    = FhApi.Input.down.is_pressed;
+            _kaizou_was_pressed_confirm = FhApi.Input.confirm.is_pressed;
+            _kaizou_was_pressed_cancel  = FhApi.Input.cancel.is_pressed;
 
             switch (window->current_state) {
                 case 0:
