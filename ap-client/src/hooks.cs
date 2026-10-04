@@ -126,7 +126,7 @@ public unsafe partial class ArchipelagoFFXModule {
             && FhXCall.TkSetLegendAbility.hook(this, TkSetLegendAbility)
             && FhXCall.AtelEventSetUp.hook(this, AtelEventSetUp)
             && FhXCall.MsBattleExe.hook(this, MsBattleExe)
-            && FhXCall.FUN_003917D0.hook(this, FUN_003917D0)
+            && FhXCall.FUN_003917d0.hook(this, FUN_003917d0)
             && FhXCall.MsApUp.hook(this, MsApUp)
             && FhXCall.MsBtlReadSetScene.hook(this, MsBtlReadSetScene)
             && FhXCall.eiAbmParaGet.hook(this, eiAbmParaGet)
@@ -2158,7 +2158,7 @@ public unsafe partial class ArchipelagoFFXModule {
         if (!gear_inv_is_full) {
             MsBtlGetInit.fnptr!();
         }
-        FhGCall.FUN_0046A130_00324820.fnptr!();
+        FhGCall.FUN_0046a130_00324820.fnptr!();
         mesageWindowWorker->_0x1d |= 0x10;
     }
 
@@ -2615,8 +2615,8 @@ public unsafe partial class ArchipelagoFFXModule {
     }
 
     // Battle loop?
-    public void FUN_003917D0() {
-        FhXCall.FUN_003917D0.chain_from(FUN_003917D0).fnptr!();
+    public void FUN_003917d0() {
+        FhXCall.FUN_003917d0.chain_from(FUN_003917d0).fnptr!();
         string encounter_name = Marshal.PtrToStringAnsi((nint)(&Battle.btl->field_name))!;
         byte battle_end_type = Battle.btl->battle_end_type;
         byte battle_state = Battle.btl->battle_state;
@@ -3738,7 +3738,7 @@ public unsafe partial class ArchipelagoFFXModule {
                 atelStack->push_int(2); // signal priority?
                 atelStack->push_int(0); // worker
                 atelStack->push_int(entry_point); // entrypoint
-                FhXCall.FUN_004673D0.fnptr!((byte)AtelOp.REQEW & 0x7F, work, &work->threads[work->current_thread_priority], atelStack, 0);
+                FhXCall.FUN_004673d0.fnptr!((byte)AtelOp.REQEW & 0x7F, work, &work->threads[work->current_thread_priority], atelStack, 0);
                 work->__0x34 = (ushort)(work->__0x34 & 0xEBFF | 0x800);
                 //work->__0x34 = (ushort)(work->__0x34 | 0x800);
                 atelStack->pop_int();

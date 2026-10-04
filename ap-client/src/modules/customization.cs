@@ -679,7 +679,7 @@ public unsafe class CustomizationModule : FhModule {
             FUN_004d5d50_Extra(window, 2, window->scroll_offset, 0, iVar2);
         }
 
-        FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
+        FhXCall.FUN_004c1370_DrawScissor512x416.fnptr!();
 
         pos_1 = new Vector2(389f, 325f).game_remap_1080p();
         FhXCall.FUN_004d5df0.fnptr!(window, (int)pos_1.X, (int)pos_1.Y);
@@ -795,7 +795,7 @@ public unsafe class CustomizationModule : FhModule {
         }
 
         FUN_004cd990_Extra(window, iVar6, sVar1, 0.0f, fVar10);
-        FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
+        FhXCall.FUN_004c1370_DrawScissor512x416.fnptr!();
 
         ushort _DAT_0186a5a4 = FhUtil.get_at<ushort>(0x146A5E4);
         ushort _DAT_0186a5a6 = FhUtil.get_at<ushort>(0x146A5E6);
