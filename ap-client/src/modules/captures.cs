@@ -518,8 +518,8 @@ public unsafe class CaptureModule : FhModule {
         int* g_keybattle = FhUtil.ptr_at<int>(0xD2CA24);
         int* g_keydown_R = FhUtil.ptr_at<int>(0xD2CA20);
         int* DAT_0112ca28 = FhUtil.ptr_at<int>(0xD2CA28);
-        int* g_encounter_level = FhUtil.ptr_at<int>(0x8421C8);
-        int* EnableBattle = FhUtil.ptr_at<int>(0x8421BC);
+        int* g_encounter_level = FhUtil.ptr_at<int>(0x8421D8);
+        int* EnableBattle = FhUtil.ptr_at<int>(0x8421CC);
 
         // _logger.Info($"  g_keybattle = {*g_keybattle}");
         // _logger.Info($"  g_keydown_R = {*g_keydown_R}");

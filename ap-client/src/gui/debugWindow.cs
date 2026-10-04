@@ -780,7 +780,7 @@ public unsafe class ArchipelagoGuiModule : FhModule {
         }
 
         if (Battle.btl->battle_state != 0) {
-            ImGui.Text($"Battle Name: {Marshal.PtrToStringAnsi((nint)FhUtil.ptr_at<char>(0xD2C25A))}");
+            ImGui.Text($"Battle Name: {Marshal.PtrToStringAnsi((nint)(&Battle.btl->field_name))}");
         } else {
 #if DEBUG
             fixed (uint* battle_input = &LaunchBattleInput) {

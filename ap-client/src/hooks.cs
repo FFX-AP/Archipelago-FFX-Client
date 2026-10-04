@@ -29,8 +29,8 @@ public unsafe partial class ArchipelagoFFXModule {
     private FhMethodHandle<d_MsBtlGetInit> MsBtlGetInit
         => new(new FhMethodLocation("FFX.exe", 0x398b60));
 
-    public static int* takara_pointer => FhUtil.ptr_at<int>(0xD35FEC);
-    public static int* buki_get_pointer => FhUtil.ptr_at<int>(0xD35FF4);
+    public static int* takara_pointer => FhUtil.ptr_at<int>(0xD35FF4);
+    public static int* buki_get_pointer => FhUtil.ptr_at<int>(0xD35FFC);
 
     public static char* get_event_name(uint event_id) => FhXCall.AtelGetEventName.fnptr!(event_id);
     public static int atel_stack_pop(AtelBasicWorker* work, AtelStack* atelStack) => FhXCall.AtelPopStackInteger.fnptr!(work, atelStack);
@@ -2664,7 +2664,7 @@ public unsafe partial class ArchipelagoFFXModule {
     private void* curr_pos_area_ptr = null;
     public byte MsBtlReadSetScene() {
         byte result = FhXCall.MsBtlReadSetScene.chain_from(MsBtlReadSetScene).fnptr!();
-        _logger.Info($"Battle Name: {Marshal.PtrToStringAnsi((nint)FhUtil.ptr_at<char>(0xD2C25A))}");
+        _logger.Info($"Battle Name: {Marshal.PtrToStringAnsi((nint)(&Battle.btl->field_name))}");
         //ref BtlAreas original_pos_struct = ref *Battle.btl->ptr_pos_def;
         BtlAreasHelper original_pos_struct = new BtlAreasHelper(Battle.btl->ptr_pos_def);
         if (original_pos_struct.areas.Length == 0) return result;

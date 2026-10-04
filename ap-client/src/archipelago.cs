@@ -757,7 +757,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
             }
         }
 
-        uint TkSndReadVoice = FhUtil.get_at<uint>(0xF2FED0);
+        uint TkSndReadVoice = FhUtil.get_at<uint>(0xF2FF10);
         if (queued_voice_lines.Count > 0 && TkSndReadVoice == 0) {
             play_voice_line(queued_voice_lines.Dequeue());
         }

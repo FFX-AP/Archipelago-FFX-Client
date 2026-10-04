@@ -227,7 +227,7 @@ public unsafe class SphereGridQolModule : FhModule {
             lpamng->moving_progress = 1.0f;
         }
 
-        float speed_mult = FhUtil.get_at<int>(0x8e82a4) switch {
+        float speed_mult = FhUtil.get_at<int>(0x8e82b4) switch {
             0 => 1.0f,
             1 => 2.0f,
             2 => 4.0f,

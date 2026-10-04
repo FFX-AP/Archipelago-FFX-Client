@@ -90,8 +90,8 @@ public unsafe class CustomizationModule : FhModule {
     }
 
     public void PrepareMenuList_InitList() {
-        ushort* _DAT_01597330 = FhUtil.ptr_at<ushort>(0x1197330);
-        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        ushort* _DAT_01597330 = FhUtil.ptr_at<ushort>(0x1197370);
+        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
 
         for (int i = 0; i < 0x200; i++) {
             menu_list_iter[i].a_ability_id = 0;
@@ -100,12 +100,12 @@ public unsafe class CustomizationModule : FhModule {
             _DAT_01597330[i] = 0;
         }
 
-        FhUtil.set_at<uint>(0x146A20C, 0);
+        FhUtil.set_at<uint>(0x146A24C, 0);
     }
 
     public void PrepareMenuList_SetLength(uint added, uint skipped) {
-        FhUtil.set_at<uint>(0x146A20C, added + skipped);
-        FhUtil.set_at<uint>(0x146A210, uint.Max(added, 1));
+        FhUtil.set_at<uint>(0x146A24C, added + skipped);
+        FhUtil.set_at<uint>(0x146A250, uint.Max(added, 1));
     }
 
     public void PrepareMenuList_Customization(Equipment* gear) {
@@ -129,7 +129,7 @@ public unsafe class CustomizationModule : FhModule {
 
         // Init list
         PrepareMenuList_InitList();
-        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
 
         // Prepare list
         Span<uint> ability_international_bonuses = stackalloc uint[4];
@@ -249,7 +249,7 @@ public unsafe class CustomizationModule : FhModule {
 
         // Init list
         PrepareMenuList_InitList();
-        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        CustomizationMenuList* menu_list_iter = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
 
         byte current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
 
@@ -322,10 +322,10 @@ public unsafe class CustomizationModule : FhModule {
     ///     </ul>
     /// </summary>
     public void h_UpdateGearCustomizationMenuState(TkWindow* window) {
-        uint* state = FhUtil.ptr_at<uint>(0x146AA28);
+        uint* state = FhUtil.ptr_at<uint>(0x146AA68);
         uint pre_state = *state;
 
-        ushort* p_DAT_0186a9f8 = (ushort*)FhUtil.get_at<uint>(0x146A9F8);
+        ushort* p_DAT_0186a9f8 = (ushort*)FhUtil.get_at<uint>(0x146AA38);
 
         bool break_loop = false;
         while (!break_loop) {
@@ -367,7 +367,7 @@ public unsafe class CustomizationModule : FhModule {
                 }
 
                 case 6: {
-                    TkWindow* GearSelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
+                    TkWindow* GearSelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146AA30); // DAT_0186a9f0
                     ushort gear_index = p_DAT_0186a9f8[GearSelectionWindow->selected_index];
                     Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_index, 0);
 
@@ -423,9 +423,9 @@ public unsafe class CustomizationModule : FhModule {
                 }
 
                 case 13: {
-                    TkWindow* AbilitySelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146A9F4); // PTR_0186a9f4
-                    TkWindow* GearSelectionWindow    = (TkWindow*)FhUtil.get_at<uint>(0x146A9F0); // DAT_0186a9f0
-                    CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+                    TkWindow* AbilitySelectionWindow = (TkWindow*)FhUtil.get_at<uint>(0x146AA34); // PTR_0186a9f4
+                    TkWindow* GearSelectionWindow    = (TkWindow*)FhUtil.get_at<uint>(0x146AA30); // DAT_0186a9f0
+                    CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
 
                     short selected_ability = AbilitySelectionWindow->selected_index;
                     CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
@@ -435,7 +435,7 @@ public unsafe class CustomizationModule : FhModule {
                     byte* gear_name = null;
                     Equipment* gear = FhXCall.MsGetSaveWeapon.fnptr!(gear_index, (nint)(&gear_name));
 
-                    byte* previous_gear_name = FhUtil.ptr_at<byte>(0x146AA30);
+                    byte* previous_gear_name = FhUtil.ptr_at<byte>(0x146AA70);
                     for (int i = 0;; i++) {
                         previous_gear_name[i] = gear_name![i];
                         if (gear_name[i] == 0) break;
@@ -452,7 +452,7 @@ public unsafe class CustomizationModule : FhModule {
                     FhGCall.SndSepPlaySimple.fnptr!(0x80000063);
                     FhXCall.MsGetSaveWeapon.fnptr!(p_DAT_0186a9f8[GearSelectionWindow->selected_index], (nint)(&gear_name));
 
-                    byte* new_gear_name = FhUtil.ptr_at<byte>(0x146AA70);
+                    byte* new_gear_name = FhUtil.ptr_at<byte>(0x146AAB0);
                     for (int i = 0;; i++) {
                         new_gear_name[i] = gear_name[i];
                         if (gear_name[i] == 0) break;
@@ -522,9 +522,9 @@ public unsafe class CustomizationModule : FhModule {
             ) {
                 // Applied customization
 
-                TkWindow* DAT_0186a9f4 = (TkWindow*)FhUtil.get_at<uint>(0x0146A9F4);
+                TkWindow* DAT_0186a9f4 = (TkWindow*)FhUtil.get_at<uint>(0x146AA34);
                 short selected_idx = DAT_0186a9f4->selected_index;
-                CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+                CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
                 CustomizationRecipe* recipes = FhXCall.MsGetRomKaizou.fnptr!(null);
 
                 byte recipe_idx = menu_list[selected_idx].recipe_idx;
@@ -570,8 +570,8 @@ public unsafe class CustomizationModule : FhModule {
             _logger.Debug($"{pre_state} -> {state}");
 
             if (pre_state == 21 && recipes_option != RecipesOption.ALWAYS_FREE) {
-                TkWindow* DAT_0186a568 = (TkWindow*)FhUtil.get_at<uint>(0x0146a568);
-                CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+                TkWindow* DAT_0186a568 = (TkWindow*)FhUtil.get_at<uint>(0x146A5A8);
+                CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
                 AeonAbilityRecipe* recipes = FhXCall.MsGetRomSummonGrow.fnptr!(null);
 
                 short selected_idx = DAT_0186a568->selected_index;
@@ -601,7 +601,8 @@ public unsafe class CustomizationModule : FhModule {
         }
     }
 
-    public void h_DrawGearCustomizationMenu(TkWindow* window) {CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+    public void h_DrawGearCustomizationMenu(TkWindow* window) {
+        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
         short selected_idx = window->selected_index;
         Vector2 pos_1;
         Vector2 pos_2;
@@ -694,7 +695,7 @@ public unsafe class CustomizationModule : FhModule {
 
         {
             // Draw gear name
-            uint _DAT_0186a9f0 = FhUtil.get_at<uint>(0x146A9F0);
+            uint _DAT_0186a9f0 = FhUtil.get_at<uint>(0x146AA30);
             int iVar2 = *(short*)(_DAT_0186a9f0 + 0x48);
             pos_1 = new Vector2(970f, 659f).game_remap_1080p();
             FhXCall.FUN_008d6630.fnptr!((int)pos_1.X, (int)pos_1.Y, iVar2);
@@ -708,7 +709,7 @@ public unsafe class CustomizationModule : FhModule {
         FhXCall.FUN_008e71d0.fnptr!(7);
         uint current_summon = FhXCall.TkMenuGetCurrentSummon.fnptr!();
 
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
         short selected_idx = window->selected_index;
 
         Vector2 pos_1;
@@ -796,8 +797,8 @@ public unsafe class CustomizationModule : FhModule {
         FUN_008cd960_Extra(window, iVar6, sVar1, 0.0f, fVar10);
         FhXCall.FUN_008c1350_DrawScissor512x416.fnptr!();
 
-        ushort _DAT_0186a5a4 = FhUtil.get_at<ushort>(0x0146a5a4);
-        ushort _DAT_0186a5a6 = FhUtil.get_at<ushort>(0x0146a5a6);
+        ushort _DAT_0186a5a4 = FhUtil.get_at<ushort>(0x146A5E4);
+        ushort _DAT_0186a5a6 = FhUtil.get_at<ushort>(0x146A5E6);
         FhXCall.FUN_008cd9f0.fnptr!(window, _DAT_0186a5a4 + 0xc, _DAT_0186a5a6 + 1);
 
         float local_8;
@@ -855,7 +856,7 @@ public unsafe class CustomizationModule : FhModule {
             pos.Y -= (float)(new Vector2(0, 70f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
         }
 
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
         short menu_length = window->num_items;
         for (int i = -1; i < 10; i++) {
             int curr_index = menu_offset + i;
@@ -884,7 +885,7 @@ public unsafe class CustomizationModule : FhModule {
             pos.Y -= (float)(new Vector2(0, 75f).game_remap_1080p().Y * window->scroll_delta * 0.00024414063); // Scroll offset
         }
 
-        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197730);
+        CustomizationMenuList* menu_list = FhUtil.ptr_at<CustomizationMenuList>(0x1197770);
         short menu_length = window->num_items;
         for (int i = -1; i < 10; i++) {
             int curr_index = menu_offset + i;
