@@ -1305,6 +1305,20 @@ public unsafe partial class ArchipelagoFFXModule {
                 _logger.Debug($"atel_event_setup: Redirect Overdrive Sin post-battle warp");
                 set(code_ptr, 0x500E, AtelOp.PUSHII.build(382));
                 break;
+            case "sins0400":
+                set(code_ptr, 0x8416, [
+                        AtelOp.PUSHII   .build(0),
+                        AtelOp.CALL     .build(0x018A),
+                        .. Enumerable.Range(1, 7).SelectMany<int, AtelInst>( i => [
+                                AtelOp.PUSHII   .build((ushort)i),
+                                AtelOp.CALL     .build(0x018A),
+                                AtelOp.ADD      .build(),
+                        ]),
+
+                        AtelOp.POPV     .build(0x0003),
+                        AtelOp.JMP      .build(0x0000),
+                    ]);
+                break;
             case "sins0700":
                 _logger.Debug($"atel_event_setup: Handle removing Aeons");
 
