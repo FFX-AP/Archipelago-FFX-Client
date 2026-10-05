@@ -38,7 +38,7 @@ public unsafe class SphereGridQolModule : FhModule {
         _global_state = global_state_file;
 
         return FhXCall.AbmapState_MovingToTarget.hook(this, h_move_speed)
-            && FhXCall.FUN_00a56160.hook(this, h_move_confirm)
+            && FhXCall.FUN_00656160.hook(this, h_move_confirm)
             && FhXCall.AbmapState_MovingToTarget.hook(this, h_state_moving)
             && FhXCall.AbmapState_Warping.hook(this, h_state_warping)
             && FhXCall.AbmapState_ChangingNode.hook(this, h_change_node);
@@ -227,7 +227,7 @@ public unsafe class SphereGridQolModule : FhModule {
             lpamng->moving_progress = 1.0f;
         }
 
-        float speed_mult = FhUtil.get_at<int>(0x8e82a4) switch {
+        float speed_mult = FhUtil.get_at<int>(0x8e82b4) switch {
             0 => 1.0f,
             1 => 2.0f,
             2 => 4.0f,
@@ -307,7 +307,7 @@ public unsafe class SphereGridQolModule : FhModule {
 
         knots_counted = 0;
 
-        FhXCall.FUN_00a56160.chain_from(h_move_confirm).fnptr!(p1, p2, p3);
+        FhXCall.FUN_00656160.chain_from(h_move_confirm).fnptr!(p1, p2, p3);
 
         // If we cancelled it, also deactivate all activated nodes
         if (p3 == 1 && temporarily_activated_nodes.Count > 0) {

@@ -23,9 +23,6 @@ public unsafe class OverdriveModule : FhModule {
     private ArchipelagoClientModule? _client;
     private ArchipelagoFFXModule? _ffx_interop;
 
-    private FhMethodHandle<FhGCall.d_CT_RetInt> h_ret_doesChrKnowCommand
-        => new(new FhMethodLocation("FFX.exe", 0x3A30C0));
-
     // Damage Calc
     [StructLayout(LayoutKind.Explicit, Size = 0x2C)]
     private struct DamageInfo {
@@ -197,7 +194,7 @@ public unsafe class OverdriveModule : FhModule {
             && FhXCall.MsSetRamChrAbility.hook(this, h_MsSetRamChrAbility)
             && FhXCall.MsLimitTidusLearn.hook(this, h_MsLimitTidusLearn)
             && FhXCall.AfterDamageProcess.hook(this, h_MsAfterDamageProcess)
-            && h_ret_doesChrKnowCommand.hook(this, ret_doesChrKnowCommand)
+            && FhXCall.AtelFn_Btl_106_RetI.hook(this, ret_doesChrKnowCommand)
             && FhXCall.MsSetSaveCommandWithPrefix.hook(this, h_MsSetSaveCommandWithPrefix)
             && FhXCall.TOBtlDrawLearningMessageWindow.hook(this, h_TOBtlDrawLearningMessageWindow);
     }
@@ -500,7 +497,7 @@ public unsafe class OverdriveModule : FhModule {
 
         atelStack->push_int(chr_id);
         atelStack->push_int(com_id);
-        return h_ret_doesChrKnowCommand.chain_from(ret_doesChrKnowCommand).fnptr!(work, storage, atelStack);
+        return FhXCall.AtelFn_Btl_106_RetI.chain_from(ret_doesChrKnowCommand).fnptr!(work, storage, atelStack);
     }
 
     // Called from teachAbilityToPartyMemberSilently & teachAbilityToPartyMemberWithMsg
@@ -541,7 +538,7 @@ public unsafe class OverdriveModule : FhModule {
         }
 
         byte* btl_text = FhXCall.MsGetRomBtlText.fnptr!(0x300d, 0);
-        FhXCall.FUN_0089db10.fnptr!(0, btl_text);
+        FhXCall.FUN_0049dba0.fnptr!(0, btl_text);
 
         return 7;
     }

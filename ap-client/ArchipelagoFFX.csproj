@@ -1,4 +1,4 @@
-﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha11">
+﻿<Project Sdk="Fahrenheit.Sdk/1.0.0-alpha12">
 	<!-- ASSEMBLY ADDITIONAL PROPERTIES -->
 	<PropertyGroup>
 		<AssemblyName>archipelago-ffx</AssemblyName>
