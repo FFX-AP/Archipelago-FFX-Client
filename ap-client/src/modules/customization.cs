@@ -19,18 +19,18 @@ namespace ArchipelagoFFX;
 public unsafe class CustomizationModule : FhModule {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void d_TOMenuGetControlPad();
-    private static FhMethodHandle<d_TOMenuGetControlPad> TOMenuGetControlPad
-        => new(new FhMethodLocation("FFX.exe", 0x4be410));
+    private static FhCallHandle<d_TOMenuGetControlPad> TOMenuGetControlPad
+        => new(new FhCallLocation("FFX.exe", 0x4be410));
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void d_TOMenuGetControlPadRep();
-    private static FhMethodHandle<d_TOMenuGetControlPadRep> TOMenuGetControlPadRep
-        => new(new FhMethodLocation("FFX.exe", 0x4be470));
+    private static FhCallHandle<d_TOMenuGetControlPadRep> TOMenuGetControlPadRep
+        => new(new FhCallLocation("FFX.exe", 0x4be470));
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void d_TOMenuGetControlPadTrg();
-    private static FhMethodHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
-        => new(new FhMethodLocation("FFX.exe", 0x4be4b0));
+    private static FhCallHandle<d_TOMenuGetControlPadTrg> TOMenuGetControlPadTrg
+        => new(new FhCallLocation("FFX.exe", 0x4be4b0));
 
 
     public enum CustomizationStatus : byte {

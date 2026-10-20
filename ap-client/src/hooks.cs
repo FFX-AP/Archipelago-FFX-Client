@@ -19,15 +19,15 @@ using FhXCall = Fahrenheit.FFX.FhCall;
 namespace ArchipelagoFFX;
 
 public unsafe partial class ArchipelagoFFXModule {
-    //private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_linkFieldToBattleActor
-    //    => new(new FhMethodLocation("FFX.exe", 0x45CA00));
-    //private FhMethodHandle<FhGCall.d_CT_RetInt> h_Common_loadModel
-    //    => new(new FhMethodLocation("FFX.exe", 0x45CE70));
+    //private FhCallHandle<FhGCall.d_CT_RetInt> h_Common_linkFieldToBattleActor
+    //    => new(new FhCallLocation("FFX.exe", 0x45CA00));
+    //private FhCallHandle<FhGCall.d_CT_RetInt> h_Common_loadModel
+    //    => new(new FhCallLocation("FFX.exe", 0x45CE70));
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     public unsafe delegate void d_MsBtlGetInit();
-    private FhMethodHandle<d_MsBtlGetInit> MsBtlGetInit
-        => new(new FhMethodLocation("FFX.exe", 0x398b60));
+    private FhCallHandle<d_MsBtlGetInit> MsBtlGetInit
+        => new(new FhCallLocation("FFX.exe", 0x398b60));
 
     public static int* takara_pointer => FhUtil.ptr_at<int>(0xD35FF4);
     public static int* buki_get_pointer => FhUtil.ptr_at<int>(0xD35FFC);
@@ -96,7 +96,7 @@ public unsafe partial class ArchipelagoFFXModule {
         customNameSpace = new AtelCallTarget[custom_ct_retints.Length];
 
         for (int i = 0; i < custom_ct_retints.Length; i++) {
-            customNameSpace[i].ret_int_func = Marshal.GetFunctionPointerForDelegate(custom_ct_retints[i]);
+            customNameSpace[i].fnptr_reti = (delegate* unmanaged[Cdecl]<AtelBasicWorker*, int*, AtelStack*, int>)Marshal.GetFunctionPointerForDelegate(custom_ct_retints[i]);
         }
 
         customNameSpaceHandle = GCHandle.Alloc(customNameSpace, GCHandleType.Pinned);
@@ -2140,11 +2140,11 @@ public unsafe partial class ArchipelagoFFXModule {
         FhXCall.AtelFn_Std_065_RetI.fnptr!(work, storage, atelStack);
 
         TOMesWinWork* mesageWindowWorker = FhXCall.AtelGetMesWinWork.fnptr!(window_id);
-        mesageWindowWorker->_0x20 = 0;
+        mesageWindowWorker->__0x20 = 0;
         mesageWindowWorker->text = message_text;
-        mesageWindowWorker->_0xc = message_text;
-        mesageWindowWorker->_0x16 = 0;
-        mesageWindowWorker->_0x18 = 0;
+        mesageWindowWorker->__0xc = message_text;
+        mesageWindowWorker->__0x16 = 0;
+        mesageWindowWorker->__0x18 = 0;
 
         atelStack->push_int(window_id);
         atelStack->push_int(0);
@@ -2159,7 +2159,7 @@ public unsafe partial class ArchipelagoFFXModule {
             MsBtlGetInit.fnptr!();
         }
         FhGCall.FUN_0046a130_00324820.fnptr!();
-        mesageWindowWorker->_0x1d |= 0x10;
+        mesageWindowWorker->__0x1d |= 0x10;
     }
 
     private void Common_obtainTreasureSilentlyInit(AtelBasicWorker* work, int* storage, AtelStack* atelStack) {
@@ -3417,46 +3417,6 @@ public unsafe partial class ArchipelagoFFXModule {
             return overdrive_names[item_id];
 
         return $"Unnamed item ({item_id})";
-    }
-
-    private Dictionary<int, FhGCall.d_CT_Exec> cached_CT_Execs     = new();
-    private Dictionary<int, FhGCall.d_CT_RetI> cached_CT_RetInts   = new();
-    private Dictionary<int, FhGCall.d_CT_RetF> cached_CT_RetFloats = new();
-
-    public FhGCall.d_CT_Exec get_CT_Exec(int id) {
-        if (cached_CT_Execs.TryGetValue(id, out var result)) {
-            return result;
-        }
-        AtelCallTargetNamespace nmsp = (AtelCallTargetNamespace)(id >> 0xC);
-        AtelCallTarget* internal_ct = nmsp.get_internal() + (id & 0xFFF);
-
-        FhGCall.d_CT_Exec ct = Marshal.GetDelegateForFunctionPointer<FhGCall.d_CT_Exec>(internal_ct->ret_float_func);
-        cached_CT_Execs[id] = ct;
-        return ct;
-    }
-
-    public FhGCall.d_CT_RetI get_CT_RetInt(int id) {
-        if (cached_CT_RetInts.TryGetValue(id, out var result)) {
-            return result;
-        }
-        AtelCallTargetNamespace nmsp = (AtelCallTargetNamespace)(id >> 0xC);
-        AtelCallTarget* internal_ct = nmsp.get_internal() + (id & 0xFFF);
-
-        FhGCall.d_CT_RetI ct = Marshal.GetDelegateForFunctionPointer<FhGCall.d_CT_RetI>(internal_ct->ret_float_func);
-        cached_CT_RetInts[id] = ct;
-        return ct;
-    }
-
-    public FhGCall.d_CT_RetF get_CT_RetFloat(int id) {
-        if (cached_CT_RetFloats.TryGetValue(id, out var result)) {
-            return result;
-        }
-        AtelCallTargetNamespace nmsp = (AtelCallTargetNamespace)(id >> 0xC);
-        AtelCallTarget* internal_ct = nmsp.get_internal() + (id & 0xFFF);
-
-        FhGCall.d_CT_RetF ct = Marshal.GetDelegateForFunctionPointer<FhGCall.d_CT_RetF>(internal_ct->ret_float_func);
-        cached_CT_RetFloats[id] = ct;
-        return ct;
     }
 
     // Custom namespace
