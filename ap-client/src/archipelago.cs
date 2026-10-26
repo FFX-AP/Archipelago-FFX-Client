@@ -12,7 +12,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -578,7 +577,7 @@ public unsafe partial class ArchipelagoFFXModule : FhModule {
                 return;
             }
 
-            if (save_version < new SemVer(0, 9, 0, "alpha")) {
+            if (save_version < new SemVer(0, 10, 0, "alpha")) {
                 string message = "Incompatible version. Returning to main menu";
                 _gui!.add_log_message([(message, Color.Red)]);
                 _logger.Info(message);
