@@ -235,8 +235,8 @@ public unsafe class DeathLinkModule : FhModule {
 
         for (int chr_id = 0; chr_id <= PlySaveId.PC_SEYMOUR; chr_id++) {
             // Disable Escape & Flee commands
-            FhXCall.FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
-            FhXCall.FUN_0079b480.fnptr!(chr_id, PlayerCommandId.PCOM_FLEE, 1);
+            FhXCall.FUN_0039b470.fnptr!(chr_id, PlayerCommandId.PCOM_ESCAPE, 1);
+            FhXCall.FUN_0039b470.fnptr!(chr_id, PlayerCommandId.PCOM_FLEE, 1);
         }
 
         _deathlinks_queued -= 1;
