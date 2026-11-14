@@ -52,7 +52,7 @@ public unsafe class OverdriveModule : FhModule {
         [FieldOffset(0x03)] public byte        field3_0x3;
         [FieldOffset(0x04)] public byte        field4_0x4;
         [FieldOffset(0x05)] public byte        field5_0x5;
-        [FieldOffset(0x05)] public byte        field6_0x6;
+        [FieldOffset(0x06)] public byte        field6_0x6;
         [FieldOffset(0x07)] public byte        field7_0x7;
         [FieldOffset(0x08)] public short       field8_0x8;
         [FieldOffset(0x0A)] public short       field10_0xA;
